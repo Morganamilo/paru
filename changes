@@ -1,0 +1,14 @@
+packages are now cloned to ~/.cache/yay/clone by default
+use asp for repo pkgbuilds
+improve news printing
+formatting changes to be more pacman like
+-Yc accounts for makedeps for aur packages
+devel info is now saved to devel.json
+devel info schema change
+remove: --timeupdate, --requestsplitn
+remove: --save -Pg --Pd -Ps
+remove: -Gf
+sources are no longer downloaded in batch
+remove: --cleanmenu
+dont treat every package as possibly devel
+--needed can be passed twice to skip up to date packages early

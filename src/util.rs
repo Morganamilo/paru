@@ -1,0 +1,337 @@
+use crate::config::{Config, NO_CONFIRM};
+use crate::{esprintln, sprint, sprintln};
+
+use std::cell::Cell;
+use std::collections::HashMap;
+use std::io::{stdin, stdout, BufRead, Write};
+use std::ops::Range;
+
+use alpm::PackageReason;
+use alpm_utils::{DbListExt, Targ};
+use anyhow::Result;
+
+#[derive(Debug)]
+pub struct NumberMenu<'a> {
+    pub in_range: Vec<Range<usize>>,
+    pub ex_range: Vec<Range<usize>>,
+    pub in_word: Vec<&'a str>,
+    pub ex_word: Vec<&'a str>,
+}
+
+pub fn split_repo_aur_pkgs<'a>(config: &Config, pkgs: &[&'a str]) -> (Vec<&'a str>, Vec<&'a str>) {
+    let mut local = Vec::new();
+    let mut aur = Vec::new();
+
+    for &pkg in pkgs {
+        if config.alpm.syncdbs().pkg(pkg).is_ok() {
+            local.push(pkg);
+        } else {
+            aur.push(pkg);
+        }
+    }
+
+    (local, aur)
+}
+
+pub fn split_repo_aur_mode<'a>(config: &Config, pkgs: &[&'a str]) -> (Vec<&'a str>, Vec<&'a str>) {
+    if config.mode == "aur" {
+        (Vec::new(), pkgs.to_vec())
+    } else if config.mode == "repo" {
+        (pkgs.to_vec(), Vec::new())
+    } else {
+        split_repo_aur_pkgs(config, pkgs)
+    }
+}
+
+pub fn split_repo_aur_targets<'a>(
+    config: &Config,
+    targets: &[Targ<'a>],
+) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
+    let mut local = Vec::new();
+    let mut aur = Vec::new();
+
+    for &targ in targets {
+        if config.mode == "aur" {
+            aur.push(targ);
+        } else if config.mode == "repo" {
+            local.push(targ);
+        } else if let Some(repo) = targ.repo {
+            if repo == "aur" {
+                aur.push(targ);
+            } else {
+                local.push(targ);
+            }
+        } else if config
+            .alpm
+            .syncdbs()
+            .find_target_satisfier(targ.pkg)
+            .unwrap()
+            .is_some()
+            || config
+                .alpm
+                .syncdbs()
+                .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
+                .any(|db| db.group(targ.pkg).is_ok())
+        {
+            local.push(targ);
+        } else {
+            aur.push(targ);
+        }
+    }
+
+    (local, aur)
+}
+
+pub fn ask(config: &Config, question: &str, default: bool) -> bool {
+    let action = config.color.action;
+    let bold = config.color.bold;
+    let yn = if default { "[Y/n]:" } else { "[n/Y]:" };
+    sprint!(
+        "{} {} {} ",
+        action.paint("::"),
+        bold.paint(question),
+        bold.paint(yn)
+    );
+    let _ = stdout().lock().flush();
+    if config.no_confirm {
+        sprintln!();
+        return default;
+    }
+    let stdin = stdin();
+    let mut input = String::new();
+    let _ = stdin.read_line(&mut input);
+    let input = input.to_lowercase();
+    let input = input.trim();
+
+    if input == "y" || input == "yes" {
+        true
+    } else if input == "n" || input == "no" {
+        false
+    } else {
+        default
+    }
+}
+
+pub fn input(config: &Config, question: &str) -> String {
+    let action = config.color.action;
+    let bold = config.color.bold;
+    sprint!("{} {}", action.paint("::"), bold.paint(question),);
+    let _ = stdout().lock().flush();
+    if config.no_confirm {
+        sprintln!();
+        return "".into();
+    }
+    let stdin = stdin();
+    let mut input = String::new();
+    let _ = stdin.read_line(&mut input);
+    input
+}
+
+#[derive(Hash, PartialEq, Eq, SmartDefault, Copy, Clone)]
+enum State {
+    #[default]
+    Remove,
+    CheckDeps,
+    Keep,
+}
+
+pub fn unneded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a str>> {
+    let mut states = HashMap::new();
+    let mut remove = Vec::new();
+    let db = config.alpm.localdb();
+
+    let mut providers = HashMap::<_, Vec<_>>::new();
+
+    let pkgs = db.pkgs()?.map(|p| p.name()).collect::<Vec<_>>();
+    let (_, aur) = split_repo_aur_pkgs(config, &pkgs);
+
+    for pkg in db.pkgs()? {
+        providers
+            .entry(pkg.name().to_string())
+            .or_default()
+            .push(pkg.name());
+        for dep in pkg.provides() {
+            providers
+                .entry(dep.name().to_string())
+                .or_default()
+                .push(pkg.name())
+        }
+
+        if pkg.reason() == PackageReason::Explicit {
+            states.insert(pkg.name(), Cell::new(State::CheckDeps));
+        } else {
+            states.insert(pkg.name(), Cell::new(State::Remove));
+        }
+    }
+
+    let mut again = true;
+
+    while again {
+        again = false;
+
+        let mut check_deps = |deps: alpm::AlpmList<alpm::Depend>| {
+            for dep in deps {
+                if let Some(deps) = providers.get(dep.name()) {
+                    for dep in deps {
+                        let state = states.get(dep).unwrap();
+
+                        if state.get() != State::Keep {
+                            state.set(State::CheckDeps);
+                            again = true;
+                        }
+                    }
+                }
+            }
+        };
+
+        for (&pkg, state) in &states {
+            if state.get() != State::CheckDeps {
+                continue;
+            }
+
+            if let Ok(pkg) = db.pkg(pkg) {
+                state.set(State::Keep);
+                check_deps(pkg.depends());
+
+                if config.clean > 1 {
+                    continue;
+                }
+
+                if optional {
+                    check_deps(pkg.optdepends());
+                }
+
+                if aur.iter().any(|&a| a == pkg.name()) {
+                    check_deps(pkg.makedepends());
+                    check_deps(pkg.checkdepends());
+                }
+            }
+        }
+    }
+
+    for pkg in db.pkgs()? {
+        if states.get(pkg.name()).unwrap().get() == State::Remove {
+            remove.push(pkg.name());
+        }
+    }
+
+    Ok(remove)
+}
+
+impl<'a> NumberMenu<'a> {
+    pub fn new(input: &'a str) -> Self {
+        let mut inclue_range = Vec::new();
+        let mut exclude_range = Vec::new();
+        let mut inclue_repo = Vec::new();
+        let mut exclude_repo = Vec::new();
+
+        let words = input
+            .split(|c: char| c.is_whitespace() || c == ',')
+            .filter(|s| !s.is_empty());
+
+        for mut word in words {
+            let mut invert = false;
+            if word.starts_with('^') {
+                word = word.trim_start_matches('^');
+                invert = true;
+            }
+
+            let mut split = word.split('-');
+            let start_str = split.next().unwrap();
+
+            let start = match start_str.parse::<usize>() {
+                Ok(start) => start,
+                Err(_) => {
+                    if invert {
+                        exclude_repo.push(start_str);
+                    } else {
+                        inclue_repo.push(start_str);
+                    }
+                    continue;
+                }
+            };
+
+            let end = match split.next() {
+                Some(end) => end,
+                None => {
+                    if invert {
+                        exclude_range.push(start..start + 1);
+                    } else {
+                        inclue_range.push(start..start + 1);
+                    }
+                    continue;
+                }
+            };
+
+            match end.parse::<usize>() {
+                Ok(end) => {
+                    if invert {
+                        exclude_range.push(start..end + 1)
+                    } else {
+                        inclue_range.push(start..end + 1)
+                    }
+                }
+                _ => {
+                    if invert {
+                        exclude_repo.push(start_str)
+                    } else {
+                        inclue_repo.push(start_str)
+                    }
+                }
+            }
+        }
+
+        NumberMenu {
+            in_range: inclue_range,
+            ex_range: exclude_range,
+            in_word: inclue_repo,
+            ex_word: exclude_repo,
+        }
+    }
+
+    pub fn contains(&self, n: usize, word: &str) -> bool {
+        if self.in_range.iter().any(|r| r.contains(&n)) || self.in_word.contains(&word) {
+            true
+        } else if self.ex_range.iter().any(|r| r.contains(&n)) || self.ex_word.contains(&word) {
+            false
+        } else {
+            self.in_range.is_empty() && self.in_word.is_empty()
+        }
+    }
+}
+
+pub fn get_provider(max: usize) -> usize {
+    let mut input = String::new();
+
+    loop {
+        sprint!("\nEnter a number (default=1): ");
+        let _ = stdout().lock().flush();
+        input.clear();
+
+        if !NO_CONFIRM.get().unwrap() {
+            let stdin = stdin();
+            let mut stdin = stdin.lock();
+            let _ = stdin.read_line(&mut input);
+        }
+
+        let num = input.trim();
+        if num.is_empty() {
+            return 0;
+        }
+
+        let num = match num.parse::<usize>() {
+            Err(_) => {
+                esprintln!("invalid number: {}", num);
+                continue;
+            }
+            Ok(num) => num,
+        };
+
+        if num < 1 || num > max {
+            esprintln!("invalid value: {} is not between 1 and {}", num, max);
+            continue;
+        }
+
+        return num - 1;
+    }
+}
