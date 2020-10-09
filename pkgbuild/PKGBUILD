@@ -1,0 +1,43 @@
+# Maintainer: Morgan <morganamilo@archlinux.org>
+pkgname=yay.rs-git
+_pkgname=yay.rs
+pkgver=0.0.1.r1.f81d969
+pkgrel=1
+pkgdesc='Rust port of yay'
+url='https://github.com/morganamilo/yay.rs'
+source=("git+https://github.com/morganamilo/yay.rs")
+arch=('x86_64' 'i686')
+license=('GPL3')
+
+makedepends=('cargo')
+depends=('git' 'pacman' 'vifm')
+conflicts=('yay')
+
+options+=(!strip)
+
+sha256sums=(SKIP)
+
+build () {
+  cd "$srcdir/$_pkgname"
+
+  if pacman -T pacman-git > /dev/null; then
+    _features+="git,"
+  fi
+
+  if [[ $(rustc -V) == *"nightly"* ]]; then
+    _features+="backtrace,"
+  fi
+
+  YAY_VERSION=$pkgver cargo build --features "${_features:-}" --release
+}
+
+package() {
+  cd "$srcdir/$_pkgname"
+  install -Dm755 target/release/yay "${pkgdir}/usr/bin/yay"
+}
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  printf "0.0.1.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
