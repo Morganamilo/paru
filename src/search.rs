@@ -62,12 +62,17 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
     };
 
     if by == SearchBy::NameDesc {
-        let mut targets = targets.to_vec();
-        let pkgs = config.raur.search_by(targets.pop().unwrap(), by)?;
+        let target = targets.iter().max_by_key(|t| t.len()).unwrap();
+        let pkgs = config.raur.search_by(target, by)?;
         matches.extend(pkgs);
+        matches.retain(|p| {
+            targets.iter().all(|t| {
+                p.name.contains(t) | p.description.as_ref().unwrap_or(&String::new()).contains(t)
+            })
+        });
     } else if by == SearchBy::Name {
-        let mut targets = targets.to_vec();
-        let pkgs = config.raur.search_by(targets.pop().unwrap(), by)?;
+        let target = targets.iter().max_by_key(|t| t.len()).unwrap();
+        let pkgs = config.raur.search_by(target, by)?;
         matches.extend(pkgs);
         matches.retain(|p| targets.iter().all(|t| p.name.contains(t)));
     } else {
@@ -76,6 +81,7 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
             matches.extend(pkgs);
         }
     }
+
     match config.sort_by.as_str() {
         "votes" => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
         "popularity" => matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap()),
