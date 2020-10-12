@@ -1,7 +1,7 @@
 # Maintainer: Morgan <morganamilo@archlinux.org>
 pkgname=yay.rs-git
 _pkgname=yay.rs
-pkgver=0.0.1.r1.f81d969
+pkgver=0.0.1.r3.4a1f723
 pkgrel=1
 pkgdesc='Rust port of yay'
 url='https://github.com/morganamilo/yay.rs'
@@ -34,6 +34,7 @@ build () {
 package() {
   cd "$srcdir/$_pkgname"
   install -Dm755 target/release/yay "${pkgdir}/usr/bin/yay"
+  install -Dm644 yay.conf "${pkgdir}/etc/yay.conf"
 }
 
 pkgver() {
