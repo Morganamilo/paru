@@ -118,11 +118,10 @@ fn main() {
 }
 
 fn run(config: &mut Config) -> Result<i32> {
-    if let Ok(file) = read_to_string(&config.config_path) {
-        config.parse(
-            Some(config.config_path.display().to_string().as_str()),
-            &file,
-        )?;
+    if let Some(ref config_path) = config.config_path {
+        let file = read_to_string(config_path)?;
+        let name = config_path.display().to_string();
+        config.parse(Some(name.as_str()), &file)?;
     };
 
     let args = std::env::args().skip(1);

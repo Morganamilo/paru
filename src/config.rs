@@ -135,7 +135,7 @@ pub struct Config {
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub devel_path: PathBuf,
-    pub config_path: PathBuf,
+    pub config_path: Option<PathBuf>,
 
     pub news: u32,
     pub gendb: bool,
@@ -252,15 +252,24 @@ impl Config {
         let color = Colors::from("never");
         let cols = term_size::dimensions_stdout().map(|v| v.0);
 
-        let config = Self {
+        let mut config = Self {
             devel_path,
             cols,
             cache_dir,
             color,
             build_dir,
-            config_path,
             ..Self::default()
         };
+
+        if config_path.exists() {
+            config.config_path = Some(config_path);
+        } else {
+            let config_path = PathBuf::from("/etc/yay.conf");
+
+            if config_path.exists() {
+                config.config_path = Some(config_path);
+            }
+        }
 
         Ok(config)
     }
