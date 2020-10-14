@@ -13,7 +13,6 @@ use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
 use atty::Stream::Stdout;
 use cini::{Callback, CallbackKind, Ini};
-use nix::fcntl::{fcntl, FcntlArg};
 use nix::unistd::dup2;
 use once_cell::sync::OnceCell;
 use std::os::unix::io::AsRawFd;
@@ -637,15 +636,9 @@ fn validate(key: String, valid: &[&str]) -> Result<String> {
 
 fn reopen_stdin() -> Result<()> {
     let stdin_fd = 0;
+    let file = File::open("/dev/tty")?;
 
-    let stdin_status = fcntl(stdin_fd, FcntlArg::F_GETFD)?;
-
-    if stdin_status == 0 {
-        let file = File::open("/dev/tty")?;
-        let fd = file.as_raw_fd();
-
-        dup2(fd, stdin_fd)?;
-    }
+    dup2(file.as_raw_fd(), stdin_fd)?;
 
     Ok(())
 }
