@@ -108,11 +108,12 @@ pub fn get_upgrades(
     config: &Config,
     mut aur_upgrades: Vec<aur_depends::AurUpdate>,
 ) -> Result<Upgrades> {
-    let mut devel_upgrades = if config.devel {
+    let mut devel_upgrades = if config.devel && config.mode != "repo" {
         devel_updates(config)?
     } else {
         Vec::new()
     };
+
     let repo_upgrades = if config.mode != "aur" && config.combined_upgrade {
         repo_upgrades(config)?
     } else {
@@ -127,6 +128,10 @@ pub fn get_upgrades(
     let mut repo_keep = Vec::new();
     let mut aur_skip = Vec::new();
     let mut aur_keep = Vec::new();
+
+    if devel_upgrades.is_empty() && aur_upgrades.is_empty() {
+        return Ok(Upgrades::default());
+    }
 
     if !config.upgrade_menu {
         let upgrades = Upgrades {
