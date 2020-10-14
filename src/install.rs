@@ -226,6 +226,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         return Ok(1);
     }
 
+    if targets.is_empty() {
+        return Ok(0);
+    }
+
     sprintln!(
         "{} {}",
         c.action.paint("::"),
