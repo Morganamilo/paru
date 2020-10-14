@@ -16,6 +16,7 @@ use futures::future::{join_all, try_join_all};
 use serde::{Deserialize, Serialize};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
+use raur_ext::RaurExt;
 
 #[derive(Serialize, Deserialize, SmartDefault, Debug, Eq, Clone)]
 pub struct RepoInfo {
@@ -176,7 +177,7 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
 pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     rt.block_on(async {
-        let devel_info = load_devel_info(config)?.unwrap_or_default();
+        let mut devel_info = load_devel_info(config)?.unwrap_or_default();
         let mut futures = Vec::new();
 
         for (pkg, repos) in &devel_info.info {
@@ -186,8 +187,18 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         }
 
         let updates = join_all(futures).await;
-        let mut updates = updates.into_iter().filter_map(|u| u).collect::<Vec<_>>();
-        updates.sort();
+        let updates = updates.into_iter().filter_map(|u| u).collect::<Vec<_>>();
+
+        let info = config.raur.info_ext(&updates)?;
+
+
+        for update in &updates {
+            if !info.iter().any(|i| &i.name == update) {
+                devel_info.info.remove(update);
+            }
+        }
+
+        save_devel_info(config, &devel_info)?;
 
         Ok(updates)
     })
