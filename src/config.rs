@@ -3,6 +3,7 @@ use crate::fmt::color_repo;
 use crate::util::get_provider;
 use crate::{sprint, sprintln};
 
+use std::env::var;
 use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::PathBuf;
@@ -285,6 +286,10 @@ impl Config {
         let mut iter = iter.peekable();
         let mut op_count = 0;
         let mut end_of_ops = false;
+
+        if let Ok(aurdest) = var("AURDEST") {
+            self.build_dir = aurdest.into();
+        }
 
         while let Some(arg) = iter.next() {
             let value = iter.peek().map(|s| s.as_ref());
