@@ -158,12 +158,12 @@ pub fn get_upgrades(
     let old_max = repo_upgrades
         .iter()
         .map(|p| db.pkg(p.name()).unwrap().version().as_str().len())
-        .chain(aur_upgrades.iter().map(|p| p.local.name().len()))
+        .chain(aur_upgrades.iter().map(|p| p.local.version().len()))
         .chain(
             devel_upgrades
                 .iter()
                 .filter_map(|p| db.pkg(p).ok())
-                .map(|p| p.name().len()),
+                .map(|p| p.version().len()),
         )
         .max()
         .unwrap_or(0);
