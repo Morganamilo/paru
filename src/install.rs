@@ -343,6 +343,7 @@ fn install_actions(
     let ret = Command::new(&config.fm)
         .args(&config.fm_flags)
         .arg(view.path())
+        .current_dir(view.path())
         .spawn()?
         .wait()?;
     ensure!(ret.success(), "file manager did not execute successfully");

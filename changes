@@ -1,4 +1,4 @@
-packages are now cloned to ~/.cache/yay/clone by default
+packages are now cloned to ~/.cache/paru/clone by default
 use asp for repo pkgbuilds
 improve news printing
 formatting changes to be more pacman like

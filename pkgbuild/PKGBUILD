@@ -1,17 +1,16 @@
 # Maintainer: Morgan <morganamilo@archlinux.org>
-pkgname=yay.rs-git
-_pkgname=yay.rs
+pkgname=paru-git
+_pkgname=paru
 pkgver=0.0.1.r8.78e5f2f
 pkgrel=1
-pkgdesc='Rust port of yay'
-url='https://github.com/morganamilo/yay.rs'
-source=("git+https://github.com/morganamilo/yay.rs#branch=dev")
+pkgdesc='AUR helper based on yay'
+url='https://github.com/morganamilo/paru'
+source=("git+https://github.com/morganamilo/paru")
 arch=('x86_64' 'i686')
 license=('GPL3')
 
 makedepends=('cargo')
 depends=('git' 'pacman' 'vifm')
-conflicts=('yay')
 
 options+=(!strip)
 
@@ -28,13 +27,13 @@ build () {
     _features+="backtrace,"
   fi
 
-  YAY_VERSION=$pkgver cargo build --features "${_features:-}" --release
+  PARU_VERSION=$pkgver cargo build --features "${_features:-}" --release
 }
 
 package() {
   cd "$srcdir/$_pkgname"
-  install -Dm755 target/release/yay "${pkgdir}/usr/bin/yay"
-  install -Dm644 yay.conf "${pkgdir}/etc/yay.conf"
+  install -Dm755 target/release/paru "${pkgdir}/usr/bin/paru"
+  install -Dm644 paru.conf "${pkgdir}/etc/paru.conf"
 }
 
 pkgver() {

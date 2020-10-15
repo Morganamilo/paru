@@ -1,5 +1,5 @@
 [package]
-name = "yay"
+name = "paru"
 version = "0.0.1"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"

@@ -231,7 +231,7 @@ impl Ini for Config {
             CallbackKind::Directive(_, key, value) => self.parse_directive(key, value),
         };
 
-        let filename = cb.filename.unwrap_or("yay.conf");
+        let filename = cb.filename.unwrap_or("paru.conf");
         err.map_err(|e| anyhow!("{}:{}: {}", filename, cb.line_number, e))
     }
 }
@@ -239,13 +239,13 @@ impl Ini for Config {
 impl Config {
     pub fn new() -> Result<Self> {
         let cache = dirs::cache_dir().ok_or_else(|| anyhow!("failed to find cache directory"))?;
-        let cache = cache.join("yay");
+        let cache = cache.join("paru");
         let config =
             dirs::config_dir().ok_or_else(|| anyhow!("failed to find config directory"))?;
-        let config = config.join("yay");
+        let config = config.join("paru");
 
         let build_dir = cache.join("clone");
-        let config_path = config.join("yay.conf");
+        let config_path = config.join("paru.conf");
         let devel_path = cache.join("devel.json");
         let cache_dir = cache;
 
@@ -264,7 +264,7 @@ impl Config {
         if config_path.exists() {
             config.config_path = Some(config_path);
         } else {
-            let config_path = PathBuf::from("/etc/yay.conf");
+            let config_path = PathBuf::from("/etc/paru.conf");
 
             if config_path.exists() {
                 config.config_path = Some(config_path);
@@ -623,8 +623,8 @@ fn help() {
 }
 
 fn version() {
-    let ver = option_env!("YAY_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
-    sprint!("yay v{}", ver);
+    let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+    sprint!("paru v{}", ver);
     #[cfg(feature = "git")]
     sprint!(" +git");
     #[cfg(feature = "backtrace")]
