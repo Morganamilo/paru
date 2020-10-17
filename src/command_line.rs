@@ -277,6 +277,8 @@ impl Config {
             Arg::Long("show") | Arg::Short('P') => set_op("show"),
             Arg::Long("getpkgbuild") | Arg::Short('G') => set_op("getpkgbuild"),
             // globals
+            Arg::Long("noconfirm") => self.no_confirm = true,
+            Arg::Long("confirm") => self.no_confirm = false,
             Arg::Long("dbpath") | Arg::Short('b') => self.db_path = Some(value?.to_string()),
             Arg::Long("root") | Arg::Short('r') => self.root = Some(value?.to_string()),
             Arg::Long("verbose") | Arg::Short('v') => self.verbose = true,
