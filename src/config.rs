@@ -490,13 +490,11 @@ impl Config {
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
             "FileManager" => self.fm = Some(value),
-            "MakepkgFlags" => self.mflags.extend(split),
+            "MFlags" => self.mflags.extend(split),
             "GitFlags" => self.git_flags.extend(split),
             "GpgFlags" => self.gpg_flags.extend(split),
             "SudoFlags" => self.sudo_flags.extend(split),
-            "FmFlags" => self.fm_flags.extend(split),
-            "MakepkgConf" => self.makepkg_conf = Some(value),
-            "PacmanConf" => self.pacman_conf = Some(value),
+            "FileManagerFlags" => self.fm_flags.extend(split),
             _ => bail!("unkown option '{}'", key),
         };
 
@@ -537,7 +535,7 @@ impl Config {
             "Devel" => self.devel = true,
             "CleanAfter" => self.clean_after = true,
             "Provides" => self.provides = true,
-            "PGPFetch" => self.pgp_fetch = true,
+            "PgpFetch" => self.pgp_fetch = true,
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
@@ -581,6 +579,7 @@ impl Config {
             "SearchBy" => self.search_by = validate(value?, search_by)?,
             "RequestSplit" => self.request_split = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
+            "PacmanConf" => self.pacman_conf = Some(value?.to_string()),
             _ => ok2 = false,
         };
 
