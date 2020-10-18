@@ -4,7 +4,6 @@ use crate::util::split_repo_aur_mode;
 use crate::{esprintln, sprint, sprintln};
 
 use std::collections::{HashMap, HashSet};
-use std::fmt::{Display, Formatter};
 use std::fs::read_dir;
 use std::io::Write;
 use std::iter::FromIterator;
@@ -14,35 +13,15 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use ansi_term::Style;
 use anyhow::{bail, Context, Result};
+use aur_depends::Base;
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
 #[derive(Debug, Clone)]
-pub struct Base {
-    pub pkgs: Vec<Package>,
-}
-
-#[derive(Debug, Clone)]
 pub struct Bases {
     pub bases: Vec<Base>,
-}
-
-impl Display for Base {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.pkgs.len() == 1 && self.pkgs[0].name == self.package_base() {
-            f.write_str(&self.pkgs[0].name)?;
-        } else {
-            write!(f, "{} ({}", self.package_base(), self.pkgs[0].name)?;
-            for pkg in self.pkgs.iter().skip(1) {
-                f.write_str(&pkg.name)?;
-                f.write_str(" ")?;
-            }
-            f.write_str(")")?;
-        }
-        Ok(())
-    }
 }
 
 impl FromIterator<Package> for Bases {
@@ -50,16 +29,6 @@ impl FromIterator<Package> for Bases {
         let mut bases = Bases::new();
         bases.extend(iter);
         bases
-    }
-}
-
-impl Base {
-    pub fn package_base(&self) -> &str {
-        &self.pkgs[0].package_base
-    }
-
-    pub fn version(&self) -> &str {
-        &self.pkgs[0].version
     }
 }
 
@@ -71,12 +40,22 @@ impl Bases {
     pub fn push(&mut self, pkg: Package) {
         for base in &mut self.bases {
             if base.package_base() == pkg.package_base {
-                base.pkgs.push(pkg);
+                base.pkgs.push(aur_depends::AurPackage {
+                    pkg,
+                    make: false,
+                    target: false,
+                });
                 return;
             }
         }
 
-        self.bases.push(Base { pkgs: vec![pkg] })
+        self.bases.push(Base {
+            pkgs: vec![aur_depends::AurPackage {
+                pkg,
+                make: false,
+                target: false,
+            }],
+        })
     }
 
     pub fn extend<I: IntoIterator<Item = Package>>(&mut self, iter: I) {

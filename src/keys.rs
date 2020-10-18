@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::download::{Base, Bases};
+use crate::download::Bases;
 use crate::sprintln;
 use crate::util::ask;
 
@@ -7,6 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
 use anyhow::{Context, Result};
+use aur_depends::Base;
 use srcinfo::Srcinfo;
 
 pub fn check_pgp_keys(
