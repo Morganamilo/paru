@@ -333,7 +333,6 @@ fn install_actions(
         }
     }
 
-    // TODO menu stuff
     let pkgs = actions
         .build
         .iter()
@@ -343,9 +342,26 @@ fn install_actions(
     if let Some(ref fm) = config.fm {
         file_manager(config, fm, &pkgs)?;
     } else {
-        for pkg in &pkgs {
+        let mut printed = false;
+        let unseen = config.fetch.unseen(&pkgs)?;
+        let has_diff = config.fetch.has_diff(&unseen)?;
+        for pkg in &has_diff {
             config.fetch.print_diff(pkg)?;
             sprint!("\n\n\n");
+            printed = true;
+        }
+        for pkg in &unseen {
+            if !has_diff.contains(pkg) {
+                let path = config.build_dir.join(pkg).join("PKGBUILD");
+                let pkgbuild = std::fs::read_to_string(&path)
+                    .context(format!("failed to open {}", path.display()))?;
+                sprint!("{}\n\n\n", pkgbuild);
+                printed = true;
+            }
+        }
+
+        if !printed {
+            sprintln!(" nothing new to review");
         }
     }
 
