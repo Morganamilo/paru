@@ -273,7 +273,6 @@ impl Config {
             Arg::Long("sync") | Arg::Short('S') => set_op("sync"),
             Arg::Long("deptest") | Arg::Short('T') => set_op("deptest"),
             Arg::Long("upgrade") | Arg::Short('U') => set_op("upgrade"),
-            Arg::Long("yay") | Arg::Short('Y') => set_op("yay"),
             Arg::Long("show") | Arg::Short('P') => set_op("show"),
             Arg::Long("getpkgbuild") | Arg::Short('G') => set_op("getpkgbuild"),
             // globals
