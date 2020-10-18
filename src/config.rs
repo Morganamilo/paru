@@ -649,27 +649,32 @@ fn reopen_stdin() -> Result<()> {
 }
 
 fn question(question: &mut Question) {
-    let _c = COLORS.get().unwrap();
+    let c = COLORS.get().unwrap();
 
     match question {
         Question::SelectProvider(question) => {
             let providers = question.providers();
             let len = providers.len();
 
-            // TODO format
             sprintln!();
-            sprintln!(
+            let prompt = format!(
                 "There are {} providers avaliable for {}:",
                 len,
                 question.depend()
             );
+            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
             let mut db = String::new();
             for (n, pkg) in providers.enumerate() {
                 let pkg_db = pkg.db().unwrap();
                 if pkg_db.name() != db {
                     db = pkg_db.name().to_string();
-                    sprintln!("Repository {}:", color_repo(pkg_db.name()));
+                    sprintln!(
+                        "{} {} {}:",
+                        c.action.paint("::"),
+                        c.bold.paint("Repository"),
+                        color_repo(pkg_db.name())
+                    );
                     sprint!("    ");
                 }
                 sprint!("{}) {}  ", n + 1, pkg.name());

@@ -106,11 +106,15 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     config.init_alpm()?;
 
     let mut resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &config.raur, flags)
-        .provider_callback(|dep, pkgs| {
-            // TODO formmat
-            sprintln!();
-            sprintln!("There are {} providers avaliable for {}:", pkgs.len(), dep);
-            sprintln!("Repository AUR:");
+        .provider_callback(move |dep, pkgs| {
+            let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
+            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+            sprintln!(
+                "{} {} {}:",
+                c.action.paint("::"),
+                c.bold.paint("Repository"),
+                color_repo("AUR")
+            );
             sprint!("    ");
             for (n, pkg) in pkgs.iter().enumerate() {
                 sprint!("{}) {}  ", n + 1, pkg);
