@@ -62,8 +62,8 @@ fn aur_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
     let file = BufReader::new(file);
 
     for line in file.split(b'\n') {
-        let _ = w.write(&line?);
-        let _ = w.write(b" AUR\n");
+        let _ = w.write_all(&line?);
+        let _ = w.write_all(b" AUR\n");
     }
 
     Ok(())
@@ -72,10 +72,10 @@ fn aur_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
 fn repo_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
     for db in config.alpm.syncdbs() {
         for pkg in db.pkgs()? {
-            let _ = w.write(pkg.name().as_bytes());
-            let _ = w.write(b" ");
-            let _ = w.write(db.name().as_bytes());
-            let _ = w.write(b"\n");
+            let _ = w.write_all(pkg.name().as_bytes());
+            let _ = w.write_all(b" ");
+            let _ = w.write_all(db.name().as_bytes());
+            let _ = w.write_all(b"\n");
         }
     }
 
