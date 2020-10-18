@@ -461,11 +461,22 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         return Ok((Vec::new(), Vec::new()));
     }
 
-    //TODO format
-    sprintln!("Calculating conflicts...");
+    sprintln!(
+        "{} {}",
+        c.action.paint("::"),
+        c.bold.paint("Calculating conflicts...")
+    );
     let conflicts = actions.calculate_conflicts()?;
-    sprintln!("Calculating inner conflicts...");
+    sprintln!(
+        "{} {}",
+        c.action.paint("::"),
+        c.bold.paint("Calculating inner conflicts...")
+    );
     let inner_conflicts = actions.calculate_inner_conflicts()?;
+
+    if !conflicts.is_empty() || !inner_conflicts.is_empty() {
+        esprintln!();
+    }
 
     if !inner_conflicts.is_empty() {
         esprintln!(
@@ -478,10 +489,11 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
             esprint!("    {}: ", conflict.pkg);
 
             for conflict in &conflict.conflicting {
-                esprint!("{}  ", conflict.pkg);
+                esprint!("{}", conflict.pkg);
                 if let Some(conflict) = &conflict.conflict {
                     esprint!(" ({})", conflict);
                 }
+                esprint!("  ");
             }
             esprintln!();
         }
@@ -499,10 +511,11 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
             esprint!("    {}: ", conflict.pkg);
 
             for conflict in &conflict.conflicting {
-                esprint!("{}  ", conflict.pkg);
+                esprint!("{}", conflict.pkg);
                 if let Some(conflict) = &conflict.conflict {
                     esprint!(" ({})", conflict);
                 }
+                esprint!("  ");
             }
             esprintln!();
         }
