@@ -196,6 +196,9 @@ pub struct Config {
     pub sudo_flags: Vec<String>,
     pub fm_flags: Vec<String>,
 
+    pub upgrade_menu: bool,
+    pub answer_upgrade: Option<String>,
+
     pub makepkg_conf: Option<String>,
     pub pacman_conf: Option<String>,
 
@@ -501,7 +504,6 @@ impl Config {
     fn parse_option(&mut self, key: &str, value: Option<&str>) -> Result<()> {
         let no_all = &["no", "all"];
         let yes_no_ask = &["yes", "no", "ask"];
-        let no_all_tree = &["no", "all", "tree"];
         let sort_by = &[
             "votes",
             "popularity",
@@ -537,18 +539,23 @@ impl Config {
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
-            "Rebuild" => {
-                let value = value.unwrap_or("all").into();
-                self.rebuild = validate(value, no_all_tree)?;
-            }
-
             "Redownload" => {
                 let value = value.unwrap_or("all").into();
                 self.redownload = validate(value, no_all)?;
             }
+            "Rebuild" => {
+                let value = value.unwrap_or("all").into();
+                self.rebuild = validate(value, no_all)?;
+            }
             "RemoveMake" => {
                 let value = value.unwrap_or("yes").into();
                 self.remove_make = validate(value, yes_no_ask)?;
+            }
+            "UpgradeMenu" => {
+                self.upgrade_menu = true;
+                if let Some(value) = value {
+                    self.answer_upgrade = Some(value.to_string());
+                }
             }
             _ => ok1 = false,
         }
@@ -566,6 +573,7 @@ impl Config {
             "AurUrl" => self.aur_url = value?.parse()?,
             "BuildDir" => self.build_dir = PathBuf::from(value?),
             "Redownload" => self.redownload = validate(value?, no_all)?,
+            "Rebuild" => self.rebuild = validate(value?, no_all)?,
             "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,
             "SortBy" => self.sort_by = validate(value?, sort_by)?,
             "SearchBy" => self.search_by = validate(value?, search_by)?,

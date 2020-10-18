@@ -121,7 +121,8 @@ impl Config {
         forced: bool,
     ) -> Result<()> {
         let yes_no_ask = &["yes", "no", "ask"];
-        let no_all_tree = &["no", "all", "tree"];
+        let yes_no = &["yes", "no"];
+        let _no_all_tree = &["no", "all", "tree"];
         let sort_by = &[
             "votes",
             "popularity",
@@ -181,8 +182,8 @@ impl Config {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
             Arg::Long("version") | Arg::Short('V') => self.version = true,
             Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
-            Arg::Long("makepkg") => self.editor = value?.to_string(),
-            Arg::Long("pacman") => self.editor = value?.to_string(),
+            Arg::Long("makepkg") => self.makepkg_bin = value?.to_string(),
+            Arg::Long("pacman") => self.pacman_bin = value?.to_string(),
             Arg::Long("git") => self.git_bin = value?.to_string(),
             Arg::Long("gpg") => self.gpg_bin = value?.to_string(),
             Arg::Long("sudo") => self.sudo_bin = value?.to_string(),
@@ -191,7 +192,6 @@ impl Config {
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
-            Arg::Long("editorflags") => self.editor_flags = split_whitespace(value?),
             Arg::Long("mflags") => self.mflags = split_whitespace(value?),
             Arg::Long("gitflags") => self.git_flags = split_whitespace(value?),
             Arg::Long("gpgflags") => self.gpg_flags = split_whitespace(value?),
@@ -203,19 +203,25 @@ impl Config {
                     .parse()
                     .map_err(|_| anyhow!("option {} must be a number", arg))?
             }
-            Arg::Long("sortby") => self.sort_by = validate("sortby", sort_by)?,
-            Arg::Long("searchby") => self.search_by = validate("search_by", search_by)?,
+            Arg::Long("sortby") => self.sort_by = validate(value?, sort_by)?,
+            Arg::Long("searchby") => self.search_by = validate(value?, search_by)?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("removemake") => {
                 self.remove_make = validate(value.unwrap_or("yes"), yes_no_ask)?
             }
+            Arg::Long("upgrademenu") => {
+                self.upgrade_menu = true;
+                if let Ok(value) = value {
+                    self.answer_upgrade = Some(value.to_string());
+                }
+            }
             Arg::Long("noremovemake") => self.remove_make = "no".to_string(),
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,
-            Arg::Long("redownload") => {
-                self.redownload = validate(value.unwrap_or("yes"), no_all_tree)?
-            }
+            Arg::Long("redownload") => self.redownload = validate(value.unwrap_or("yes"), yes_no)?,
             Arg::Long("noredownload") => self.redownload = "no".to_string(),
+            Arg::Long("rebuild") => self.rebuild = validate(value.unwrap_or("yes"), yes_no)?,
+            Arg::Long("norebuild") => self.rebuild = "no".into(),
             Arg::Long("topdown") => self.sort_mode = "topdown".to_string(),
             Arg::Long("bottomup") => self.sort_mode = "bottomup".to_string(),
             Arg::Long("aur") | Arg::Short('a') => self.mode = "aur".to_string(),
