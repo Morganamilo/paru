@@ -17,6 +17,7 @@ pub fn check_pgp_keys(
 ) -> Result<()> {
     let mut import: HashMap<&str, Vec<&Base>> = HashMap::new();
     let mut seen = HashSet::new();
+    let c = config.color;
 
     for base in &bases.bases {
         let pkg = base.package_base();
@@ -39,11 +40,14 @@ pub fn check_pgp_keys(
     }
 
     if !import.is_empty() {
-        // TODO format
-        sprintln!("keys need to be imported:");
-        for (base, keys) in &import {
-            let keys = keys.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-            sprintln!("{} wanted by: {}", base, keys.join("  "));
+        sprintln!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint("keys need to be imported:")
+        );
+        for (key, base) in &import {
+            let base = base.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+            sprintln!("     {} wanted by: {}", c.bold.paint(*key), base.join("  "));
         }
         if ask(config, "import?", true) {
             import_keys(config, &import)?;
