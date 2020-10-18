@@ -10,7 +10,7 @@ arch=('x86_64' 'i686')
 license=('GPL3')
 
 makedepends=('cargo')
-depends=('git' 'pacman' 'vifm')
+depends=('git' 'pacman')
 
 options+=(!strip)
 

@@ -190,8 +190,7 @@ pub struct Config {
     pub sudo_bin: String,
     #[default = "asp"]
     pub asp_bin: String,
-    #[default = "vifm"]
-    pub fm: String,
+    pub fm: Option<String>,
 
     pub editor_flags: Vec<String>,
     pub mflags: Vec<String>,
@@ -488,6 +487,7 @@ impl Config {
             "Upgrade" => self.upgrade_menu = true,
             "Diff" => self.diff_menu = true,
             "Edit" => self.edit_menu = true,
+            "FileManager" => (),
             _ => bail!("unkown option '{}'", key),
         }
 
@@ -495,6 +495,7 @@ impl Config {
             let value = value.to_string();
 
             match key {
+                "FileManager" => self.fm = Some(value),
                 "Upgrade" => self.answer_upgrade = Some(value),
                 "Diff" => self.answer_diff = Some(value),
                 "Edit" => self.answer_edit = Some(value),
@@ -518,7 +519,6 @@ impl Config {
             "Pacman" => self.pacman_bin = value,
             "Git" => self.git_bin = value,
             "Asp" => self.asp_bin = value,
-            "Fm" => self.fm = value,
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
             "EditorFlags" => self.editor_flags.extend(split),

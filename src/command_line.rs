@@ -188,7 +188,7 @@ impl Config {
             Arg::Long("gpg") => self.gpg_bin = value?.to_string(),
             Arg::Long("sudo") => self.sudo_bin = value?.to_string(),
             Arg::Long("asp") => self.asp_bin = value?.to_string(),
-            Arg::Long("fm") => self.fm = value?.to_string(),
+            Arg::Long("fm") => self.fm = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
