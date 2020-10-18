@@ -6,6 +6,7 @@ pkgrel=1
 pkgdesc='AUR helper based on yay'
 url='https://github.com/morganamilo/paru'
 source=("git+https://github.com/morganamilo/paru#branch=dev")
+backup=("etc/paru.conf")
 arch=('x86_64' 'i686')
 license=('GPL3')
 
