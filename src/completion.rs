@@ -3,14 +3,16 @@ use crate::print_error;
 
 use std::fs::{metadata, OpenOptions};
 use std::io::{stdout, BufRead, BufReader, Write};
+use std::path::Path;
 use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
 use libflate::gzip::Decoder;
 use reqwest::blocking::get;
+use url::Url;
 
-fn save_aur_list(config: &Config) -> Result<()> {
-    let url = config.aur_url.join("packages.gz")?;
+fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
+    let url = aur_url.join("packages.gz")?;
     let resp = get(url.clone()).with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
     ensure!(success, "get {}: {}", url, resp.status());
@@ -19,7 +21,7 @@ fn save_aur_list(config: &Config) -> Result<()> {
     let decoder = Decoder::new(&data[..]).context("invalid gzip data")?;
     let decoder = BufReader::new(decoder);
 
-    let path = config.cache_dir.join("packages.aur");
+    let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new().write(true).create(true).open(&path);
     let mut file =
         file.with_context(|| format!("failed to open cache file '{}'", path.display()))?;
@@ -35,8 +37,8 @@ fn save_aur_list(config: &Config) -> Result<()> {
     Ok(())
 }
 
-fn update_aur_cache(config: &Config, timeout: Option<u64>) -> Result<()> {
-    let path = config.cache_dir.join("packages.aur");
+pub fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -> Result<()> {
+    let path = cache_dir.join("packages.aur");
     let metadata = metadata(&path);
 
     let need_refresh = match metadata {
@@ -52,14 +54,15 @@ fn update_aur_cache(config: &Config, timeout: Option<u64>) -> Result<()> {
     };
 
     if need_refresh {
-        save_aur_list(config)?;
+        save_aur_list(aur_url, cache_dir)?;
     }
 
     Ok(())
 }
 
 fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
-    update_aur_cache(config, timeout).context("could not update aur cache")?;
+    update_aur_cache(&config.aur_url, &config.cache_dir, timeout)
+        .context("could not update aur cache")?;
     let path = config.cache_dir.join("packages.aur");
     let file = OpenOptions::new().read(true).open(path)?;
     let file = BufReader::new(file);

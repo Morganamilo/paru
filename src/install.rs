@@ -378,7 +378,12 @@ fn install_actions(
 
     repo_install(config, &actions.install)?;
 
-    //TODO completion update
+    let url = config.aur_url.clone();
+    let cache_dir = config.cache_dir.clone();
+    let interval = config.completion_interval;
+    std::thread::spawn(move || {
+        crate::completion::update_aur_cache(&url, &cache_dir, Some(interval)).unwrap();
+    });
 
     let conflicts = conflicts
         .iter()
