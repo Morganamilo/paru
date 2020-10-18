@@ -242,8 +242,6 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     let actions = resolver.resolve_targets(&targets)?;
 
-    println!("{:#?}", actions);
-
     let conflicts = check_actions(config, &actions)?;
 
     if actions.build.is_empty() && actions.install.is_empty() {

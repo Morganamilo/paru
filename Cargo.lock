@@ -98,7 +98,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.5.3"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39e291346905f9d1f5b886a65cb97611a34567265fb6ca02f74dae78710fd53c"
 dependencies = [
  "alpm",
  "alpm-utils",
