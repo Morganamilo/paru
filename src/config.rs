@@ -176,8 +176,6 @@ pub struct Config {
     pub complete: bool,
     pub print: bool,
 
-    #[default = "vim"]
-    pub editor: String,
     #[default = "makepkg"]
     pub makepkg_bin: String,
     #[default = "pacman"]
@@ -192,7 +190,6 @@ pub struct Config {
     pub asp_bin: String,
     pub fm: Option<String>,
 
-    pub editor_flags: Vec<String>,
     pub mflags: Vec<String>,
     pub git_flags: Vec<String>,
     pub gpg_flags: Vec<String>,
@@ -201,14 +198,6 @@ pub struct Config {
 
     pub makepkg_conf: Option<String>,
     pub pacman_conf: Option<String>,
-
-    pub upgrade_menu: bool,
-    pub diff_menu: bool,
-    pub edit_menu: bool,
-
-    pub answer_upgrade: Option<String>,
-    pub answer_diff: Option<String>,
-    pub answer_edit: Option<String>,
 
     //pacman
     pub db_path: Option<String>,
@@ -477,33 +466,8 @@ impl Config {
         match section {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
-            "menu" => self.parse_menu(key, value),
             _ => bail!("unkown section '{}', section"),
         }
-    }
-
-    fn parse_menu(&mut self, key: &str, value: Option<&str>) -> Result<()> {
-        match key {
-            "Upgrade" => self.upgrade_menu = true,
-            "Diff" => self.diff_menu = true,
-            "Edit" => self.edit_menu = true,
-            "FileManager" => (),
-            _ => bail!("unkown option '{}'", key),
-        }
-
-        if let Some(value) = value {
-            let value = value.to_string();
-
-            match key {
-                "FileManager" => self.fm = Some(value),
-                "Upgrade" => self.answer_upgrade = Some(value),
-                "Diff" => self.answer_diff = Some(value),
-                "Edit" => self.answer_edit = Some(value),
-                _ => (),
-            }
-        }
-
-        Ok(())
     }
 
     fn parse_bin(&mut self, key: &str, value: Option<&str>) -> Result<()> {
@@ -514,14 +478,13 @@ impl Config {
         let split = value.split_whitespace().map(|s| s.to_string());
 
         match key {
-            "Editor" => self.editor = value,
             "Makepkg" => self.makepkg_bin = value,
             "Pacman" => self.pacman_bin = value,
             "Git" => self.git_bin = value,
             "Asp" => self.asp_bin = value,
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
-            "EditorFlags" => self.editor_flags.extend(split),
+            "FileManager" => self.fm = Some(value),
             "MakepkgFlags" => self.mflags.extend(split),
             "GitFlags" => self.git_flags.extend(split),
             "GpgFlags" => self.gpg_flags.extend(split),

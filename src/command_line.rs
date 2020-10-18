@@ -181,7 +181,6 @@ impl Config {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
             Arg::Long("version") | Arg::Short('V') => self.version = true,
             Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
-            Arg::Long("editor") => self.editor = value?.to_string(),
             Arg::Long("makepkg") => self.editor = value?.to_string(),
             Arg::Long("pacman") => self.editor = value?.to_string(),
             Arg::Long("git") => self.git_bin = value?.to_string(),
@@ -206,28 +205,6 @@ impl Config {
             }
             Arg::Long("sortby") => self.sort_by = validate("sortby", sort_by)?,
             Arg::Long("searchby") => self.search_by = validate("search_by", search_by)?,
-            Arg::Long("upgrademenu") => {
-                self.upgrade_menu = true;
-                if let Ok(ans) = value {
-                    self.answer_upgrade = Some(ans.to_string())
-                }
-            }
-            Arg::Long("diffmenu") => {
-                self.diff_menu = true;
-                if let Ok(ans) = value {
-                    self.answer_diff = Some(ans.to_string())
-                }
-            }
-            Arg::Long("editmenu") => {
-                self.edit_menu = true;
-                if let Ok(ans) = value {
-                    self.answer_edit = Some(ans.to_string())
-                }
-            }
-            Arg::Long("noupgrademenu") => self.upgrade_menu = false,
-            Arg::Long("nodiffmenu") => self.diff_menu = false,
-            Arg::Long("noeditmenu") => self.edit_menu = false,
-
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("removemake") => {
                 self.remove_make = validate(value.unwrap_or("yes"), yes_no_ask)?
@@ -324,9 +301,6 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("searchby") => TakesValue::Required,
         Arg::Long("removemake") => TakesValue::Optional,
         Arg::Long("redownload") => TakesValue::Optional,
-        Arg::Long("upgrademenu") => TakesValue::Optional,
-        Arg::Long("diffmenu") => TakesValue::Optional,
-        Arg::Long("editmenu") => TakesValue::Optional,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,
