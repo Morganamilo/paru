@@ -32,10 +32,16 @@ build () {
 
 package() {
   cd "$srcdir/$_pkgname"
+
   install -Dm755 target/release/paru "${pkgdir}/usr/bin/paru"
   install -Dm644 paru.conf "${pkgdir}/etc/paru.conf"
+
   install -Dm644 man/paru.8 "$pkgdir/usr/share/man/man8/paru.8"
   install -Dm644 man/paru.conf.5 "$pkgdir/usr/share/man/man5/paru.conf.5"
+
+  install -Dm644 completions/bash "${pkgdir}/usr/share/bash-completion/completions/paru.bash"
+  install -Dm644 completions/fish "${pkgdir}/usr/share/fish/completions/paru.fish"
+  install -Dm644 completions/zsh "${pkgdir}/usr/share/zsh/functions/Completion/Linux/_paru"
 }
 
 pkgver() {
