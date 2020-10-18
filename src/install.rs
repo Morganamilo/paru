@@ -541,16 +541,20 @@ fn print_install(config: &Config, actions: &Actions) {
         .filter(|p| p.make)
         .map(|p| format!("{}-{}", p.pkg.name(), p.pkg.version()))
         .collect::<Vec<_>>();
-    let build = actions
-        .iter_build_pkgs()
-        .filter(|p| !p.make)
-        .map(|p| format!("{}-{}", p.pkg.name, p.pkg.version))
-        .collect::<Vec<_>>();
-    let make_build = actions
-        .iter_build_pkgs()
-        .filter(|p| p.make)
-        .map(|p| format!("{}-{}", p.pkg.name, p.pkg.version))
-        .collect::<Vec<_>>();
+
+    let mut build = actions.build.clone();
+    for base in &mut build {
+        base.pkgs.retain(|p| !p.make);
+    }
+    build.retain(|b| !b.pkgs.is_empty());
+    let build = build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
+
+    let mut make_build = actions.build.clone();
+    for base in &mut make_build {
+        base.pkgs.retain(|p| p.make);
+    }
+    make_build.retain(|b| !b.pkgs.is_empty());
+    let make_build = make_build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
 
     if !install.is_empty() {
         let fmt = format!("{} ({}) ", "Repo", install.len());
