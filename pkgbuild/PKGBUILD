@@ -1,7 +1,7 @@
 # Maintainer: Morgan <morganamilo@archlinux.org>
 pkgname=paru-git
 _pkgname=paru
-pkgver=0.0.1.r21.fd4ebc1
+pkgver=0.0.1.r33.440545c
 pkgrel=1
 pkgdesc='AUR helper based on yay'
 url='https://github.com/morganamilo/paru'
@@ -34,6 +34,8 @@ package() {
   cd "$srcdir/$_pkgname"
   install -Dm755 target/release/paru "${pkgdir}/usr/bin/paru"
   install -Dm644 paru.conf "${pkgdir}/etc/paru.conf"
+  install -Dm644 man/paru.8 "$pkgdir/usr/share/man/man8/paru.8"
+  install -Dm644 man/paru.conf.5 "$pkgdir/usr/share/man/man5/paru.conf.5"
 }
 
 pkgver() {
