@@ -1,1 +1,229 @@
-todo
+'\ t
+.TH "PARU.CONF" "5" "2019\-10\-21" "paru v0.0.1" "Paru  Manual"
+.nh
+.ad l
+.SH NAME
+PARU \- AUR Helper
+
+.SH SYNOPSIS
+/etc/paru.conf
+.sp
+~/.config/paru/paru.conf
+
+.SH DESCRIPTION
+Paru's config file. Based on the format used by \fBpacman.conf (5)\fR.
+
+Paru will attempt to read the config file from the user's home directory. If that does not exist
+paru will instead attempt to read the file from the system config directory.
+
+Aditionally the \fBInclude\fB directive can be used to copy paste files into the config. This could be used
+to extend the system config by including it in your user's config and then defining options.
+
+.SH OPTIONS
+
+Options belonging to the [options] section.
+
+.TP
+.B TopDown
+Print search results from top to bottom.
+
+.TP
+.B BottomUp
+Print search results from bottom to top.
+
+.TP
+.B AurOnly
+Assume all targets are from the AUR. Additionally Actions such as
+sysupgrade will only act on AUR packages.
+
+Note that dependency resolving will still act normally and include repository
+packages.
+
+.TP
+.B RepoOnly
+Assume all targets are from the repositories. Additionally Actions such as
+sysupgrade will only act on repository packages.
+
+.TP
+.B SudoLoop
+Loop sudo calls in the background to prevent sudo from timing out during long
+builds.
+
+.TP
+.B Devel
+During sysupgrade also check AUR development packages for updates. Currently
+only Git packages are supported.
+
+Devel checking is done using \fBgit ls-remote\fR. The newest commit hash is
+compared against the hash at install time. This allows devel updates to be
+checked almost instantly and not require the original pkgbuild to be downloaded.
+
+.TP
+.B CleanAfter
+Remove untracked files after installation.
+
+Untracked files are removed with the exception of directories.
+This allows VCS packages to easily pull an update
+instead of having to reclone the entire repo.
+
+.TP
+.B Provides
+Look for matching providers when searching for AUR packages. When multiple
+providers are found a menu will appear prompting you to pick one. This
+increases dependency resolve time although this should not be noticeable.
+
+.TP
+.B PgpFetch
+Prompt to import unknown PGP keys from the \fBvalidpgpkeys\fR field of each
+PKGBUILD.
+
+.TP
+.B CombinedUpgrade
+During sysupgrade, paru will first perform a refresh, then show
+its combined menu of repo and AUR packages that will be upgraded. Then after
+reviewing the pkgbuilds, the repo and AUR upgrade will start with no need
+for manual intervention.
+
+If paru exits for any reason After the refresh without upgrading. It is then
+the user's responsibility to either resolve the reason paru exited or run
+a sysupgrade through pacman directly.
+
+.TP
+.B BatchInstall
+When building and installing AUR packages instead of installing each package
+after building, queue each package for install. Then once either all packages
+are built or a package in the build queue is needed as a dependency to build
+another package, install all the packages in the install queue.
+
+.TP
+.B UseAsk
+Use pacman's --ask flag to automatically confirm package conflicts. paru lists
+conflicts ahead of time. It is possible that paru does not detect
+a conflict, causing a package to be removed without the user's confirmation.
+However, this is very unlikely.
+
+.TP
+.B Redownload [= All]
+Always download pkgbuilds of targets even when a copy is available in cache.
+If all is used then this applies to all packages, not only targets.
+
+.TP
+.B Rebuild [= All]
+Always build target packages even when a copy is available in cache.
+If all is selected then all packages are rebuilt, not only targets.
+
+.TP
+.B RemoveMake [= Ask]
+Remove makedepends after installing packages. Defaults to yes.
+
+.TP
+.B UpgradeMenu [= Repo|^Repo|1-3|...]
+Show a detailed list of updates in a similar format to VerbosePkgLists.
+Upgrades can also be skipped using numbers, number ranges or repo names.
+Additionally ^ can be used to invert the selection.
+
+Additionally an argument can be passed to this flag and the menu will use
+this input instead of reafing from stdin.
+
+\fBWarning\fR: It is not recommended to skip updates from the repositories as
+this can lead to partial upgrades. This feature is intended to easily skip AUR
+updates on the fly that may be broken or have a long compile time. Ultimately
+it is up to the user what upgrades they skip.
+
+.TP
+.B AurUrl = URL
+Set an alternative AUR URL. This is mostly useful for users in China who wish
+to use https://aur.tuna.tsinghua.edu.cn/.
+
+.TP
+.B BuildDir = /path/to/dir
+Directory to use for Building AUR Packages. This directory is also used as
+the AUR cache when deciding if paru should skip builds.
+
+.TP
+.B SortBy = Votes|Popularity|Id|Baseid|Name|Base|Submitted|Modified
+
+.TP
+.B SearchBy = name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
+
+.TP
+.B CompletionInterval = N
+Time in days to refresh the completion cache. Setting this to 0 will cause
+the cache to be refreshed every time, while setting this to -1 will cause the
+cache to never be refreshed.
+
+.TP
+.B RequestSplit = Number
+The maximum amount of packages to request per AUR query. The higher the
+number the faster AUR requests will be. Requesting too many packages in one
+AUR query will cause an error. This should only make a noticeable difference
+with very large requests (>500) packages.
+
+.TP
+.B PacmanConof = path/to/pacman.conf
+The pacman config file to use.
+
+.SH BIN
+
+Options belonging to the [bin] section.
+
+.TP
+.B Makepkg = path/to/makepkg
+The command to use for \fBmakepkg\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
+.B Pacman = path/to/pacman
+The command to use for \fBpacman\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
+.B Git = path/to/git
+The command to use for \fBgit\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
+.B Asp = path/to/asp
+The command to use for \fBasp\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
+.B Sudo = path/to/sudo
+The command to use for \fBsudo\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+The sudoloop is not guaranteed to work with a custom \fBsudo\fR command.
+
+.TP
+.B FileManager = path/to/fm
+This enables fm review mode, where pkgbuild review is done using the file
+manager specified by command.
+
+.TP
+.B MFlags = Flags...
+Passes arguments to makepkg. These flags get passed to every instance where
+makepkg is called by paru. Arguments are split on whitespace before being
+passed to makepkg.
+
+.TP
+.B GitFlags = Flags...
+Passes arguments to git. These flags get passed to every instance where
+git is called by paru. Arguments are split on whitespace before being
+passed to git.
+.TP
+
+.B GpgFlags = Flags...
+Passes arguments to gpg. These flags get passed to every instance where
+gpg is called by paru. Arguments are split on whitespace before being
+passed to gpg.
+
+.TP
+.B SudoFlags = Flags...
+Passes arguments to sudo. These flags get passed to every instance where
+sudo is called by paru. Arguments are split on whitespace before being
+passed to sudo.
+
+.TP
+.B FileManagerFlags = Flags...
+Passes arguments to file manager. These flags get passed to every instance where
+file manager is called by paru. Arguments are split on whitespace before being
+passed to file manager.
