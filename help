@@ -27,28 +27,27 @@ Opless options:
 New options:
        --repo             Assume targets are from the repositories
     -a --aur              Assume targets are from the AUR
-    --aururl      <url>   Set an alternative AUR URL
-    --builddir    <dir>   Directory used to download and run PKGBUILDS
+    --aururl    <url>     Set an alternative AUR URL
+    --builddir  <dir>     Directory used to download and run PKGBUILDS
 
-    --makepkg     <file>  makepkg command to use
-    --mflags      <flags> Pass arguments to makepkg
-    --pacman      <file>  pacman command to use
-    --git         <file>  git command to use
-    --gitflags    <flags> Pass arguments to git
-    --sudo        <file>  sudo command to use
-    --sudoflags   <flags> Pass arguments to sudo
-    --asp         <file>  asp command to use
-    --gpg         <file>  gpg command to use
-    --gpgflags    <flags> Pass arguments to gpg
-    --fm          <file>  File manager to use for pkgbuild review
-    --fmflags     <flags> Pass arguments to file manager
+    --makepkg   <file>    makepkg command to use
+    --mflags    <flags>   Pass arguments to makepkg
+    --pacman    <file>    pacman command to use
+    --git       <file>    git command to use
+    --gitflags  <flags>   Pass arguments to git
+    --sudo      <file>    sudo command to use
+    --sudoflags <flags>   Pass arguments to sudo
+    --asp       <file>    asp command to use
+    --gpg       <file>    gpg command to use
+    --gpgflags  <flags>   Pass arguments to gpg
+    --fm        <file>    File manager to use for pkgbuild review
+    --fmflags   <flags>   Pass arguments to file manager
 
     --completioninterval  <n> Time in days to refresh completion cache
     --sortby    <field>   Sort AUR results by a specific field during search
     --searchby  <field>   Search for packages using a specified field
 
-    --upgrademenu [answer]  Show interactive menu to skip upgrades
-
+    --upgrademenu [ans]   Show interactive menu to skip upgrades
     --removemake          Remove makedepends after install
     --noremovemake        Don't remove makedepends after install
     --cleanafter          Remove package sources after successful install
