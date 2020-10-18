@@ -35,17 +35,20 @@ fn save_aur_list(config: &Config) -> Result<()> {
     Ok(())
 }
 
-fn update_aur_cache(config: &Config) -> Result<()> {
+fn update_aur_cache(config: &Config, timeout: Option<u64>) -> Result<()> {
     let path = config.cache_dir.join("packages.aur");
     let metadata = metadata(&path);
 
     let need_refresh = match metadata {
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => true,
         Err(err) => return Err(anyhow::Error::new(err)),
-        Ok(metadate) => {
-            metadate.modified()?
-                > SystemTime::now() + Duration::from_secs(60 * 60 * 24 * config.completion_interval)
-        }
+        Ok(metadate) => match timeout {
+            Some(timeout) => {
+                metadate.modified()?
+                    > SystemTime::now() + Duration::from_secs(60 * 60 * 24 * timeout)
+            }
+            None => false,
+        },
     };
 
     if need_refresh {
@@ -55,8 +58,8 @@ fn update_aur_cache(config: &Config) -> Result<()> {
     Ok(())
 }
 
-fn aur_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
-    update_aur_cache(config).context("could not update aur cache")?;
+fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
+    update_aur_cache(config, timeout).context("could not update aur cache")?;
     let path = config.cache_dir.join("packages.aur");
     let file = OpenOptions::new().read(true).open(path)?;
     let file = BufReader::new(file);
@@ -82,7 +85,7 @@ fn repo_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
     Ok(())
 }
 
-pub fn print(config: &Config) -> i32 {
+pub fn print(config: &Config, timeout: Option<u64>) -> i32 {
     let stdout = stdout();
     let mut stdout = stdout.lock();
     let mut ret = 0;
@@ -92,7 +95,7 @@ pub fn print(config: &Config) -> i32 {
         print_error(config.color.error, err);
     }
 
-    if let Err(err) = aur_list(config, &mut stdout) {
+    if let Err(err) = aur_list(config, &mut stdout, timeout) {
         ret = 1;
         print_error(config.color.error, err);
     }

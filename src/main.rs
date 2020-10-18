@@ -162,7 +162,7 @@ fn handle_show(config: &Config) -> Result<i32> {
         news::news(config)?;
         Ok(0)
     } else if config.complete {
-        Ok(completion::print(config))
+        Ok(completion::print(config, None))
     } else {
         Ok(0)
     }
