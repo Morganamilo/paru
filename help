@@ -29,51 +29,30 @@ New options:
     -a --aur              Assume targets are from the AUR
     --aururl      <url>   Set an alternative AUR URL
     --builddir    <dir>   Directory used to download and run PKGBUILDS
-    --absdir      <dir>   Directory used to store downloads from the ABS
-    --editor      <file>  Editor to use when editing PKGBUILDs
-    --editorflags <flags> Pass arguments to editor
+
     --makepkg     <file>  makepkg command to use
     --mflags      <flags> Pass arguments to makepkg
     --pacman      <file>  pacman command to use
     --git         <file>  git command to use
     --gitflags    <flags> Pass arguments to git
+    --sudo        <file>  sudo command to use
+    --sudoflags   <flags> Pass arguments to sudo
+    --asp         <file>  asp command to use
     --gpg         <file>  gpg command to use
     --gpgflags    <flags> Pass arguments to gpg
-    --config      <file>  pacman.conf file to use
-    --makepkgconf <file>  makepkg.conf file to use
-    --nomakepkgconf       Use the default makepkg.conf
+    --fm          <file>  File manager to use for pkgbuild review
+    --fmflags     <flags> Pass arguments to file manager
 
-    --requestsplitn <n>   Max amount of packages to query per AUR request
     --completioninterval  <n> Time in days to refresh completion cache
     --sortby    <field>   Sort AUR results by a specific field during search
     --searchby  <field>   Search for packages using a specified field
-    --answerclean   <a>   Set a predetermined answer for the clean build menu
-    --answerdiff    <a>   Set a predetermined answer for the diff menu
-    --answeredit    <a>   Set a predetermined answer for the edit pkgbuild menu
-    --answerupgrade <a>   Set a predetermined answer for the upgrade menu
-    --noanswerclean       Unset the answer for the clean build menu
-    --noanswerdiff        Unset the answer for the edit diff menu
-    --noansweredit        Unset the answer for the edit pkgbuild menu
-    --noanswerupgrade     Unset the answer for the upgrade menu
-    --cleanmenu           Give the option to clean build PKGBUILDS
-    --diffmenu            Give the option to show diffs for build files
-    --editmenu            Give the option to edit/view PKGBUILDS
-    --upgrademenu         Show a detailed list of updates with the option to skip any
-    --nocleanmenu         Don't clean build PKGBUILDS
-    --nodiffmenu          Don't show diffs for build files
-    --noeditmenu          Don't edit/view PKGBUILDS
-    --noupgrademenu       Don't show the upgrade menu
-    --askremovemake       Ask to remove makedepends after install
+
+    --upgrademenu [answer]  Show interactive menu to skip upgrades
+
     --removemake          Remove makedepends after install
     --noremovemake        Don't remove makedepends after install
-
     --cleanafter          Remove package sources after successful install
     --nocleanafter        Do not remove package sources after successful build
-    --bottomup            Shows AUR's packages first and then repository's
-    --topdown             Shows repository's packages first and then AUR's
-
-    --devel               Check development packages during sysupgrade
-    --nodevel             Do not check development packages
     --rebuild             Always build target packages
     --rebuildall          Always build all AUR packages
     --norebuild           Skip package build if in cache and up to date
@@ -81,8 +60,7 @@ New options:
     --redownload          Always download pkgbuilds of targets
     --noredownload        Skip pkgbuild download if in cache and up to date
     --redownloadall       Always download pkgbuilds of all AUR packages
-    --provides            Look for matching providers when searching for packages
-    --noprovides          Just look for packages by pkgname
+
     --pgpfetch            Prompt to import PGP keys from PKGBUILDs
     --nopgpfetch          Don't prompt to import PGP keys
     --useask              Automatically resolve conflicts using pacman's ask flag
@@ -91,14 +69,14 @@ New options:
     --nocombinedupgrade   Perform the repo upgrade and AUR upgrade separately
     --batchinstall        Build multiple AUR packages then install them together
     --nobatchinstall      Build and install each AUR package one by one
-
-    --sudo                <file>  sudo command to use
-    --sudoflags           <flags> Pass arguments to sudo
+    --provides            Look for matching providers when searching for packages
+    --noprovides          Just look for packages by pkgname
+    --devel               Check development packages during sysupgrade
+    --nodevel             Do not check development packages
     --sudoloop            Loop sudo calls in the background to avoid timeout
     --nosudoloop          Do not loop sudo calls in the background
-
-    --timeupdate          Check packages' AUR page for changes during sysupgrade
-    --notimeupdate        Do not check packages' AUR page for changes
+    --bottomup            Shows AUR's packages first and then repository's
+    --topdown             Shows repository's packages first and then AUR's
 
 show specific options:
     -c --complete         Used for completions
