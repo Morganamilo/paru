@@ -65,6 +65,7 @@ pub struct Colors {
     pub old_version: Style,
     pub new_version: Style,
     pub number_menu: Style,
+    pub group: Style,
 }
 
 impl From<&str> for Colors {
@@ -103,6 +104,7 @@ impl Colors {
             old_version: Style::new().fg(Red),
             new_version: Style::new().fg(Green),
             number_menu: Style::new().fg(Purple),
+            group: Style::new().fg(Blue).bold(),
         }
     }
 }

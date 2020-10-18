@@ -103,7 +103,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     }
 
     let c = config.color;
-    let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity); // TODO formatting?
+    let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity);
     sprint!(
         "{}/{} {} [{}]",
         color_repo("aur"),

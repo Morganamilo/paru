@@ -84,6 +84,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let targets = args::parse_targets(&targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets);
 
+    if repo_targets.is_empty() && aur_targets.is_empty() {
+        bail!("no targets specified (use -h for help)");
+    }
+
     if config.mode != "aur" {
         if config.combined_upgrade {
             if config.args.has_arg("y", "refresh") {
@@ -99,7 +103,8 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         }
     }
 
-    if aur_targets.is_empty() && !config.args.has_arg("u", "sysupgrade") {
+    if !config.combined_upgrade && aur_targets.is_empty() && !config.args.has_arg("u", "sysupgrade")
+    {
         return Ok(0);
     }
 
@@ -123,14 +128,14 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             get_provider(pkgs.len())
         })
         .group_callback(move |groups| {
-            //TODO format
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();
-            sprintln!();
             sprintln!(
-                "There are {} members in group {}:",
-                total,
-                groups[0].group.name()
+                "{} {} {}:",
+                c.action.paint("::"),
+                c.bold
+                    .paint(format!("There are {} members in group", total)),
+                c.group.paint(groups[0].group.name()),
             );
 
             let mut repo = String::new();
@@ -138,7 +143,12 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             for group in groups {
                 if group.db.name() != repo {
                     repo = group.db.name().to_string();
-                    sprintln!("Repository {}", color_repo(group.db.name()));
+                    sprintln!(
+                        "{} {} {}",
+                        c.action.paint("::"),
+                        c.bold.paint("Repository"),
+                        color_repo(group.db.name())
+                    );
                     sprint!("    ");
                 }
 
@@ -149,7 +159,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
                 }
             }
 
-            sprint!("\nEnter a selection (default=all): ");
+            sprint!("\n\nEnter a selection (default=all): ");
             let _ = stdout().lock().flush();
 
             let stdin = stdin();
@@ -219,18 +229,8 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         return Ok(code);
     }
 
-    if targets.is_empty() && !config.args.has_arg("u", "sysupgrade") {
-        sprintln!(" there is nothing to do");
-        return Ok(0);
-    }
-
-    if targets_str.is_empty() && !config.args.has_arg("u", "sysupgrade") {
-        //TODO format
-        sprintln!("no targets");
-        return Ok(1);
-    }
-
     if targets.is_empty() {
+        sprintln!(" there is nothing to do");
         return Ok(0);
     }
 
@@ -241,6 +241,8 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     );
 
     let actions = resolver.resolve_targets(&targets)?;
+
+    println!("{:#?}", actions);
 
     let conflicts = check_actions(config, &actions)?;
 
@@ -298,7 +300,6 @@ fn install_actions(
     conflicts: &[Conflict],
     inner_conflicts: &[Conflict],
 ) -> Result<i32> {
-    // TODO format
     if !ask(config, "Proceed to review?", true) {
         return Ok(1);
     }
@@ -380,9 +381,22 @@ fn install_actions(
         .collect::<Vec<_>>();
 
     if !incompatible.is_empty() {
-        //TODO format
-        sprintln!("The following packages are not compatible with your architecture:");
-        incompatible.iter().for_each(|i| sprintln!("{}", i.pkgname));
+        let c = config.color;
+        sprintln!(
+            "{} {}",
+            c.error.paint("::"),
+            c.bold
+                .paint("The following packages are not compatible with your architecture:")
+        );
+        sprint!("    ");
+        print_indent(
+            Style::new(),
+            0,
+            4,
+            config.cols,
+            "  ",
+            incompatible.iter().map(|i| i.pkgname.as_str()),
+        );
         if !ask(config, "Would you like to try build them anyway?", true) {
             return Ok(1);
         }
@@ -468,7 +482,6 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
 
 fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
     let c = config.color;
-    //TODO fromat
     let dups = actions.duplicate_targets();
     ensure!(dups.is_empty(), "duplicate packages: {}", dups.join(" "));
 
@@ -488,6 +501,15 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         }
 
         bail!("{}", err);
+    }
+
+    for pkg in &actions.unneeded {
+        esprintln!(
+            "{} {}-{} is up to date -- skipping",
+            c.warning.paint("::"),
+            pkg.name,
+            pkg.version
+        );
     }
 
     if actions.build.is_empty() {
@@ -565,11 +587,6 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         if config.no_confirm {
             bail!("can not install conflicting packages with --noconfirm");
         }
-    }
-
-    for pkg in &actions.unneeded {
-        //TODO format
-        esprintln!("{} is up to date -- skipping", pkg);
     }
 
     Ok((conflicts, inner_conflicts))
@@ -712,10 +729,10 @@ fn build_install_pkgbuilds(
     let mut exp = Vec::new();
     let mut install_queue = Vec::new();
     let mut conflict = false;
+    let c = config.color;
 
-    //TODO format
     let (mut devel_info, mut new_devel_info) = if config.devel {
-        sprintln!("Fetching devel info...");
+        sprintln!("fetching devel info...");
         (
             load_devel_info(config)?.unwrap_or_default(),
             fetch_devel_info(config, bases, srcinfos)?,
@@ -769,7 +786,6 @@ fn build_install_pkgbuilds(
         let mut pkglist = (HashMap::new(), String::new());
 
         let mut needs_build = if early_pkglist {
-            //TODO format
             sprintln!("{}: parsing pkg list...", base);
             pkglist = parse_package_list(config, &dir)?;
 
@@ -794,7 +810,6 @@ fn build_install_pkgbuilds(
                 .success()
                 .with_context(|| format!("failed to build '{}'", base))?;
 
-            //TODO format
             sprintln!("{}: parsing pkg list...", base);
             pkglist = parse_package_list(config, &dir)?;
 
@@ -821,9 +836,9 @@ fn build_install_pkgbuilds(
         let (mut pkgdests, version) = pkglist;
 
         if !needs_build {
-            //TODO format
             sprintln!(
-                "{}-{} is up to date -- skipping build",
+                "{} {}-{} is up to date -- skipping build",
+                c.warning.paint("::"),
                 base.package_base(),
                 base.pkgs[0].pkg.version
             )
@@ -833,9 +848,9 @@ fn build_install_pkgbuilds(
             if config.args.has_arg("needed", "needed") {
                 if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
                     if pkg.version().as_str() == version {
-                        //TODO format
                         sprintln!(
-                            "{}-{} is up to date -- skipping install",
+                            "{} {}-{} is up to date -- skipping install",
+                            c.warning.paint("::"),
                             base.package_base(),
                             base.pkgs[0].pkg.version
                         );
