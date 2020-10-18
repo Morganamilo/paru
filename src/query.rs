@@ -83,8 +83,8 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                         pkg.version.as_str()
                     };
 
-                    if args.has_arg("q", "quiet") {
-                        sprintln!("{}", bold.paint(&pkg.name));
+                    if config.args.has_arg("q", "quiet") {
+                        sprintln!("{}", pkg.name);
                     } else {
                         sprintln!(
                             "{} {} -> {}",
