@@ -193,12 +193,12 @@ pub fn unneded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a st
                 state.set(State::Keep);
                 check_deps(pkg.depends());
 
-                if config.clean > 1 {
-                    continue;
-                }
-
                 if optional {
                     check_deps(pkg.optdepends());
+                }
+
+                if config.clean > 1 {
+                    continue;
                 }
 
                 if aur.iter().any(|&a| a == pkg.name()) {
