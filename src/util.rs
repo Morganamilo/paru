@@ -138,12 +138,8 @@ enum State {
 pub fn unneded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a str>> {
     let mut states = HashMap::new();
     let mut remove = Vec::new();
-    let db = config.alpm.localdb();
-
     let mut providers = HashMap::<_, Vec<_>>::new();
-
-    let pkgs = db.pkgs()?.map(|p| p.name()).collect::<Vec<_>>();
-    let (_, aur) = split_repo_aur_pkgs(config, &pkgs);
+    let db = config.alpm.localdb();
 
     for pkg in db.pkgs()? {
         providers
@@ -201,7 +197,7 @@ pub fn unneded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a st
                     continue;
                 }
 
-                if aur.iter().any(|&a| a == pkg.name()) {
+                if config.alpm.syncdbs().pkg(pkg.name()).is_err() {
                     check_deps(pkg.makedepends());
                     check_deps(pkg.checkdepends());
                 }
