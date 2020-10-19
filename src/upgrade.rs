@@ -136,9 +136,9 @@ pub fn get_upgrades(
     if !config.upgrade_menu {
         let upgrades = Upgrades {
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
-            repo_skip: aur_upgrades.iter().map(|p| p.remote.name.clone()).collect(),
-            aur_keep,
+            aur_keep: aur_upgrades.iter().map(|p| p.remote.name.clone()).collect(),
             aur_skip,
+            repo_skip,
         };
         return Ok(upgrades);
     }
