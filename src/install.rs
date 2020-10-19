@@ -84,7 +84,11 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let targets = args::parse_targets(&targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets);
 
-    if repo_targets.is_empty() && aur_targets.is_empty() {
+    if repo_targets.is_empty()
+        && aur_targets.is_empty()
+        && !config.args.has_arg("u", "sysupgrade")
+        && !config.args.has_arg("y", "refresh")
+    {
         bail!("no targets specified (use -h for help)");
     }
 
