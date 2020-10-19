@@ -4,6 +4,13 @@ version = "0.99.0"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 
+description = "Aur helper and pacman wrapper"
+homepage = "http://github.com/Morganamilo/paru"
+repository = "http://github.com/Morganamilo/paru"
+documentation = "https://docs.rs/paru"
+license = "GPL-3.0"
+keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
+
 
 [dependencies]
 cini = "0.1.1"
