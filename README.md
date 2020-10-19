@@ -19,7 +19,7 @@ makepkg -si
 
 ## Common tips
 
-- **Man pages**: For documentation on paru's options and config file see `paru(8)` and `paru.conf(5)` respectfully.
+- **Man pages**: For documentation on paru's options and config file see `paru(8)` and `paru.conf(5)` respectively.
 
 - **Color**: Paru only enables color if color is enabled in pacman. Enable `color` in your `pacman.conf`.
 
@@ -46,4 +46,4 @@ makepkg -si
 
 ## Debugging
 
-Paru is not offical tool. If paru can not build a package you should first check if makepkg can sucessfully build the package. If it can't then you should report the issue to the maintainer. Otherwise it is likley an issue with paru and should be repported here.
+Paru is not an official tool. If paru can't build a package, you should first check if makepkg can successfully build the package. If it can't, then you should report the issue to the maintainer. Otherwise, it is likely an issue with paru and should be reported here.
