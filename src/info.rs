@@ -59,6 +59,7 @@ pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Res
     for pkg in pkgs {
         print("Repository", "aur");
         print("Name", &pkg.name);
+        print("Version", &pkg.version);
         print("Description", opt(&pkg.description));
         print("URL", opt(&pkg.url));
         print(
