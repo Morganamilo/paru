@@ -579,7 +579,7 @@ impl Config {
             "SearchBy" => self.search_by = validate(value?, search_by)?,
             "RequestSplit" => self.request_split = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
-            "PacmanConf" => self.pacman_conf = Some(value?.to_string()),
+            "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,
         };
 

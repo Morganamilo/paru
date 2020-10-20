@@ -178,11 +178,10 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
+    devel_info.info.retain(|pkg, _| db.pkg(pkg).map(|p| !p.should_ignore()).unwrap_or(false));
 
     let updates = rt.block_on(async {
         let mut futures = Vec::new();
-
-        devel_info.info.retain(|pkg, _| db.pkg(pkg).is_ok());
 
         for (pkg, repos) in &devel_info.info {
             for repo in &repos.repos {
@@ -191,8 +190,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         }
 
         let updates = join_all(futures).await;
-        let updates = updates.into_iter().filter_map(|u| u).collect::<Vec<_>>();
-        updates
+        updates.into_iter().flatten().collect::<Vec<_>>()
     });
 
     let info = config.raur.info_ext(&updates)?;
@@ -203,7 +201,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         }
     }
 
-    save_devel_info(config, &devel_info)?;
+    //save_devel_info(config, &devel_info)?;
 
     Ok(updates)
 }

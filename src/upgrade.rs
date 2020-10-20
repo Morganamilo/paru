@@ -108,7 +108,15 @@ pub fn get_upgrades(
     config: &Config,
     mut aur_upgrades: Vec<aur_depends::AurUpdate>,
 ) -> Result<Upgrades> {
+    let c = config.color;
+
     let mut devel_upgrades = if config.devel && config.mode != "repo" {
+        sprintln!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint("Looking for devel upgrades")
+        );
+
         devel_updates(config)?
     } else {
         Vec::new()
@@ -134,9 +142,15 @@ pub fn get_upgrades(
     }
 
     if !config.upgrade_menu {
+        let mut aur = aur_upgrades
+            .iter()
+            .map(|p| p.remote.name.clone())
+            .collect::<Vec<_>>();
+        aur.extend(devel_upgrades);
+
         let upgrades = Upgrades {
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
-            aur_keep: aur_upgrades.iter().map(|p| p.remote.name.clone()).collect(),
+            aur_keep: aur,
             aur_skip,
             repo_skip,
         };
