@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "0.99.2"
+version = "0.99.3"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 
