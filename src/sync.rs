@@ -16,8 +16,8 @@ pub fn list(config: &Config) -> Result<i32> {
         args.target("aur")
     };
 
+    let has_aur = args.targets.contains(&"aur");
     args.targets.retain(|&t| t != "aur");
-    let has_aur = args.targets.len() < config.targets.len();
 
     if !args.targets.is_empty() {
         exec::pacman(config, &args)?;
@@ -53,6 +53,7 @@ pub fn list_aur(config: &Config) -> Result<()> {
         let line = line?;
         if config.args.has_arg("q", "quiet") {
             let _ = stdout.write_all(&line);
+            let _ = stdout.write_all(&[b'\n']);
             continue;
         }
         let _ = repo.paint(&b"aur "[..]).write_to(&mut stdout);
