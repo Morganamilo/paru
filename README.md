@@ -2,6 +2,9 @@
 
 An AUR helper and pacman wrapper
 
+[![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
+[![paru-git](https://img.shields.io/aur/version/paru-git?color=1793d1&label=paru-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-git/)
+
 ## Description
 
 Paru is an AUR helper written in rust and based on the design of yay. It aims to be your standard pacman wrapping AUR helper with minimal interaction.
