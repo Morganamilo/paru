@@ -197,11 +197,19 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             );
             resolver.aur_updates()?
         } else {
-            AurUpdates {
-                missing: Vec::new(),
-                updates: Vec::new(),
-            }
+            AurUpdates::default()
         };
+
+        for pkg in aur_upgrades.ignored {
+            esprintln!(
+                "{} {}: ignoring package upgrade ({} => {})",
+                c.warning.paint("warning:"),
+                pkg.local.name(),
+                pkg.local.version(),
+                pkg.remote.version
+            );
+        }
+
         let upgrades = get_upgrades(config, aur_upgrades.updates)?;
         for pkg in &upgrades.repo_skip {
             let arg = Arg {

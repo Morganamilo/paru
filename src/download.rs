@@ -169,12 +169,8 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         let action = config.color.action;
         let bold = config.color.bold;
         sprintln!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
-        let warnings = cache_info_with_warnings(
-            &config.raur,
-            &mut config.cache,
-            &aur,
-            &config.pacman.ignore_pkg,
-        )?;
+        let warnings =
+            cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore)?;
         if !warnings.missing.is_empty() {
             ret |= ret
         }
@@ -354,12 +350,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
     let client = reqwest::blocking::Client::new();
 
-    let warnings = cache_info_with_warnings(
-        &config.raur,
-        &mut config.cache,
-        &config.targets,
-        &config.pacman.ignore_pkg,
-    )?;
+    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[])?;
     warnings.missing(config.color, config.cols);
     let ret = !warnings.missing.is_empty() as i32;
     let bases = Bases::from_iter(warnings.pkgs);

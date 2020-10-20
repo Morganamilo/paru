@@ -21,8 +21,7 @@ pub fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let aur = if !aur.is_empty() {
         let color = conf.color;
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
-        let warnings =
-            cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.pacman.ignore_pkg)?;
+        let warnings = cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore)?;
         for pkg in &warnings.missing {
             esprintln!(
                 "{} package '{}' was not found",

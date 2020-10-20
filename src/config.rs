@@ -353,8 +353,8 @@ impl Config {
             self.pacman.db_path = dbpath.clone();
         }
 
-        self.pacman.ignore_pkg = self.ignore.clone();
-        self.pacman.ignore_group = self.ignore_group.clone();
+        self.ignore.extend(self.pacman.ignore_pkg.clone());
+        self.ignore_group.extend(self.pacman.ignore_group.clone());
 
         Ok(())
     }
@@ -390,8 +390,8 @@ impl Config {
             }
         }
 
-        alpm.set_ignorepkgs(&self.pacman.ignore_pkg)?;
-        alpm.set_ignoregroups(&self.pacman.ignore_pkg)?;
+        alpm.set_ignorepkgs(&self.ignore)?;
+        alpm.set_ignoregroups(&self.ignore_group)?;
 
         alpm.set_logfile(&self.pacman.log_file)?;
         alpm.set_arch(&self.pacman.architecture);

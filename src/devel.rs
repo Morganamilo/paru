@@ -60,7 +60,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
 
     let db = config.alpm.localdb();
     let pkgs = db.pkgs()?.map(|p| p.name()).collect::<Vec<_>>();
-    let ignore = &config.pacman.ignore_pkg;
+    let ignore = &config.ignore;
 
     let aur = split_repo_aur_pkgs(config, &pkgs).1;
 
