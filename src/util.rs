@@ -216,9 +216,9 @@ pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a s
 
 impl<'a> NumberMenu<'a> {
     pub fn new(input: &'a str) -> Self {
-        let mut inclue_range = Vec::new();
+        let mut include_range = Vec::new();
         let mut exclude_range = Vec::new();
-        let mut inclue_repo = Vec::new();
+        let mut include_repo = Vec::new();
         let mut exclude_repo = Vec::new();
 
         let words = input
@@ -241,7 +241,7 @@ impl<'a> NumberMenu<'a> {
                     if invert {
                         exclude_repo.push(start_str);
                     } else {
-                        inclue_repo.push(start_str);
+                        include_repo.push(start_str);
                     }
                     continue;
                 }
@@ -253,7 +253,7 @@ impl<'a> NumberMenu<'a> {
                     if invert {
                         exclude_range.push(start..start + 1);
                     } else {
-                        inclue_range.push(start..start + 1);
+                        include_range.push(start..start + 1);
                     }
                     continue;
                 }
@@ -264,23 +264,23 @@ impl<'a> NumberMenu<'a> {
                     if invert {
                         exclude_range.push(start..end + 1)
                     } else {
-                        inclue_range.push(start..end + 1)
+                        include_range.push(start..end + 1)
                     }
                 }
                 _ => {
                     if invert {
                         exclude_repo.push(start_str)
                     } else {
-                        inclue_repo.push(start_str)
+                        include_repo.push(start_str)
                     }
                 }
             }
         }
 
         NumberMenu {
-            in_range: inclue_range,
+            in_range: include_range,
             ex_range: exclude_range,
-            in_word: inclue_repo,
+            in_word: include_repo,
             ex_word: exclude_repo,
         }
     }
