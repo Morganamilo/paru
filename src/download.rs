@@ -16,6 +16,7 @@ use anyhow::{bail, Context, Result};
 use aur_depends::Base;
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
+use urlencoding;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -359,7 +360,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let base = base.package_base().to_string();
         let url = config
             .aur_url
-            .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", base))?;
+            .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", urlencoding::encode(&base)))?;
 
         let response = client
             .get(url.clone())
