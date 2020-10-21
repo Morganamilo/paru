@@ -135,7 +135,7 @@ enum State {
     Keep,
 }
 
-pub fn unneded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a str>> {
+pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a str>> {
     let mut states = HashMap::new();
     let mut remove = Vec::new();
     let mut providers = HashMap::<_, Vec<_>>::new();
