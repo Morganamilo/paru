@@ -7,7 +7,6 @@ use std::path::Path;
 use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
-use libflate::gzip::Decoder;
 use reqwest::blocking::get;
 use url::Url;
 
@@ -18,16 +17,13 @@ fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     ensure!(success, "get {}: {}", url, resp.status());
 
     let data = resp.bytes()?;
-    let decoder = Decoder::new(&data[..]).context("invalid gzip data")?;
-    let decoder = BufReader::new(decoder);
 
     let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new().write(true).create(true).open(&path);
     let mut file =
         file.with_context(|| format!("failed to open cache file '{}'", path.display()))?;
 
-    for line in decoder.split(b'\n').skip(1) {
-        let line = line?;
+    for line in data.split(|&c| c == b'\n').skip(1) {
         if !line.is_empty() {
             file.write_all(&line)?;
             file.write_all(b"\n")?;

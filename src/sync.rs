@@ -2,9 +2,8 @@ use crate::config::Config;
 use crate::exec;
 
 use anyhow::{ensure, Context, Result};
-use libflate::gzip::Decoder;
 use reqwest::blocking::get;
-use std::io::{BufRead, BufReader, Write};
+use std::io::Write;
 
 pub fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
@@ -38,8 +37,6 @@ pub fn list_aur(config: &Config) -> Result<()> {
     ensure!(success, "get {}: {}", url, resp.status());
 
     let data = resp.bytes()?;
-    let decoder = Decoder::new(&data[..]).context("invalid gzip data")?;
-    let decoder = BufReader::new(decoder);
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
@@ -49,15 +46,18 @@ pub fn list_aur(config: &Config) -> Result<()> {
     let version = config.color.sl_version;
     let installed = config.color.sl_installed;
 
-    for line in decoder.split(b'\n').skip(1) {
-        let line = line?;
+    for line in data
+        .split(|&c| c == b'\n')
+        .skip(1)
+        .filter(|l| !l.is_empty())
+    {
         if config.args.has_arg("q", "quiet") {
             let _ = stdout.write_all(&line);
             let _ = stdout.write_all(&[b'\n']);
             continue;
         }
         let _ = repo.paint(&b"aur "[..]).write_to(&mut stdout);
-        let _ = pkg.paint(&line).write_to(&mut stdout);
+        let _ = pkg.paint(line).write_to(&mut stdout);
         let _ = version.paint(&b" unkown-version"[..]).write_to(&mut stdout);
 
         if db.pkg(String::from_utf8_lossy(&line)).is_ok() {
