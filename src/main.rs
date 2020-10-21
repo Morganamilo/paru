@@ -142,7 +142,7 @@ fn handle_cmd(config: &mut Config) -> Result<i32> {
         "getpkgbuild" => handle_get_pkg_build(config)?,
         "show" => handle_show(config)?,
         "yay" => handle_yay(config)?,
-        _ => bail!("unkown op '{}'", config.op),
+        _ => bail!("unknown op '{}'", config.op),
     };
 
     Ok(ret)

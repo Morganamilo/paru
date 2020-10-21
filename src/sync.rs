@@ -58,7 +58,7 @@ pub fn list_aur(config: &Config) -> Result<()> {
         }
         let _ = repo.paint(&b"aur "[..]).write_to(&mut stdout);
         let _ = pkg.paint(line).write_to(&mut stdout);
-        let _ = version.paint(&b" unkown-version"[..]).write_to(&mut stdout);
+        let _ = version.paint(&b" unknown-version"[..]).write_to(&mut stdout);
 
         if db.pkg(String::from_utf8_lossy(&line)).is_ok() {
             let _ = installed.paint(&b" [installed]"[..]).write_to(&mut stdout);
