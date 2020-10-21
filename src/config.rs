@@ -324,10 +324,13 @@ impl Config {
             self.color = Colors::from("auto");
         }
 
-        ensure!(COLORS.set(self.color).is_ok(), "failed to initalise colors");
+        ensure!(
+            COLORS.set(self.color).is_ok(),
+            "failed to initialize colors"
+        );
         ensure!(
             NO_CONFIRM.set(self.no_confirm).is_ok(),
-            "failed to initalise noconfirm"
+            "failed to initialize noconfirm"
         );
 
         self.raur = raur::Handle::default().with_url(self.aur_url.join("rpc")?.as_str())?;
@@ -363,7 +366,7 @@ impl Config {
         let mut alpm =
             alpm::Alpm::new(&self.pacman.root_dir, &self.pacman.db_path).with_context(|| {
                 format!(
-                    "failed to initialise alpm: root={} dbpath={}",
+                    "failed to initialize alpm: root={} dbpath={}",
                     self.pacman.root_dir, self.pacman.db_path
                 )
             })?;
@@ -630,7 +633,7 @@ fn question(question: &mut Question) {
 
             sprintln!();
             let prompt = format!(
-                "There are {} providers avaliable for {}:",
+                "There are {} providers available for {}:",
                 len,
                 question.depend()
             );
