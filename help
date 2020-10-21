@@ -20,7 +20,7 @@ New operations:
 
 If no arguments are provided 'paru -Syu' will be performed
 
-Opless options:
+Options without operation:
     -c --clean            Remove unneeded dependencies
        --gendb            Generates development package DB used for updating
 

@@ -324,10 +324,13 @@ impl Config {
             self.color = Colors::from("auto");
         }
 
-        ensure!(COLORS.set(self.color).is_ok(), "failed to initalise colors");
+        ensure!(
+            COLORS.set(self.color).is_ok(),
+            "failed to initialize colors"
+        );
         ensure!(
             NO_CONFIRM.set(self.no_confirm).is_ok(),
-            "failed to initalise noconfirm"
+            "failed to initialize noconfirm"
         );
 
         self.raur = raur::Handle::default().with_url(self.aur_url.join("rpc")?.as_str())?;
@@ -363,7 +366,7 @@ impl Config {
         let mut alpm =
             alpm::Alpm::new(&self.pacman.root_dir, &self.pacman.db_path).with_context(|| {
                 format!(
-                    "failed to initialise alpm: root={} dbpath={}",
+                    "failed to initialize alpm: root={} dbpath={}",
                     self.pacman.root_dir, self.pacman.db_path
                 )
             })?;
@@ -471,7 +474,7 @@ impl Config {
         match section {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
-            _ => bail!("unkown section '{}', section"),
+            _ => bail!("unknown section '{}', section"),
         }
     }
 
@@ -495,7 +498,7 @@ impl Config {
             "GpgFlags" => self.gpg_flags.extend(split),
             "SudoFlags" => self.sudo_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
-            _ => bail!("unkown option '{}'", key),
+            _ => bail!("unknown option '{}'", key),
         };
 
         Ok(())
@@ -583,7 +586,7 @@ impl Config {
             _ => ok2 = false,
         };
 
-        ensure!(ok1 || ok2, "unkown option '{}'", key);
+        ensure!(ok1 || ok2, "unknown option '{}'", key);
         ensure!(ok1 || has_value, "option '{}' does not take a value", key);
         Ok(())
     }
@@ -630,7 +633,7 @@ fn question(question: &mut Question) {
 
             sprintln!();
             let prompt = format!(
-                "There are {} providers avaliable for {}:",
+                "There are {} providers available for {}:",
                 len,
                 question.depend()
             );

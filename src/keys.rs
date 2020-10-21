@@ -65,7 +65,7 @@ fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()
         .spawn()
         .with_context(|| {
             format!(
-                "failed to run {} {} --resv-keys {}",
+                "failed to run {} {} --recv-keys {}",
                 config.gpg_bin,
                 config.gpg_flags.join(" "),
                 import.keys().cloned().collect::<Vec<_>>().join(" ")

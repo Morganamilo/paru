@@ -44,7 +44,7 @@ pub fn clean(config: &Config) -> Result<()> {
 
         sprintln!("\nDiff Directory: {}", config.fetch.diff_dir.display());
 
-        let question = "Do you want to remove all saved diffs";
+        let question = "Do you want to remove all saved diffs?";
         if ask(config, question, true) {
             clean_diff(config)?;
         }

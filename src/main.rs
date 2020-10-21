@@ -142,7 +142,7 @@ fn handle_cmd(config: &mut Config) -> Result<i32> {
         "getpkgbuild" => handle_get_pkg_build(config)?,
         "show" => handle_show(config)?,
         "yay" => handle_yay(config)?,
-        _ => bail!("unkown op '{}'", config.op),
+        _ => bail!("unknown op '{}'", config.op),
     };
 
     Ok(ret)
@@ -182,7 +182,7 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
-        let unneeded = util::unneded_pkgs(config, config.clean == 1)?;
+        let unneeded = util::unneeded_pkgs(config, config.clean == 1)?;
         let mut args = config.pacman_args();
         args.remove("c");
         args.remove("clean");
