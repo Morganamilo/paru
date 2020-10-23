@@ -5,10 +5,10 @@
 set -l progname paru
 
 # paru constants
-set -l noopt 'not __fish_contains_opt -s Y -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F database query sync remove upgrade deptest files version'
-set -l listall "(paru -Pc)"
+set -l noopt 'not __fish_contains_opt -s -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F database query sync remove upgrade deptest files version'
+set -l listall "(paru -Pc | string replace ' ' \t)"
 set -l listpacman "(__fish_print_packages)"
-set -l paruspecific '__fish_contains_opt -s Y paru'
+set -l paruspecific '__fish_contains_opt -s'
 set -l show '__fish_contains_opt -s P show'
 set -l getpkgbuild '__fish_contains_opt -s G getpkgbuild'
 
@@ -150,67 +150,37 @@ complete -c $progname -n "$upgrade" -xa '(__fish_complete_suffix pkg.tar.zst; __
 
 
 # paru operations
-complete -c $progname -s Y -f -l paru -n "$noopt" -d 'paru specific operations'
 complete -c $progname -s P -f -l show -n "$noopt" -d 'Print information'
 complete -c $progname -s G -f -l getpkgbuild -n "$noopt" -d 'Get PKGBUILD from ABS or AUR'
 
-# New options
-complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the AUR' -f
-complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the repositories' -f
 
 # paru options
 complete -c $progname -n "$paruspecific" -s c -l clean -d 'Remove unneeded dependencies' -f
 complete -c $progname -n "$paruspecific" -l gendb -d 'Generate development package DB' -f
 
 # Show options
-complete -c $progname -n "$show" -s c -l complete -d 'Print a list of all AUR and repo packages' -f
-#complete -c $progname -n "$show" -s f -l fish -d 'During complete adjust the output for the fish shell' -f
-complete -c $progname -n "$show" -s d -l defaultconfig -d 'Print default paru configuration' -f
-complete -c $progname -n "$show" -s g -l currentconfig -d 'Print current paru configuration' -f
-complete -c $progname -n "$show" -s s -l stats -d 'Display system package statistics' -f
 complete -c $progname -n "$show" -s w -l news -d 'Print arch news' -f
-complete -c $progname -n "$show" -s q -l quiet -d 'Do not print news description' -f
 
 # Getpkgbuild options
-complete -c $progname -n "$getpkgbuild" -s f -l force -d 'Force download for existing ABS packages' -f
+complete -c $progname -n "$getpkgbuild" -s p -l print -d 'Print pkgbuild instead of downloading' -f
 complete -c $progname -n "$getpkgbuild" -xa "$listall"
 
-# Premenent configuration settings
-complete -c $progname -n "not $noopt" -l save -d 'Save current arguments to paru permanent configuration' -f
+# New options
+complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the AUR' -f
+complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the repositories' -f
 complete -c $progname -n "not $noopt" -l aururl -d 'Set an alternative AUR URL' -f
 complete -c $progname -n "not $noopt" -l builddir -d 'Directory to use for Building AUR Packages' -r
-complete -c $progname -n "not $noopt" -l absdir -d 'Directory used to store downloads from the ABS' -r
-complete -c $progname -n "not $noopt" -l editor -d 'Editor to use' -f
-complete -c $progname -n "not $noopt" -l editorflags -d 'Editor flags to use' -f
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
 complete -c $progname -n "not $noopt" -l pacman -d 'Pacman command to use' -f
-complete -c $progname -n "not $noopt" -l tar -d 'Tar command to use' -f
 complete -c $progname -n "not $noopt" -l git -d 'Git command to use' -f
 complete -c $progname -n "not $noopt" -l gpg -d 'Gpg command to use' -f
-complete -c $progname -n "not $noopt" -l config -d 'The pacman config file to use' -r
-complete -c $progname -n "not $noopt" -l makepkgconf -d 'Use custom makepkg.conf location' -r
-complete -c $progname -n "not $noopt" -l nomakepkgconf -d 'Use default makepkg.conf' -f
-complete -c $progname -n "not $noopt" -l requestsplitn -d 'Max amount of packages to query per AUR request' -f
+complete -c $progname -n "not $noopt" -l fm -d 'File manager to use' -f
+complete -c $progname -n "not $noopt" -l requestsplit -d 'Max amount of packages to query per AUR request' -f
 complete -c $progname -n "not $noopt" -l completioninterval -d 'Refresh interval for completion cache' -f
 complete -c $progname -n "not $noopt" -l sortby -d 'Sort AUR results by a specific field during search' -xa "{votes,popularity,id,baseid,name,base,submitted,modified}"
 complete -c $progname -n "not $noopt" -l searchby -d 'Search for AUR packages by querying the specified field' -xa "{name,name-desc,maintainer,depends,checkdepends,makedepends,optdepends}"
-complete -c $progname -n "not $noopt" -l answerclean -d 'Set a predetermined answer for the clean build menu' -xa "{All,None,Installed,NotInstalled}"
-complete -c $progname -n "not $noopt" -l answerdiff -d 'Set a predetermined answer for the edit diff menu' -xa "{All,None,Installed,NotInstalled}"
-complete -c $progname -n "not $noopt" -l answeredit -d 'Set a predetermined answer for the edit pkgbuild menu' -xa "{All,None,Installed,NotInstalled}"
-complete -c $progname -n "not $noopt" -l answerupgrade -d 'Set a predetermined answer for the upgrade menu' -f
-complete -c $progname -n "not $noopt" -l noanswerclean -d 'Unset the answer for the clean build menu' -f
-complete -c $progname -n "not $noopt" -l noanswerdiff -d 'Unset the answer for the diff menu' -f
-complete -c $progname -n "not $noopt" -l noansweredit -d 'Unset the answer for the edit pkgbuild menu' -f
-complete -c $progname -n "not $noopt" -l noanswerupgrade -d 'Unset the answer for the upgrade menu' -f
-complete -c $progname -n "not $noopt" -l cleanmenu -d 'Give the option to clean build PKGBUILDS' -f
-complete -c $progname -n "not $noopt" -l diffmenu -d 'Give the option to show diffs for build files' -f
-complete -c $progname -n "not $noopt" -l editmenu -d 'Give the option to edit/view PKGBUILDS' -f
 complete -c $progname -n "not $noopt" -l upgrademenu -d 'Show a detailed list of updates with the option to skip any' -f
-complete -c $progname -n "not $noopt" -l nocleanmenu -d 'Do not clean build PKGBUILDS' -f
-complete -c $progname -n "not $noopt" -l nodiffmenu -d 'Do not show diffs for build files' -f
-complete -c $progname -n "not $noopt" -l noeditmenu -d 'Do not edit/view PKGBUILDS' -f
 complete -c $progname -n "not $noopt" -l noupgrademenu -d 'Do not show the upgrade menu' -f
-complete -c $progname -n "not $noopt" -l askremovemake -d 'Ask to remove make deps after install' -f
 complete -c $progname -n "not $noopt" -l removemake -d 'Remove make deps after install' -f
 complete -c $progname -n "not $noopt" -l noremovemake -d 'Do not remove make deps after install' -f
 complete -c $progname -n "not $noopt" -l topdown -d 'Shows repository packages first and then aur' -f
@@ -219,10 +189,7 @@ complete -c $progname -n "not $noopt" -l devel -d 'Check -git/-svn/-hg developme
 complete -c $progname -n "not $noopt" -l nodevel -d 'Disable development version checking' -f
 complete -c $progname -n "not $noopt" -l cleanafter -d 'Clean package sources after successful build' -f
 complete -c $progname -n "not $noopt" -l nocleanafter -d 'Disable package sources cleaning' -f
-complete -c $progname -n "not $noopt" -l timeupdate -d 'Check package modification date and version' -f
-complete -c $progname -n "not $noopt" -l notimeupdate -d 'Check only package version change' -f
 complete -c $progname -n "not $noopt" -l redownload -d 'Redownload PKGBUILD of package even if up-to-date' -f
-complete -c $progname -n "not $noopt" -l redownloadall -d 'Redownload PKGBUILD of package and deps even if up-to-date' -f
 complete -c $progname -n "not $noopt" -l noredownload -d 'Do not redownload up-to-date PKGBUILDs' -f
 complete -c $progname -n "not $noopt" -l provides -d 'Look for matching providers when searching for packages' -f
 complete -c $progname -n "not $noopt" -l noprovides -d 'Just look for packages by pkgname' -f
@@ -235,10 +202,13 @@ complete -c $progname -n "not $noopt" -l nocombinedupgrade -d 'Perform the repo 
 complete -c $progname -n "not $noopt" -l batchinstall -d 'Build multiple AUR packages then install them together' -f
 complete -c $progname -n "not $noopt" -l nobatchinstall -d 'Build and install each AUR package one by one' -f
 complete -c $progname -n "not $noopt" -l rebuild -d 'Always build target packages' -f
-complete -c $progname -n "not $noopt" -l rebuildall -d 'Always build all AUR packages' -f
-complete -c $progname -n "not $noopt" -l rebuildtree -d 'Always build all AUR packages even if installed' -f
 complete -c $progname -n "not $noopt" -l norebuild -d 'Skip package build if in cache and up to date' -f
 complete -c $progname -n "not $noopt" -l mflags -d 'Pass the following options to makepkg' -f
+complete -c $progname -n "not $noopt" -l gitflags -d 'Pass the following options to git' -f
 complete -c $progname -n "not $noopt" -l gpgflags -d 'Pass the following options to gpg' -f
+complete -c $progname -n "not $noopt" -l sudoflags -d 'Pass the following options to sudo' -f
+complete -c $progname -n "not $noopt" -l fmflags -d 'Pass the following options to file manager' -f
 complete -c $progname -n "not $noopt" -l sudoloop -d 'Loop sudo calls in the background to avoid timeout' -f
 complete -c $progname -n "not $noopt" -l nosudoloop -d 'Do not loop sudo calls in the background' -f
+
+

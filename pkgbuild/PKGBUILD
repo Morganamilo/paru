@@ -1,7 +1,7 @@
 # Maintainer: Morgan <morganamilo@archlinux.org>
 pkgname=paru-git
 _pkgname=paru
-pkgver=0.0.1.r42.6b5167e
+pkgver=0.0.1.r74.dc35e39
 pkgrel=1
 pkgdesc='AUR helper based on yay'
 url='https://github.com/morganamilo/paru'
