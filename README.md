@@ -30,6 +30,8 @@ makepkg -si
 
 - **Flip search order**: To get search results to start at the bottom and go upwards, enable `BottomUp` in `paru.conf`.
 
+- **Editing pkgbuilds**: When editing pkgbuilds, you can commit your changes to make them perminent. When the package is upgraded, git will try and merge your changes with upstream's.
+
 ## Examples
 
 `paru <target>` -- interactive search and install of `<target>`
