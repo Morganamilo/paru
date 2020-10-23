@@ -21,7 +21,8 @@ pacmanconf = "0.1.1"
 alpm = "1.0.0-rc1"
 alpm-utils = "0.5.0"
 srcinfo = "1.0.0"
-aur-depends = "0.8.0"
+aur-depends = "0.8.1"
+
 
 tokio = { version = "0.2.22", features = ["process", "macros"] }
 ansi_term = "0.12.1"

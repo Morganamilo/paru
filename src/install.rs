@@ -49,7 +49,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_flags.clone())?;
     }
 
-    if config.args.count("needed", "needed") > 1 {
+    if config.args.has_arg("needed", "needed") {
         flags |= Flags::NEEDED;
     }
     if config.args.count("u", "sysupgrade") > 1 {
@@ -119,6 +119,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     config.init_alpm()?;
 
     let mut resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &config.raur, flags)
+        .is_devel(is_devel)
         .provider_callback(move |dep, pkgs| {
             let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
             sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
@@ -787,56 +788,59 @@ fn build_install_pkgbuilds(
             conflict = false;
         }
 
-        let early_pkglist = !is_devel(base);
+        // download sources
+        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+            .success()
+            .with_context(|| format!("failed to download sources for '{}'", base))?;
 
-        let mut pkglist = (HashMap::new(), String::new());
+        // pkgver bump
+        exec::makepkg(config, &dir, &["-ofCA"])?
+            .success()
+            .with_context(|| format!("failed to build '{}'", base))?;
 
-        let mut needs_build = if early_pkglist {
-            sprintln!("{}: parsing pkg list...", base);
-            pkglist = parse_package_list(config, &dir)?;
+        sprintln!("{}: parsing pkg list...", base);
+        let pkglist = parse_package_list(config, &dir)?;
 
-            base.pkgs
-                .iter()
-                .any(|p| !Path::new(pkglist.0.get(&p.pkg.name).unwrap()).exists())
-        } else {
-            true
-        };
+        if config.args.has_arg("needed", "needed") {
+            let mut all_installed = true;
+
+            for pkg in &base.pkgs {
+                if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
+                    if pkg.version().as_str() != pkglist.1 {
+                        all_installed = false;
+                        break;
+                    }
+                }
+            }
+
+            if all_installed {
+                sprintln!(
+                    "{} {}-{} is up to date -- skipping",
+                    c.warning.paint("::"),
+                    base.package_base(),
+                    base.pkgs[0].pkg.version
+                );
+                continue;
+            }
+        }
+
+        let needs_build = base
+            .pkgs
+            .iter()
+            .any(|p| !Path::new(pkglist.0.get(&p.pkg.name).unwrap()).exists());
 
         if needs_build
             || (config.rebuild == "yes" && base.pkgs.iter().any(|p| p.target))
             || config.rebuild == "all"
         {
-            // download sources
-            exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
-                .success()
-                .with_context(|| format!("failed to download sources for '{}'", base))?;
-
-            // pkgver bump
-            exec::makepkg(config, &dir, &["-ofCA"])?
-                .success()
-                .with_context(|| format!("failed to build '{}'", base))?;
-
-            sprintln!("{}: parsing pkg list...", base);
-            pkglist = parse_package_list(config, &dir)?;
-
-            needs_build = base
-                .pkgs
-                .iter()
-                .any(|p| !Path::new(pkglist.0.get(&p.pkg.name).unwrap()).exists());
-
-            if needs_build
-                || (config.rebuild == "yes" && base.pkgs.iter().any(|p| p.target))
-                || config.rebuild == "all"
-            {
-                // actual build
-                exec::makepkg(
-                    config,
-                    &dir,
-                    &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
-                )?
-                .success()
-                .with_context(|| format!("failed to build '{}'", base))?;
-            }
+            // actual build
+            exec::makepkg(
+                config,
+                &dir,
+                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
+            )?
+            .success()
+            .with_context(|| format!("failed to build '{}'", base))?;
         }
 
         let (mut pkgdests, version) = pkglist;
@@ -969,11 +973,8 @@ fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, St
     Ok((pkgdests, version))
 }
 
-static DEVEL_SUFFIXES: &[&str] = &["-git", "-cvs", "-svn", "-bzr", "-darcs"];
+static DEVEL_SUFFIXES: &[&str] = &["-git", "-cvs", "-svn", "-bzr", "-darcs", "-always"];
 
-fn is_devel(base: &aur_depends::Base) -> bool {
-    base.pkgs
-        .iter()
-        .map(|p| &p.pkg.name)
-        .any(|pkg| DEVEL_SUFFIXES.iter().any(|&suff| pkg.ends_with(suff)))
+fn is_devel(pkg: &str) -> bool {
+    DEVEL_SUFFIXES.iter().any(|&suff| pkg.ends_with(suff))
 }
