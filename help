@@ -53,12 +53,9 @@ New options:
     --cleanafter          Remove package sources after successful install
     --nocleanafter        Do not remove package sources after successful build
     --rebuild             Always build target packages
-    --rebuildall          Always build all AUR packages
     --norebuild           Skip package build if in cache and up to date
-    --rebuildtree         Always build all AUR packages even if installed
     --redownload          Always download pkgbuilds of targets
     --noredownload        Skip pkgbuild download if in cache and up to date
-    --redownloadall       Always download pkgbuilds of all AUR packages
 
     --pgpfetch            Prompt to import PGP keys from PKGBUILDs
     --nopgpfetch          Don't prompt to import PGP keys
