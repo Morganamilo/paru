@@ -200,7 +200,6 @@ pub struct Config {
     pub fm_flags: Vec<String>,
 
     pub upgrade_menu: bool,
-    pub answer_upgrade: Option<String>,
 
     pub makepkg_conf: Option<String>,
     pub pacman_conf: Option<String>,
@@ -556,12 +555,7 @@ impl Config {
                 let value = value.unwrap_or("yes").into();
                 self.remove_make = validate(value, yes_no_ask)?;
             }
-            "UpgradeMenu" => {
-                self.upgrade_menu = true;
-                if let Some(value) = value {
-                    self.answer_upgrade = Some(value.to_string());
-                }
-            }
+            "UpgradeMenu" => self.upgrade_menu = true,
             _ => ok1 = false,
         }
 

@@ -227,12 +227,7 @@ pub fn get_upgrades(
         );
     }
 
-    let input = if let Some(ref ans) = config.answer_upgrade {
-        ans.to_string()
-    } else {
-        input(config, "Packages to exclude: ")
-    };
-
+    let input = input(config, "Packages to exclude: ");
     let input = input.trim();
     let number_menu = NumberMenu::new(&input);
 

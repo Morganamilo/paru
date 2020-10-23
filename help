@@ -47,7 +47,7 @@ New options:
     --sortby    <field>   Sort AUR results by a specific field during search
     --searchby  <field>   Search for packages using a specified field
 
-    --upgrademenu [ans]   Show interactive menu to skip upgrades
+    --upgrademenu         Show interactive menu to skip upgrades
     --removemake          Remove makedepends after install
     --noremovemake        Don't remove makedepends after install
     --cleanafter          Remove package sources after successful install

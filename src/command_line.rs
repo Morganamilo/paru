@@ -209,12 +209,7 @@ impl Config {
             Arg::Long("removemake") => {
                 self.remove_make = validate(value.unwrap_or("yes"), yes_no_ask)?
             }
-            Arg::Long("upgrademenu") => {
-                self.upgrade_menu = true;
-                if let Ok(value) = value {
-                    self.answer_upgrade = Some(value.to_string());
-                }
-            }
+            Arg::Long("upgrademenu") => self.upgrade_menu = true,
             Arg::Long("noremovemake") => self.remove_make = "no".to_string(),
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,
