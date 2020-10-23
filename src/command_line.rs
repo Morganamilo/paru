@@ -227,6 +227,7 @@ impl Config {
             Arg::Long("aur") | Arg::Short('a') => self.mode = "aur".to_string(),
             Arg::Long("repo") => self.mode = "repo".to_string(),
             Arg::Long("gendb") => self.gendb = true,
+            Arg::Long("nocheck") => self.no_check = true,
             Arg::Long("devel") => self.devel = true,
             Arg::Long("nodevel") => self.devel = false,
             Arg::Long("provides") => self.provides = true,

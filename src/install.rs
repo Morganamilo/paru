@@ -62,6 +62,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     if config.args.count("d", "nodeps") > 1 {
         flags |= Flags::NO_DEPS;
     }
+    if config.no_check {
+        flags.remove(Flags::CHECK_DEPENDS);
+        config.mflags.push("--nocheck".into());
+    }
     if config.mode == "aur" {
         flags |= Flags::AUR_ONLY;
     }

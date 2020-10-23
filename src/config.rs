@@ -165,6 +165,7 @@ pub struct Config {
     pub help: bool,
     pub version: bool,
 
+    pub no_check: bool,
     pub no_confirm: bool,
     pub sudo_loop: bool,
     pub devel: bool,
@@ -536,6 +537,7 @@ impl Config {
             "RepoOnly" => self.mode = "repo".into(),
             "SudoLoop" => self.sudo_loop = true,
             "Devel" => self.devel = true,
+            "NoCheck" => self.no_check = true,
             "CleanAfter" => self.clean_after = true,
             "Provides" => self.provides = true,
             "PgpFetch" => self.pgp_fetch = true,

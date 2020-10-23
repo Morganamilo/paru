@@ -70,6 +70,7 @@ New options:
     --nobatchinstall      Build and install each AUR package one by one
     --provides            Look for matching providers when searching for packages
     --noprovides          Just look for packages by pkgname
+    --nocheck             Don't resolve checkdepends or run the check function
     --devel               Check development packages during sysupgrade
     --nodevel             Do not check development packages
     --sudoloop            Loop sudo calls in the background to avoid timeout
