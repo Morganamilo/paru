@@ -348,29 +348,62 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
-    let client = reqwest::blocking::Client::new();
+    let (repo, aur) = split_repo_aur_mode(config, &config.targets);
 
-    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[])?;
-    warnings.missing(config.color, config.cols);
-    let ret = !warnings.missing.is_empty() as i32;
-    let bases = Bases::from_iter(warnings.pkgs);
+    if !repo.is_empty() {
+        let asp = &config.asp_bin;
 
-    for base in &bases.bases {
-        let base = base.package_base().to_string();
-        let url = config
-            .aur_url
-            .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", base))?;
-
-        let response = client
-            .get(url.clone())
-            .send()
-            .with_context(|| format!("{}: {}", base, url))?;
-        if !response.status().is_success() {
-            bail!("{}: {}: {}", base, url, response.status());
+        if Command::new(asp).output().is_err() {
+            esprintln!("{} is not installed: can not get repo packages", asp);
+            return Ok(1);
         }
 
-        let _ = stdout.write_all(&response.bytes()?);
+        for pkg in repo {
+            Command::new(asp)
+                .arg("update")
+                .arg(&pkg)
+                .output()
+                .with_context(|| format!("failed to run: {} update {:?}", asp, pkg))?;
+
+            Command::new(asp)
+                .arg("show")
+                .arg(&pkg)
+                .spawn()?
+                .wait()
+                .with_context(|| format!("failed to run: {} show {:?}", asp, pkg))?;
+
+            let _ = stdout.write_all(b"\n");
+        }
     }
 
-    Ok(ret)
+    if !aur.is_empty() {
+        let client = reqwest::blocking::Client::new();
+
+        let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &[])?;
+        warnings.missing(config.color, config.cols);
+        let ret = !warnings.missing.is_empty() as i32;
+        let bases = Bases::from_iter(warnings.pkgs);
+
+        for base in &bases.bases {
+            let base = base.package_base().to_string();
+            let url = config
+                .aur_url
+                .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", base))?;
+
+            let response = client
+                .get(url.clone())
+                .send()
+                .with_context(|| format!("{}: {}", base, url))?;
+            if !response.status().is_success() {
+                bail!("{}: {}: {}", base, url, response.status());
+            }
+
+            let _ = stdout.write_all(&response.bytes()?);
+            let _ = stdout.write_all(b"\n");
+        }
+
+        return Ok(ret);
+    }
+
+    return Ok(0);
 }

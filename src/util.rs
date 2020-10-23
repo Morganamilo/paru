@@ -17,22 +17,28 @@ pub struct NumberMenu<'a> {
     pub ex_word: Vec<&'a str>,
 }
 
-pub fn split_repo_aur_pkgs<'a>(config: &Config, pkgs: &[&'a str]) -> (Vec<&'a str>, Vec<&'a str>) {
+pub fn split_repo_aur_pkgs<'a, S: AsRef<str> + Clone>(
+    config: &Config,
+    pkgs: &[S],
+) -> (Vec<S>, Vec<S>) {
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
-    for &pkg in pkgs {
-        if config.alpm.syncdbs().pkg(pkg).is_ok() {
-            local.push(pkg);
+    for pkg in pkgs {
+        if config.alpm.syncdbs().pkg(pkg.as_ref()).is_ok() {
+            local.push(pkg.clone());
         } else {
-            aur.push(pkg);
+            aur.push(pkg.clone());
         }
     }
 
     (local, aur)
 }
 
-pub fn split_repo_aur_mode<'a>(config: &Config, pkgs: &[&'a str]) -> (Vec<&'a str>, Vec<&'a str>) {
+pub fn split_repo_aur_mode<'a, S: AsRef<str> + Clone>(
+    config: &Config,
+    pkgs: &[S],
+) -> (Vec<S>, Vec<S>) {
     if config.mode == "aur" {
         (Vec::new(), pkgs.to_vec())
     } else if config.mode == "repo" {
