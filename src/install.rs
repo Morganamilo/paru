@@ -126,7 +126,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
                 "{} {} {}:",
                 c.action.paint("::"),
                 c.bold.paint("Repository"),
-                color_repo("AUR")
+                color_repo(c.enabled, "AUR")
             );
             sprint!("    ");
             for (n, pkg) in pkgs.iter().enumerate() {
@@ -155,7 +155,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
                         "{} {} {}",
                         c.action.paint("::"),
                         c.bold.paint("Repository"),
-                        color_repo(group.db.name())
+                        color_repo(c.enabled, group.db.name())
                     );
                     sprint!("    ");
                 }

@@ -106,7 +106,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity);
     sprint!(
         "{}/{} {} [{}]",
-        color_repo("aur"),
+        color_repo(c.enabled, "aur"),
         c.ss_name.paint(&pkg.name),
         c.ss_ver.paint(&pkg.version),
         c.ss_stats.paint(stats),
@@ -150,7 +150,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     let ver: &str = pkg.version().as_ref();
     sprint!(
         "{}/{} {} [{}]",
-        color_repo(pkg.db().unwrap().name()),
+        color_repo(c.enabled, pkg.db().unwrap().name()),
         c.ss_name.paint(pkg.name()),
         c.ss_ver.paint(ver),
         c.ss_stats.paint(stats),

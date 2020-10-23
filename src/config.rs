@@ -644,7 +644,7 @@ fn question(question: &mut Question) {
                         "{} {} {}:",
                         c.action.paint("::"),
                         c.bold.paint("Repository"),
-                        color_repo(pkg_db.name())
+                        color_repo(c.enabled, pkg_db.name())
                     );
                     sprint!("    ");
                 }

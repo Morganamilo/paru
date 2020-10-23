@@ -90,7 +90,7 @@ fn print_upgrade(
     let n = format!("{:>pad$}", n, pad = n_max);
     let db_pkg = format!(
         "{}/{}{:pad$}",
-        color_repo(&db),
+        color_repo(config.color.enabled, &db),
         c.bold.paint(pkg),
         "",
         pad = db_pkg_max - (db.len() + pkg.len()) + 1

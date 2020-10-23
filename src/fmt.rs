@@ -72,7 +72,11 @@ pub fn print_indent<S: AsRef<str>>(
 
 use ansi_term::Color;
 
-pub fn color_repo(name: &str) -> String {
+pub fn color_repo(enabled: bool, name: &str) -> String {
+    if !enabled {
+        return name.to_string();
+    }
+
     let mut col: u32 = 5;
 
     for &b in name.as_bytes() {
