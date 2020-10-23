@@ -531,7 +531,7 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         c.action.paint("::"),
         c.bold.paint("Calculating conflicts...")
     );
-    let conflicts = actions.calculate_conflicts()?;
+    let conflicts = actions.calculate_conflicts();
     sprintln!(
         "{} {}",
         c.action.paint("::"),
@@ -766,15 +766,7 @@ fn build_install_pkgbuilds(
                     .chain(&pkg.pkg.check_depends);
 
                 satisfied = deps
-                    .find(|dep| {
-                        config
-                            .alpm
-                            .localdb()
-                            .pkgs()
-                            .unwrap()
-                            .find_satisfier(*dep)
-                            .is_none()
-                    })
+                    .find(|dep| config.alpm.localdb().pkgs().find_satisfier(*dep).is_none())
                     .is_none();
             }
         }

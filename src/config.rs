@@ -640,7 +640,7 @@ fn question(question: &mut Question) {
             sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
             let mut db = String::new();
-            for (n, pkg) in providers.enumerate() {
+            for (n, pkg) in providers.iter().enumerate() {
                 let pkg_db = pkg.db().unwrap();
                 if pkg_db.name() != db {
                     db = pkg_db.name().to_string();

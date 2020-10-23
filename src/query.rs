@@ -19,7 +19,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     }
 
     let targets: Vec<_> = if config.targets.is_empty() {
-        let all_pkgs = db.pkgs()?.map(|p| p.name()).collect::<Vec<_>>();
+        let all_pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
         if config.mode == "aur" {
             split_repo_aur_pkgs(config, &all_pkgs).1
         } else if config.mode == "repo" {

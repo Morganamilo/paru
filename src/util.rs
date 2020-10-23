@@ -8,7 +8,6 @@ use std::ops::Range;
 
 use alpm::PackageReason;
 use alpm_utils::{DbListExt, Targ};
-use anyhow::Result;
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {
@@ -65,11 +64,11 @@ pub fn split_repo_aur_targets<'a>(
             .alpm
             .syncdbs()
             .find_target_satisfier(targ.pkg)
-            .unwrap()
             .is_some()
             || config
                 .alpm
                 .syncdbs()
+                .iter()
                 .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
                 .any(|db| db.group(targ.pkg).is_ok())
         {
@@ -135,13 +134,13 @@ enum State {
     Keep,
 }
 
-pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a str>> {
+pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Vec<&'a str> {
     let mut states = HashMap::new();
     let mut remove = Vec::new();
     let mut providers = HashMap::<_, Vec<_>>::new();
     let db = config.alpm.localdb();
 
-    for pkg in db.pkgs()? {
+    for pkg in db.pkgs() {
         providers
             .entry(pkg.name().to_string())
             .or_default()
@@ -165,7 +164,7 @@ pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a s
     while again {
         again = false;
 
-        let mut check_deps = |deps: alpm::AlpmList<alpm::Depend>| {
+        let mut check_deps = |deps: alpm::AlpmList<alpm::Dep>| {
             for dep in deps {
                 if let Some(deps) = providers.get(dep.name()) {
                     for dep in deps {
@@ -205,13 +204,13 @@ pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Result<Vec<&'a s
         }
     }
 
-    for pkg in db.pkgs()? {
+    for pkg in db.pkgs() {
         if states.get(pkg.name()).unwrap().get() == State::Remove {
             remove.push(pkg.name());
         }
     }
 
-    Ok(remove)
+    remove
 }
 
 impl<'a> NumberMenu<'a> {

@@ -71,33 +71,27 @@ fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Resul
     Ok(())
 }
 
-fn repo_list<W: Write>(config: &Config, w: &mut W) -> Result<()> {
+fn repo_list<W: Write>(config: &Config, w: &mut W) {
     for db in config.alpm.syncdbs() {
-        for pkg in db.pkgs()? {
+        for pkg in db.pkgs() {
             let _ = w.write_all(pkg.name().as_bytes());
             let _ = w.write_all(b" ");
             let _ = w.write_all(db.name().as_bytes());
             let _ = w.write_all(b"\n");
         }
     }
-
-    Ok(())
 }
 
 pub fn print(config: &Config, timeout: Option<u64>) -> i32 {
     let stdout = stdout();
     let mut stdout = stdout.lock();
-    let mut ret = 0;
 
-    if let Err(err) = repo_list(config, &mut stdout) {
-        ret = 1;
-        print_error(config.color.error, err);
-    }
+    repo_list(config, &mut stdout);
 
     if let Err(err) = aur_list(config, &mut stdout, timeout) {
-        ret = 1;
         print_error(config.color.error, err);
+        return 1;
     }
 
-    ret
+    0
 }

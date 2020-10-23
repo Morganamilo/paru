@@ -99,21 +99,26 @@ fn print_error(color: Style, err: Error) {
 }
 
 fn main() {
+    let i = main2();
+    std::process::exit(i);
+}
+
+fn main2() -> i32 {
     //env_logger::init();
     let mut config = match Config::new() {
         Ok(config) => config,
         Err(err) => {
             print_error(Style::new(), err);
-            std::process::exit(1);
+            return 1;
         }
     };
 
     match run(&mut config) {
         Err(err) => {
             print_error(config.color.error, err);
-            std::process::exit(1);
+            return 1;
         }
-        Ok(ret) => std::process::exit(ret),
+        Ok(ret) => ret,
     }
 }
 
@@ -182,7 +187,7 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
-        let unneeded = util::unneeded_pkgs(config, config.clean == 1)?;
+        let unneeded = util::unneeded_pkgs(config, config.clean == 1);
         let mut args = config.pacman_args();
         args.remove("c");
         args.remove("clean");

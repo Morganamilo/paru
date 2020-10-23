@@ -22,18 +22,20 @@ pub fn repo_upgrades<'a>(config: &'a Config) -> Result<Vec<alpm::Package<'a>>> {
         .alpm
         .trans_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
 
-    let mut pkgs = config.alpm.trans_add().collect::<Vec<_>>();
+    let mut pkgs = config.alpm.trans_add().iter().collect::<Vec<_>>();
 
     pkgs.sort_by(|a, b| {
         config
             .alpm
             .syncdbs()
+            .iter()
             .position(|db| db.name() == a.db().unwrap().name())
             .unwrap()
             .cmp(
                 &config
                     .alpm
                     .syncdbs()
+                    .iter()
                     .position(|db| db.name() == b.db().unwrap().name())
                     .unwrap(),
             )

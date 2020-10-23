@@ -59,7 +59,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
     let bold = config.color.bold;
 
     let db = config.alpm.localdb();
-    let pkgs = db.pkgs()?.map(|p| p.name()).collect::<Vec<_>>();
+    let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
     let ignore = &config.ignore;
 
     let aur = split_repo_aur_pkgs(config, &pkgs).1;

@@ -16,16 +16,17 @@ enum Tag {
     Other,
 }
 
-pub fn newest_pkg(config: &Config) -> Result<i64> {
+pub fn newest_pkg(config: &Config) -> i64 {
     let max = config
         .alpm
         .localdb()
-        .pkgs()?
+        .pkgs()
+        .iter()
         .map(|p| p.build_date())
         .max()
         .unwrap_or_default();
 
-    Ok(max)
+    max
 }
 
 pub fn news(config: &Config) -> Result<()> {
@@ -43,7 +44,7 @@ pub fn news(config: &Config) -> Result<()> {
 
         match chrono::DateTime::parse_from_rfc2822(date) {
             Ok(date) => {
-                if config.news < 2 && date.timestamp() < newest_pkg(config)? {
+                if config.news < 2 && date.timestamp() < newest_pkg(config) {
                     continue;
                 }
 

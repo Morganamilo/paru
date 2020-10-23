@@ -37,7 +37,7 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
     let mut ret = Vec::new();
 
     for db in config.alpm.syncdbs() {
-        let pkgs = db.search(targets)?;
+        let pkgs = db.search(targets.iter())?;
         ret.extend(pkgs);
     }
 

@@ -8,7 +8,6 @@ use std::io::Write;
 pub fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
     let dbs = config.alpm.syncdbs();
-    let dbs = dbs.collect::<Vec<_>>();
 
     if args.targets.is_empty() {
         args.targets = dbs.iter().map(|db| db.name()).collect();
@@ -58,7 +57,9 @@ pub fn list_aur(config: &Config) -> Result<()> {
         }
         let _ = repo.paint(&b"aur "[..]).write_to(&mut stdout);
         let _ = pkg.paint(line).write_to(&mut stdout);
-        let _ = version.paint(&b" unknown-version"[..]).write_to(&mut stdout);
+        let _ = version
+            .paint(&b" unknown-version"[..])
+            .write_to(&mut stdout);
 
         if db.pkg(String::from_utf8_lossy(&line)).is_ok() {
             let _ = installed.paint(&b" [installed]"[..]).write_to(&mut stdout);
