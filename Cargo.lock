@@ -1192,9 +1192,9 @@ dependencies = [
 
 [[package]]
 name = "raur-ext"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5c2083213c0f7d70a83d52cf76fad5653bc72eea5c974bf8a58078389525641"
+checksum = "aae28cdc11ab496ec1b2d3677d531d83a40b04c6ee5456830b94be2de6bc3394"
 dependencies = [
  "raur",
 ]
