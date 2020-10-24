@@ -960,7 +960,7 @@ dependencies = [
 
 [[package]]
 name = "paru"
-version = "0.99.3"
+version = "0.99.4"
 dependencies = [
  "alpm",
  "alpm-utils",
