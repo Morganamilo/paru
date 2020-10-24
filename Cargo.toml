@@ -15,7 +15,7 @@ keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 [dependencies]
 cini = "0.1.1"
 raur = "3.0.1"
-raur-ext = "2.0.0"
+raur-ext = "2.0.1"
 aur-fetch = "0.7.1"
 pacmanconf = "0.1.1"
 alpm = "1.0.0-rc1"
@@ -48,7 +48,7 @@ percent-encoding = "2.1.0"
 alpm = "1.0.0-rc1"
 
 [profile.release]
-lto = true
+#lto = true
 
 [features]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
