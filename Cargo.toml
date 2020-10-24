@@ -36,7 +36,7 @@ smart-default = "0.6.0"
 reqwest = { version = "0.10.8", features = ["gzip"] }
 serde = { version = "1.0.117", features = ["derive"] }
 serde_json = "1.0.59"
-futures = "0.3.6"
+futures = "0.3.7"
 rss = { version = "1.9.0", default-features = false }
 htmlescape = "0.3.1"
 indicatif = "0.15.0"
