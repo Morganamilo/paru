@@ -481,12 +481,18 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         args.remove("u").remove("sysupgrade");
     }
 
-    for pkg in install {
-        if config.alpm.localdb().pkg(pkg.pkg.name()).is_err() {
-            if pkg.target {
-                exp.push(pkg.pkg.name())
-            } else {
-                deps.push(pkg.pkg.name())
+    if config.globals.has_arg("asexplicit", "asexplicit") {
+        exp.extend(install.iter().map(|p| p.pkg.name()));
+    } else if config.globals.has_arg("asdeps", "asdeps") {
+        deps.extend(install.iter().map(|p| p.pkg.name()));
+    } else {
+        for pkg in install {
+            if config.alpm.localdb().pkg(pkg.pkg.name()).is_err() {
+                if pkg.target {
+                    exp.push(pkg.pkg.name())
+                } else {
+                    deps.push(pkg.pkg.name())
+                }
             }
         }
     }
@@ -872,11 +878,17 @@ fn build_install_pkgbuilds(
                 }
             }
 
-            if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() && pkg.target {
-                if pkg.target {
-                    exp.push(pkg.pkg.name.as_str())
-                } else {
-                    deps.push(pkg.pkg.name.as_str())
+            if config.globals.has_arg("asexplicit", "asexplicit") {
+                exp.push(pkg.pkg.name.as_str());
+            } else if config.globals.has_arg("asdeps", "asdeps") {
+                deps.push(pkg.pkg.name.as_str());
+            } else {
+                if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() {
+                    if pkg.target {
+                        exp.push(pkg.pkg.name.as_str())
+                    } else {
+                        deps.push(pkg.pkg.name.as_str())
+                    }
                 }
             }
 
