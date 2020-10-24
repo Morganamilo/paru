@@ -189,8 +189,7 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
         config.need_root = true;
         let unneeded = util::unneeded_pkgs(config, config.clean == 1);
         let mut args = config.pacman_args();
-        args.remove("c");
-        args.remove("clean");
+        args.remove("c").remove("clean");
         args.targets = unneeded;
         args.op = "remove";
         Ok(exec::pacman(config, &args)?.code())
