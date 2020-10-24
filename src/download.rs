@@ -14,10 +14,13 @@ use alpm::Version;
 use ansi_term::Style;
 use anyhow::{bail, Context, Result};
 use aur_depends::Base;
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
 
 use indicatif::{ProgressBar, ProgressStyle};
+
+const FRAGMENT: &AsciiSet = &CONTROLS.add(b'@').add(b'+');
 
 #[derive(Debug, Clone)]
 pub struct Bases {
@@ -386,6 +389,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
         for base in &bases.bases {
             let base = base.package_base().to_string();
+            let base = utf8_percent_encode(&base, FRAGMENT);
             let url = config
                 .aur_url
                 .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", base))?;
