@@ -259,6 +259,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     let actions = resolver.resolve_targets(&targets)?;
 
+    if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
+        bail!("can't install AUR package as root");
+    }
+
     let conflicts = check_actions(config, &actions)?;
 
     if actions.build.is_empty() && actions.install.is_empty() {
