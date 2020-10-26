@@ -17,10 +17,12 @@ use std::iter::FromIterator;
 use std::path::Path;
 use std::process::Command;
 
+use alpm::Alpm;
 use alpm_utils::Targ;
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
-use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage};
+use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage, Resolver};
+use raur_ext::Cache;
 use srcinfo::Srcinfo;
 
 fn early_refresh(config: &Config) -> Result<()> {
@@ -40,43 +42,11 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
 }
 
 pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
-    let mut flags = Flags::new();
     let mut cache = raur_ext::Cache::new();
     let c = config.color;
-    let no_confirm = config.no_confirm;
 
     if config.sudo_loop {
         exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_flags.clone())?;
-    }
-
-    if config.args.has_arg("needed", "needed") {
-        flags |= Flags::NEEDED;
-    }
-    if config.args.count("u", "sysupgrade") > 1 {
-        flags |= Flags::ENABLE_DOWNGRADE;
-    }
-    if config.args.count("d", "nodeps") > 0 {
-        flags |= Flags::NO_DEP_VERSION;
-        config.mflags.push("-d".to_string());
-    }
-    if config.args.count("d", "nodeps") > 1 {
-        flags |= Flags::NO_DEPS;
-    }
-    if config.no_check {
-        flags.remove(Flags::CHECK_DEPENDS);
-        config.mflags.push("--nocheck".into());
-    }
-    if config.mode == "aur" {
-        flags |= Flags::AUR_ONLY;
-    }
-    if config.mode == "repo" {
-        flags |= Flags::REPO_ONLY;
-    }
-    if !config.provides {
-        flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);
-    }
-    if config.op == "yay" {
-        flags.remove(Flags::TARGET_PROVIDES);
     }
 
     config.op = "sync".to_string();
@@ -118,84 +88,8 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     config.init_alpm()?;
 
-    let devel_suffixes = config.devel_suffixes.clone();
-    let is_devel =
-        move |pkg: &str| -> bool { devel_suffixes.iter().any(|suff| pkg.ends_with(suff)) };
-
-    let mut resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &config.raur, flags)
-        .is_devel(is_devel)
-        .provider_callback(move |dep, pkgs| {
-            let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
-            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
-            sprintln!(
-                "{} {} {}:",
-                c.action.paint("::"),
-                c.bold.paint("Repository"),
-                color_repo(c.enabled, "AUR")
-            );
-            sprint!("    ");
-            for (n, pkg) in pkgs.iter().enumerate() {
-                sprint!("{}) {}  ", n + 1, pkg);
-            }
-
-            get_provider(pkgs.len())
-        })
-        .group_callback(move |groups| {
-            let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
-            let mut pkgs = Vec::new();
-            sprintln!(
-                "{} {} {}:",
-                c.action.paint("::"),
-                c.bold
-                    .paint(format!("There are {} members in group", total)),
-                c.group.paint(groups[0].group.name()),
-            );
-
-            let mut repo = String::new();
-
-            for group in groups {
-                if group.db.name() != repo {
-                    repo = group.db.name().to_string();
-                    sprintln!(
-                        "{} {} {}",
-                        c.action.paint("::"),
-                        c.bold.paint("Repository"),
-                        color_repo(c.enabled, group.db.name())
-                    );
-                    sprint!("    ");
-                }
-
-                let mut n = 1;
-                for pkg in group.group.packages() {
-                    sprint!("{}) {}  ", n, pkg.name());
-                    n += 1;
-                }
-            }
-
-            sprint!("\n\nEnter a selection (default=all): ");
-            let _ = stdout().lock().flush();
-
-            let stdin = stdin();
-            let mut stdin = stdin.lock();
-            let mut input = String::new();
-
-            input.clear();
-            if !no_confirm {
-                let _ = stdin.read_line(&mut input);
-            }
-
-            let menu = NumberMenu::new(input.trim());
-            let mut n = 1;
-
-            for pkg in groups.iter().flat_map(|g| g.group.packages()) {
-                if menu.contains(n, "") {
-                    pkgs.push(pkg);
-                }
-                n += 1;
-            }
-
-            pkgs
-        });
+    let flags = flags(config);
+    let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
         let aur_upgrades = if config.mode != "repo" {
@@ -992,4 +886,127 @@ fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, St
     }
 
     Ok((pkgdests, version))
+}
+
+fn flags(config: &mut Config) -> aur_depends::Flags {
+    let mut flags = Flags::new();
+
+    if config.args.has_arg("needed", "needed") {
+        flags |= Flags::NEEDED;
+    }
+    if config.args.count("u", "sysupgrade") > 1 {
+        flags |= Flags::ENABLE_DOWNGRADE;
+    }
+    if config.args.count("d", "nodeps") > 0 {
+        flags |= Flags::NO_DEP_VERSION;
+        config.mflags.push("-d".to_string());
+    }
+    if config.args.count("d", "nodeps") > 1 {
+        flags |= Flags::NO_DEPS;
+    }
+    if config.no_check {
+        flags.remove(Flags::CHECK_DEPENDS);
+        config.mflags.push("--nocheck".into());
+    }
+    if config.mode == "aur" {
+        flags |= Flags::AUR_ONLY;
+    }
+    if config.mode == "repo" {
+        flags |= Flags::REPO_ONLY;
+    }
+    if !config.provides {
+        flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);
+    }
+    if config.op == "yay" {
+        flags.remove(Flags::TARGET_PROVIDES);
+    }
+
+    flags
+}
+
+fn resolver<'a>(
+    config: &Config,
+    alpm: &'a Alpm,
+    raur: &'a raur::Handle,
+    cache: &'a mut Cache,
+    flags: Flags,
+) -> Resolver<'a> {
+    let devel_suffixes = config.devel_suffixes.clone();
+    let c = config.color;
+    let no_confirm = config.no_confirm;
+
+    aur_depends::Resolver::new(alpm, cache, raur, flags)
+        .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
+        .provider_callback(move |dep, pkgs| {
+            let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
+            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+            sprintln!(
+                "{} {} {}:",
+                c.action.paint("::"),
+                c.bold.paint("Repository"),
+                color_repo(c.enabled, "AUR")
+            );
+            sprint!("    ");
+            for (n, pkg) in pkgs.iter().enumerate() {
+                sprint!("{}) {}  ", n + 1, pkg);
+            }
+
+            get_provider(pkgs.len())
+        })
+        .group_callback(move |groups| {
+            let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
+            let mut pkgs = Vec::new();
+            sprintln!(
+                "{} {} {}:",
+                c.action.paint("::"),
+                c.bold
+                    .paint(format!("There are {} members in group", total)),
+                c.group.paint(groups[0].group.name()),
+            );
+
+            let mut repo = String::new();
+
+            for group in groups {
+                if group.db.name() != repo {
+                    repo = group.db.name().to_string();
+                    sprintln!(
+                        "{} {} {}",
+                        c.action.paint("::"),
+                        c.bold.paint("Repository"),
+                        color_repo(c.enabled, group.db.name())
+                    );
+                    sprint!("    ");
+                }
+
+                let mut n = 1;
+                for pkg in group.group.packages() {
+                    sprint!("{}) {}  ", n, pkg.name());
+                    n += 1;
+                }
+            }
+
+            sprint!("\n\nEnter a selection (default=all): ");
+            let _ = stdout().lock().flush();
+
+            let stdin = stdin();
+            let mut stdin = stdin.lock();
+            let mut input = String::new();
+
+            input.clear();
+            if !no_confirm {
+                let _ = stdin.read_line(&mut input);
+            }
+
+            let menu = NumberMenu::new(input.trim());
+            let mut n = 1;
+
+            for pkg in groups.iter().flat_map(|g| g.group.packages()) {
+                if menu.contains(n, "") {
+                    pkgs.push(pkg);
+                }
+                n += 1;
+            }
+
+            pkgs
+        })
 }
