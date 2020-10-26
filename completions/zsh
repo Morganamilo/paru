@@ -66,6 +66,7 @@ _pacman_opts_common=(
 	'--topdown[Show repository packages first]'
 	'--devel[Check -git/-svn/-hg development version]'
 	'--nodevel[Disable development version checking]'
+	'--develsuffixes[Suffixes to define development packages]:suffixes'
 	'--cleanafter[Clean package sources after successful build]'
 	'--nocleanafter[Disable package sources cleaning after successful build]'
 	'--redownload[Always download pkgbuilds of targets]'

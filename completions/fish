@@ -187,6 +187,7 @@ complete -c $progname -n "not $noopt" -l topdown -d 'Shows repository packages f
 complete -c $progname -n "not $noopt" -l bottomup -d 'Shows aur packages first and then repository' -f
 complete -c $progname -n "not $noopt" -l devel -d 'Check -git/-svn/-hg development version' -f
 complete -c $progname -n "not $noopt" -l nodevel -d 'Disable development version checking' -f
+complete -c $progname -n "not $noopt" -l develsuffixes -d 'Suffixes to define development packages' -f
 complete -c $progname -n "not $noopt" -l cleanafter -d 'Clean package sources after successful build' -f
 complete -c $progname -n "not $noopt" -l nocleanafter -d 'Disable package sources cleaning' -f
 complete -c $progname -n "not $noopt" -l redownload -d 'Redownload PKGBUILD of package even if up-to-date' -f
