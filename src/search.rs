@@ -9,6 +9,11 @@ use anyhow::{Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 
+enum AnyPkg<'a> {
+    RepoPkg(alpm::Package<'a>),
+    AurPkg(raur::Package),
+}
+
 pub fn search(config: &Config) -> Result<i32> {
     let quiet = config.args.has_arg("q", "quiet");
     let repo_pkgs = search_repos(config, &config.targets)?;
@@ -183,38 +188,74 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
 pub fn search_install(config: &mut Config) -> Result<i32> {
     let repo_pkgs = search_repos(config, &config.targets)?;
     let aur_pkgs = search_aur(config, &config.targets)?;
+    let mut all_pkgs = Vec::new();
     let len = repo_pkgs.len() + aur_pkgs.len();
     let pad = len.to_string().len();
     let c = config.color;
 
-    if len == 0 {
+    for pkg in repo_pkgs {
+        all_pkgs.push(AnyPkg::RepoPkg(pkg));
+    }
+    for pkg in aur_pkgs {
+        all_pkgs.push(AnyPkg::AurPkg(pkg));
+    }
+
+    if all_pkgs.is_empty() {
         sprintln!("no packages match search");
         return Ok(1);
     }
 
-    if config.sort_mode == "topdown" {
-        for (n, pkg) in repo_pkgs.iter().enumerate() {
-            let n = format!("{:>pad$}", n + 1, pad = pad);
-            sprint!("{} ", c.number_menu.paint(n));
-            print_alpm_pkg(config, pkg, false)
+    let indexes = all_pkgs
+        .iter()
+        .enumerate()
+        .filter_map(|(n, pkg)| {
+            let name = match pkg {
+                AnyPkg::RepoPkg(pkg) => pkg.name(),
+                AnyPkg::AurPkg(pkg) => pkg.name.as_str(),
+            };
+
+            if config.targets.iter().any(|targ| targ == name) {
+                Some(n)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
+
+        for (i,n) in indexes.iter().enumerate().rev() {
+            let pkg = all_pkgs.remove(i + n);
+            all_pkgs.insert(0, pkg);
         }
 
-        for (n, pkg) in aur_pkgs.iter().enumerate() {
-            let n = format!("{:>pad$}", n + repo_pkgs.len() + 1, pad = pad);
-            sprint!("{}{} ", "", c.number_menu.paint(n));
-            print_pkg(config, pkg, false)
+    if config.sort_mode == "topdown" {
+        for (n, pkg) in all_pkgs.iter().enumerate() {
+            match pkg {
+                AnyPkg::RepoPkg(pkg) => {
+                    let n = format!("{:>pad$}", n + 1, pad = pad);
+                    sprint!("{} ", c.number_menu.paint(n));
+                    print_alpm_pkg(config, pkg, false)
+                },
+                AnyPkg::AurPkg(pkg) => {
+                    let n = format!("{:>pad$}", n + 1, pad = pad);
+                    sprint!("{}{} ", "", c.number_menu.paint(n));
+                    print_pkg(config, pkg, false)
+                },
+            };
         }
     } else {
-        for (n, pkg) in aur_pkgs.iter().rev().enumerate() {
-            let n = format!("{:>pad$}", len - n, pad = pad);
-            sprint!("{} ", c.number_menu.paint(n));
-            print_pkg(config, pkg, false)
-        }
-
-        for (n, pkg) in repo_pkgs.iter().rev().enumerate() {
-            let n = format!("{:>pad$}", len - (n + aur_pkgs.len()), pad = pad);
-            sprint!("{}{} ", "", c.number_menu.paint(n));
-            print_alpm_pkg(config, pkg, false)
+        for (n, pkg) in all_pkgs.iter().enumerate().rev() {
+            match pkg {
+                AnyPkg::RepoPkg(pkg) => {
+                    let n = format!("{:>pad$}", n + 1, pad = pad);
+                    sprint!("{} ", c.number_menu.paint(n));
+                    print_alpm_pkg(config, pkg, false)
+                },
+                AnyPkg::AurPkg(pkg) => {
+                    let n = format!("{:>pad$}", n + 1, pad = pad);
+                    sprint!("{}{} ", "", c.number_menu.paint(n));
+                    print_pkg(config, pkg, false)
+                },
+            };
         }
     }
 
@@ -223,27 +264,34 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     let mut pkgs = Vec::new();
 
     if config.sort_mode == "topdown" {
-        for (n, pkg) in repo_pkgs.iter().enumerate() {
+        for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
-                pkgs.push(pkg.name().to_string())
+                match pkg {
+                    AnyPkg::RepoPkg(pkg) => {
+                        pkgs.push(pkg.name().to_string())
+                    },
+                    AnyPkg::AurPkg(pkg) => {
+                        pkgs.push(pkg.name.clone())
+                    },
+                    
+                }
             }
-        }
-        for (n, pkg) in aur_pkgs.iter().enumerate() {
-            if menu.contains(n + repo_pkgs.len() + 1, "") {
-                pkgs.push(pkg.name.clone())
-            }
+
         }
     } else {
-        for (n, pkg) in aur_pkgs.iter().rev().enumerate() {
-            if menu.contains(len - n, "") {
-                pkgs.push(pkg.name.clone())
+        for (n, pkg) in all_pkgs.iter().enumerate().rev() {
+            if menu.contains(n + 1, "") {
+                match pkg {
+                    AnyPkg::RepoPkg(pkg) => {
+                        pkgs.push(pkg.name().to_string())
+                    },
+                    AnyPkg::AurPkg(pkg) => {
+                        pkgs.push(pkg.name.clone())
+                    },
+                    
+                }
             }
-        }
 
-        for (n, pkg) in repo_pkgs.iter().rev().enumerate() {
-            if menu.contains(len - (n + aur_pkgs.len()), "") {
-                pkgs.push(pkg.name().to_string())
-            }
         }
     }
 

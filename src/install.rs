@@ -119,9 +119,8 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     config.init_alpm()?;
 
     let devel_suffixes = config.devel_suffixes.clone();
-    let is_devel = move |pkg: &str| -> bool {
-        devel_suffixes.iter().any(|suff| pkg.ends_with(suff))
-    };
+    let is_devel =
+        move |pkg: &str| -> bool { devel_suffixes.iter().any(|suff| pkg.ends_with(suff)) };
 
     let mut resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &config.raur, flags)
         .is_devel(is_devel)
