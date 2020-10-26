@@ -409,5 +409,5 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         return Ok(ret);
     }
 
-    return Ok(0);
+    Ok(0)
 }

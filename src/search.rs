@@ -11,7 +11,7 @@ use raur::{Raur, SearchBy};
 
 enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
-    AurPkg(raur::Package),
+    AurPkg(&'a raur::Package),
 }
 
 pub fn search(config: &Config) -> Result<i32> {
@@ -194,7 +194,7 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     for pkg in repo_pkgs {
         all_pkgs.push(AnyPkg::RepoPkg(pkg));
     }
-    for pkg in aur_pkgs {
+    for pkg in &aur_pkgs {
         all_pkgs.push(AnyPkg::AurPkg(pkg));
     }
 

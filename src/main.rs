@@ -116,7 +116,7 @@ fn main2() -> i32 {
     match run(&mut config) {
         Err(err) => {
             print_error(config.color.error, err);
-            return 1;
+            1
         }
         Ok(ret) => ret,
     }

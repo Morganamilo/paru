@@ -15,7 +15,7 @@ pub struct Upgrades {
     pub aur_skip: Vec<String>,
 }
 
-pub fn repo_upgrades<'a>(config: &'a Config) -> Result<Vec<alpm::Package<'a>>> {
+pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
     let flags = alpm::TransFlag::NO_LOCK;
     config.alpm.trans_init(flags)?;
     config

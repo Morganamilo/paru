@@ -890,13 +890,11 @@ fn build_install_pkgbuilds(
                 exp.push(pkg.pkg.name.as_str());
             } else if config.globals.has_arg("asdeps", "asdeps") {
                 deps.push(pkg.pkg.name.as_str());
-            } else {
-                if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() {
-                    if pkg.target {
-                        exp.push(pkg.pkg.name.as_str())
-                    } else {
-                        deps.push(pkg.pkg.name.as_str())
-                    }
+            } else if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() {
+                if pkg.target {
+                    exp.push(pkg.pkg.name.as_str())
+                } else {
+                    deps.push(pkg.pkg.name.as_str())
                 }
             }
 

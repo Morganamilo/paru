@@ -17,10 +17,7 @@ pub struct NumberMenu<'a> {
     pub ex_word: Vec<&'a str>,
 }
 
-pub fn split_repo_aur_pkgs<'a, S: AsRef<str> + Clone>(
-    config: &Config,
-    pkgs: &[S],
-) -> (Vec<S>, Vec<S>) {
+pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
@@ -35,10 +32,7 @@ pub fn split_repo_aur_pkgs<'a, S: AsRef<str> + Clone>(
     (local, aur)
 }
 
-pub fn split_repo_aur_mode<'a, S: AsRef<str> + Clone>(
-    config: &Config,
-    pkgs: &[S],
-) -> (Vec<S>, Vec<S>) {
+pub fn split_repo_aur_mode<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {
     if config.mode == "aur" {
         (Vec::new(), pkgs.to_vec())
     } else if config.mode == "repo" {
@@ -140,7 +134,7 @@ enum State {
     Keep,
 }
 
-pub fn unneeded_pkgs<'a>(config: &'a Config, optional: bool) -> Vec<&'a str> {
+pub fn unneeded_pkgs(config: &Config, optional: bool) -> Vec<&str> {
     let mut states = HashMap::new();
     let mut remove = Vec::new();
     let mut providers = HashMap::<_, Vec<_>>::new();
