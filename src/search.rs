@@ -267,8 +267,10 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
                 match pkg {
-                    AnyPkg::RepoPkg(pkg) => pkgs.push(pkg.name().to_string()),
-                    AnyPkg::AurPkg(pkg) => pkgs.push(pkg.name.clone()),
+                    AnyPkg::RepoPkg(pkg) => {
+                        pkgs.push(format!("{}/{}", pkg.db().unwrap().name(), pkg.name()))
+                    }
+                    AnyPkg::AurPkg(pkg) => pkgs.push(format!("aur/{}", pkg.name)),
                 }
             }
         }
@@ -276,8 +278,10 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         for (n, pkg) in all_pkgs.iter().enumerate().rev() {
             if menu.contains(n + 1, "") {
                 match pkg {
-                    AnyPkg::RepoPkg(pkg) => pkgs.push(pkg.name().to_string()),
-                    AnyPkg::AurPkg(pkg) => pkgs.push(pkg.name.clone()),
+                    AnyPkg::RepoPkg(pkg) => {
+                        pkgs.push(format!("{}/{}", pkg.db().unwrap().name(), pkg.name()))
+                    }
+                    AnyPkg::AurPkg(pkg) => pkgs.push(format!("aur/{}", pkg.name)),
                 }
             }
         }
