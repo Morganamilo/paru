@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "0.99.3"
+version = "0.99.5"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 
@@ -20,7 +20,7 @@ aur-fetch = "0.7.1"
 cini = "0.1.1"
 pacmanconf = "0.1.1"
 raur = "3.0.1"
-raur-ext = "2.0.0"
+raur-ext = "2.0.2"
 srcinfo = "1.0.0"
 
 
@@ -29,7 +29,7 @@ anyhow = "1.0.33"
 atty = "0.2.14"
 chrono = "0.4.19"
 dirs = "3.0.1"
-futures = "0.3.6"
+futures = "0.3.7"
 htmlescape = "0.3.1"
 indicatif = "0.15.0"
 nix = "0.19.0"
@@ -45,7 +45,7 @@ tokio = { version = "0.2.22", features = ["process", "macros"] }
 url = "2.1.1"
 
 [profile.release]
-lto = true
+#lto = true
 
 [features]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]

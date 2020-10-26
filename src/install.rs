@@ -245,7 +245,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         let mut args = config.pacman_args();
         let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
         args.targets = targets.iter().map(|s| s.as_str()).collect();
-        args.remove("y");
+        args.remove("y").remove("refresh");
 
         let code = exec::pacman(config, &args)?.code();
         return Ok(code);
@@ -263,6 +263,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     );
 
     let actions = resolver.resolve_targets(&targets)?;
+
+    if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
+        bail!("can't install AUR package as root");
+    }
 
     let conflicts = check_actions(config, &actions)?;
 
@@ -476,19 +480,28 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .collect::<Vec<_>>();
 
     let mut args = config.pacman_args();
-    args.remove("d").remove("e").remove("y");
+    args.remove("asdeps")
+        .remove("asexplicit")
+        .remove("y")
+        .remove("refresh");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
     if !config.combined_upgrade || config.mode == "aur" {
-        args.remove("u");
+        args.remove("u").remove("sysupgrade");
     }
 
-    for pkg in install {
-        if config.alpm.localdb().pkg(pkg.pkg.name()).is_err() {
-            if pkg.target {
-                exp.push(pkg.pkg.name())
-            } else {
-                deps.push(pkg.pkg.name())
+    if config.globals.has_arg("asexplicit", "asexplicit") {
+        exp.extend(install.iter().map(|p| p.pkg.name()));
+    } else if config.globals.has_arg("asdeps", "asdeps") {
+        deps.extend(install.iter().map(|p| p.pkg.name()));
+    } else {
+        for pkg in install {
+            if config.alpm.localdb().pkg(pkg.pkg.name()).is_err() {
+                if pkg.target {
+                    exp.push(pkg.pkg.name())
+                } else {
+                    deps.push(pkg.pkg.name())
+                }
             }
         }
     }
@@ -874,12 +887,18 @@ fn build_install_pkgbuilds(
                 }
             }
 
-            if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() && pkg.target {
-                exp.push(pkg.pkg.name.as_str())
-            }
-
-            if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() && !pkg.target {
-                deps.push(pkg.pkg.name.as_str())
+            if config.globals.has_arg("asexplicit", "asexplicit") {
+                exp.push(pkg.pkg.name.as_str());
+            } else if config.globals.has_arg("asdeps", "asdeps") {
+                deps.push(pkg.pkg.name.as_str());
+            } else {
+                if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() {
+                    if pkg.target {
+                        exp.push(pkg.pkg.name.as_str())
+                    } else {
+                        deps.push(pkg.pkg.name.as_str())
+                    }
+                }
             }
 
             let path = pkgdests.remove(&pkg.pkg.name).with_context(|| {

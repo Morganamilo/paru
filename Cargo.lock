@@ -960,7 +960,7 @@ dependencies = [
 
 [[package]]
 name = "paru"
-version = "0.99.3"
+version = "0.99.5"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -1192,9 +1192,9 @@ dependencies = [
 
 [[package]]
 name = "raur-ext"
-version = "2.0.0"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1229dcd7153a1c69514c2c6bf2a7d5a471a34d2aa8c8990b7b61cb06cc3a6805"
+checksum = "aae28cdc11ab496ec1b2d3677d531d83a40b04c6ee5456830b94be2de6bc3394"
 dependencies = [
  "raur",
 ]
