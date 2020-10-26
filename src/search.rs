@@ -189,8 +189,6 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     let repo_pkgs = search_repos(config, &config.targets)?;
     let aur_pkgs = search_aur(config, &config.targets)?;
     let mut all_pkgs = Vec::new();
-    let len = repo_pkgs.len() + aur_pkgs.len();
-    let pad = len.to_string().len();
     let c = config.color;
 
     for pkg in repo_pkgs {
@@ -199,6 +197,8 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     for pkg in aur_pkgs {
         all_pkgs.push(AnyPkg::AurPkg(pkg));
     }
+
+    let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
         sprintln!("no packages match search");
