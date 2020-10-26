@@ -222,10 +222,10 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         })
         .collect::<Vec<_>>();
 
-        for (i,n) in indexes.iter().enumerate().rev() {
-            let pkg = all_pkgs.remove(i + n);
-            all_pkgs.insert(0, pkg);
-        }
+    for (i, n) in indexes.iter().enumerate().rev() {
+        let pkg = all_pkgs.remove(i + n);
+        all_pkgs.insert(0, pkg);
+    }
 
     if config.sort_mode == "topdown" {
         for (n, pkg) in all_pkgs.iter().enumerate() {
@@ -234,12 +234,12 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
                     sprint!("{} ", c.number_menu.paint(n));
                     print_alpm_pkg(config, pkg, false)
-                },
+                }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
                     sprint!("{}{} ", "", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
-                },
+                }
             };
         }
     } else {
@@ -249,12 +249,12 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
                     sprint!("{} ", c.number_menu.paint(n));
                     print_alpm_pkg(config, pkg, false)
-                },
+                }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
                     sprint!("{}{} ", "", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
-                },
+                }
             };
         }
     }
@@ -267,31 +267,19 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
                 match pkg {
-                    AnyPkg::RepoPkg(pkg) => {
-                        pkgs.push(pkg.name().to_string())
-                    },
-                    AnyPkg::AurPkg(pkg) => {
-                        pkgs.push(pkg.name.clone())
-                    },
-                    
+                    AnyPkg::RepoPkg(pkg) => pkgs.push(pkg.name().to_string()),
+                    AnyPkg::AurPkg(pkg) => pkgs.push(pkg.name.clone()),
                 }
             }
-
         }
     } else {
         for (n, pkg) in all_pkgs.iter().enumerate().rev() {
             if menu.contains(n + 1, "") {
                 match pkg {
-                    AnyPkg::RepoPkg(pkg) => {
-                        pkgs.push(pkg.name().to_string())
-                    },
-                    AnyPkg::AurPkg(pkg) => {
-                        pkgs.push(pkg.name.clone())
-                    },
-                    
+                    AnyPkg::RepoPkg(pkg) => pkgs.push(pkg.name().to_string()),
+                    AnyPkg::AurPkg(pkg) => pkgs.push(pkg.name.clone()),
                 }
             }
-
         }
     }
 
