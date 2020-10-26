@@ -14,3 +14,4 @@ dont treat every package as possibly devel
 --needed can be passed twice to skip up to date packages early
 remove -Y/--yay, stuff like --gendb still work even though they belonged to -Y
 added --nocheck
+added --develsuffixes

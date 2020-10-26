@@ -167,6 +167,12 @@ with very large requests (>500) packages.
 .B PacmanConf = path/to/pacman.conf
 The pacman config file to use.
 
+.TP
+.B DevelSuffixes = Suffixes...
+Suffixes that paru will use to decide if a package is a devel package. 
+Used when determining if a pkgver bump is used when the --needed option is
+set.
+
 .SH BIN
 
 Options belonging to the [bin] section.

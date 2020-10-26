@@ -118,6 +118,11 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     config.init_alpm()?;
 
+    let devel_suffixes = config.devel_suffixes.clone();
+    let is_devel = move |pkg: &str| -> bool {
+        devel_suffixes.iter().any(|suff| pkg.ends_with(suff))
+    };
+
     let mut resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &config.raur, flags)
         .is_devel(is_devel)
         .provider_callback(move |dep, pkgs| {
@@ -971,10 +976,4 @@ fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, St
     }
 
     Ok((pkgdests, version))
-}
-
-static DEVEL_SUFFIXES: &[&str] = &["-git", "-cvs", "-svn", "-bzr", "-darcs", "-always"];
-
-fn is_devel(pkg: &str) -> bool {
-    DEVEL_SUFFIXES.iter().any(|&suff| pkg.ends_with(suff))
 }

@@ -198,6 +198,8 @@ impl Config {
             Arg::Long("sudoflags") => self.sudo_flags = split_whitespace(value?),
             Arg::Long("fmflags") => self.fm_flags = split_whitespace(value?),
 
+            Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
+
             Arg::Long("completioninterval") => {
                 self.completion_interval = value?
                     .parse()
@@ -305,6 +307,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("searchby") => TakesValue::Required,
         Arg::Long("removemake") => TakesValue::Optional,
         Arg::Long("redownload") => TakesValue::Optional,
+        Arg::Long("develsuffixes") => TakesValue::Required,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,

@@ -199,6 +199,8 @@ pub struct Config {
     pub sudo_flags: Vec<String>,
     pub fm_flags: Vec<String>,
 
+    pub devel_suffixes: Vec<String>,
+
     pub upgrade_menu: bool,
 
     pub makepkg_conf: Option<String>,
@@ -543,6 +545,11 @@ impl Config {
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
+            "DevelSuffixes" => {
+                let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
+                let split = value.split_whitespace().map(|s| s.to_string());
+                self.devel_suffixes.extend(split);
+            }
             "Redownload" => {
                 let value = value.unwrap_or("all").into();
                 self.redownload = validate(value, no_all)?;

@@ -70,6 +70,7 @@ New options:
     --nocheck             Don't resolve checkdepends or run the check function
     --devel               Check development packages during sysupgrade
     --nodevel             Do not check development packages
+    --develsuffixes       Suffixes that paru will use to decide if a package is a devel package
     --sudoloop            Loop sudo calls in the background to avoid timeout
     --nosudoloop          Do not loop sudo calls in the background
     --bottomup            Shows AUR's packages first and then repository's
