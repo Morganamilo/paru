@@ -79,8 +79,8 @@ impl<'a> Warnings<'a> {
         if !self.missing.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let len = ":: could not find packages: ".len();
-            sprint!("{} {}", e.paint("::"), b.paint("Could not find packages: "));
+            let len = ":: packages not in the AUR: ".len();
+            sprint!("{} {}", e.paint("::"), b.paint("Packages not in the AUR: "));
             print_indent(Style::new(), len, 4, cols, "  ", &self.missing);
         }
         self
@@ -90,8 +90,8 @@ impl<'a> Warnings<'a> {
         if !self.ood.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let len = ":: out of date: ".len();
-            sprint!("{} {}", e.paint("::"), b.paint("Out of date: "));
+            let len = ":: marked out of date: ".len();
+            sprint!("{} {}", e.paint("::"), b.paint("Marked out of date: "));
             print_indent(Style::new(), len, 4, cols, "  ", &self.ood);
         }
         self
