@@ -245,7 +245,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     if remove_make {
         let mut args = config.pacman_globals();
-        args.op("remove").arg("nocnfirm");
+        args.op("remove").arg("noconfirm");
         args.targets = actions
             .iter_build_pkgs()
             .filter(|p| p.make)
