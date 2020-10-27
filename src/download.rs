@@ -366,14 +366,14 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 .arg("update")
                 .arg(&pkg)
                 .output()
-                .with_context(|| format!("failed to run: {} update {:?}", asp, pkg))?;
+                .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
 
             Command::new(asp)
                 .arg("show")
                 .arg(&pkg)
                 .spawn()?
                 .wait()
-                .with_context(|| format!("failed to run: {} show {:?}", asp, pkg))?;
+                .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
 
             let _ = stdout.write_all(b"\n");
         }
