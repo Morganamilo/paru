@@ -18,7 +18,7 @@ use std::path::Path;
 use std::process::Command;
 
 use alpm::Alpm;
-use alpm_utils::Targ;
+use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage, Resolver};
@@ -162,6 +162,59 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     }
 
     let conflicts = check_actions(config, &actions)?;
+
+    let mut warnings = crate::download::Warnings::default();
+
+    if config.args.has_arg("u", "sysupgrade") {
+        let pkgs = config.alpm.localdb().pkgs();
+
+        warnings.missing = pkgs
+            .iter()
+            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
+            .filter(|pkg| !cache.contains(pkg.name()))
+            .map(|pkg| pkg.name())
+            .collect::<Vec<_>>();
+
+        warnings.ood = pkgs
+            .iter()
+            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
+            .filter_map(|pkg| cache.get(pkg.name()))
+            .filter(|pkg| pkg.out_of_date.is_some())
+            .map(|pkg| pkg.name.as_str())
+            .collect::<Vec<_>>();
+
+        warnings.orphans = pkgs
+            .iter()
+            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
+            .filter_map(|pkg| cache.get(pkg.name()))
+            .filter(|pkg| pkg.maintainer.is_none())
+            .map(|pkg| pkg.name.as_str())
+            .collect::<Vec<_>>();
+    }
+
+    warnings.ood.extend(
+        actions
+            .iter_build_pkgs()
+            .map(|pkg| &pkg.pkg)
+            .filter(|pkg| pkg.out_of_date.is_some())
+            .map(|pkg| pkg.name.as_str()),
+    );
+
+    warnings.orphans.extend(
+        actions
+            .iter_build_pkgs()
+            .map(|pkg| &pkg.pkg)
+            .filter(|pkg| pkg.maintainer.is_none())
+            .map(|pkg| pkg.name.as_str()),
+    );
+
+    warnings.missing.sort();
+    warnings.ood.sort();
+    warnings.ood.dedup();
+    warnings.orphans.sort();
+    warnings.orphans.dedup();
+
+    warnings.all(c, config.cols);
 
     if actions.build.is_empty() && actions.install.is_empty() {
         if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
@@ -924,13 +977,13 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
     flags
 }
 
-fn resolver<'a>(
+fn resolver<'a, 'b>(
     config: &Config,
     alpm: &'a Alpm,
-    raur: &'a raur::Handle,
-    cache: &'a mut Cache,
+    raur: &'b raur::Handle,
+    cache: &'b mut Cache,
     flags: Flags,
-) -> Resolver<'a> {
+) -> Resolver<'a, 'b> {
     let devel_suffixes = config.devel_suffixes.clone();
     let c = config.color;
     let no_confirm = config.no_confirm;
