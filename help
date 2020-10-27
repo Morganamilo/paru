@@ -70,6 +70,8 @@ New options:
     --nocheck             Don't resolve checkdepends or run the check function
     --devel               Check development packages during sysupgrade
     --nodevel             Do not check development packages
+    --installdebug        Also install debug packages when a package provides them
+    --noinstalldebug      Don't install debug packages when a package provides them
     --develsuffixes       Suffixes that paru will use to decide if a package is a devel package
     --sudoloop            Loop sudo calls in the background to avoid timeout
     --nosudoloop          Do not loop sudo calls in the background

@@ -200,6 +200,8 @@ impl Config {
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("nowarn") => self.devel_suffixes = split_whitespace(value?),
+            Arg::Long("installdebug") => self.install_debug = true,
+            Arg::Long("noinstalldebug") => self.install_debug = false,
 
             Arg::Long("completioninterval") => {
                 self.completion_interval = value?

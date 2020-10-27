@@ -155,7 +155,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         c.bold.paint("Resolving dependencies...")
     );
 
-    let actions = resolver.resolve_targets(&targets)?;
+    let mut actions = resolver.resolve_targets(&targets)?;
 
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
         bail!("can't install AUR package as root");
@@ -241,7 +241,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         false
     };
 
-    let err = install_actions(config, &actions, &conflicts.0, &conflicts.1);
+    let err = install_actions(config, &mut actions, &conflicts.0, &conflicts.1);
 
     if remove_make {
         let mut args = config.pacman_globals();
@@ -271,7 +271,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
 fn install_actions(
     config: &Config,
-    actions: &Actions,
+    actions: &mut Actions,
     conflicts: &[Conflict],
     inner_conflicts: &[Conflict],
 ) -> Result<i32> {
@@ -397,7 +397,7 @@ fn install_actions(
         .collect::<HashSet<_>>();
 
     //download_pkgbuild_sources(config, &actions.build)?;
-    build_install_pkgbuilds(config, &actions.build, srcinfos, &bases, &conflicts)?;
+    build_install_pkgbuilds(config, &mut actions.build, srcinfos, &bases, &conflicts)?;
 
     Ok(0)
 }
@@ -704,7 +704,7 @@ fn do_install(
 
 fn build_install_pkgbuilds(
     config: &Config,
-    build: &[aur_depends::Base],
+    build: &mut [aur_depends::Base],
     srcinfos: HashMap<String, Srcinfo>,
     bases: &Bases,
     conflicts: &HashSet<&str>,
@@ -768,18 +768,44 @@ fn build_install_pkgbuilds(
             .with_context(|| format!("failed to build '{}'", base))?;
 
         sprintln!("{}: parsing pkg list...", base);
-        let pkglist = parse_package_list(config, &dir)?;
+        let (mut pkgdest, version) = parse_package_list(config, &dir)?;
+
+        if config.install_debug {
+            let mut debug = Vec::new();
+
+            for dest in pkgdest.values() {
+                let file = dest.rsplit('/').next().unwrap();
+
+                for pkg in &base.pkgs {
+                    let debug_pkg = format!("{}-debug-", pkg.pkg.name);
+
+                    if file.starts_with(&debug_pkg) {
+                        let debug_pkg = format!("{}-debug", pkg.pkg.name);
+                        sprintln!("adding {} to the install list", debug_pkg);
+                        let mut pkg = pkg.clone();
+                        let mut raur_pkg = (*pkg.pkg).clone();
+                        raur_pkg.name = debug_pkg;
+                        pkg.pkg = raur_pkg.into();
+                        debug.push(pkg);
+                    }
+                }
+            }
+
+            base.pkgs.extend(debug);
+        }
 
         if config.args.has_arg("needed", "needed") {
             let mut all_installed = true;
 
             for pkg in &base.pkgs {
                 if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
-                    if pkg.version().as_str() != pkglist.1 {
-                        all_installed = false;
-                        break;
+                    if pkg.version().as_str() == version {
+                        continue;
                     }
                 }
+
+                all_installed = false;
+                break;
             }
 
             if all_installed {
@@ -796,7 +822,7 @@ fn build_install_pkgbuilds(
         let needs_build = base
             .pkgs
             .iter()
-            .any(|p| !Path::new(pkglist.0.get(&p.pkg.name).unwrap()).exists());
+            .any(|p| !Path::new(pkgdest.get(&p.pkg.name).unwrap()).exists());
 
         if needs_build
             || (config.rebuild == "yes" && base.pkgs.iter().any(|p| p.target))
@@ -811,8 +837,6 @@ fn build_install_pkgbuilds(
             .success()
             .with_context(|| format!("failed to build '{}'", base))?;
         }
-
-        let (mut pkgdests, version) = pkglist;
 
         if !needs_build {
             sprintln!(
@@ -850,7 +874,7 @@ fn build_install_pkgbuilds(
                 }
             }
 
-            let path = pkgdests.remove(&pkg.pkg.name).with_context(|| {
+            let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
                 format!(
                     "could not find package '{}' in package list for '{}'",
                     pkg.pkg.name, base

@@ -201,6 +201,7 @@ pub struct Config {
 
     pub devel_suffixes: Vec<String>,
     pub no_warn: Vec<String>,
+    pub install_debug: bool,
 
     pub upgrade_menu: bool,
 
@@ -556,7 +557,7 @@ impl Config {
                 let split = value.split_whitespace().map(|s| s.to_string());
                 self.no_warn.extend(split);
             }
-
+            "InstallDebug" => self.install_debug = true,
             "Redownload" => {
                 let value = value.unwrap_or("all").into();
                 self.redownload = validate(value, no_all)?;

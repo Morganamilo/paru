@@ -253,6 +253,14 @@ Print search results from bottom to top.
 Don't resolve checkdepends or run the check function.
 
 .TP
+.B \-\-installdebug
+Also install debug packages when a package provides them.
+
+.TP
+.B \-\-noinstalldebug
+Don't install debug packages when a package provides them.
+
+.TP
 .B \-\-devel
 During sysupgrade also check AUR development packages for updates. Currently
 only Git packages are supported.
@@ -273,6 +281,11 @@ Do not check for development packages updates during sysupgrade.
 Suffixes that paru will use to decide if a package is a devel package. 
 Used when determining if a pkgver bump is used when the --needed option is
 set.
+
+
+
+
+
 
 .TP
 .B \-\-cleanafter
