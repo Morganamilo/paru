@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
 use std::io::Write;
 use std::iter::FromIterator;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
@@ -350,6 +350,7 @@ pub fn new_aur_pkgbuilds(
 pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
+    let bat = Command::new("bat").arg("-V").output().is_ok();
 
     let (repo, aur) = split_repo_aur_mode(config, &config.targets);
 
@@ -368,14 +369,24 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 .output()
                 .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
 
-            Command::new(asp)
-                .arg("show")
-                .arg(&pkg)
-                .spawn()?
-                .wait()
-                .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+            if bat {
+                let output = Command::new(asp)
+                    .arg("show")
+                    .arg(&pkg)
+                    .output()
+                    .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
 
-            let _ = stdout.write_all(b"\n");
+                pipe_bat(&output.stdout)?;
+            } else {
+                Command::new(asp)
+                    .arg("show")
+                    .arg(&pkg)
+                    .spawn()?
+                    .wait()
+                    .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+
+                let _ = stdout.write_all(b"\n");
+            }
         }
     }
 
@@ -402,12 +413,28 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 bail!("{}: {}: {}", base, url, response.status());
             }
 
-            let _ = stdout.write_all(&response.bytes()?);
-            let _ = stdout.write_all(b"\n");
+            if bat {
+                pipe_bat(&response.bytes()?)?;
+            } else {
+                let _ = stdout.write_all(&response.bytes()?);
+                let _ = stdout.write_all(b"\n");
+            }
         }
 
         return Ok(ret);
     }
 
     Ok(0)
+}
+
+fn pipe_bat(pkgbuild: &[u8]) -> Result<()> {
+    let mut command = Command::new("bat")
+        .arg("-p")
+        .arg("-lPKGBUILD")
+        .stdin(Stdio::piped())
+        .spawn()?;
+
+    let _ = command.stdin.as_mut().unwrap().write_all(pkgbuild);
+    command.wait()?;
+    Ok(())
 }
