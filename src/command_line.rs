@@ -269,8 +269,10 @@ impl Config {
                     self.ask = n
                 }
             }
-            Arg::Long("ignore") => self.ignore.push(value?.to_string()),
-            Arg::Long("ignoregroup") => self.ignore_group.push(value?.to_string()),
+            Arg::Long("ignore") => self.ignore.extend(value?.split(',').map(|s| s.to_string())),
+            Arg::Long("ignoregroup") => self
+                .ignore_group
+                .extend(value?.split(',').map(|s| s.to_string())),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
             Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
