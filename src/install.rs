@@ -173,6 +173,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
             .filter(|pkg| !cache.contains(pkg.name()))
             .map(|pkg| pkg.name())
+            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
             .collect::<Vec<_>>();
 
         warnings.ood = pkgs
@@ -181,6 +182,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
+            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
             .collect::<Vec<_>>();
 
         warnings.orphans = pkgs
@@ -189,6 +191,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
+            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
             .collect::<Vec<_>>();
     }
 
@@ -197,6 +200,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .iter_build_pkgs()
             .map(|pkg| &pkg.pkg)
             .filter(|pkg| pkg.out_of_date.is_some())
+            .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
             .map(|pkg| pkg.name.as_str()),
     );
 
@@ -205,6 +209,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .iter_build_pkgs()
             .map(|pkg| &pkg.pkg)
             .filter(|pkg| pkg.maintainer.is_none())
+            .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
             .map(|pkg| pkg.name.as_str()),
     );
 

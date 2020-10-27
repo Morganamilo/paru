@@ -200,6 +200,7 @@ pub struct Config {
     pub fm_flags: Vec<String>,
 
     pub devel_suffixes: Vec<String>,
+    pub no_warn: Vec<String>,
 
     pub upgrade_menu: bool,
 
@@ -550,6 +551,12 @@ impl Config {
                 let split = value.split_whitespace().map(|s| s.to_string());
                 self.devel_suffixes.extend(split);
             }
+            "NoWarn" => {
+                let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
+                let split = value.split_whitespace().map(|s| s.to_string());
+                self.no_warn.extend(split);
+            }
+
             "Redownload" => {
                 let value = value.unwrap_or("all").into();
                 self.redownload = validate(value, no_all)?;

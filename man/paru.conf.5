@@ -169,9 +169,13 @@ The pacman config file to use.
 
 .TP
 .B DevelSuffixes = Suffixes...
-Suffixes that paru will use to decide if a package is a devel package. 
+Suffixes that paru will use to decide if a package is a devel package.
 Used when determining if a pkgver bump is used when the --needed option is
 set.
+
+.TP
+.B NoWarn  = Packages...
+Don't warn when these packages are not in the aur, out of date, or orphaned.
 
 .SH BIN
 
