@@ -12,7 +12,7 @@ use std::result::Result as StdResult;
 
 use alpm::Version;
 use ansi_term::Style;
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use raur_ext::{Package, RaurExt};
@@ -192,6 +192,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 
 pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
     let db = config.alpm.localdb();
+    let c = config.color;
 
     let cd = std::env::current_dir().context("could not get current directory")?;
     let asp = &config.asp_bin;
@@ -226,11 +227,17 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
         print_download(config, n + 1, pkgs.len(), pkg);
         let action = if cd.contains(pkg) { "update" } else { "export" };
 
-        Command::new(asp)
+        let ret = Command::new(asp)
             .arg(action)
             .arg(pkg)
             .output()
             .with_context(|| format!("failed to run: {} {} {}", asp, action, pkg))?;
+
+        ensure!(
+            ret.status.success(),
+            "{}",
+            String::from_utf8_lossy(&ret.stdout).trim()
+        );
     }
 
     Ok(!missing.is_empty() as i32)
@@ -363,11 +370,17 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         }
 
         for pkg in repo {
-            Command::new(asp)
+            let ret = Command::new(asp)
                 .arg("update")
                 .arg(&pkg)
                 .output()
                 .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
+
+            ensure!(
+                ret.status.success(),
+                "{}",
+                String::from_utf8_lossy(&ret.stdout).trim()
+            );
 
             if bat {
                 let output = Command::new(asp)
@@ -378,12 +391,14 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
                 pipe_bat(&output.stdout)?;
             } else {
-                Command::new(asp)
+                let ret = Command::new(asp)
                     .arg("show")
                     .arg(&pkg)
                     .spawn()?
                     .wait()
                     .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+
+                ensure!(ret.success(), "asp returned {}", ret.code().unwrap_or(1));
 
                 let _ = stdout.write_all(b"\n");
             }
