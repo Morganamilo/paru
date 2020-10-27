@@ -398,9 +398,8 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                     .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
 
                 ensure!(ret.success(), "asp returned {}", ret.code().unwrap_or(1));
-
-                let _ = stdout.write_all(b"\n");
             }
+            let _ = stdout.write_all(b"\n");
         }
     }
 
@@ -431,8 +430,9 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 pipe_bat(&response.bytes()?)?;
             } else {
                 let _ = stdout.write_all(&response.bytes()?);
-                let _ = stdout.write_all(b"\n");
             }
+
+            let _ = stdout.write_all(b"\n");
         }
 
         return Ok(ret);
