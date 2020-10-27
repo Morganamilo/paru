@@ -199,7 +199,6 @@ impl Config {
             Arg::Long("fmflags") => self.fm_flags = split_whitespace(value?),
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
-            Arg::Long("nowarn") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
             Arg::Long("noinstalldebug") => self.install_debug = false,
 
