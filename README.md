@@ -32,6 +32,8 @@ makepkg -si
 
 - **Editing pkgbuilds**: When editing pkgbuilds, you can commit your changes to make them perminent. When the package is upgraded, git will try and merge your changes with upstream's.
 
+- **pkgbuild highlighting**: `bat` can optionally be installed to enable highlighting of pkgbuild printing during review.
+
 ## Examples
 
 `paru <target>` -- interactive search and install of `<target>`
