@@ -213,10 +213,10 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .map(|pkg| pkg.name.as_str()),
     );
 
-    warnings.missing.sort();
-    warnings.ood.sort();
+    warnings.missing.sort_unstable();
+    warnings.ood.sort_unstable();
     warnings.ood.dedup();
-    warnings.orphans.sort();
+    warnings.orphans.sort_unstable();
     warnings.orphans.dedup();
 
     warnings.all(c, config.cols);

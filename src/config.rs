@@ -637,38 +637,35 @@ fn reopen_stdin() -> Result<()> {
 fn question(question: &mut Question) {
     let c = COLORS.get().unwrap();
 
-    match question {
-        Question::SelectProvider(question) => {
-            let providers = question.providers();
-            let len = providers.len();
+    if let Question::SelectProvider(question) = question {
+        let providers = question.providers();
+        let len = providers.len();
 
-            sprintln!();
-            let prompt = format!(
-                "There are {} providers available for {}:",
-                len,
-                question.depend()
-            );
-            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+        sprintln!();
+        let prompt = format!(
+            "There are {} providers available for {}:",
+            len,
+            question.depend()
+        );
+        sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
-            let mut db = String::new();
-            for (n, pkg) in providers.iter().enumerate() {
-                let pkg_db = pkg.db().unwrap();
-                if pkg_db.name() != db {
-                    db = pkg_db.name().to_string();
-                    sprintln!(
-                        "{} {} {}:",
-                        c.action.paint("::"),
-                        c.bold.paint("Repository"),
-                        color_repo(c.enabled, pkg_db.name())
-                    );
-                    sprint!("    ");
-                }
-                sprint!("{}) {}  ", n + 1, pkg.name());
+        let mut db = String::new();
+        for (n, pkg) in providers.iter().enumerate() {
+            let pkg_db = pkg.db().unwrap();
+            if pkg_db.name() != db {
+                db = pkg_db.name().to_string();
+                sprintln!(
+                    "{} {} {}:",
+                    c.action.paint("::"),
+                    c.bold.paint("Repository"),
+                    color_repo(c.enabled, pkg_db.name())
+                );
+                sprint!("    ");
             }
-
-            let index = get_provider(len);
-            question.set_index(index as i32);
+            sprint!("{}) {}  ", n + 1, pkg.name());
         }
-        _ => (),
+
+        let index = get_provider(len);
+        question.set_index(index as i32);
     }
 }
