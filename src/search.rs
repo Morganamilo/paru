@@ -135,7 +135,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     let desc = pkg
         .description
         .as_deref()
-        .unwrap_or_default()
+        .unwrap_or("None")
         .split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 }
