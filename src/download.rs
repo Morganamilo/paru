@@ -444,6 +444,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 fn pipe_bat(pkgbuild: &[u8]) -> Result<()> {
     let mut command = Command::new("bat")
         .arg("-p")
+        .arg("--color=always")
         .arg("-lPKGBUILD")
         .stdin(Stdio::piped())
         .spawn()?;
