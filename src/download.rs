@@ -192,7 +192,6 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 
 pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
     let db = config.alpm.localdb();
-    let c = config.color;
 
     let cd = std::env::current_dir().context("could not get current directory")?;
     let asp = &config.asp_bin;
@@ -357,7 +356,7 @@ pub fn new_aur_pkgbuilds(
 pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
-    let bat = Command::new("bat").arg("-V").output().is_ok();
+    let bat = config.color.enabled && Command::new("bat").arg("-V").output().is_ok();
 
     let (repo, aur) = split_repo_aur_mode(config, &config.targets);
 

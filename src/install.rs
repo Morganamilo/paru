@@ -330,7 +330,7 @@ fn install_actions(
             if !has_diff.contains(pkg) {
                 let path = config.build_dir.join(pkg).join("PKGBUILD");
 
-                let bat = Command::new("bat").arg("-V").output().is_ok();
+                let bat = config.color.enabled && Command::new("bat").arg("-V").output().is_ok();
 
                 if bat {
                     Command::new("bat")
