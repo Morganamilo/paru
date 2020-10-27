@@ -9,7 +9,7 @@ An AUR helper and pacman wrapper
 
 Paru is an AUR helper written in rust and based on the design of yay. It aims to be your standard pacman wrapping AUR helper with minimal interaction.
 
-[![asciicast](https://asciinema.org/a/VtcPx2heIOEdoOoOkYXzSiToM.svg)](https://asciinema.org/a/VtcPx2heIOEdoOoOkYXzSiToM)
+[![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
 
 ## Installation
 
