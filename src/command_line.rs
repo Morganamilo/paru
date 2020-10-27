@@ -192,11 +192,11 @@ impl Config {
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
-            Arg::Long("mflags") => self.mflags = split_whitespace(value?),
-            Arg::Long("gitflags") => self.git_flags = split_whitespace(value?),
-            Arg::Long("gpgflags") => self.gpg_flags = split_whitespace(value?),
-            Arg::Long("sudoflags") => self.sudo_flags = split_whitespace(value?),
-            Arg::Long("fmflags") => self.fm_flags = split_whitespace(value?),
+            Arg::Long("mflags") => self.mflags.extend(split_whitespace(value?)),
+            Arg::Long("gitflags") => self.git_flags.extend(split_whitespace(value?)),
+            Arg::Long("gpgflags") => self.gpg_flags.extend(split_whitespace(value?)),
+            Arg::Long("sudoflags") => self.sudo_flags.extend(split_whitespace(value?)),
+            Arg::Long("fmflags") => self.fm_flags.extend(split_whitespace(value?)),
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
