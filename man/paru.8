@@ -16,7 +16,7 @@ PARU \- AUR Helper
 Paru is an AUR helper and pacman wrapper.
 
 Paru is a tool to easily build and install packages from the AUR, along with
-their dependencies. Paru  also expands many of pacman's options making them
+their dependencies. Paru also expands many of pacman's options making them
 AUR aware.
 
 This manpage only covers options unique to paru. For other options see
@@ -97,7 +97,7 @@ available news.
 .TP
 
 .TP
-.B \-w, \-\-news
+.B \-p, \-\-print
 Prints the pkgbuild to the terminal instead of downloading it.
 
 .SH NEW OPTIONS
@@ -163,11 +163,11 @@ This enables fm review mode, where pkgbuild review is done using the file
 manager specified by command.
 
 .TP
-.B \-\-gpgflags <flags>
+.B \-\-fmflags <flags>
 Passes arguments to file manager. These flags get passed to every instance where
 file manager is called by paru. Arguments are split on whitespace before being
 passed to the file manager. Multiple arguments may be passed by supplying a space
-separated list that is quoted by the shell
+separated list that is quoted by the shell.
 
 .TP
 .B \-\-asp <command>
