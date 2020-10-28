@@ -11,7 +11,7 @@ use std::path::Path;
 use std::process::Command;
 
 use alpm_utils::DbListExt;
-use anyhow::{bail, Context, Error, Result};
+use eyre::{bail, Context, Error, Result};
 
 use srcinfo::Srcinfo;
 

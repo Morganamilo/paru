@@ -6,8 +6,8 @@ use crate::util::ask;
 use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
-use anyhow::{Context, Result};
 use aur_depends::Base;
+use eyre::{Context, Result};
 use srcinfo::Srcinfo;
 
 pub fn check_pgp_keys(

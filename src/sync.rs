@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::exec;
 
-use anyhow::{ensure, Context, Result};
+use eyre::{ensure, Context, Result};
 use reqwest::blocking::get;
 use std::io::Write;
 

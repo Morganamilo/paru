@@ -5,7 +5,7 @@ use crate::util::{input, NumberMenu};
 use crate::{sprint, sprintln};
 
 use ansi_term::Style;
-use anyhow::{Context, Result};
+use eyre::{Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 

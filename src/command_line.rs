@@ -3,7 +3,7 @@ use crate::config::{Colors, Config};
 
 use std::fmt;
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use eyre::{anyhow, bail, ensure, eyre, Result};
 use url::Url;
 
 #[derive(Debug, Copy, Clone)]
@@ -176,7 +176,7 @@ impl Config {
             *op_count += 1;
         };
 
-        let value = value.with_context(|| format!("option {} does not allow a value", arg));
+        let value = value.ok_or_else(|| eyre!(format!("option {} does not allow a value", arg)));
 
         match arg {
             Arg::Long("help") | Arg::Short('h') => self.help = true,

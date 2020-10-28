@@ -20,8 +20,8 @@ use std::process::Command;
 use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
-use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage, Resolver};
+use eyre::{bail, ensure, eyre, Result};
 use raur_ext::Cache;
 use srcinfo::Srcinfo;
 
@@ -231,7 +231,7 @@ fn install_actions(
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             let srcinfo = Srcinfo::parse_file(path)
-                .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
+                .map_err(|_| eyre!(format!("failed to parse srcinfo for '{}'", base)))?;
             srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
         }
     }
@@ -246,7 +246,7 @@ fn install_actions(
         if path.exists() {
             if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
                 let srcinfo = Srcinfo::parse_file(path)
-                    .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
+                    .map_err(|_| eyre!(format!("failed to parse srcinfo for '{}'", base)))?;
                 vacant.insert(srcinfo);
             }
         } else {
@@ -287,7 +287,7 @@ fn install_actions(
                         .wait()?;
                 } else {
                     let pkgbuild = std::fs::read_to_string(&path)
-                        .context(format!("failed to open {}", path.display()))?;
+                        .map_err(|_| eyre!(format!("failed to open {}", path.display())))?;
                     sprint!("{}\n\n\n", pkgbuild);
                 }
                 printed = true;
@@ -718,12 +718,12 @@ fn build_install_pkgbuilds(
         // download sources
         exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
             .success()
-            .with_context(|| format!("failed to download sources for '{}'", base))?;
+            .map_err(|_| eyre!(format!("failed to download sources for '{}'", base)))?;
 
         // pkgver bump
         exec::makepkg(config, &dir, &["-ofCA"])?
             .success()
-            .with_context(|| format!("failed to build '{}'", base))?;
+            .map_err(|_| eyre!(format!("failed to build '{}'", base)))?;
 
         sprintln!("{}: parsing pkg list...", base);
         let (mut pkgdest, version) = parse_package_list(config, &dir)?;
@@ -793,7 +793,7 @@ fn build_install_pkgbuilds(
                 &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
             )?
             .success()
-            .with_context(|| format!("failed to build '{}'", base))?;
+            .map_err(|_| eyre!(format!("failed to build '{}'", base)))?;
         }
 
         if !needs_build {
@@ -832,11 +832,11 @@ fn build_install_pkgbuilds(
                 }
             }
 
-            let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
-                format!(
+            let path = pkgdest.remove(&pkg.pkg.name).ok_or_else(|| {
+                eyre!(format!(
                     "could not find package '{}' in package list for '{}'",
                     pkg.pkg.name, base
-                )
+                ))
             })?;
 
             conflict |= base
@@ -903,7 +903,7 @@ fn asexp(config: &Config, pkgs: &[&str]) -> Result<()> {
 
 fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, String>, String)> {
     let output = exec::makepkg_output(config, dir, &["--packagelist"])?;
-    let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
+    let output = String::from_utf8(output.stdout).map_err(|_| eyre!("pkgdest is not utf8"))?;
     let mut pkgdests = HashMap::new();
     let mut version = String::new();
 

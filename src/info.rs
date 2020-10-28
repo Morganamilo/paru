@@ -7,7 +7,7 @@ use crate::{sprint, sprintln};
 
 use alpm_utils::Targ;
 use ansi_term::Style;
-use anyhow::Error;
+use eyre::Error;
 use raur_ext::Package;
 use term_size::dimensions_stdout;
 

@@ -5,7 +5,7 @@ use crate::{sprint, sprintln};
 use std::str::Chars;
 
 use ansi_term::Style;
-use anyhow::{Context, Result};
+use eyre::{Context, Result};
 use htmlescape::decode_html;
 use rss::Channel;
 

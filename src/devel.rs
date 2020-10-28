@@ -11,7 +11,7 @@ use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
 
-use anyhow::{bail, Context, Result};
+use eyre::{bail, Context, Result};
 use futures::future::{join_all, try_join_all};
 use raur_ext::RaurExt;
 use serde::{Deserialize, Serialize};

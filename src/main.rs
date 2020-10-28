@@ -30,8 +30,8 @@ use std::error::Error as StdError;
 use std::fs::read_to_string;
 
 use ansi_term::Style;
-use anyhow::{bail, Error, Result};
 use cini::Ini;
+use eyre::{bail, Error, Result};
 
 #[macro_export]
 macro_rules! sprintln {
@@ -98,28 +98,17 @@ fn print_error(color: Style, err: Error) {
     esprintln!();
 }
 
-fn main() {
-    let i = main2();
+fn main() -> Result<()> {
+    color_eyre::install()?;
+    let i = main2()?;
     std::process::exit(i);
 }
 
-fn main2() -> i32 {
+fn main2() -> Result<i32> {
     //env_logger::init();
-    let mut config = match Config::new() {
-        Ok(config) => config,
-        Err(err) => {
-            print_error(Style::new(), err);
-            return 1;
-        }
-    };
+    let mut config = Config::new()?;
 
-    match run(&mut config) {
-        Err(err) => {
-            print_error(config.color.error, err);
-            1
-        }
-        Ok(ret) => ret,
-    }
+    Ok(run(&mut config)?)
 }
 
 fn run(config: &mut Config) -> Result<i32> {

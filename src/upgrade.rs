@@ -5,7 +5,7 @@ use crate::sprintln;
 use crate::util::{input, NumberMenu};
 
 use alpm_utils::DbListExt;
-use anyhow::Result;
+use eyre::Result;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {

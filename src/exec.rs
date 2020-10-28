@@ -8,7 +8,7 @@ use std::process::{Command, Output};
 use std::thread;
 use std::time::Duration;
 
-use anyhow::{bail, Context, Result};
+use eyre::{bail, Context, Result};
 
 #[derive(Debug, Clone)]
 pub struct PacmanError {

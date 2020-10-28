@@ -6,7 +6,7 @@ use std::io::{stdout, BufRead, BufReader, Write};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
-use anyhow::{ensure, Context, Result};
+use eyre::{ensure, Context, Result};
 use reqwest::blocking::get;
 use url::Url;
 
@@ -39,7 +39,7 @@ pub fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -
 
     let need_refresh = match metadata {
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => true,
-        Err(err) => return Err(anyhow::Error::new(err)),
+        Err(err) => return Err(eyre::Error::new(err)),
         Ok(metadate) => match timeout {
             Some(timeout) => {
                 metadate.modified()?

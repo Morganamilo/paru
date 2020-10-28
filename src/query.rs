@@ -5,7 +5,7 @@ use crate::devel::devel_updates;
 use crate::util::{split_repo_aur_mode, split_repo_aur_pkgs};
 use crate::{esprintln, exec, sprintln};
 
-use anyhow::Result;
+use eyre::Result;
 use raur_ext::RaurExt;
 
 pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
