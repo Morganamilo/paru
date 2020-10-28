@@ -33,6 +33,8 @@ use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
 
+// Reimplementation of std's print function that ignore errors.
+// Stops crashing when piping paru
 #[macro_export]
 macro_rules! sprintln {
     () => {{
