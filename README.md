@@ -3,6 +3,7 @@
 An AUR helper and pacman wrapper
 
 [![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
+[![paru-bin](https://img.shields.io/aur/version/paru-bin?color=1793d1&label=paru-bin&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-bin/)
 [![paru-git](https://img.shields.io/aur/version/paru-git?color=1793d1&label=paru-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-git/)
 
 ## Description
@@ -49,7 +50,6 @@ makepkg -si
 `paru -Gp <target>` -- print `<target>`'s pkgbuild
 
 `paru --gendb` -- generate the devel database for tracking -git packages. This is only needed when you initially start using paru.
-
 
 ## Debugging
 
