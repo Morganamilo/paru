@@ -11,14 +11,14 @@ use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
+use alpm_utils::DbListExt;
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
+use indicatif::{ProgressBar, ProgressStyle};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
-
-use indicatif::{ProgressBar, ProgressStyle};
 
 const FRAGMENT: &AsciiSet = &CONTROLS.add(b'@').add(b'+');
 
@@ -180,18 +180,20 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         warnings.missing(config.color, config.cols);
         let aur = warnings.pkgs;
 
-        let mut bases = Bases::new();
-        bases.extend(aur);
+        if !aur.is_empty() {
+            let mut bases = Bases::new();
+            bases.extend(aur);
 
-        config.fetch.clone_dir = std::env::current_dir()?;
+            config.fetch.clone_dir = std::env::current_dir()?;
 
-        aur_pkgbuilds(config, &bases)?;
+            aur_pkgbuilds(config, &bases)?;
+        }
     }
     Ok(ret)
 }
 
 pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
-    let db = config.alpm.localdb();
+    let db = config.alpm.syncdbs();
 
     let cd = std::env::current_dir().context("could not get current directory")?;
     let asp = &config.asp_bin;
@@ -217,8 +219,8 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
     }
 
     if !missing.is_empty() {
-        let len = ":: Missing ABS packages".len();
-        sprint!("{} Missing ABS packages", config.color.error.paint("::"));
+        let len = ":: Missing ABS packages ".len();
+        sprint!("{} Missing ABS packages ", config.color.error.paint("::"));
         print_indent(config.color.base, len, 3, config.cols, "  ", &missing);
     }
 
