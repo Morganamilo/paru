@@ -193,7 +193,7 @@ pub fn get_upgrades(
             pkg.name(),
             pkg.db().unwrap().name(),
             db_pkg_max,
-            pkg.version(),
+            db.pkg(pkg.name()).unwrap().version(),
             old_max,
             pkg.version(),
         );
