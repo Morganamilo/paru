@@ -271,6 +271,12 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     }
 
     let input = input(config, "Packages to install (eg: 1 2 3, 1-3 or ^4): ");
+
+    if input.trim().is_empty() {
+        sprintln!(" there is nothing to do");
+        return Ok(1);
+    }
+
     let menu = NumberMenu::new(&input);
     let mut pkgs = Vec::new();
 
