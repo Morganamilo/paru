@@ -20,7 +20,7 @@ cd paru
 makepkg -si
 ```
 
-## Common tips
+## General tips
 
 - **Man pages**: For documentation on paru's options and config file see `paru(8)` and `paru.conf(5)` respectively.
 
