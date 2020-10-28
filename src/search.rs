@@ -17,9 +17,6 @@ enum AnyPkg<'a> {
 pub fn search(config: &Config) -> Result<i32> {
     let quiet = config.args.has_arg("q", "quiet");
     let repo_pkgs = search_repos(config, &config.targets)?;
-    for pkg in &repo_pkgs {
-        print_alpm_pkg(config, pkg, quiet);
-    }
 
     let targets = config
         .targets
@@ -28,9 +25,23 @@ pub fn search(config: &Config) -> Result<i32> {
         .collect::<Vec<_>>();
 
     let pkgs = search_aur(config, &targets).context("aur search failed")?;
-    for pkg in &pkgs {
-        print_pkg(config, pkg, quiet)
+
+    if config.sort_mode == "topdown" {
+        for pkg in &repo_pkgs {
+            print_alpm_pkg(config, pkg, quiet);
+        }
+        for pkg in &pkgs {
+            print_pkg(config, pkg, quiet)
+        }
+    } else {
+        for pkg in pkgs.iter().rev() {
+            print_pkg(config, pkg, quiet)
+        }
+        for pkg in repo_pkgs.iter().rev() {
+            print_alpm_pkg(config, pkg, quiet);
+        }
     }
+
     Ok((repo_pkgs.is_empty() && pkgs.is_empty()) as i32)
 }
 
