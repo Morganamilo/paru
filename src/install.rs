@@ -334,7 +334,7 @@ fn install_actions(
 
                 if bat {
                     Command::new("bat")
-                        .arg("-p")
+                        .arg("-pp")
                         .arg("--color=always")
                         .arg("-lPKGBUILD")
                         .arg(path)
