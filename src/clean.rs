@@ -1,8 +1,8 @@
 use crate::config::Config;
 
+use crate::exec;
 use crate::print_error;
 use crate::util::ask;
-use crate::{exec, sprintln};
 
 use std::fs::read_dir;
 use std::fs::{remove_dir_all, remove_file};
@@ -33,16 +33,16 @@ pub fn clean(config: &Config) -> Result<()> {
         };
 
         if config.mode == "any" {
-            sprintln!();
+            println!();
         }
 
-        sprintln!("Clone Directory: {}", config.fetch.clone_dir.display());
+        println!("Clone Directory: {}", config.fetch.clone_dir.display());
 
         if ask(config, question, !remove_all) {
             clean_aur(config, keep_installed, keep_current, remove_all)?;
         }
 
-        sprintln!("\nDiff Directory: {}", config.fetch.diff_dir.display());
+        println!("\nDiff Directory: {}", config.fetch.diff_dir.display());
 
         let question = "Do you want to remove all saved diffs?";
         if ask(config, question, true) {

@@ -1,6 +1,5 @@
 use crate::config::Config;
 use crate::fmt::print_indent;
-use crate::{sprint, sprintln};
 
 use std::str::Chars;
 
@@ -48,20 +47,20 @@ pub fn news(config: &Config) -> Result<()> {
                     continue;
                 }
 
-                sprint!("{} ", c.news_date.paint(date.format("%F").to_string()));
+                print!("{} ", c.news_date.paint(date.format("%F").to_string()));
             }
-            Err(_) => sprint!("No Date "),
+            Err(_) => print!("No Date "),
         }
 
         let title = item.title().unwrap_or("No Title");
-        sprintln!("{}", c.bold.paint(title));
+        println!("{}", c.bold.paint(title));
 
         printed = true;
         parse_html(config, item.description().unwrap_or_default());
     }
 
     if !printed {
-        sprintln!("no new news");
+        println!("no new news");
     }
 
     Ok(())
@@ -95,7 +94,7 @@ fn parse_html(config: &Config, html: &str) {
     let words = decode_html(&words).unwrap_or(words);
 
     for line in words.lines() {
-        sprint!("    ");
+        print!("    ");
         let line = line.split_whitespace();
         print_indent(Style::new(), 4, 4, config.cols, " ", line);
     }

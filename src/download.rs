@@ -1,7 +1,6 @@
 use crate::config::{Colors, Config};
 use crate::fmt::print_indent;
 use crate::util::split_repo_aur_mode;
-use crate::{esprintln, sprint, sprintln};
 
 use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
@@ -80,7 +79,7 @@ impl<'a> Warnings<'a> {
             let b = color.bold;
             let e = color.error;
             let len = ":: packages not in the AUR: ".len();
-            sprint!("{} {}", e.paint("::"), b.paint("Packages not in the AUR: "));
+            print!("{} {}", e.paint("::"), b.paint("Packages not in the AUR: "));
             print_indent(Style::new(), len, 4, cols, "  ", &self.missing);
         }
         self
@@ -91,7 +90,7 @@ impl<'a> Warnings<'a> {
             let b = color.bold;
             let e = color.error;
             let len = ":: marked out of date: ".len();
-            sprint!("{} {}", e.paint("::"), b.paint("Marked out of date: "));
+            print!("{} {}", e.paint("::"), b.paint("Marked out of date: "));
             print_indent(Style::new(), len, 4, cols, "  ", &self.ood);
         }
         self
@@ -102,7 +101,7 @@ impl<'a> Warnings<'a> {
             let b = color.bold;
             let e = color.error;
             let len = ":: orphans: ".len();
-            sprint!("{} {}", e.paint("::"), b.paint("Orphans: "));
+            print!("{} {}", e.paint("::"), b.paint("Orphans: "));
             print_indent(Style::new(), len, 4, cols, "  ", &self.orphans);
         }
         self
@@ -171,7 +170,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     if !aur.is_empty() {
         let action = config.color.action;
         let bold = config.color.bold;
-        sprintln!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
+        println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
         let warnings =
             cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore)?;
         if !warnings.missing.is_empty() {
@@ -199,7 +198,7 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
     let asp = &config.asp_bin;
 
     if Command::new(asp).output().is_err() {
-        esprintln!("{} is not installed: can not get repo packages", asp);
+        eprintln!("{} is not installed: can not get repo packages", asp);
         return Ok(1);
     }
 
@@ -220,7 +219,7 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
 
     if !missing.is_empty() {
         let len = ":: Missing ABS packages ".len();
-        sprint!("{} Missing ABS packages ", config.color.error.paint("::"));
+        print!("{} Missing ABS packages ", config.color.error.paint("::"));
         print_indent(config.color.base, len, 3, config.cols, "  ", &missing);
     }
 
@@ -246,7 +245,7 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
 
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     let total = total.to_string();
-    sprintln!(
+    println!(
         " ({:>padding$}/{}) {}: {}",
         n,
         total,
@@ -269,14 +268,14 @@ pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     let action = config.color.action;
     let bold = config.color.bold;
 
-    sprintln!(
+    println!(
         "\n{} {}",
         action.paint("::"),
         bold.paint("Downloading pkgbuilds...")
     );
 
     if bases.bases.is_empty() {
-        sprintln!(" pkgbuilds up to date");
+        println!(" pkgbuilds up to date");
         return Ok(());
     }
 
@@ -366,7 +365,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let asp = &config.asp_bin;
 
         if Command::new(asp).output().is_err() {
-            esprintln!("{} is not installed: can not get repo packages", asp);
+            eprintln!("{} is not installed: can not get repo packages", asp);
             return Ok(1);
         }
 

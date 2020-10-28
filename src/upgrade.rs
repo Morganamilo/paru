@@ -1,7 +1,6 @@
 use crate::config::Config;
 use crate::devel::devel_updates;
 use crate::fmt::color_repo;
-use crate::sprintln;
 use crate::util::{input, NumberMenu};
 
 use alpm_utils::DbListExt;
@@ -97,7 +96,7 @@ fn print_upgrade(
     );
     let old = format!("{:<pad$}", old, pad = old_max);
     let (old, new) = get_version_diff(config, &old, new);
-    sprintln!(
+    println!(
         "{} {} {} -> {}",
         c.number_menu.paint(n),
         c.bold.paint(db_pkg),
@@ -113,7 +112,7 @@ pub fn get_upgrades(
     let c = config.color;
 
     let mut devel_upgrades = if config.devel && config.mode != "repo" {
-        sprintln!(
+        println!(
             "{} {}",
             c.action.paint("::"),
             c.bold.paint("Looking for devel upgrades")

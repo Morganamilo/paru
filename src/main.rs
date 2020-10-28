@@ -33,50 +33,13 @@ use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
 
-#[macro_export]
-macro_rules! sprintln {
-    () => {{
-        use std::io::Write;
-        let _ = ::std::writeln!(::std::io::stdout());
-    }};
-    ($($arg:tt)*) => {{
-        use std::io::Write;
-        let _ = ::std::writeln!(::std::io::stdout(), $( $arg)* );
-    }};
-}
-#[macro_export]
-macro_rules! esprintln {
-    () => {{
-        use std::io::Write;
-        let _ = ::std::writeln!(::std::io::stderr());
-    }};
-    ($($arg:tt)*) => {{
-        use std::io::Write;
-        let _ = ::std::writeln!(::std::io::stderr(), $( $arg)* );
-    }};
-}
-#[macro_export]
-macro_rules! sprint {
-    ($($arg:tt)*) => {{
-        use std::io::Write;
-        let _ = ::std::write!(::std::io::stdout(), $( $arg)* );
-    }};
-}
-#[macro_export]
-macro_rules! esprint {
-    ($($arg:tt)*) => {{
-        use std::io::Write;
-        let _ = ::std::write!(::std::io::stderr(), $( $arg)* );
-    }};
-}
-
 fn print_error(color: Style, err: Error) {
     #[cfg(feature = "backtrace")]
     {
         let backtrace = err.backtrace();
 
         if backtrace.status() == std::backtrace::BacktraceStatus::Captured {
-            esprint!("{}", backtrace);
+            eprint!("{}", backtrace);
         }
     }
     let mut iter = err.chain().peekable();
@@ -84,18 +47,18 @@ fn print_error(color: Style, err: Error) {
     if StdError::is::<exec::PacmanError>(*iter.peek().unwrap())
         || StdError::is::<exec::Status>(*iter.peek().unwrap())
     {
-        esprint!("{}", iter.peek().unwrap());
+        eprint!("{}", iter.peek().unwrap());
         return;
     }
 
-    esprint!("{} ", color.paint("error:"));
+    eprint!("{} ", color.paint("error:"));
     while let Some(link) = iter.next() {
-        esprint!("{}", link);
+        eprint!("{}", link);
         if iter.peek().is_some() {
-            esprint!(": ");
+            eprint!(": ");
         }
     }
-    esprintln!();
+    eprintln!();
 }
 
 fn main() {

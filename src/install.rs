@@ -5,10 +5,10 @@ use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo
 use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
 use crate::keys::check_pgp_keys;
+use crate::print_error;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
 use crate::{args, exec};
-use crate::{esprint, esprintln, print_error, sprint, sprintln};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -93,7 +93,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
         let aur_upgrades = if config.mode != "repo" {
-            sprintln!(
+            println!(
                 "{} {}",
                 c.action.paint("::"),
                 c.bold.paint("Looking for AUR upgrades")
@@ -104,7 +104,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         };
 
         for pkg in aur_upgrades.ignored {
-            esprintln!(
+            eprintln!(
                 "{} {}: ignoring package upgrade ({} => {})",
                 c.warning.paint("warning:"),
                 pkg.local.name(),
@@ -146,11 +146,11 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     if targets.is_empty() {
         print_warnings(config, &cache, None);
-        sprintln!(" there is nothing to do");
+        println!(" there is nothing to do");
         return Ok(0);
     }
 
-    sprintln!(
+    println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Resolving dependencies...")
@@ -168,7 +168,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     if actions.build.is_empty() && actions.install.is_empty() {
         if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
-            sprintln!(" there is nothing to do");
+            println!(" there is nothing to do");
         }
         return Ok(0);
     }
@@ -177,7 +177,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     let remove_make = if actions.iter_build_pkgs().any(|p| p.make) {
         if config.remove_make == "ask" {
-            sprintln!();
+            println!();
             ask(config, "Remove make dependencies after install?", false)
         } else {
             config.remove_make == "yes"
@@ -268,7 +268,7 @@ fn install_actions(
         let has_diff = config.fetch.has_diff(&unseen)?;
         for pkg in &has_diff {
             config.fetch.print_diff(pkg)?;
-            sprint!("\n\n\n");
+            print!("\n\n\n");
             printed = true;
         }
         for pkg in &unseen {
@@ -288,14 +288,14 @@ fn install_actions(
                 } else {
                     let pkgbuild = std::fs::read_to_string(&path)
                         .context(format!("failed to open {}", path.display()))?;
-                    sprint!("{}\n\n\n", pkgbuild);
+                    print!("{}\n\n\n", pkgbuild);
                 }
                 printed = true;
             }
         }
 
         if !printed {
-            sprintln!(" nothing new to review");
+            println!(" nothing new to review");
         }
     }
 
@@ -315,13 +315,13 @@ fn install_actions(
 
     if !incompatible.is_empty() {
         let c = config.color;
-        sprintln!(
+        println!(
             "{} {}",
             c.error.paint("::"),
             c.bold
                 .paint("The following packages are not compatible with your architecture:")
         );
-        sprint!("    ");
+        print!("    ");
         print_indent(
             Style::new(),
             0,
@@ -446,7 +446,7 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
     }
 
     for pkg in &actions.unneeded {
-        esprintln!(
+        eprintln!(
             "{} {}-{} is up to date -- skipping",
             c.warning.paint("::"),
             pkg.name,
@@ -458,13 +458,13 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         return Ok((Vec::new(), Vec::new()));
     }
 
-    sprintln!(
+    println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Calculating conflicts...")
     );
     let conflicts = actions.calculate_conflicts();
-    sprintln!(
+    println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Calculating inner conflicts...")
@@ -472,55 +472,55 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
     let inner_conflicts = actions.calculate_inner_conflicts()?;
 
     if !conflicts.is_empty() || !inner_conflicts.is_empty() {
-        esprintln!();
+        eprintln!();
     }
 
     if !inner_conflicts.is_empty() {
-        esprintln!(
+        eprintln!(
             "{} {}",
             c.error.paint("::"),
             c.bold.paint("Inner conflicts found:")
         );
 
         for conflict in &inner_conflicts {
-            esprint!("    {}: ", conflict.pkg);
+            eprint!("    {}: ", conflict.pkg);
 
             for conflict in &conflict.conflicting {
-                esprint!("{}", conflict.pkg);
+                eprint!("{}", conflict.pkg);
                 if let Some(conflict) = &conflict.conflict {
-                    esprint!(" ({})", conflict);
+                    eprint!(" ({})", conflict);
                 }
-                esprint!("  ");
+                eprint!("  ");
             }
-            esprintln!();
+            eprintln!();
         }
-        esprintln!();
+        eprintln!();
     }
 
     if !conflicts.is_empty() {
-        esprintln!(
+        eprintln!(
             "{} {}",
             c.error.paint("::"),
             c.bold.paint("Conflicts found:")
         );
 
         for conflict in &conflicts {
-            esprint!("    {}: ", conflict.pkg);
+            eprint!("    {}: ", conflict.pkg);
 
             for conflict in &conflict.conflicting {
-                esprint!("{}", conflict.pkg);
+                eprint!("{}", conflict.pkg);
                 if let Some(conflict) = &conflict.conflict {
-                    esprint!(" ({})", conflict);
+                    eprint!(" ({})", conflict);
                 }
-                esprint!("  ");
+                eprint!("  ");
             }
-            esprintln!();
+            eprintln!();
         }
-        esprintln!();
+        eprintln!();
     }
 
     if (!conflicts.is_empty() || !inner_conflicts.is_empty()) && !config.use_ask {
-        esprintln!(
+        eprintln!(
             "{} {}",
             c.warning.paint("::"),
             c.bold
@@ -536,7 +536,7 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
 
 fn print_install(config: &Config, actions: &Actions) {
     let c = config.color;
-    sprintln!();
+    println!();
 
     let install = actions
         .install
@@ -568,32 +568,32 @@ fn print_install(config: &Config, actions: &Actions) {
     if !install.is_empty() {
         let fmt = format!("{} ({}) ", "Repo", install.len());
         let start = 17 + install.len().to_string().len();
-        sprint!("{}", c.bold.paint(fmt));
+        print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", install);
     }
 
     if !make_install.is_empty() {
         let fmt = format!("{} ({}) ", "Repo Make", make_install.len());
         let start = 22 + make_install.len().to_string().len();
-        sprint!("{}", c.bold.paint(fmt));
+        print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", make_install);
     }
 
     if !build.is_empty() {
         let fmt = format!("{} ({}) ", "Aur", build.len());
         let start = 16 + build.len().to_string().len();
-        sprint!("{}", c.bold.paint(fmt));
+        print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", build);
     }
 
     if !make_build.is_empty() {
         let fmt = format!("{} ({}) ", "Aur Make", make_build.len());
         let start = 16 + make_build.len().to_string().len();
-        sprint!("{}", c.bold.paint(fmt));
+        print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", make_build);
     }
 
-    sprintln!();
+    println!();
 }
 
 /*fn download_pkgbuild_sources(config: &Config, build: &[aur_depends::Base]) -> Result<()> {
@@ -674,7 +674,7 @@ fn build_install_pkgbuilds(
     let c = config.color;
 
     let (mut devel_info, mut new_devel_info) = if config.devel {
-        sprintln!("fetching devel info...");
+        println!("fetching devel info...");
         (
             load_devel_info(config)?.unwrap_or_default(),
             fetch_devel_info(config, bases, srcinfos)?,
@@ -725,7 +725,7 @@ fn build_install_pkgbuilds(
             .success()
             .with_context(|| format!("failed to build '{}'", base))?;
 
-        sprintln!("{}: parsing pkg list...", base);
+        println!("{}: parsing pkg list...", base);
         let (mut pkgdest, version) = parse_package_list(config, &dir)?;
 
         if config.install_debug {
@@ -739,7 +739,7 @@ fn build_install_pkgbuilds(
 
                     if file.starts_with(&debug_pkg) {
                         let debug_pkg = format!("{}-debug", pkg.pkg.name);
-                        sprintln!("adding {} to the install list", debug_pkg);
+                        println!("adding {} to the install list", debug_pkg);
                         let mut pkg = pkg.clone();
                         let mut raur_pkg = (*pkg.pkg).clone();
                         raur_pkg.name = debug_pkg;
@@ -767,7 +767,7 @@ fn build_install_pkgbuilds(
             }
 
             if all_installed {
-                sprintln!(
+                println!(
                     "{} {}-{} is up to date -- skipping",
                     c.warning.paint("::"),
                     base.package_base(),
@@ -797,7 +797,7 @@ fn build_install_pkgbuilds(
         }
 
         if !needs_build {
-            sprintln!(
+            println!(
                 "{} {}-{} is up to date -- skipping build",
                 c.warning.paint("::"),
                 base.package_base(),
@@ -809,7 +809,7 @@ fn build_install_pkgbuilds(
             if config.args.has_arg("needed", "needed") {
                 if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
                     if pkg.version().as_str() == version {
-                        sprintln!(
+                        println!(
                             "{} {}-{} is up to date -- skipping install",
                             c.warning.paint("::"),
                             base.package_base(),
@@ -979,16 +979,16 @@ fn resolver<'a, 'b>(
         .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .provider_callback(move |dep, pkgs| {
             let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
-            sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
-            sprintln!(
+            println!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+            println!(
                 "{} {} {}:",
                 c.action.paint("::"),
                 c.bold.paint("Repository"),
                 color_repo(c.enabled, "AUR")
             );
-            sprint!("    ");
+            print!("    ");
             for (n, pkg) in pkgs.iter().enumerate() {
-                sprint!("{}) {}  ", n + 1, pkg);
+                print!("{}) {}  ", n + 1, pkg);
             }
 
             get_provider(pkgs.len())
@@ -996,7 +996,7 @@ fn resolver<'a, 'b>(
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();
-            sprintln!(
+            println!(
                 "{} {} {}:",
                 c.action.paint("::"),
                 c.bold
@@ -1009,23 +1009,23 @@ fn resolver<'a, 'b>(
             for group in groups {
                 if group.db.name() != repo {
                     repo = group.db.name().to_string();
-                    sprintln!(
+                    println!(
                         "{} {} {}",
                         c.action.paint("::"),
                         c.bold.paint("Repository"),
                         color_repo(c.enabled, group.db.name())
                     );
-                    sprint!("    ");
+                    print!("    ");
                 }
 
                 let mut n = 1;
                 for pkg in group.group.packages() {
-                    sprint!("{}) {}  ", n, pkg.name());
+                    print!("{}) {}  ", n, pkg.name());
                     n += 1;
                 }
             }
 
-            sprint!("\n\nEnter a selection (default=all): ");
+            print!("\n\nEnter a selection (default=all): ");
             let _ = stdout().lock().flush();
 
             let stdin = stdin();

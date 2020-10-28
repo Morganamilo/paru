@@ -1,7 +1,6 @@
 use crate::config::Config;
 use crate::download;
 use crate::download::{cache_info_with_warnings, Bases};
-use crate::sprintln;
 use crate::util::split_repo_aur_pkgs;
 
 use std::collections::hash_map::Entry;
@@ -64,7 +63,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
 
     let aur = split_repo_aur_pkgs(config, &pkgs).1;
 
-    sprintln!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
+    println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
     let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore)?;
     warnings.all(config.color, config.cols);
 
@@ -96,7 +95,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
         }
     }
 
-    sprintln!(
+    println!(
         "{} {}",
         action.paint("::"),
         bold.paint("Looking for devel repos...")
@@ -139,7 +138,7 @@ async fn ls_remote(config: &Config, remote: String, branch: Option<&str>) -> Res
         .to_string();
 
     let _action = config.color.action;
-    //sprintln!(" found git repo: {}",  remote);
+    //println!(" found git repo: {}",  remote);
     Ok(sha)
 }
 

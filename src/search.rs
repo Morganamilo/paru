@@ -2,7 +2,6 @@ use crate::config::Config;
 use crate::fmt::{color_repo, print_indent};
 use crate::install::install;
 use crate::util::{input, NumberMenu};
-use crate::{sprint, sprintln};
 
 use ansi_term::Style;
 use anyhow::{Context, Result};
@@ -114,13 +113,13 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
 
 fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     if quiet {
-        sprintln!("{}", pkg.name);
+        println!("{}", pkg.name);
         return;
     }
 
     let c = config.color;
     let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity);
-    sprint!(
+    print!(
         "{}/{} {} [{}]",
         color_repo(c.enabled, "aur"),
         c.ss_name.paint(&pkg.name),
@@ -135,14 +134,14 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
             "[Installed]".to_string()
         };
 
-        sprint!(" {}", c.ss_installed.paint(installed));
+        print!(" {}", c.ss_installed.paint(installed));
     }
 
     if pkg.maintainer.is_none() {
-        sprint!(" {}", c.ss_orphaned.paint("[Orphaned]"));
+        print!(" {}", c.ss_orphaned.paint("[Orphaned]"));
     }
 
-    sprint!("\n    ");
+    print!("\n    ");
     let desc = pkg
         .description
         .as_deref()
@@ -153,7 +152,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
 
 fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     if quiet {
-        sprintln!("{}", pkg.name());
+        println!("{}", pkg.name());
         return;
     }
 
@@ -164,7 +163,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
         HumanBytes(pkg.isize() as u64)
     );
     let ver: &str = pkg.version().as_ref();
-    sprint!(
+    print!(
         "{}/{} {} [{}]",
         color_repo(c.enabled, pkg.db().unwrap().name()),
         c.ss_name.paint(pkg.name()),
@@ -179,18 +178,18 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
             "[Installed]".to_string()
         };
 
-        sprint!(" {}", c.ss_installed.paint(installed));
+        print!(" {}", c.ss_installed.paint(installed));
     }
 
     if !pkg.groups().is_empty() {
         for group in pkg.groups() {
-            sprint!(" {}", c.ss_orphaned.paint(" ("));
-            sprint!(" {}", c.ss_orphaned.paint(group));
-            sprint!(" {}", c.ss_orphaned.paint(")"));
+            print!(" {}", c.ss_orphaned.paint(" ("));
+            print!(" {}", c.ss_orphaned.paint(group));
+            print!(" {}", c.ss_orphaned.paint(")"));
         }
     }
 
-    sprint!("\n    ");
+    print!("\n    ");
     let desc = pkg.desc();
     let desc = desc.as_deref().unwrap_or_default().split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
@@ -212,7 +211,7 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
-        sprintln!("no packages match search");
+        println!("no packages match search");
         return Ok(1);
     }
 
@@ -243,12 +242,12 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
             match pkg {
                 AnyPkg::RepoPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    sprint!("{} ", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_alpm_pkg(config, pkg, false)
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    sprint!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{}{} ", "", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };
@@ -258,12 +257,12 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
             match pkg {
                 AnyPkg::RepoPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    sprint!("{} ", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_alpm_pkg(config, pkg, false)
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    sprint!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{}{} ", "", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };
@@ -299,7 +298,7 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
     }
 
     if pkgs.is_empty() {
-        sprintln!(" there is nothing to do")
+        println!(" there is nothing to do")
     } else {
         config.need_root = true;
         install(config, &pkgs)?;

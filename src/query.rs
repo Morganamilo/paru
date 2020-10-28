@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use crate::config::Config;
 use crate::devel::devel_updates;
+use crate::exec;
 use crate::util::{split_repo_aur_mode, split_repo_aur_pkgs};
-use crate::{esprintln, exec, sprintln};
 
 use anyhow::Result;
 use raur_ext::RaurExt;
@@ -53,7 +53,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         for &pkg in &aur {
             if db.pkg(pkg).is_err() {
-                esprintln!("{} package '{}' was not found", error.paint("error:"), pkg);
+                eprintln!("{} package '{}' was not found", error.paint("error:"), pkg);
             }
         }
 
@@ -84,9 +84,9 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                     };
 
                     if config.args.has_arg("q", "quiet") {
-                        sprintln!("{}", pkg.name);
+                        println!("{}", pkg.name);
                     } else {
-                        sprintln!(
+                        println!(
                             "{} {} -> {}",
                             bold.paint(&pkg.name),
                             upgrade.paint(local_pkg.version().as_str()),

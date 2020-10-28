@@ -1,7 +1,6 @@
 use crate::args::Args;
 use crate::fmt::color_repo;
 use crate::util::get_provider;
-use crate::{sprint, sprintln};
 
 use std::env::var;
 use std::fs::File;
@@ -605,17 +604,17 @@ impl Config {
 
 fn help() {
     let help = include_str!("../help");
-    sprint!("{}", help);
+    print!("{}", help);
 }
 
 fn version() {
     let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
-    sprint!("paru v{}", ver);
+    print!("paru v{}", ver);
     #[cfg(feature = "git")]
-    sprint!(" +git");
+    print!(" +git");
     #[cfg(feature = "backtrace")]
-    sprint!(" +backtrace");
-    sprintln!(" - libalpm v{}", alpm::version());
+    print!(" +backtrace");
+    println!(" - libalpm v{}", alpm::version());
 }
 
 fn validate(key: String, valid: &[&str]) -> Result<String> {
@@ -641,28 +640,28 @@ fn question(question: &mut Question) {
         let providers = question.providers();
         let len = providers.len();
 
-        sprintln!();
+        println!();
         let prompt = format!(
             "There are {} providers available for {}:",
             len,
             question.depend()
         );
-        sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+        println!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
         let mut db = String::new();
         for (n, pkg) in providers.iter().enumerate() {
             let pkg_db = pkg.db().unwrap();
             if pkg_db.name() != db {
                 db = pkg_db.name().to_string();
-                sprintln!(
+                println!(
                     "{} {} {}:",
                     c.action.paint("::"),
                     c.bold.paint("Repository"),
                     color_repo(c.enabled, pkg_db.name())
                 );
-                sprint!("    ");
+                print!("    ");
             }
-            sprint!("{}) {}  ", n + 1, pkg.name());
+            print!("{}) {}  ", n + 1, pkg.name());
         }
 
         let index = get_provider(len);
