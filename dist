@@ -1,0 +1,4 @@
+#!/bin/sh
+cargo build --release --locked
+strip target/release/paru
+tar --zstd -cfparu.tar.zst target/release/paru man completions
