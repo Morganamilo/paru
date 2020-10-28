@@ -45,7 +45,7 @@ tokio = { version = "0.2.22", features = ["process", "macros"] }
 url = "2.1.1"
 
 [profile.release]
-#lto = true
+lto = true
 
 [features]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
