@@ -79,20 +79,34 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
 
     if by == SearchBy::NameDesc {
         let target = targets.iter().max_by_key(|t| t.len()).unwrap();
+        let target = target.to_lowercase();
         let pkgs = config.raur.search_by(target, by)?;
         matches.extend(pkgs);
         matches.retain(|p| {
+            let name = p.name.to_lowercase();
+            let description = p
+                .description
+                .as_ref()
+                .map(|s| s.to_lowercase())
+                .unwrap_or_default();
             targets.iter().all(|t| {
-                p.name.contains(t) | p.description.as_ref().unwrap_or(&String::new()).contains(t)
+                let t = t.to_lowercase();
+                name.contains(&t) | description.contains(&t)
             })
         });
     } else if by == SearchBy::Name {
         let target = targets.iter().max_by_key(|t| t.len()).unwrap();
+        let target = target.to_lowercase();
         let pkgs = config.raur.search_by(target, by)?;
         matches.extend(pkgs);
-        matches.retain(|p| targets.iter().all(|t| p.name.contains(t)));
+        matches.retain(|p| {
+            targets
+                .iter()
+                .all(|t| p.name.to_lowercase().contains(&t.to_lowercase()))
+        });
     } else {
         for target in targets {
+            let target = target.to_lowercase();
             let pkgs = config.raur.search_by(target, by)?;
             matches.extend(pkgs);
         }
