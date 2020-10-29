@@ -139,7 +139,7 @@ pub fn get_upgrades(
     let mut aur_skip = Vec::new();
     let mut aur_keep = Vec::new();
 
-    if devel_upgrades.is_empty() && aur_upgrades.is_empty() {
+    if devel_upgrades.is_empty() && aur_upgrades.is_empty() && repo_upgrades.is_empty() {
         return Ok(Upgrades::default());
     }
 
