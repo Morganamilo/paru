@@ -32,8 +32,8 @@ Printing related options.
 
 .TP
 .B \-G, \-\-getpkgbuild
-Downloads PKGBUILDs from ABS or AUR. The ABS can only be used for Arch Linux
-repositories
+Downloads PKGBUILDs from the ABS or AUR. The ABS can only be used for Arch
+Linux repositories.
 
 .RE
 If no arguments are provided 'paru \-Syu' will be performed.
@@ -194,12 +194,6 @@ passed to sudo. Multiple arguments may be passed by supplying a space
 separated list that is quoted by the shell.
 
 .TP
-.B \-\-completioninterval <days>
-Time in days to refresh the completion cache. Setting this to 0 will cause
-the cache to be refreshed every time, while setting this to -1 will cause the
-cache to never be refreshed. Defaults to 7.
-
-.TP
 .B \-\-requestsplitn <number>
 The maximum amount of packages to request per AUR query. The higher the
 number the faster AUR requests will be. Requesting too many packages in one
@@ -218,7 +212,7 @@ Search for AUR packages by querying the specified field. Defaults to name-desc.
 .B \-\-upgrademenu
 Show a detailed list of updates in a similar format to 
 VerbosePkgLists. Upgrades can also be skipped using numbers, number ranges or
-repo names. Additionally ^ can be used to invert the selection.
+repo names.
 
 Additionally an argument can be passed to this flag and the menu will use
 this input instead of reading from stdin.
@@ -233,8 +227,10 @@ it is up to the user what upgrades they skip.
 Do not show the upgrade menu.
 
 .TP
-.B \-\-removemake <yes|no|ask>
-Remove makedepends after installing packages. Defaults to no.
+.B \-\-removemake [yes|no|ask]
+Remove makedepends after installing packages. If set to ask, a menu will appear
+during builds allowing an option to be chosen then. Defaults to yes when
+specified without an option.
 
 .TP
 .B \-\-noremovemake
@@ -295,9 +291,10 @@ packages to easily pull an update instead of having to reclone the entire repo.
 Do not remove package sources after successful install.
 
 .TP
-.B \-\-redownload <yes|no|all>
-Always download PKGBUILDS of targets even when a copy is available in cache. If
-all is used then this applies to all packages, not only targets. Defaults to no.
+.B \-\-redownload [yes|no]
+Always download PKGBUILDs of targets even when a copy is available in
+cache. If all is specified, then PKGBUILDs will be downloaded for all packages,
+not just targets. Defaults to yes when specified.
 
 .TP
 .B \-\-noredownload
@@ -379,8 +376,8 @@ to the one wanted skip the package build and use the existing package.
 
 .TP
 .B \-\-sudoloop
-Periodically call sudo in the background during builds to prevent it from
-timing out.
+Periodically call sudo in the background to prevent it from timing out during
+long builds.
 
 .TP
 .B \-\-nosudoloop
@@ -464,7 +461,7 @@ and built packages from those packages.
 .TP
 .B PACMAN.CONF
 Paru uses pacman's config file to set certain pacman options either through
-go\-alpm or paru itself. Options inherited include most libalpm options and
+alpm.rs or paru itself. Options inherited include most libalpm options and
 pacman options.
 
 Notably: \fBDatabases\fR, \fBColor\fR and \fB*Path/*Dir\fR options are used.

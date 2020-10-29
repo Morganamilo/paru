@@ -6,16 +6,16 @@
 paru.conf \- paru configuration file
 
 .SH SYNOPSIS
-$XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf, /etc/paru.conf
+/etc/paru.conf, $XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf
 
 .SH DESCRIPTION
 Paru's config file. Based on the format used by 
 .BR pacman.conf (5)
 
 Paru will attempt to read the config file from $XDG_CONFIG_HOME/paru/paru.conf. If
-$XDG_CONFIG_HOME is unset, it will attempt to read the file from 
-$HOME/.config/paru/paru.conf. If neither of those exist, it will read from the
-defaults at /etc/paru.conf.
+$XDG_CONFIG_HOME is not set, it will attempt to read the file from 
+$HOME/.config/paru/paru.conf. If neither of those exist, it will read from 
+/etc/paru.conf.
 
 Aditionally, the \fBInclude\fB directive can be used to copy paste files into
 the config. This could be used to extend the system config by including it in
@@ -48,8 +48,8 @@ sysupgrade will only act on repository packages.
 
 .TP
 .B SudoLoop
-Periodically call sudo in the background during builds to prevent it from
-timing out.
+Periodically call sudo in the background to prevent it from timing out during
+long builds.
 
 .TP
 .B NoCheck
@@ -113,18 +113,19 @@ a conflict, causing a package to be removed without the user's confirmation.
 However, this is very unlikely.
 
 .TP
-.B Redownload = no | all
+.B Redownload [= all]
 Always download PKGBUILDs of targets even when a copy is available in cache. If
-set to all then this applies to all packages, not only targets. Defaults to no.
+set to all then this applies to all packages, not only targets.
 
 .TP
-.B Rebuild = no | all
-Always build target packages even when a copy is available in cache. If all is
-selected then all packages are rebuilt, not only targets. Defaults to no.
+.B Rebuild [= all]
+Always build target packages even when a copy is available in cache. If set to
+all, then all packages are rebuilt, not only targets.
 
 .TP
-.B RemoveMake = yes | no | ask
-Remove makedepends after installing packages. Defaults to no.
+.B RemoveMake [= ask]
+Remove makedepends after installing packages. If set to ask, a menu will appear
+during builds allowing an option to be chosen then.
 
 .TP
 .B UpgradeMenu
@@ -132,7 +133,7 @@ Show a detailed list of updates in a similar format to pacman's VerbosePkgLists
 option. (See 
 .BR pacman.conf(5)).
 Upgrades can be skipped using numbers, number ranges, or repo
-names. Additionally, ^ can be used to invert the selection.
+names.
 
 \fBWarning\fR: It is not recommended to skip updates from the repositories as
 this can lead to partial upgrades. This feature is intended to easily skip AUR
@@ -150,20 +151,14 @@ Directory to use for building AUR Packages. This directory is also used as
 the AUR cache when deciding if paru should skip builds.
 
 .TP
-.B SortBy = votes|popularity|name|base|submitted|modified|id|baseid
+.B SortBy = <votes|popularity|name|base|submitted|modified|id|baseid>
 Defaults to votes. Sort AUR results according to the options in "Sort by"
 visible here: https://aur.archlinux.org/packages/
 
 .TP
-.B SearchBy = name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends
+.B SearchBy = <name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
 Defaults to name-desc. Search AUR packages according to the options in 
 "Search by" visible here: https://aur.archlinux.org/packages/    
-
-.TP
-.B CompletionInterval = Number
-Time in days to refresh the completion cache. Setting this to 0 will cause
-the cache to be refreshed every time, while setting this to -1 will cause the
-cache to never be refreshed. Defaults to 7.
 
 .TP
 .B RequestSplit = Number
