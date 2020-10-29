@@ -214,6 +214,7 @@ impl Config {
                 self.remove_make = validate(value.unwrap_or("yes"), yes_no_ask)?
             }
             Arg::Long("upgrademenu") => self.upgrade_menu = true,
+            Arg::Long("noupgrademenu") => self.upgrade_menu = false,
             Arg::Long("noremovemake") => self.remove_make = "no".to_string(),
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,

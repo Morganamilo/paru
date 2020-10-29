@@ -69,8 +69,8 @@ _pacman_opts_common=(
 	'--develsuffixes[Suffixes to define development packages]:suffixes'
 	'--cleanafter[Clean package sources after successful build]'
 	'--nocleanafter[Disable package sources cleaning after successful build]'
-	'--redownload[Always download pkgbuilds of targets]'
-	'--noredownload[Skip pkgbuild download if in cache and up to date]'
+	'--redownload[Always download PKGBUILDs of targets]'
+	'--noredownload[Skip PKGBUILD download if in cache and up to date]'
 	'--rebuild[Always build target packages]'
 	'--norebuild[Skip package build if in cache and up to date]'
 	'--provides[Look for matching providers when searching for packages]'
@@ -139,7 +139,7 @@ _pacman_opts_query_modifiers=(
 
 # -G
 _pacman_opts_getpkgbuild_modifiers=(
-	{-,--print}'[Print pkgbuild instead of downloading]'
+	{-,--print}'[Print PKGBUILD instead of downloading]'
 )
 
 # -P

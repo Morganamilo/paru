@@ -28,7 +28,7 @@ New options:
        --repo             Assume targets are from the repositories
     -a --aur              Assume targets are from the AUR
     --aururl    <url>     Set an alternative AUR URL
-    --builddir  <dir>     Directory used to download and run PKGBUILDS
+    --builddir  <dir>     Directory used to download and run PKGBUILDs
 
     --makepkg   <file>    makepkg command to use
     --mflags    <flags>   Pass arguments to makepkg
@@ -40,7 +40,7 @@ New options:
     --asp       <file>    asp command to use
     --gpg       <file>    gpg command to use
     --gpgflags  <flags>   Pass arguments to gpg
-    --fm        <file>    File manager to use for pkgbuild review
+    --fm        <file>    File manager to use for PKGBUILD review
     --fmflags   <flags>   Pass arguments to file manager
 
     --completioninterval  <n> Time in days to refresh completion cache
@@ -54,8 +54,8 @@ New options:
     --nocleanafter        Do not remove package sources after successful build
     --rebuild             Always build target packages
     --norebuild           Skip package build if in cache and up to date
-    --redownload          Always download pkgbuilds of targets
-    --noredownload        Skip pkgbuild download if in cache and up to date
+    --redownload          Always download PKGBUILDs of targets
+    --noredownload        Skip PKGBUILD download if in cache and up to date
 
     --pgpfetch            Prompt to import PGP keys from PKGBUILDs
     --nopgpfetch          Don't prompt to import PGP keys

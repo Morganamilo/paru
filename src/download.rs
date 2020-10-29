@@ -272,11 +272,11 @@ pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     sprintln!(
         "\n{} {}",
         action.paint("::"),
-        bold.paint("Downloading pkgbuilds...")
+        bold.paint("Downloading PKGBUILDs...")
     );
 
     if bases.bases.is_empty() {
-        sprintln!(" pkgbuilds up to date");
+        sprintln!(" PKGBUILDs up to date");
         return Ok(());
     }
 
