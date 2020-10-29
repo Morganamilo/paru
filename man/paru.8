@@ -32,7 +32,7 @@ Printing related options.
 .TP
 .B \-G, \-\-getpkgbuild
 Downloads PKGBUILD from ABS or AUR. The ABS can only be used for Arch Linux
-repositories
+repositories.
 
 .RE
 If no arguments are provided 'paru \-Syu' will be performed.
@@ -48,9 +48,9 @@ Paru will also remove cached data about devel packages.
 
 .TP
 .B \-Sc
-Paru will also clean cached AUR package and any untracked Files in the
+Paru will also clean cached AUR package and any untracked files in the
 cache. Cleaning untracked files will wipe any downloaded sources or
-built packages but will keep already downloaded vcs sources.
+built packages but will keep already downloaded VCS sources.
 
 
 .TP
@@ -98,21 +98,20 @@ available news.
 
 .TP
 .B \-p, \-\-print
-Prints the pkgbuild to the terminal instead of downloading it.
+Prints the PKGBUILD to the terminal instead of downloading it.
 
 .SH NEW OPTIONS
 .TP
 .B    \-\-repo
-Assume all targets are from the repositories. Additionally Actions such as
+Assume all targets are from the repositories. Additionally actions such as
 sysupgrade will only act on repository packages.
 
 .TP
 .B \-a, \-\-aur
-Assume all targets are from the AUR. Additionally Actions such as
+Assume all targets are from the AUR. Additionally actions such as
 sysupgrade will only act on AUR packages.
 
-Note that dependency resolving will still act normally and include repository
-packages.
+Note that dependency resolution will still include repository packages.
 
 .TP
 .B \-\-aururl
@@ -121,7 +120,7 @@ to use https://aur.tuna.tsinghua.edu.cn/.
 
 .TP
 .B \-\-builddir <dir>
-Directory to use for Building AUR Packages. This directory is also used as
+Directory to use for building AUR Packages. This directory is also used as
 the AUR cache when deciding if paru should skip builds.
 
 .TP
@@ -267,7 +266,7 @@ only Git packages are supported.
 
 Devel checking is done using \fBgit ls-remote\fR. The newest commit hash is
 compared against the hash at install time. This allows devel updates to be
-checked almost instantly and not require the original pkgbuild to be downloaded.
+checked almost instantly and not require the original PKGBUILD to be downloaded.
 
 The slower pacaur-like devel checks can be implemented manually by piping
 a list of packages into paru (see \fBexamples\fR).
@@ -297,16 +296,16 @@ instead of having to reclone the entire repo.
 
 .TP
 .B \-\-nocleanafter
-Do not remove package sources after successful Install.
+Do not remove package sources after successful install.
 
 .TP
 .B \-\-redownload [yes|no|all]
-Always download pkgbuilds of targets even when a copy is available in cache.
+Always download PKGBUILDs of targets even when a copy is available in cache.
 If all is used then this applies to all packages, not only targets.
 
 .TP
 .B \-\-noredownload
-When downloading pkgbuilds if the pkgbuild is found in cache and is equal or
+When downloading PKGBUILDs if the PKGBUILD is found in cache and is equal or
 newer than the AUR's version use that instead of downloading a new one.
 
 .TP
@@ -318,7 +317,7 @@ increases dependency resolve time although this should not be noticeable.
 .TP
 .B \-\-noprovides
 Do not look for matching providers when searching for AUR packages.
-paru will never show its provider menu but Pacman will still show its
+paru will never show its provider menu but pacman will still show its
 provider menu for repo packages.
 
 .TP
@@ -348,16 +347,16 @@ conflict will not need to be confined manually.
 .B \-\-combinedupgrade
 During sysupgrade, paru will first perform a refresh, then show
 its combined menu of repo and AUR packages that will be upgraded. Then after
-reviewing the pkgbuilds, the repo and AUR upgrade will start with no need
+reviewing the PKGBUILDs, the repo and AUR upgrade will start with no need
 for manual intervention.
 
-If paru exits for any reason After the refresh without upgrading. It is then
+If paru exits for any reason after the refresh without upgrading. It is
 the user's responsibility to either resolve the reason paru exited or run
 a sysupgrade through pacman directly.
 
 .TP
 .B \-\-nocombinedupgrade
-During sysupgrade, Pacman \-Syu will be called, then the AUR upgrade will
+During sysupgrade, pacman \-Syu will be called, then the AUR upgrade will
 start. This means the upgrade menu and pkgbuild review will be performed
 after the sysupgrade has finished.
 
@@ -418,7 +417,7 @@ Gets information about package \fIfoo\fR from the repos or the \fBAUR\fR.
 
 .TP
 paru \-S \fIfoo\fR \-\-mflags "\-\-skipchecksums \-\-skippgpcheck"
-Installs \fIfoo\fR while skipping checksums and pgp checks.
+Installs \fIfoo\fR while skipping checksums and PGP checks.
 
 .TP
 paru \-P \-\-stats
@@ -480,10 +479,10 @@ Notably: \fBDatabases\fR, \fBColor\fR and \fB*Path/*Dir\fR options are used.
 .BR pacman (8),
 .BR pacman.conf (5)
 
-See the arch wiki at https://wiki.archlinux.org/index.php/Arch_User_Repository for more info on the \fBAUR\fR.
+See the Arch Wiki at https://wiki.archlinux.org/index.php/Arch_User_Repository for more info on the \fBAUR\fR.
 
 .SH BUGS
-Please report bugs to our GitHub page \fBhttps://github.com/Morganamilo/paru\fR
+Please report bugs to our GitHub page \fBhttps://github.com/Morganamilo/paru\fR.
 
 .SH AUTHORS
 Morgan <morganamilo@archlinux.org>

@@ -8,7 +8,7 @@ An AUR helper and pacman wrapper
 
 ## Description
 
-Paru is an AUR helper written in rust and based on the design of yay. It aims to be your standard pacman wrapping AUR helper with minimal interaction.
+Paru is an AUR helper written in Rust and based on the design of [`yay`](https://github.com/Jguer/yay). It aims to be your standard pacman wrapping AUR helper with minimal interaction.
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
 
@@ -21,7 +21,7 @@ cd paru
 makepkg -si
 ```
 
-## General tips
+## General Tips
 
 - **Man pages**: For documentation on paru's options and config file see `paru(8)` and `paru.conf(5)` respectively.
 
@@ -31,25 +31,25 @@ makepkg -si
 
 - **Flip search order**: To get search results to start at the bottom and go upwards, enable `BottomUp` in `paru.conf`.
 
-- **Editing pkgbuilds**: When editing pkgbuilds, you can commit your changes to make them perminent. When the package is upgraded, git will try and merge your changes with upstream's.
+- **Editing PKGBUILDs**: When editing PKGBUILDs, you can commit your changes to make them permanent. When the package is upgraded, `git` will try to merge your changes with upstream's.
 
-- **pkgbuild highlighting**: `bat` can optionally be installed to enable highlighting of pkgbuild printing during review.
+- **PKGBUILD syntax highlighting**: You can install [`bat`](https://github.com/sharkdp/bat) to enable syntax highlighting during PKGBUILD review.
 
 ## Examples
 
-`paru <target>` -- interactive search and install of `<target>`
+`paru <target>` -- Interactively search and install `<target>`.
 
-`paru` -- aliased to `paru -Syu`
+`paru` -- Alias for `paru -Syu`.
 
-`paru -Sua` -- upgrade AUR packages
+`paru -Sua` -- Upgrade AUR packages.
 
-`paru -Qua` -- print AUR updates
+`paru -Qua` -- Print available AUR updates.
 
-`paru -G <target>` -- download `<target>`'s pkgbuild and related files
+`paru -G <target>` -- Download the PKGBUILD and related files of `<target>`.
 
-`paru -Gp <target>` -- print `<target>`'s pkgbuild
+`paru -Gp <target>` -- Print the PKGBUILD of `<target>`.
 
-`paru --gendb` -- generate the devel database for tracking -git packages. This is only needed when you initially start using paru.
+`paru --gendb` -- Generate the devel database for tracking `*-git` packages. This is only needed when you initially start using paru.
 
 ## Debugging
 

@@ -64,7 +64,7 @@ only Git packages are supported.
 
 Devel checking is done using \fBgit ls-remote\fR. The newest commit hash is
 compared against the hash at install time. This allows devel updates to be
-checked almost instantly and not require the original pkgbuild to be downloaded.
+checked almost instantly and not require the original PKGBUILD to be downloaded.
 
 .TP
 .B CleanAfter
@@ -89,7 +89,7 @@ PKGBUILD.
 .B CombinedUpgrade
 During sysupgrade, paru will first perform a refresh, then show
 its combined menu of repo and AUR packages that will be upgraded. Then after
-reviewing the pkgbuilds, the repo and AUR upgrade will start with no need
+reviewing the PKGBUILDs, the repo and AUR upgrade will start with no need
 for manual intervention.
 
 If paru exits for any reason After the refresh without upgrading. It is then
@@ -112,7 +112,7 @@ However, this is very unlikely.
 
 .TP
 .B Redownload [= All]
-Always download pkgbuilds of targets even when a copy is available in cache.
+Always download PKGBUILDs of targets even when a copy is available in cache.
 If all is used then this applies to all packages, not only targets.
 
 .TP
@@ -213,7 +213,7 @@ The sudoloop is not guaranteed to work with a custom \fBsudo\fR command.
 
 .TP
 .B FileManager = path/to/fm
-This enables fm review mode, where pkgbuild review is done using the file
+This enables fm review mode, where PKGBUILD review is done using the file
 manager specified by command.
 
 .TP
