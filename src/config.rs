@@ -157,8 +157,6 @@ pub struct Config {
     #[default = "any"]
     pub mode: String,
 
-    #[default = 150]
-    pub request_split: u64,
     #[default = 7]
     pub completion_interval: u64,
 
@@ -591,7 +589,6 @@ impl Config {
             "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,
             "SortBy" => self.sort_by = validate(value?, sort_by)?,
             "SearchBy" => self.search_by = validate(value?, search_by)?,
-            "RequestSplit" => self.request_split = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,
