@@ -84,7 +84,7 @@ pub fn split_repo_aur_targets<'a>(
 pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let action = config.color.action;
     let bold = config.color.bold;
-    let yn = if default { "[Y/n]:" } else { "[n/Y]:" };
+    let yn = if default { "[Y/n]:" } else { "[y/N]:" };
     sprint!(
         "{} {} {} ",
         action.paint("::"),
