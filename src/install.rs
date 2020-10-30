@@ -230,9 +230,10 @@ fn install_actions(
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
-            let srcinfo = Srcinfo::parse_file(path)
-                .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
-            srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+            let srcinfo = Srcinfo::parse_file(path);
+            if let Ok(srcinfo) = srcinfo {
+                srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+            }
         }
     }
 
