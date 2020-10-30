@@ -257,7 +257,9 @@ impl Config {
             ..Self::default()
         };
 
-        if config_path.exists() {
+        if let Ok(conf) = var("PARU_CONF") {
+            config.config_path = Some(conf.into());
+        } else if config_path.exists() {
             config.config_path = Some(config_path);
         } else {
             let config_path = PathBuf::from("/etc/paru.conf");
