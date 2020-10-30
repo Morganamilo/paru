@@ -197,11 +197,12 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 
     if !pkg.groups().is_empty() {
-        for group in pkg.groups() {
-            sprint!(" {}", c.ss_orphaned.paint(" ("));
+        sprint!(" {}", c.ss_orphaned.paint("("));
+        sprint!("{}", c.ss_orphaned.paint(pkg.groups().first().unwrap()));
+        for group in pkg.groups().iter().skip(1) {
             sprint!(" {}", c.ss_orphaned.paint(group));
-            sprint!(" {}", c.ss_orphaned.paint(")"));
         }
+        sprint!("{}", c.ss_orphaned.paint(")"));
     }
 
     sprint!("\n    ");
