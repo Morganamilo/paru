@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::util::get_provider;
 use crate::{sprint, sprintln};
@@ -310,8 +311,16 @@ impl Config {
         self.globals.bin = self.pacman_bin.clone();
 
         if self.help {
-            help();
-            std::process::exit(0);
+            match self.op.as_str() {
+                "getpkgbuild" | "show" | "yay" => {
+                    help();
+                    std::process::exit(0);
+                }
+                _ => {
+                    let status = exec::pacman(self, &self.args).unwrap_or(Status(1));
+                    std::process::exit(status.code());
+                }
+            }
         }
 
         if self.version {

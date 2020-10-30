@@ -24,7 +24,7 @@ impl Display for PacmanError {
 impl std::error::Error for PacmanError {}
 
 #[derive(Debug, Clone, Copy)]
-pub struct Status(i32);
+pub struct Status(pub i32);
 
 impl Display for Status {
     fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {

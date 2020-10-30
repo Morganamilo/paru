@@ -85,6 +85,8 @@ pub static PACMAN_GLOBALS: &[&str] = &[
     "sysroot",
     "noconfirm",
     "confirm",
+    "h",
+    "help",
 ];
 
 #[derive(Default, Debug, Clone)]
