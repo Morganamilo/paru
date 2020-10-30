@@ -197,7 +197,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
-    devel_info.info.retain(|pkg, _| db.pkg(pkg).is_ok());
+    devel_info.info.retain(|pkg, _| db.pkg(pkg).map(|p| !p.should_ignore()).unwrap_or(false));
     save_devel_info(config, &devel_info)?;
 
     let updates = rt.block_on(async {
