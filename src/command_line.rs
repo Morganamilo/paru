@@ -330,6 +330,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("ignoregroup") => TakesValue::Required,
         Arg::Long("assumeinstalled") => TakesValue::Required,
         Arg::Long("print-format") => TakesValue::Required,
+        Arg::Long("overwrite") => TakesValue::Required,
         _ => TakesValue::No,
     }
 }
