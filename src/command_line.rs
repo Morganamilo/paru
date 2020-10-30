@@ -121,8 +121,7 @@ impl Config {
         forced: bool,
     ) -> Result<()> {
         let yes_no_ask = &["yes", "no", "ask"];
-        let yes_no = &["yes", "no"];
-        let _no_all_tree = &["no", "all", "tree"];
+        let yes_no_all = &["yes", "no", "all"];
         let sort_by = &[
             "votes",
             "popularity",
@@ -218,9 +217,11 @@ impl Config {
             Arg::Long("noremovemake") => self.remove_make = "no".to_string(),
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,
-            Arg::Long("redownload") => self.redownload = validate(value.unwrap_or("yes"), yes_no)?,
+            Arg::Long("redownload") => {
+                self.redownload = validate(value.unwrap_or("yes"), yes_no_all)?
+            }
             Arg::Long("noredownload") => self.redownload = "no".to_string(),
-            Arg::Long("rebuild") => self.rebuild = validate(value.unwrap_or("yes"), yes_no)?,
+            Arg::Long("rebuild") => self.rebuild = validate(value.unwrap_or("yes"), yes_no_all)?,
             Arg::Long("norebuild") => self.rebuild = "no".into(),
             Arg::Long("topdown") => self.sort_mode = "topdown".to_string(),
             Arg::Long("bottomup") => self.sort_mode = "bottomup".to_string(),
