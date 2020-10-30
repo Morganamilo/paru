@@ -1,8 +1,8 @@
 use crate::config::Config;
 use crate::download;
 use crate::download::{cache_info_with_warnings, Bases};
-use crate::sprintln;
 use crate::util::split_repo_aur_pkgs;
+use crate::{print_error, sprintln};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -11,7 +11,7 @@ use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use futures::future::{join_all, try_join_all};
 use raur_ext::RaurExt;
 use serde::{Deserialize, Serialize};
@@ -70,28 +70,47 @@ pub fn gendb(config: &mut Config) -> Result<()> {
 
     let bases = Bases::from_iter(warnings.pkgs);
     let mut srcinfos = HashMap::new();
+    let mut failed = HashSet::new();
 
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             let srcinfo = Srcinfo::parse_file(path)
-                .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
-            srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+                .with_context(|| format!("failed to parse srcinfo for '{}'", base));
+
+            match srcinfo {
+                Ok(srcinfo) => {
+                    srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+                }
+                Err(err) => {
+                    print_error(config.color.error, err);
+                    failed.insert(base.package_base());
+                }
+            };
         }
     }
 
     download::new_aur_pkgbuilds(config, &bases, &srcinfos)?;
 
     for base in &bases.bases {
-        if srcinfos.contains_key(base.package_base()) {
+        if failed.contains(base.package_base()) || srcinfos.contains_key(base.package_base()) {
             continue;
         }
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
                 let srcinfo = Srcinfo::parse_file(path)
-                    .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
-                vacant.insert(srcinfo);
+                    .with_context(|| format!("failed to parse srcinfo for '{}'", base));
+
+                match srcinfo {
+                    Ok(srcinfo) => {
+                        vacant.insert(srcinfo);
+                    }
+                    Err(err) => {
+                        print_error(config.color.error, err);
+                        continue;
+                    }
+                }
             }
         }
     }
@@ -178,7 +197,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
-    devel_info.info.retain(|pkg, _| db.pkg(pkg).is_ok());
+    devel_info.info.retain(|pkg, _| db.pkg(pkg).map(|p| !p.should_ignore()).unwrap_or(false));
     save_devel_info(config, &devel_info)?;
 
     let updates = rt.block_on(async {
@@ -234,7 +253,7 @@ pub fn fetch_devel_info(
 
             let srcinfo = match srcinfo {
                 Some(v) => v,
-                None => bail!("could not find srcinfo: {}", base.package_base()),
+                None => continue,
             };
 
             for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {

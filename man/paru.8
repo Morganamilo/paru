@@ -421,11 +421,16 @@ pacman -Qmq | grep -Ee '-(cvs|svn|git|hg|bzr|darcs)$' | paru -S --needed -
 pacaur-like devel check.
 
 .SH ENVIRONMENT VARIABLES
+
 .TP
 .B AURDEST
 Can be set to configure the build directory.
 
 Overridden by \-\-builddir.
+
+.TP
+.B PARU_CONF
+Overrides where paru will look for its config file.
 
 .SH FILES
 .TP

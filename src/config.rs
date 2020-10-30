@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::util::get_provider;
 use crate::{sprint, sprintln};
@@ -256,7 +257,9 @@ impl Config {
             ..Self::default()
         };
 
-        if config_path.exists() {
+        if let Ok(conf) = var("PARU_CONF") {
+            config.config_path = Some(conf.into());
+        } else if config_path.exists() {
             config.config_path = Some(config_path);
         } else {
             let config_path = PathBuf::from("/etc/paru.conf");
@@ -310,8 +313,16 @@ impl Config {
         self.globals.bin = self.pacman_bin.clone();
 
         if self.help {
-            help();
-            std::process::exit(0);
+            match self.op.as_str() {
+                "getpkgbuild" | "show" | "yay" => {
+                    help();
+                    std::process::exit(0);
+                }
+                _ => {
+                    let status = exec::pacman(self, &self.args).unwrap_or(Status(1));
+                    std::process::exit(status.code());
+                }
+            }
         }
 
         if self.version {
@@ -376,7 +387,7 @@ impl Config {
         set_questioncb!(alpm, question);
 
         for repo in &self.pacman.repos {
-            alpm.register_syncdb_mut(&repo.name, SigLevel::NONE)?;
+            let db = alpm.register_syncdb_mut(&repo.name, SigLevel::NONE)?;
 
             let mut usage = Usage::NONE;
 
@@ -393,6 +404,8 @@ impl Config {
                     usage = Usage::ALL
                 }
             }
+
+            db.set_usage(usage)?;
         }
 
         alpm.set_ignorepkgs(&self.ignore)?;

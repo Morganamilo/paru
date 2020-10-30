@@ -23,19 +23,14 @@ pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
         .trans_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
 
     let mut pkgs = config.alpm.trans_add().iter().collect::<Vec<_>>();
+    let dbs = config.alpm.syncdbs();
 
     pkgs.sort_by(|a, b| {
-        config
-            .alpm
-            .syncdbs()
-            .iter()
+        dbs.iter()
             .position(|db| db.name() == a.db().unwrap().name())
             .unwrap()
             .cmp(
-                &config
-                    .alpm
-                    .syncdbs()
-                    .iter()
+                &dbs.iter()
                     .position(|db| db.name() == b.db().unwrap().name())
                     .unwrap(),
             )
@@ -185,7 +180,7 @@ pub fn get_upgrades(
         .unwrap_or(0);
 
     for (n, pkg) in repo_upgrades.iter().enumerate() {
-        let pkg = config.alpm.syncdbs().pkg(pkg.name())?;
+        let local_pkg = config.alpm.localdb().pkg(pkg.name())?;
         print_upgrade(
             config,
             n + 1,
@@ -193,7 +188,7 @@ pub fn get_upgrades(
             pkg.name(),
             pkg.db().unwrap().name(),
             db_pkg_max,
-            db.pkg(pkg.name()).unwrap().version(),
+            local_pkg.version(),
             old_max,
             pkg.version(),
         );

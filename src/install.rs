@@ -175,16 +175,16 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     print_install(config, &actions);
 
-    let remove_make = if actions.iter_build_pkgs().any(|p| p.make) {
-        if config.remove_make == "ask" {
-            sprintln!();
-            ask(config, "Remove make dependencies after install?", false)
+    let remove_make =
+        if actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make) {
+            if config.remove_make == "ask" {
+                ask(config, "Remove make dependencies after install?", false)
+            } else {
+                config.remove_make == "yes"
+            }
         } else {
-            config.remove_make == "yes"
-        }
-    } else {
-        false
-    };
+            false
+        };
 
     let err = install_actions(config, &mut actions, &conflicts.0, &conflicts.1);
 
@@ -196,6 +196,14 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             .filter(|p| p.make)
             .map(|p| p.pkg.name.as_str())
             .collect();
+
+        args.targets.extend(
+            actions
+                .install
+                .iter()
+                .filter(|p| p.make)
+                .map(|p| p.pkg.name()),
+        );
 
         if let Err(err) = exec::pacman(config, &args) {
             print_error(config.color.error, err);
@@ -230,9 +238,10 @@ fn install_actions(
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
-            let srcinfo = Srcinfo::parse_file(path)
-                .with_context(|| format!("failed to parse srcinfo for '{}'", base))?;
-            srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+            let srcinfo = Srcinfo::parse_file(path);
+            if let Ok(srcinfo) = srcinfo {
+                srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+            }
         }
     }
 
