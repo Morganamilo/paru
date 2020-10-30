@@ -308,7 +308,7 @@ fn install_actions(
         }
     }
 
-    if !ask(config, "Proceed with installation?", true) {
+    if actions.install.is_empty() && !ask(config, "Proceed with installation?", true) {
         return Ok(1);
     }
 
