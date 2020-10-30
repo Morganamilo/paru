@@ -258,7 +258,13 @@ impl Config {
         };
 
         if let Ok(conf) = var("PARU_CONF") {
-            config.config_path = Some(conf.into());
+            let path = PathBuf::from(conf);
+            ensure!(
+                path.exists(),
+                "config file '{}' does not exist",
+                path.display()
+            );
+            config.config_path = Some(path);
         } else if config_path.exists() {
             config.config_path = Some(config_path);
         } else {
