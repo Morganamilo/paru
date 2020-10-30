@@ -987,7 +987,7 @@ fn resolver<'a, 'b>(
     aur_depends::Resolver::new(alpm, cache, raur, flags)
         .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .provider_callback(move |dep, pkgs| {
-            let prompt = format!("There are {} providers avaliable for {}:", pkgs.len(), dep);
+            let prompt = format!("There are {} providers available for {}:", pkgs.len(), dep);
             sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
             sprintln!(
                 "{} {} {}:",
