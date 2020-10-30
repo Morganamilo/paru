@@ -6,16 +6,17 @@
 paru.conf \- paru configuration file
 
 .SH SYNOPSIS
-/etc/paru.conf, $XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf
+/etc/paru.conf, $PARU_CONF, $XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf
 
 .SH DESCRIPTION
 Paru's config file. Based on the format used by 
 .BR pacman.conf (5)
 
-Paru will attempt to read the config file from $XDG_CONFIG_HOME/paru/paru.conf. If
-$XDG_CONFIG_HOME is not set, it will attempt to read the file from 
-$HOME/.config/paru/paru.conf. If neither of those exist, it will read from 
-/etc/paru.conf.
+Paru first attempts to read the file at $PARU_CONF. If $PARU_CONF is not
+set, paru attempts to read from $XDG_CONFIG_HOME/paru/paru.conf. If
+$XDG_CONFIG_HOME is not set, or the file doesn't exist, paru attempts to read
+from $HOME/.config/paru/paru.conf. If that file doesn't exist, it will read
+the system config from /etc/paru.conf.
 
 Aditionally, the \fBInclude\fB directive can be used to copy paste files into
 the config. This could be used to extend the system config by including it in

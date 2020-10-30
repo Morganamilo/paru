@@ -3,7 +3,7 @@
 .nh
 .ad l
 .SH NAME
-PARU \- An AUR helper and pacman wrapper
+paru \- AUR helper and pacman wrapper
 
 .SH SYNOPSIS
 \fIparu\fR <operation> [options] [targets]
@@ -208,12 +208,11 @@ Search for AUR packages by querying the specified field. Defaults to name-desc.
 
 .TP
 .B \-\-upgrademenu
-Show a detailed list of updates in a similar format to 
-VerbosePkgLists. Upgrades can also be skipped using numbers, number ranges or
-repo names.
-
-Additionally an argument can be passed to this flag and the menu will use
-this input instead of reading from stdin.
+Show a detailed list of updates in a similar format to pacman's VerbosePkgLists
+option. (See 
+.BR pacman.conf(5)).
+Upgrades can be skipped using numbers, number ranges, or repo
+names.
 
 \fBWarning\fR: It is not recommended to skip updates from the repositories as
 this can lead to partial upgrades. This feature is intended to easily skip AUR
@@ -289,7 +288,7 @@ packages to easily pull an update instead of having to reclone the entire repo.
 Do not remove package sources after successful install.
 
 .TP
-.B \-\-redownload [yes|no]
+.B \-\-redownload [yes|no|all]
 Always download PKGBUILDs of targets even when a copy is available in
 cache. If all is specified, then PKGBUILDs will be downloaded for all packages,
 not just targets. Defaults to yes when specified.
