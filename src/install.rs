@@ -707,7 +707,14 @@ fn build_install_pkgbuilds(
                     .chain(&pkg.pkg.check_depends);
 
                 satisfied = deps
-                    .find(|dep| config.alpm.localdb().pkgs().find_satisfier(*dep).is_none())
+                    .find(|dep| {
+                        config
+                            .alpm
+                            .localdb()
+                            .pkgs()
+                            .find_satisfier(dep.as_str())
+                            .is_none()
+                    })
                     .is_none();
             }
         }
@@ -765,7 +772,7 @@ fn build_install_pkgbuilds(
             let mut all_installed = true;
 
             for pkg in &base.pkgs {
-                if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
+                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
                     if pkg.version().as_str() == version {
                         continue;
                     }
@@ -816,7 +823,7 @@ fn build_install_pkgbuilds(
 
         for pkg in &base.pkgs {
             if config.args.has_arg("needed", "needed") {
-                if let Ok(pkg) = config.alpm.localdb().pkg(&pkg.pkg.name) {
+                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
                     if pkg.version().as_str() == version {
                         sprintln!(
                             "{} {}-{} is up to date -- skipping install",
@@ -833,7 +840,7 @@ fn build_install_pkgbuilds(
                 exp.push(pkg.pkg.name.as_str());
             } else if config.globals.has_arg("asdeps", "asdeps") {
                 deps.push(pkg.pkg.name.as_str());
-            } else if config.alpm.localdb().pkg(&pkg.pkg.name).is_err() {
+            } else if config.alpm.localdb().pkg(&*pkg.pkg.name).is_err() {
                 if pkg.target {
                     exp.push(pkg.pkg.name.as_str())
                 } else {

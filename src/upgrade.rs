@@ -20,7 +20,7 @@ pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
     config.alpm.trans_init(flags)?;
     config
         .alpm
-        .trans_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
+        .sync_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
 
     let mut pkgs = config.alpm.trans_add().iter().collect::<Vec<_>>();
     let dbs = config.alpm.syncdbs();
@@ -173,7 +173,7 @@ pub fn get_upgrades(
         .chain(
             devel_upgrades
                 .iter()
-                .filter_map(|p| db.pkg(p).ok())
+                .filter_map(|p| db.pkg(p.as_str()).ok())
                 .map(|p| p.version().len()),
         )
         .max()
@@ -216,7 +216,7 @@ pub fn get_upgrades(
             pkg,
             "devel",
             db_pkg_max,
-            db.pkg(pkg).unwrap().version(),
+            db.pkg(pkg.as_str()).unwrap().version(),
             old_max,
             "latest-commit",
         );

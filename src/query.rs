@@ -74,7 +74,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                 let local_pkg = db.pkg(target).unwrap();
                 let devel = devel.iter().any(|d| *d == pkg.name);
 
-                if alpm::Version::new(&pkg.version) > local_pkg.version() || devel {
+                if alpm::Version::new(&*pkg.version) > local_pkg.version() || devel {
                     aur_ret = 0;
 
                     let version = if devel {

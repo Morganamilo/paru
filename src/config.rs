@@ -382,8 +382,8 @@ impl Config {
     }
 
     pub fn init_alpm(&mut self) -> Result<()> {
-        let mut alpm =
-            alpm::Alpm::new(&self.pacman.root_dir, &self.pacman.db_path).with_context(|| {
+        let mut alpm = alpm::Alpm::new(&*self.pacman.root_dir, &*self.pacman.db_path)
+            .with_context(|| {
                 format!(
                     "failed to initialize alpm: root={} dbpath={}",
                     self.pacman.root_dir, self.pacman.db_path
@@ -393,7 +393,7 @@ impl Config {
         set_questioncb!(alpm, question);
 
         for repo in &self.pacman.repos {
-            let db = alpm.register_syncdb_mut(&repo.name, SigLevel::NONE)?;
+            let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
 
             let mut usage = Usage::NONE;
 
@@ -414,12 +414,12 @@ impl Config {
             db.set_usage(usage)?;
         }
 
-        alpm.set_ignorepkgs(&self.ignore)?;
-        alpm.set_ignoregroups(&self.ignore_group)?;
+        alpm.set_ignorepkgs(self.ignore.iter())?;
+        alpm.set_ignoregroups(self.ignore_group.iter())?;
 
-        alpm.set_logfile(&self.pacman.log_file)?;
-        alpm.set_arch(&self.pacman.architecture);
-        alpm.set_noupgrades(&self.pacman.no_upgrade)?;
+        alpm.set_logfile(&*self.pacman.log_file)?;
+        alpm.set_arch(&*self.pacman.architecture);
+        alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
         alpm.set_use_syslog(self.pacman.use_syslog);
 
         self.alpm = Alpm::new(alpm);

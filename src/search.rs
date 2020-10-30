@@ -142,7 +142,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         c.ss_stats.paint(stats),
     );
 
-    if let Ok(repo_pkg) = config.alpm.localdb().pkg(&pkg.name) {
+    if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.name) {
         let installed = if repo_pkg.version().as_ref() != pkg.version {
             format!("[Installed: {}]", repo_pkg.version())
         } else {

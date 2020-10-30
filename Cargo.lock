@@ -8,9 +8,9 @@ checksum = "ee2a4ec343196209d6594e19543ae87a39f96d5534d7174822a3ad825dd6ed7e"
 
 [[package]]
 name = "alpm"
-version = "1.0.0-rc2"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c91749bea7201b38f50777ad7d7481403a7a0657f2906780c2f06181385ff69f"
+checksum = "d8b92976eba2661c05a9a879a72bd2f04210dddbf5ed0286f473ae0fb454bcba"
 dependencies = [
  "alpm-sys",
  "bitflags",
@@ -27,9 +27,9 @@ dependencies = [
 
 [[package]]
 name = "alpm-utils"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db33201c23bd85c7c5c1ceec585d8096c6b9590e071a3db8360d0f1ebb8936e8"
+checksum = "3e72295a95926ad5ba4bb6088636d215e8f82c4c3499f1b6f8fb8b4b9e501986"
 dependencies = [
  "alpm",
 ]
@@ -93,9 +93,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b612eb9531eab766a014996662ea274b3322e1d0cbd3b29229d91730a9f20e6a"
+checksum = "25fdb10994ec85a71affaf23f0bb7353a99715a01dfabec60b5281baf2ed897f"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -730,9 +730,9 @@ checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 
 [[package]]
 name = "memchr"
-version = "2.3.3"
+version = "2.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
+checksum = "0ee1c47aaa256ecabcaea351eae4a9b01ef39ed810004e298d2511ed284b1525"
 
 [[package]]
 name = "mime"
@@ -877,9 +877,9 @@ dependencies = [
 
 [[package]]
 name = "num-integer"
-version = "0.1.43"
+version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d59457e662d541ba17869cf51cf177c0b5f0cbf476c66bdc90bf1edac4f875b"
+checksum = "d2cc698a63b549a70bc047073d2949cce27cd1c7b0a4a862d08a8031bc2801db"
 dependencies = [
  "autocfg",
  "num-traits",
@@ -887,9 +887,9 @@ dependencies = [
 
 [[package]]
 name = "num-traits"
-version = "0.2.12"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac267bcc07f48ee5f8935ab0d24f316fb722d7a1292e2913f0cc196b29ffd611"
+checksum = "9a64b1ec5cda2586e284722486d802acf1f7dbdc623e2bfc57e65ca1cd099290"
 dependencies = [
  "autocfg",
 ]

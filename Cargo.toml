@@ -13,9 +13,9 @@ keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 
 
 [dependencies]
-alpm = "1.0.0-rc1"
-alpm-utils = "0.5.0"
-aur-depends = "0.9.0"
+alpm = "1.0.1"
+alpm-utils = "0.6.0"
+aur-depends = "0.9.1"
 aur-fetch = "0.7.1"
 cini = "0.1.1"
 pacmanconf = "0.1.1"
