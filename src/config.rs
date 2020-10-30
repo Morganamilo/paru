@@ -385,7 +385,7 @@ impl Config {
         set_questioncb!(alpm, question);
 
         for repo in &self.pacman.repos {
-            alpm.register_syncdb_mut(&repo.name, SigLevel::NONE)?;
+            let db = alpm.register_syncdb_mut(&repo.name, SigLevel::NONE)?;
 
             let mut usage = Usage::NONE;
 
@@ -402,6 +402,8 @@ impl Config {
                     usage = Usage::ALL
                 }
             }
+
+            db.set_usage(usage)?;
         }
 
         alpm.set_ignorepkgs(&self.ignore)?;
