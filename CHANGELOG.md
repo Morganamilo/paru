@@ -22,7 +22,7 @@
 
 - Add `PARU_CONF` to configure paru's config file location eb9e1b1a49ebc317274740ff222d677003bf0ee9
 
-### Changes
+### Changed
 
 - AUR search is now case insensitive 5b27fc12a09375dff70c837f100436e5c3ef4256
 - `-Sh` and other operations will now forward to pacman's help for those options d148352bbe6e61dd7e470d32417d8d1a3703d2de
