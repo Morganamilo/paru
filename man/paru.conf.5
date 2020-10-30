@@ -158,14 +158,13 @@ visible here: https://aur.archlinux.org/packages/
 .TP
 .B SearchBy = <name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
 Defaults to name-desc. Search AUR packages according to the options in 
-"Search by" visible here: https://aur.archlinux.org/packages/    
+"Search by" visible here: https://aur.archlinux.org/packages/
 
 .TP
-.B RequestSplit = Number
-The maximum amount of packages to request per AUR query. The higher the
-number the faster AUR requests will be. Requesting too many packages in one
-AUR query will cause an error. This should only make a noticeable difference
-with very large requests (>500) packages. Defaults to 150.
+.B CompletionInterval = N
+Time in days to refresh the completion cache. Setting this to 0 will cause the
+cache to be refreshed every time, while setting this to -1 will cause the cache
+to never be refreshed. Defaults to 7.
 
 .TP
 .B PacmanConf = path/to/pacman.conf

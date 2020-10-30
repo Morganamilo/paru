@@ -193,11 +193,10 @@ passed to sudo. Multiple arguments may be passed by supplying a space
 separated list that is quoted by the shell.
 
 .TP
-.B \-\-requestsplitn <number>
-The maximum amount of packages to request per AUR query. The higher the
-number the faster AUR requests will be. Requesting too many packages in one
-AUR query will cause an error. This should only make a noticeable difference
-with very large requests (>500) packages. Defaults to 150.
+.B \-\-completioninterval <days>
+Time in days to refresh the completion cache. Setting this to 0 will cause the
+cache to be refreshed every time, while setting this to -1 will cause the cache
+to never be refreshed. Defaults to 7.
 
 .TP
 .B \-\-sortby <votes|popularity|id|baseid|name|base|submitted|modified>
