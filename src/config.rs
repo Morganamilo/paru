@@ -663,7 +663,7 @@ fn question(question: &mut Question) {
             len,
             question.depend()
         );
-        sprintln!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+        sprint!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
         let mut db = String::new();
         for (n, pkg) in providers.iter().enumerate() {
@@ -671,7 +671,7 @@ fn question(question: &mut Question) {
             if pkg_db.name() != db {
                 db = pkg_db.name().to_string();
                 sprintln!(
-                    "{} {} {}:",
+                    "\n{} {} {}:",
                     c.action.paint("::"),
                     c.bold.paint("Repository"),
                     color_repo(c.enabled, pkg_db.name())
