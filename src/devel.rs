@@ -145,6 +145,7 @@ async fn ls_remote(config: &Config, remote: String, branch: Option<&str>) -> Res
     let mut command = AsyncCommand::new(&config.git_bin);
     command
         .args(&config.git_flags)
+        .env("GIT_TERMINAL_PROMPT", "0")
         .arg("ls-remote")
         .arg(&remote)
         .arg(branch.unwrap_or("HEAD"));
@@ -197,7 +198,11 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
-    devel_info.info.retain(|pkg, _| db.pkg(pkg.as_str()).map(|p| !p.should_ignore()).unwrap_or(false));
+    devel_info.info.retain(|pkg, _| {
+        db.pkg(pkg.as_str())
+            .map(|p| !p.should_ignore())
+            .unwrap_or(false)
+    });
     save_devel_info(config, &devel_info)?;
 
     let updates = rt.block_on(async {
