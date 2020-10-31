@@ -15,6 +15,7 @@ use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
 use indicatif::{ProgressBar, ProgressStyle};
+use kuchiki::traits::*;
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
 use url::Url;
@@ -352,6 +353,72 @@ pub fn new_aur_pkgbuilds(
 
     let bases = Bases { bases: pkgs };
     aur_pkgbuilds(config, &bases)
+}
+
+pub fn show_comments(config: &mut Config) -> Result<i32> {
+    let client = reqwest::blocking::Client::new();
+
+    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[])?;
+    warnings.missing(config.color, config.cols);
+    let ret = !warnings.missing.is_empty() as i32;
+    let bases = Bases::from_iter(warnings.pkgs);
+    let c = config.color;
+
+    for base in &bases.bases {
+        let url = config.aur_url.join(&format!(
+            "packages/{}/comments?&PP=1000000",
+            base.package_base()
+        ))?;
+
+        let response = client
+            .get(url.clone())
+            .send()
+            .with_context(|| format!("{}: {}", base, url))?;
+        if !response.status().is_success() {
+            bail!("{}: {}: {}", base, url, response.status());
+        }
+
+        let parser = kuchiki::parse_html();
+        let document = parser.one(response.text()?);
+
+        let titles = document
+            .select("div.comments h4.comment-header")
+            .unwrap()
+            .map(|node| node.text_contents());
+
+        let comments = document
+            .select("div.comments div.article-content")
+            .unwrap()
+            .map(|node| node.text_contents());
+
+        let iter = titles.zip(comments).collect::<Vec<_>>();
+
+        if config.sort_mode == "topdown" {
+            for (title, comment) in iter.into_iter() {
+                println!("{}", c.bold.paint(title.trim()));
+
+                for line in comment.trim().split('\n') {
+                    let line = line.split_whitespace();
+                    print!("    ");
+                    print_indent(Style::new(), 4, 4, config.cols, " ", line);
+                }
+                println!();
+            }
+        } else {
+            for (title, comment) in iter.into_iter().rev() {
+                println!("{}", c.bold.paint(title.trim()));
+
+                for line in comment.trim().split('\n') {
+                    let line = line.split_whitespace();
+                    print!("    ");
+                    print_indent(Style::new(), 4, 4, config.cols, " ", line);
+                }
+                println!();
+            }
+        }
+    }
+
+    Ok(ret)
 }
 
 pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {

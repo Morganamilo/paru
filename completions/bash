@@ -78,7 +78,7 @@ _paru() {
            newsonupgrade' 'b d h q r v a')
 
   show=('news' 'w')
-  getpkgbuild=('print' 'p')
+  getpkgbuild=('print comments' 'p c')
 
   for o in 'D database' 'F files' 'Q query' 'R remove' 'S sync' 'U upgrade' 'P show' 'G getpkgbuild'; do
     _arch_incomp "$o" && break

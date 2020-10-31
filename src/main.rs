@@ -142,6 +142,8 @@ fn handle_show(config: &Config) -> Result<i32> {
 fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
     if config.print {
         download::show_pkgbuilds(config)
+    } else if config.comments {
+        download::show_comments(config)
     } else {
         download::getpkgbuilds(config)
     }

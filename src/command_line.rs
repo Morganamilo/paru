@@ -247,10 +247,12 @@ impl Config {
             Arg::Long("complete") => self.complete = true,
             Arg::Short('c') => {
                 self.complete = true;
-                self.clean += 1
+                self.clean += 1;
+                self.comments = true;
             }
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
+            Arg::Long("comments") => self.comments = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op("database"),
             Arg::Long("files") | Arg::Short('F') => set_op("files"),

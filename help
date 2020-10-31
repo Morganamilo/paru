@@ -85,3 +85,4 @@ show specific options:
 
 getpkgbuild specific options:
     -p --print            Print pkgbuild to stdout
+    -c --comments         Print AUR comments for pkgbuild
