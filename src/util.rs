@@ -7,7 +7,7 @@ use std::io::{stdin, stdout, BufRead, Write};
 use std::ops::Range;
 
 use alpm::PackageReason;
-use alpm_utils::{DbListExt, Targ};
+use alpm_utils::{AsTarg, DbListExt, Targ};
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {
@@ -42,14 +42,15 @@ pub fn split_repo_aur_mode<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -
     }
 }
 
-pub fn split_repo_aur_targets<'a>(
+pub fn split_repo_aur_targets<'a, T: AsTarg>(
     config: &Config,
-    targets: &[Targ<'a>],
+    targets: &'a [T],
 ) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
-    for &targ in targets {
+    for targ in targets {
+        let targ = targ.as_targ();
         if config.mode == "aur" {
             aur.push(targ);
         } else if config.mode == "repo" {

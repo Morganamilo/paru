@@ -1,6 +1,6 @@
 use crate::config::{Colors, Config};
 use crate::fmt::print_indent;
-use crate::util::split_repo_aur_mode;
+use crate::util::{split_repo_aur_mode, split_repo_aur_targets};
 use crate::{esprintln, sprint, sprintln};
 
 use std::collections::{HashMap, HashSet};
@@ -11,7 +11,7 @@ use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
-use alpm_utils::DbListExt;
+use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
@@ -161,7 +161,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         .map(|t| t.as_str())
         .collect::<Vec<_>>();
 
-    let (repo, aur) = split_repo_aur_mode(config, &pkgs);
+    let (repo, aur) = split_repo_aur_targets(config, &pkgs);
     let mut ret = 0;
 
     if !repo.is_empty() {
@@ -169,6 +169,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() {
+        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
         let action = config.color.action;
         let bold = config.color.bold;
         sprintln!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
@@ -192,7 +193,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
+fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     let db = config.alpm.syncdbs();
 
     let cd = std::env::current_dir().context("could not get current directory")?;
@@ -211,6 +212,7 @@ pub fn repo_pkgbuilds(config: &Config, pkgs: &[&str]) -> Result<i32> {
     let mut missing = Vec::new();
 
     for &pkg in pkgs {
+        let pkg = pkg.pkg;
         if db.pkg(pkg).is_err() {
             missing.push(pkg);
         } else {
