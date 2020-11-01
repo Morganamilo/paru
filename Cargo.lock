@@ -978,7 +978,6 @@ dependencies = [
  "nix",
  "once_cell",
  "pacmanconf",
- "percent-encoding",
  "raur",
  "raur-ext",
  "reqwest",

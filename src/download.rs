@@ -1,6 +1,6 @@
 use crate::config::{Colors, Config};
 use crate::fmt::print_indent;
-use crate::util::{split_repo_aur_mode, split_repo_aur_targets};
+use crate::util::split_repo_aur_targets;
 use crate::{esprintln, sprint, sprintln};
 
 use std::collections::{HashMap, HashSet};
@@ -16,11 +16,9 @@ use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
 use indicatif::{ProgressBar, ProgressStyle};
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use raur_ext::{Package, RaurExt};
 use srcinfo::Srcinfo;
-
-const FRAGMENT: &AsciiSet = &CONTROLS.add(b'@').add(b'+');
+use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct Bases {
@@ -239,7 +237,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
         ensure!(
             ret.status.success(),
             "{}",
-            String::from_utf8_lossy(&ret.stdout).trim()
+            String::from_utf8_lossy(&ret.stderr).trim()
         );
     }
 
@@ -362,7 +360,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && Command::new("bat").arg("-V").output().is_ok();
 
-    let (repo, aur) = split_repo_aur_mode(config, &config.targets);
+    let (repo, aur) = split_repo_aur_targets(config, &config.targets);
 
     if !repo.is_empty() {
         let asp = &config.asp_bin;
@@ -375,28 +373,34 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         for pkg in repo {
             let ret = Command::new(asp)
                 .arg("update")
-                .arg(&pkg)
+                .arg(&pkg.pkg)
                 .output()
                 .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
 
             ensure!(
                 ret.status.success(),
                 "{}",
-                String::from_utf8_lossy(&ret.stdout).trim()
+                String::from_utf8_lossy(&ret.stderr).trim()
             );
 
             if bat {
                 let output = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg)
+                    .arg(&pkg.pkg)
                     .output()
                     .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+
+                ensure!(
+                    output.status.success(),
+                    "{}",
+                    String::from_utf8_lossy(&output.stderr).trim()
+                );
 
                 pipe_bat(&output.stdout)?;
             } else {
                 let ret = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg)
+                    .arg(&pkg.pkg)
                     .spawn()?
                     .wait()
                     .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
@@ -409,6 +413,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
     if !aur.is_empty() {
         let client = reqwest::blocking::Client::new();
+        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
 
         let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &[])?;
         warnings.missing(config.color, config.cols);
@@ -416,11 +421,9 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let bases = Bases::from_iter(warnings.pkgs);
 
         for base in &bases.bases {
-            let base = base.package_base().to_string();
-            let base = utf8_percent_encode(&base, FRAGMENT);
-            let url = config
-                .aur_url
-                .join(&format!("cgit/aur.git/plain/PKGBUILD?h={}", base))?;
+            let base = base.package_base();
+            let url = config.aur_url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
+            let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
 
             let response = client
                 .get(url.clone())
