@@ -8,9 +8,9 @@ checksum = "ee2a4ec343196209d6594e19543ae87a39f96d5534d7174822a3ad825dd6ed7e"
 
 [[package]]
 name = "alpm"
-version = "1.0.1"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8b92976eba2661c05a9a879a72bd2f04210dddbf5ed0286f473ae0fb454bcba"
+checksum = "2cb00bba447a100d9bdd0d8134f7617ca664fc8f9bfa1773384c1f6b10f2b45f"
 dependencies = [
  "alpm-sys",
  "bitflags",
@@ -93,9 +93,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25fdb10994ec85a71affaf23f0bb7353a99715a01dfabec60b5281baf2ed897f"
+checksum = "2eabee6df4a6a624ba89d74975794f954d1e76373cd8f9ed860086971af6a5ea"
 dependencies = [
  "alpm",
  "alpm-utils",
