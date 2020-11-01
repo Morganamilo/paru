@@ -198,12 +198,6 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
-    devel_info.info.retain(|pkg, _| {
-        db.pkg(pkg.as_str())
-            .map(|p| !p.should_ignore())
-            .unwrap_or(false)
-    });
-    save_devel_info(config, &devel_info)?;
 
     let updates = rt.block_on(async {
         let mut futures = Vec::new();
@@ -218,13 +212,35 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         updates.into_iter().flatten().collect::<Vec<_>>()
     });
 
+    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+
+    for pkg in db.pkgs().iter() {
+        let name = pkg.base().unwrap_or(pkg.name());
+        pkgbases.entry(name).or_default().push(pkg);
+    }
+
     let info = config.raur.info_ext(&updates)?;
+    let updates = updates
+        .into_iter()
+        .map(|u| pkgbases.remove(u.as_str()).unwrap())
+        .collect::<Vec<_>>();
 
     for update in &updates {
-        if !info.iter().any(|i| &i.name == update) {
-            devel_info.info.remove(update);
+        if !update
+            .iter()
+            .any(|pkg| info.iter().any(|i| i.name == pkg.name()))
+        {
+            devel_info
+                .info
+                .remove(update[0].base().unwrap_or(update[0].name()));
         }
     }
+
+    let updates = updates
+        .iter()
+        .flatten()
+        .map(|p| p.name().to_string())
+        .collect();
 
     //save_devel_info(config, &devel_info)?;
 
@@ -295,10 +311,19 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
         let devel_info = serde_json::from_reader(file)
             .with_context(|| format!("invalid json: {}", config.devel_path.display()))?;
 
+        let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
         let mut devel_info: DevelInfo = devel_info;
+
+        for pkg in config.alpm.localdb().pkgs().iter() {
+            let name = pkg.base().unwrap_or(pkg.name());
+            pkgbases.entry(name).or_default().push(pkg);
+        }
+
         devel_info
             .info
-            .retain(|pkg, _| config.alpm.localdb().pkg(pkg.as_str()).is_ok());
+            .retain(|pkg, _| pkgbases.get(pkg.as_str()).is_some());
+
+        save_devel_info(config, &devel_info)?;
 
         Ok(Some(devel_info))
     } else {
