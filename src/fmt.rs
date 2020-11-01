@@ -1,5 +1,3 @@
-use crate::{sprint, sprintln};
-
 use ansi_term::Style;
 use chrono::{DateTime, NaiveDateTime};
 
@@ -30,12 +28,12 @@ pub fn print_indent<S: AsRef<str>>(
             let mut iter = v.peekable();
 
             if let Some(word) = iter.next() {
-                sprint!("{}", color.paint(word.as_ref()));
+                print!("{}", color.paint(word.as_ref()));
                 pos += word.as_ref().len();
             }
 
             if iter.peek().is_some() && pos + sep.len() < cols {
-                sprint!("{}", sep);
+                print!("{}", sep);
                 pos += sep.len();
             }
 
@@ -43,15 +41,15 @@ pub fn print_indent<S: AsRef<str>>(
                 let word = word.as_ref();
 
                 if pos + word.len() > cols {
-                    sprint!("\n{:>padding$}", "", padding = indent);
+                    print!("\n{:>padding$}", "", padding = indent);
                     pos = indent;
                 }
 
-                sprint!("{}", color.paint(word));
+                print!("{}", color.paint(word));
                 pos += word.len();
 
                 if iter.peek().is_some() && pos + sep.len() < cols {
-                    sprint!("{}", sep);
+                    print!("{}", sep);
                     pos += sep.len();
                 }
             }
@@ -59,15 +57,15 @@ pub fn print_indent<S: AsRef<str>>(
         _ => {
             let mut iter = v;
             if let Some(word) = iter.next() {
-                sprint!("{}", color.paint(word.as_ref()));
+                print!("{}", color.paint(word.as_ref()));
             }
 
             for word in iter {
-                sprint!("{}{}", sep, color.paint(word.as_ref()));
+                print!("{}{}", sep, color.paint(word.as_ref()));
             }
         }
     }
-    sprintln!();
+    println!();
 }
 
 use ansi_term::Color;

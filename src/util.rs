@@ -1,5 +1,4 @@
 use crate::config::{Config, NO_CONFIRM};
-use crate::{esprintln, sprint, sprintln};
 
 use std::cell::Cell;
 use std::collections::HashMap;
@@ -86,7 +85,7 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let action = config.color.action;
     let bold = config.color.bold;
     let yn = if default { "[Y/n]:" } else { "[y/N]:" };
-    sprint!(
+    print!(
         "{} {} {} ",
         action.paint("::"),
         bold.paint(question),
@@ -94,7 +93,7 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     );
     let _ = stdout().lock().flush();
     if config.no_confirm {
-        sprintln!();
+        println!();
         return default;
     }
     let stdin = stdin();
@@ -115,10 +114,10 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
 pub fn input(config: &Config, question: &str) -> String {
     let action = config.color.action;
     let bold = config.color.bold;
-    sprint!("{} {}", action.paint("::"), bold.paint(question),);
+    print!("{} {}", action.paint("::"), bold.paint(question),);
     let _ = stdout().lock().flush();
     if config.no_confirm {
-        sprintln!();
+        println!();
         return "".into();
     }
     let stdin = stdin();
@@ -300,7 +299,7 @@ pub fn get_provider(max: usize) -> usize {
     let mut input = String::new();
 
     loop {
-        sprint!("\nEnter a number (default=1): ");
+        print!("\nEnter a number (default=1): ");
         let _ = stdout().lock().flush();
         input.clear();
 
@@ -317,14 +316,14 @@ pub fn get_provider(max: usize) -> usize {
 
         let num = match num.parse::<usize>() {
             Err(_) => {
-                esprintln!("invalid number: {}", num);
+                eprintln!("invalid number: {}", num);
                 continue;
             }
             Ok(num) => num,
         };
 
         if num < 1 || num > max {
-            esprintln!("invalid value: {} is not between 1 and {}", num, max);
+            eprintln!("invalid value: {} is not between 1 and {}", num, max);
             continue;
         }
 

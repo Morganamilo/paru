@@ -1,9 +1,8 @@
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
+use crate::exec;
 use crate::fmt::{date, opt, print_indent};
 use crate::util::split_repo_aur_targets;
-use crate::{esprintln, exec};
-use crate::{sprint, sprintln};
 
 use alpm_utils::Targ;
 use ansi_term::Style;
@@ -23,7 +22,7 @@ pub fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
         let warnings = cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore)?;
         for pkg in &warnings.missing {
-            esprintln!(
+            eprintln!(
                 "{} package '{}' was not found",
                 color.error.paint("error:"),
                 pkg,
@@ -97,7 +96,7 @@ pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Res
             print("Snapshot URL", conf.aur_url.join(&pkg.url_path)?.as_str());
         }
 
-        sprintln!();
+        println!();
     }
 
     Ok(())
@@ -124,7 +123,7 @@ fn print_info<'a>(
     value: impl IntoIterator<Item = &'a str>,
 ) {
     let prefix = format!("{:<padding$}: ", key, padding = indent - 2);
-    sprint!("{}", color.field.paint(&prefix));
+    print!("{}", color.field.paint(&prefix));
 
     let sep = if list { "  " } else { " " };
     print_indent(Style::new(), prefix.len(), prefix.len(), cols, sep, value)
