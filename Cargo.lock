@@ -107,9 +107,9 @@ dependencies = [
 
 [[package]]
 name = "aur-fetch"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca76a5da3699f351aeef378c82cd3ae3b1fcc1bd9947d4217b9801ec8e4314e3"
+checksum = "e3e98c97f705f243ea004d31293b0d234b85ab33c7334c0db74ffa5b8a6b9a48"
 dependencies = [
  "futures",
  "tempdir",

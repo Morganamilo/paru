@@ -156,7 +156,7 @@ pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
 
     if !output.status.success() {
         bail!(
-            "{} {} clean -fx: {}",
+            "{} {} reset --hard HEAD: {}",
             config.git_bin,
             config.git_flags.join(" "),
             String::from_utf8_lossy(&output.stderr)
