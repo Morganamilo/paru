@@ -28,7 +28,7 @@ pub fn newest_pkg(config: &Config) -> i64 {
     max
 }
 
-pub fn news(config: &Config) -> Result<()> {
+pub fn news(config: &Config) -> Result<i32> {
     let url = config.arch_url.join("feeds/news")?;
 
     let resp = reqwest::blocking::get(url.clone()).with_context(|| format!("{}", url))?;
@@ -60,10 +60,11 @@ pub fn news(config: &Config) -> Result<()> {
     }
 
     if !printed {
-        println!("no new news");
+        eprintln!("no new news");
+        Ok(1)
+    } else {
+        Ok(0)
     }
-
-    Ok(())
 }
 
 fn parse_html(config: &Config, html: &str) {

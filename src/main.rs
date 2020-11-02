@@ -132,8 +132,7 @@ fn handle_query(config: &mut Config) -> Result<i32> {
 
 fn handle_show(config: &Config) -> Result<i32> {
     if config.news > 0 {
-        news::news(config)?;
-        Ok(0)
+        news::news(config)
     } else if config.complete {
         Ok(completion::print(config, None))
     } else {
