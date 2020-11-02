@@ -17,6 +17,12 @@ use serde::{Deserialize, Serialize};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
 
+
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
+pub struct _PkgInfo {
+    pub repos: HashSet<RepoInfo>,
+}
+
 #[derive(Serialize, Deserialize, SmartDefault, Debug, Eq, Clone)]
 pub struct RepoInfo {
     pub url: String,
@@ -38,6 +44,7 @@ impl std::cmp::PartialEq for RepoInfo {
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
+#[serde(transparent)]
 pub struct PkgInfo {
     pub repos: HashSet<RepoInfo>,
 }
@@ -50,6 +57,11 @@ impl std::borrow::Borrow<str> for RepoInfo {
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct DevelInfo {
+    #[serde(rename = "info")]
+    #[serde(default)]
+    #[serde(skip_serializing)]
+    _info: HashMap<String, _PkgInfo>,
+    #[serde(flatten)]
     pub info: HashMap<String, PkgInfo>,
 }
 
@@ -312,6 +324,13 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
 
         let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
         let mut devel_info: DevelInfo = devel_info;
+
+        if !devel_info._info.is_empty() {
+            for (pkg, info) in devel_info._info.drain() {
+               devel_info.info.insert(pkg, PkgInfo { repos: info.repos });
+
+            }
+        }
 
         for pkg in config.alpm.localdb().pkgs().iter() {
             let name = pkg.base().unwrap_or(pkg.name());
