@@ -74,8 +74,8 @@ _paru() {
            removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
            nouseask combinedupgrade nocombinedupgrade batchinstall nobatchinstall provides
-           noprovides devel nodevel develsuffixes sudoloop nosudoloop bottomup topdown' 
-           'b d h q r v a')
+           noprovides devel nodevel develsuffixes sudoloop nosudoloop bottomup topdown
+           newsonupgrade' 'b d h q r v a')
 
   show=('news' 'w')
   getpkgbuild=('print' 'p')

@@ -176,6 +176,7 @@ pub struct Config {
     pub clean: usize,
     pub complete: bool,
     pub print: bool,
+    pub news_on_upgrade: bool,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -563,6 +564,7 @@ impl Config {
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
+            "NewsOnUpgrade" => self.news_on_upgrade = true,
             "DevelSuffixes" => {
                 let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
                 let split = value.split_whitespace().map(|s| s.to_string());

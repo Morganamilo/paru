@@ -61,6 +61,7 @@ New options:
     --nopgpfetch          Don't prompt to import PGP keys
     --useask              Automatically resolve conflicts using pacman's ask flag
     --nouseask            Confirm conflicts manually during the install
+    --newsonupgrade       Print new news during sysupgrade
     --combinedupgrade     Refresh then perform the repo and AUR upgrade together
     --nocombinedupgrade   Perform the repo upgrade and AUR upgrade separately
     --batchinstall        Build multiple AUR packages then install them together

@@ -250,6 +250,7 @@ impl Config {
                 self.clean += 1
             }
             Arg::Long("print") | Arg::Short('p') => self.print = true,
+            Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op("database"),
             Arg::Long("files") | Arg::Short('F') => set_op("files"),

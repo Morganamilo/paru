@@ -8,7 +8,7 @@ use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
-use crate::{args, exec};
+use crate::{args, exec, news};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -47,6 +47,14 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
 
     if config.sudo_loop {
         exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_flags.clone())?;
+    }
+
+    if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
+        let ret = news::news(config)?;
+
+        if ret != 1 {
+            ask(config, "Continue with install?", true);
+        }
     }
 
     config.op = "sync".to_string();
