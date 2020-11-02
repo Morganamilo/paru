@@ -1,5 +1,25 @@
 # Changelog
 
+## Paru v1.0.2 (2020-11-2)
+
+### Fixed
+
+- Fix Git wanting login credentials for some repos ea3062eb10be9fef99d0b429544a436d0d0ea8ea
+- Fix diffs breaking with `--cleanafter` 0b66f9cd818ce976f3baa70ed2d63f888e961a79
+- Fix provider menu formatting d7f100a0d1220227499ad6c08112f7e4b8217cbe
+- Fix devel not handling split packages properly a9f47eaa21c7de8a23f3be1cda758d0c1800c48b
+- Fix rouge "info" object in devel.json d43446769774bccc6f64177b7d247264562c6f7d
+- Fix version compare 30da3bd1cba4a56f900eb95e3bf32266ef0e1ac0
+
+### Added
+
+- Support repo prefix for `-G` ea512c6bd42b556c7744658048969d63ec9c143e
+- Added --newsonupgrade to print news on upgrade b30a35e648ad2f1d04d4bfe9663c4fa8b478e810
+
+### Changed
+
+- News now returns 1 when there is no new news 792e15c9d723f1061171a093c5e7cef673942531
+
 ## Paru v1.0.1 (2020-10-30)
 
 ### Fixed
