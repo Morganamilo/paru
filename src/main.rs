@@ -33,7 +33,7 @@ use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
 
-use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
+use nix::sys::signal::{signal, SigHandler, Signal};
 
 fn print_error(color: Style, err: Error) {
     #[cfg(feature = "backtrace")]
@@ -64,8 +64,7 @@ fn print_error(color: Style, err: Error) {
 }
 
 fn main() {
-    let action = SigAction::new(SigHandler::SigDfl, SaFlags::empty(), SigSet::empty());
-    unsafe { sigaction(Signal::SIGPIPE, &action).unwrap() };
+    unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
 
     let i = main2();
     std::process::exit(i);
