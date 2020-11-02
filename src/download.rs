@@ -341,8 +341,8 @@ pub fn new_aur_pkgbuilds(
 
     for base in &bases.bases {
         if let Some(pkg) = srcinfos.get(base.package_base()) {
-            let upstream_ver = pkg.version();
-            if Version::new(base.version()) > Version::new(&*upstream_ver) {
+            let upstream_ver = base.version();
+            if Version::new(pkg.version()) < Version::new(&*upstream_ver) {
                 pkgs.push(base.clone());
             }
         } else {
