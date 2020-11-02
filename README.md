@@ -49,6 +49,8 @@ makepkg -si
 
 `paru -Gp <target>` -- Print the PKGBUILD of `<target>`.
 
+`paru -Gc <target>` -- Print the AUR comments  of `<target>`.
+
 `paru --gendb` -- Generate the devel database for tracking `*-git` packages. This is only needed when you initially start using paru.
 
 ## Debugging

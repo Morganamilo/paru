@@ -139,7 +139,9 @@ _pacman_opts_query_modifiers=(
 
 # -G
 _pacman_opts_getpkgbuild_modifiers=(
-	{-,--print}'[Print PKGBUILD instead of downloading]'
+	{-p,--print}'[Print PKGBUILD instead of downloading]'
+	{-c,--comments}"[Print the AUR comments from the PKGBUILD's AUR page]"
+
 )
 
 # -P

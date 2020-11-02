@@ -177,6 +177,7 @@ pub struct Config {
     pub complete: bool,
     pub print: bool,
     pub news_on_upgrade: bool,
+    pub comments: bool,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
