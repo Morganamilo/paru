@@ -156,11 +156,16 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
     } else if config.clean > 0 {
         config.need_root = true;
         let unneeded = util::unneeded_pkgs(config, config.clean == 1);
-        let mut args = config.pacman_args();
-        args.remove("c").remove("clean");
-        args.targets = unneeded;
-        args.op = "remove";
-        Ok(exec::pacman(config, &args)?.code())
+        if !unneeded.is_empty() {
+            let mut args = config.pacman_args();
+            args.remove("c").remove("clean");
+            args.targets = unneeded;
+            args.op = "remove";
+            Ok(exec::pacman(config, &args)?.code())
+        } else {
+            println!(" there is nothing to do");
+            Ok(0)
+        }
     } else if !config.targets.is_empty() {
         search::search_install(config)
     } else {
