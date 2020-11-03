@@ -66,8 +66,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let targets = args::parse_targets(&targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets);
 
-    if repo_targets.is_empty()
-        && aur_targets.is_empty()
+    if targets_str.is_empty()
         && !config.args.has_arg("u", "sysupgrade")
         && !config.args.has_arg("y", "refresh")
     {
@@ -89,8 +88,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         }
     }
 
-    if !config.combined_upgrade && aur_targets.is_empty() && !config.args.has_arg("u", "sysupgrade")
-    {
+    if targets_str.is_empty() && !config.args.has_arg("u", "sysupgrade") {
         return Ok(0);
     }
 
