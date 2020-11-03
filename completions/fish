@@ -163,7 +163,7 @@ complete -c $progname -n "$show" -s w -l news -d 'Print arch news' -f
 
 # Getpkgbuild options
 complete -c $progname -n "$getpkgbuild" -s p -l print -d 'Print PKGBUILD instead of downloading' -f
-complete -c $progname -n "$getpkgbuild" -s c -l comments -d 'Print the AUR comments from the PKGBUILD's AUR page' -f
+complete -c $progname -n "$getpkgbuild" -s c -l comments -d "Print the AUR comments from the PKGBUILD's AUR page" -f
 
 complete -c $progname -n "$getpkgbuild" -xa "$listall"
 
