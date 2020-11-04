@@ -1073,6 +1073,16 @@ fn resolver<'a, 'b>(
         })
 }
 
+fn is_debug(pkg: alpm::Package) -> bool {
+    if let Some(base) = pkg.base() {
+        if pkg.name().ends_with("-debug") && pkg.name().trim_end_matches("-debug") == base {
+            return true;
+        }
+    }
+
+    false
+}
+
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     let mut warnings = crate::download::Warnings::default();
 
@@ -1083,6 +1093,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .iter()
             .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
             .filter(|pkg| !cache.contains(pkg.name()))
+            .filter(|pkg| !is_debug(*pkg))
             .map(|pkg| pkg.name())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
             .collect::<Vec<_>>();
@@ -1090,19 +1101,23 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
         warnings.ood = pkgs
             .iter()
             .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
+            .filter(|pkg| !is_debug(*pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
+            .filter(|pkg| !pkg.ends_with("-debug"))
             .collect::<Vec<_>>();
 
         warnings.orphans = pkgs
             .iter()
             .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
+            .filter(|pkg| !is_debug(*pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
+            .filter(|pkg| !pkg.ends_with("-debug"))
             .collect::<Vec<_>>();
     }
 
@@ -1113,6 +1128,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.out_of_date.is_some())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
+                .filter(|pkg| !pkg.name.ends_with("-debug"))
                 .map(|pkg| pkg.name.as_str()),
         );
 
@@ -1122,6 +1138,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.maintainer.is_none())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
+                .filter(|pkg| !pkg.name.ends_with("-debug"))
                 .map(|pkg| pkg.name.as_str()),
         );
     }
