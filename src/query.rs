@@ -86,12 +86,16 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                     if config.args.has_arg("q", "quiet") {
                         println!("{}", pkg.name);
                     } else {
-                        println!(
+                        print!(
                             "{} {} -> {}",
                             bold.paint(&pkg.name),
                             upgrade.paint(local_pkg.version().as_str()),
                             upgrade.paint(version)
                         );
+                        if config.alpm.localdb().pkg(target).unwrap().should_ignore() {
+                            print!(" [ignored]");
+                        }
+                        println!();
                     }
                 }
             }
