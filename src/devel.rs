@@ -12,7 +12,7 @@ use std::iter::FromIterator;
 
 use anyhow::{Context, Result};
 use futures::future::{join_all, try_join_all};
-use raur_ext::RaurExt;
+use raur_ext::{RaurExt, Cache};
 use serde::{Deserialize, Serialize};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
@@ -205,7 +205,7 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
     Some((remote, protocol, branch))
 }
 
-pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
+pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> {
     let mut rt = tokio::runtime::Runtime::new()?;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
@@ -230,7 +230,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    let info = config.raur.info_ext(&updates)?;
+    let info = config.raur.cache_info(cache, &updates)?;
     let updates = updates
         .into_iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
@@ -251,6 +251,7 @@ pub fn devel_updates(config: &Config) -> Result<Vec<String>> {
         .iter()
         .flatten()
         .map(|p| p.name().to_string())
+        .filter(|p| config.cache.contains(p.as_str()))
         .collect();
 
     //save_devel_info(config, &devel_info)?;

@@ -119,7 +119,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             );
         }
 
-        let upgrades = get_upgrades(config, aur_upgrades.updates)?;
+        let upgrades = get_upgrades(config, resolver.cache(), aur_upgrades.updates)?;
         for pkg in &upgrades.repo_skip {
             let arg = Arg {
                 key: "ignore".to_string(),

@@ -5,6 +5,7 @@ use crate::util::{input, NumberMenu};
 
 use alpm_utils::DbListExt;
 use anyhow::Result;
+use raur_ext::Cache;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
@@ -102,6 +103,7 @@ fn print_upgrade(
 
 pub fn get_upgrades(
     config: &Config,
+    cache: &mut Cache,
     mut aur_upgrades: Vec<aur_depends::AurUpdate>,
 ) -> Result<Upgrades> {
     let c = config.color;
@@ -113,7 +115,7 @@ pub fn get_upgrades(
             c.bold.paint("Looking for devel upgrades")
         );
 
-        devel_updates(config)?
+        devel_updates(config, cache)?
     } else {
         Vec::new()
     };

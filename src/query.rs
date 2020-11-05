@@ -9,6 +9,7 @@ use anyhow::Result;
 use raur_ext::RaurExt;
 
 pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
+    let mut cache = HashSet::new();
     let db = config.alpm.localdb();
     let args = &config.args;
 
@@ -48,7 +49,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         let mut devel = Vec::new();
         if config.devel {
-            devel.extend(devel_updates(config)?);
+            devel.extend(devel_updates(config, &mut cache)?);
         }
 
         for &pkg in &aur {
@@ -64,7 +65,6 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let aur = String::from_utf8(output.stdout)?;
         let aur = aur.trim().lines().collect::<Vec<_>>();
 
-        let mut cache = HashSet::new();
         config.raur.cache_info(&mut cache, &aur)?;
 
         aur_ret = 1;
