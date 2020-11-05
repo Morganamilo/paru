@@ -4,16 +4,17 @@ use crate::download::{self, cache_info_with_warnings, Bases};
 use crate::util::split_repo_aur_pkgs;
 
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, BTreeMap, BTreeSet};
 use std::fs::{create_dir_all, OpenOptions};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
+use std::cmp::Ordering;
 
 use anyhow::{Context, Result};
 use futures::future::{join_all, try_join_all};
 use raur_ext::{RaurExt, Cache};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
 
@@ -37,6 +38,20 @@ impl Hash for RepoInfo {
     }
 }
 
+impl PartialOrd for RepoInfo {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.url.cmp(&other.url).then(self.branch.cmp(&other.branch)))
+    }
+}
+
+
+impl Ord for RepoInfo {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.url.cmp(&other.url).then(self.branch.cmp(&other.branch))
+    }
+}
+
+
 impl std::cmp::PartialEq for RepoInfo {
     fn eq(&self, other: &Self) -> bool {
         self.url == other.url && self.branch == other.branch
@@ -46,6 +61,7 @@ impl std::cmp::PartialEq for RepoInfo {
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 #[serde(transparent)]
 pub struct PkgInfo {
+    #[serde(serialize_with = "ordered_set")]
     pub repos: HashSet<RepoInfo>,
 }
 
@@ -62,7 +78,26 @@ pub struct DevelInfo {
     #[serde(skip_serializing)]
     _info: HashMap<String, _PkgInfo>,
     #[serde(flatten)]
+    #[serde(serialize_with = "ordered_map")]
     pub info: HashMap<String, PkgInfo>,
+}
+
+fn ordered_map<S, T>(value: &HashMap<String, T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    T: Serialize,
+{
+    let ordered: BTreeMap<_, _> = value.iter().collect();
+    ordered.serialize(serializer)
+}
+
+fn ordered_set<S, T>(value: &HashSet<T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+    T: Serialize + Ord,
+{
+    let ordered: BTreeSet<_> = value.iter().collect();
+    ordered.serialize(serializer)
 }
 
 pub fn gendb(config: &mut Config) -> Result<()> {
