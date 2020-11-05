@@ -210,7 +210,7 @@ pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> 
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
 
-    let updates = rt.block_on(async {
+    let mut updates = rt.block_on(async {
         let mut futures = Vec::new();
 
         for (pkg, repos) in &devel_info.info {
@@ -222,6 +222,9 @@ pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> 
         let updates = join_all(futures).await;
         updates.into_iter().flatten().collect::<Vec<_>>()
     });
+
+    updates.sort_unstable();
+    updates.dedup();
 
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
 
