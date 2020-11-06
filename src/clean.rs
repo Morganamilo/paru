@@ -86,9 +86,7 @@ fn clean_aur(
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
         .with_context(|| format!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
-    let mut srcinfos = Vec::new();
-
-    for file in cached_pkgs {
+    'outer: for file in cached_pkgs {
         let file = file?;
 
         if !file.file_type()?.is_dir()
@@ -98,19 +96,22 @@ fn clean_aur(
             continue;
         }
 
-        match Srcinfo::parse_file(file.path().join(".SRCINFO")) {
-            Ok(srcinfo) => srcinfos.push(srcinfo),
-            Err(err) => print_error(config.color.error, Error::new(err)),
-        }
-    }
-
-    'outer: for srcinfo in srcinfos {
         if remove_all {
-            let path = config.fetch.clone_dir.join(srcinfo.base.pkgbase);
-            remove_dir_all(&path)
-                .with_context(|| format!("could not remove '{}'", path.display()))?;
+            let err = remove_dir_all(file.path())
+                .with_context(|| format!("could not remove '{}'", file.path().display()));
+            if let Err(err) = err {
+                print_error(config.color.error, err);
+            }
             continue;
         }
+
+        let srcinfo = match Srcinfo::parse_file(file.path().join(".SRCINFO")) {
+            Ok(srcinfo) => srcinfo,
+            Err(err) => {
+                print_error(config.color.error, Error::new(err));
+                continue;
+            }
+        };
 
         if keep_installed {
             let local_db = config.alpm.localdb();
