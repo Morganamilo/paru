@@ -247,7 +247,7 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         })
         .collect::<Vec<_>>();
 
-    for (i, n) in indexes.iter().enumerate().rev() {
+    for (i, n) in indexes.iter().rev().enumerate() {
         let pkg = all_pkgs.remove(i + n);
         all_pkgs.insert(0, pkg);
     }
