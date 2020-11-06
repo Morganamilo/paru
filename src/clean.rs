@@ -91,7 +91,7 @@ fn clean_aur(
     for file in cached_pkgs {
         let file = file?;
 
-        if !file.file_type()?.is_file()
+        if !file.file_type()?.is_dir()
             || !file.path().join(".git").exists()
             || !file.path().join(".SRCINFO").exists()
         {
