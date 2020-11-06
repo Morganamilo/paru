@@ -5,7 +5,7 @@ use crate::print_error;
 use crate::util::ask;
 
 use std::fs::read_dir;
-use std::fs::{remove_dir_all, remove_file};
+use std::fs::{remove_dir_all, remove_file, set_permissions};
 
 use std::path::Path;
 use std::process::Command;
@@ -95,6 +95,12 @@ fn clean_aur(
         {
             continue;
         }
+
+        let pkg = file.path().join("pkg");
+        let mut perms = pkg.metadata()?.permissions();
+        perms.set_readonly(false);
+
+        let _ = set_permissions(pkg, perms);
 
         if remove_all {
             let err = remove_dir_all(file.path())
