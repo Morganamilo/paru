@@ -289,7 +289,7 @@ pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> 
         .iter()
         .flatten()
         .map(|p| p.name().to_string())
-        .filter(|p| config.cache.contains(p.as_str()))
+        .filter(|p| cache.contains(p.as_str()))
         .collect();
 
     //save_devel_info(config, &devel_info)?;
