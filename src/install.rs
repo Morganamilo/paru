@@ -699,6 +699,7 @@ fn build_install_pkgbuilds(
     };
 
     for base in build {
+        let mut debug_paths = Vec::new();
         let dir = config.build_dir.join(base.package_base());
 
         let mut satisfied = false;
@@ -752,7 +753,6 @@ fn build_install_pkgbuilds(
 
         if config.install_debug {
             let mut debug = Vec::new();
-
             for dest in pkgdest.values() {
                 let file = dest.rsplit('/').next().unwrap();
 
@@ -761,11 +761,11 @@ fn build_install_pkgbuilds(
 
                     if file.starts_with(&debug_pkg) {
                         let debug_pkg = format!("{}-debug", pkg.pkg.name);
-                        println!("adding {} to the install list", debug_pkg);
                         let mut pkg = pkg.clone();
                         let mut raur_pkg = (*pkg.pkg).clone();
                         raur_pkg.name = debug_pkg;
                         pkg.pkg = raur_pkg.into();
+                        debug_paths.push((pkg.pkg.name.clone(), dest));
                         debug.push(pkg);
                     }
                 }
@@ -816,15 +816,21 @@ fn build_install_pkgbuilds(
             )?
             .success()
             .with_context(|| format!("failed to build '{}'", base))?;
-        }
-
-        if !needs_build {
+        } else {
             println!(
                 "{} {}-{} is up to date -- skipping build",
                 c.warning.paint("::"),
                 base.package_base(),
                 base.pkgs[0].pkg.version
             )
+        }
+
+        for (pkg, path) in debug_paths {
+            if !Path::new(path).exists() {
+                base.pkgs.retain(|p| p.pkg.name != pkg);
+            } else {
+                println!("adding {} to the install list", pkg);
+            }
         }
 
         for pkg in &base.pkgs {
