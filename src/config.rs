@@ -191,12 +191,15 @@ pub struct Config {
     pub sudo_bin: String,
     #[default = "asp"]
     pub asp_bin: String,
+    #[default = "bat"]
+    pub bat_bin: String,
     pub fm: Option<String>,
 
     pub mflags: Vec<String>,
     pub git_flags: Vec<String>,
     pub gpg_flags: Vec<String>,
     pub sudo_flags: Vec<String>,
+    pub bat_flags: Vec<String>,
     pub fm_flags: Vec<String>,
 
     pub devel_suffixes: Vec<String>,
@@ -514,11 +517,13 @@ impl Config {
             "Asp" => self.asp_bin = value,
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
+            "Bat" => self.bat_bin = value,
             "FileManager" => self.fm = Some(value),
             "MFlags" => self.mflags.extend(split),
             "GitFlags" => self.git_flags.extend(split),
             "GpgFlags" => self.gpg_flags.extend(split),
             "SudoFlags" => self.sudo_flags.extend(split),
+            "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
             _ => bail!("unknown option '{}'", key),
         };

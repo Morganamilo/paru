@@ -38,6 +38,8 @@ New options:
     --sudo      <file>    sudo command to use
     --sudoflags <flags>   Pass arguments to sudo
     --asp       <file>    asp command to use
+    --bat       <file>    bat command to use
+    --batflags  <flags>   Pass arguments to bat
     --gpg       <file>    gpg command to use
     --gpgflags  <flags>   Pass arguments to gpg
     --fm        <file>    File manager to use for PKGBUILD review

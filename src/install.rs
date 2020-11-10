@@ -290,14 +290,16 @@ fn install_actions(
             if !has_diff.contains(pkg) {
                 let path = config.build_dir.join(pkg).join("PKGBUILD");
 
-                let bat = config.color.enabled && Command::new("bat").arg("-V").output().is_ok();
+                let bat = config.color.enabled
+                    && Command::new(&config.bat_bin).arg("-V").output().is_ok();
 
                 if bat {
-                    Command::new("bat")
+                    Command::new(&config.bat_bin)
                         .arg("-pp")
                         .arg("--color=always")
                         .arg("-lPKGBUILD")
                         .arg(path)
+                        .args(&config.bat_flags)
                         .spawn()?
                         .wait()?;
                 } else {

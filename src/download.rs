@@ -424,7 +424,7 @@ pub fn show_comments(config: &mut Config) -> Result<i32> {
 pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
-    let bat = config.color.enabled && Command::new("bat").arg("-V").output().is_ok();
+    let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
 
     let (repo, aur) = split_repo_aur_targets(config, &config.targets);
 
@@ -462,7 +462,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                     String::from_utf8_lossy(&output.stderr).trim()
                 );
 
-                pipe_bat(&output.stdout)?;
+                pipe_bat(config, &output.stdout)?;
             } else {
                 let ret = Command::new(asp)
                     .arg("show")
@@ -500,7 +500,7 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
             }
 
             if bat {
-                pipe_bat(&response.bytes()?)?;
+                pipe_bat(config, &response.bytes()?)?;
             } else {
                 let _ = stdout.write_all(&response.bytes()?);
             }
@@ -514,11 +514,12 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     Ok(0)
 }
 
-fn pipe_bat(pkgbuild: &[u8]) -> Result<()> {
-    let mut command = Command::new("bat")
+fn pipe_bat(config: &Config, pkgbuild: &[u8]) -> Result<()> {
+    let mut command = Command::new(&config.bat_bin)
         .arg("-pp")
         .arg("--color=always")
         .arg("-lPKGBUILD")
+        .args(&config.bat_flags)
         .stdin(Stdio::piped())
         .spawn()?;
 

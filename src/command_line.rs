@@ -187,6 +187,7 @@ impl Config {
             Arg::Long("gpg") => self.gpg_bin = value?.to_string(),
             Arg::Long("sudo") => self.sudo_bin = value?.to_string(),
             Arg::Long("asp") => self.asp_bin = value?.to_string(),
+            Arg::Long("bat") => self.bat_bin = value?.to_string(),
             Arg::Long("fm") => self.fm = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
@@ -195,6 +196,7 @@ impl Config {
             Arg::Long("gitflags") => self.git_flags.extend(split_whitespace(value?)),
             Arg::Long("gpgflags") => self.gpg_flags.extend(split_whitespace(value?)),
             Arg::Long("sudoflags") => self.sudo_flags.extend(split_whitespace(value?)),
+            Arg::Long("batflags") => self.bat_flags.extend(split_whitespace(value?)),
             Arg::Long("fmflags") => self.fm_flags.extend(split_whitespace(value?)),
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
@@ -310,6 +312,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("gitflags") => TakesValue::Required,
         Arg::Long("gpgflags") => TakesValue::Required,
         Arg::Long("sudoflags") => TakesValue::Required,
+        Arg::Long("batflags") => TakesValue::Required,
         Arg::Long("fmflags") => TakesValue::Required,
         Arg::Long("completioninterval") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,

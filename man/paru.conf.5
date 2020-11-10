@@ -209,6 +209,11 @@ The command to use for \fBasp\fR calls. This can be a command in
 \fBPATH\fR or an absolute path to the file.
 
 .TP
+.B Bat = path/to/bat
+The command to use for \fBbat\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
 .B Sudo = path/to/sudo
 The command to use for \fBsudo\fR calls. This can be a command in
 \fBPATH\fR or an absolute path to the file. The SudoLoop option is not
@@ -236,6 +241,12 @@ passed to git.
 Passes arguments to gpg. These flags get passed to every instance where
 gpg is called by paru. Arguments are split on whitespace before being
 passed to gpg.
+
+.TP
+.B BatFlags = Flags...
+Passes arguments to bat. These flags get passed to every instance where
+bat is called by paru. Arguments are split on whitespace before being
+passed to bat.
 
 .TP
 .B SudoFlags = Flags...
