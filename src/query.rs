@@ -33,8 +33,8 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     };
 
     let (repo, aur) = split_repo_aur_mode(config, &targets);
-    let mut repo_ret = 0;
-    let mut aur_ret = 0;
+    let mut repo_ret = 1;
+    let mut aur_ret = 1;
 
     if !repo.is_empty() {
         let mut args = config.pacman_args();
@@ -66,8 +66,6 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let aur = aur.trim().lines().collect::<Vec<_>>();
 
         config.raur.cache_info(&mut cache, &aur)?;
-
-        aur_ret = 1;
 
         for target in aur {
             if let Some(pkg) = cache.get(target) {
@@ -102,5 +100,9 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         }
     }
 
-    Ok(repo_ret + aur_ret)
+    if repo_ret != 0 && aur_ret != 0 {
+        Ok(1)
+    } else {
+        Ok(0)
+    }
 }
