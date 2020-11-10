@@ -4,14 +4,13 @@ use crate::exec;
 use crate::print_error;
 use crate::util::ask;
 
-use std::fs::read_dir;
-use std::fs::{remove_dir_all, remove_file, set_permissions};
+use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
 
 use std::path::Path;
 use std::process::Command;
 
 use alpm_utils::DbListExt;
-use anyhow::{bail, Context, Error, Result};
+use anyhow::{bail, Context, Result};
 
 use srcinfo::Srcinfo;
 
@@ -66,7 +65,8 @@ fn clean_diff(config: &Config) -> Result<()> {
 
         if !diff.file_type()?.is_dir() && diff.path().extension().map(|s| s == "diff") == Some(true)
         {
-            remove_file(diff.path())?
+            remove_file(diff.path())
+                .with_context(|| format!("could not remove '{}'", diff.path().display()))?;
         }
     }
 
@@ -86,65 +86,73 @@ fn clean_aur(
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
         .with_context(|| format!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
-    'outer: for file in cached_pkgs {
-        let file = file?;
-
-        if !file.file_type()?.is_dir()
-            || !file.path().join(".git").exists()
-            || !file.path().join(".SRCINFO").exists()
-        {
+    for file in cached_pkgs {
+        if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current) {
+            print_error(config.color.error, err);
             continue;
         }
-
-        let pkg = file.path().join("pkg");
-        let mut perms = pkg.metadata()?.permissions();
-        perms.set_readonly(false);
-
-        let _ = set_permissions(pkg, perms);
-
-        if remove_all {
-            let err = remove_dir_all(file.path())
-                .with_context(|| format!("could not remove '{}'", file.path().display()));
-            if let Err(err) = err {
-                print_error(config.color.error, err);
-            }
-            continue;
-        }
-
-        let srcinfo = match Srcinfo::parse_file(file.path().join(".SRCINFO")) {
-            Ok(srcinfo) => srcinfo,
-            Err(err) => {
-                print_error(config.color.error, Error::new(err));
-                continue;
-            }
-        };
-
-        if keep_installed {
-            let local_db = config.alpm.localdb();
-            for pkg in &srcinfo.pkgs {
-                if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
-                    if pkg.version().as_ref() == srcinfo.version() {
-                        continue 'outer;
-                    }
-                }
-            }
-        }
-
-        if keep_current {
-            for pkg in &srcinfo.pkgs {
-                let sync_dbs = config.alpm.syncdbs();
-                if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
-                    if pkg.version().as_ref() == srcinfo.version() {
-                        continue 'outer;
-                    }
-                }
-            }
-        }
-
-        clean_untracked(config, &config.fetch.clone_dir.join(srcinfo.base.pkgbase))?;
     }
 
     Ok(())
+}
+
+fn make_writeable(file: &Path) -> Result<()> {
+    let pkg = file.join("pkg");
+    let mut perms = pkg.metadata()?.permissions();
+    perms.set_readonly(false);
+    set_permissions(pkg, perms)?;
+    Ok(())
+}
+
+fn clean_aur_pkg(
+    config: &Config,
+    file: std::io::Result<DirEntry>,
+    remove_all: bool,
+    keep_installed: bool,
+    keep_current: bool,
+) -> Result<()> {
+    let file = file?;
+
+    if !file.file_type()?.is_dir()
+        || !file.path().join(".git").exists()
+        || !file.path().join(".SRCINFO").exists()
+    {
+        return Ok(());
+    }
+
+    let _ = make_writeable(&file.path());
+
+    if remove_all {
+        remove_dir_all(file.path())
+            .with_context(|| format!("could not remove '{}'", file.path().display()))?;
+        return Ok(());
+    }
+
+    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
+
+    if keep_installed {
+        let local_db = config.alpm.localdb();
+        for pkg in &srcinfo.pkgs {
+            if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
+                if pkg.version().as_ref() == srcinfo.version() {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    if keep_current {
+        for pkg in &srcinfo.pkgs {
+            let sync_dbs = config.alpm.syncdbs();
+            if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
+                if pkg.version().as_ref() == srcinfo.version() {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    clean_untracked(config, &config.fetch.clone_dir.join(srcinfo.base.pkgbase))
 }
 
 pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
