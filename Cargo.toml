@@ -16,7 +16,7 @@ keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 alpm = "1.1.1"
 alpm-utils = "0.6.0"
 aur-depends = "0.9.4"
-aur-fetch = "0.7.2"
+aur-fetch = "0.7.3"
 cini = "0.1.1"
 pacmanconf = "0.1.1"
 raur = "3.0.1"
@@ -25,11 +25,11 @@ srcinfo = "1.0.0"
 
 
 ansi_term = "0.12.1"
-anyhow = "1.0.33"
+anyhow = "1.0.34"
 atty = "0.2.14"
 chrono = "0.4.19"
 dirs = "3.0.1"
-futures = "0.3.7"
+futures = "0.3.8"
 htmlescape = "0.3.1"
 indicatif = "0.15.0"
 nix = "0.19.0"
@@ -41,7 +41,7 @@ serde_json = "1.0.59"
 smart-default = "0.6.0"
 term_size = "0.3.2"
 tokio = { version = "0.2.22", features = ["process", "macros"] }
-url = "2.1.1"
+url = "2.2.0"
 kuchiki = "0.8.1"
 
 [profile.release]
