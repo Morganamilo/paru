@@ -175,6 +175,7 @@ complete -c $progname -n "not $noopt" -l builddir -d 'Directory to use for Build
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
 complete -c $progname -n "not $noopt" -l pacman -d 'Pacman command to use' -f
 complete -c $progname -n "not $noopt" -l git -d 'Git command to use' -f
+complete -c $progname -n "not $noopt" -l asp -d 'Asp command to use' -f
 complete -c $progname -n "not $noopt" -l gpg -d 'Gpg command to use' -f
 complete -c $progname -n "not $noopt" -l fm -d 'File manager to use' -f
 complete -c $progname -n "not $noopt" -l completioninterval -d 'Refresh interval for completion cache' -f

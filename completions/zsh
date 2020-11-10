@@ -53,7 +53,8 @@ _pacman_opts_common=(
 	'--pacman[pacman command to use]:pacman:_files'
 	'--git[git command to use]:git:_files'
 	'--gpg[gpg command to use]:gpg:_files'
-	'--gpg[file manager to use]:fm:_files'
+	'--fm[file manager to use]:fm:_files'
+	'--asp[asp command to use]:asp:_files'
 
 	'--sortby[Sort AUR results by a specific field during search]:sortby options:(votes popularity id baseid name base submitted modified)'
 	'--upgrademenu[Show a detailed list of updates with the option to skip any]'
