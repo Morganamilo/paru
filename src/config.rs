@@ -660,35 +660,41 @@ fn reopen_stdin() -> Result<()> {
 fn question(question: &mut Question) {
     let c = COLORS.get().unwrap();
 
-    if let Question::SelectProvider(question) = question {
-        let providers = question.providers();
-        let len = providers.len();
+    match question {
+        Question::SelectProvider(question) => {
+            let providers = question.providers();
+            let len = providers.len();
 
-        println!();
-        let prompt = format!(
-            "There are {} providers available for {}:",
-            len,
-            question.depend()
-        );
-        print!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+            println!();
+            let prompt = format!(
+                "There are {} providers available for {}:",
+                len,
+                question.depend()
+            );
+            print!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 
-        let mut db = String::new();
-        for (n, pkg) in providers.iter().enumerate() {
-            let pkg_db = pkg.db().unwrap();
-            if pkg_db.name() != db {
-                db = pkg_db.name().to_string();
-                println!(
-                    "\n{} {} {}:",
-                    c.action.paint("::"),
-                    c.bold.paint("Repository"),
-                    color_repo(c.enabled, pkg_db.name())
-                );
-                print!("    ");
+            let mut db = String::new();
+            for (n, pkg) in providers.iter().enumerate() {
+                let pkg_db = pkg.db().unwrap();
+                if pkg_db.name() != db {
+                    db = pkg_db.name().to_string();
+                    println!(
+                        "\n{} {} {}:",
+                        c.action.paint("::"),
+                        c.bold.paint("Repository"),
+                        color_repo(c.enabled, pkg_db.name())
+                    );
+                    print!("    ");
+                }
+                print!("{}) {}  ", n + 1, pkg.name());
             }
-            print!("{}) {}  ", n + 1, pkg.name());
-        }
 
-        let index = get_provider(len);
-        question.set_index(index as i32);
+            let index = get_provider(len);
+            question.set_index(index as i32);
+        }
+        Question::InstallIgnorepkg(question) => {
+            question.set_install(true);
+        }
+        _ => (),
     }
 }
