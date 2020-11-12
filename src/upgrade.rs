@@ -180,11 +180,11 @@ pub fn get_upgrades(
         .max()
         .unwrap_or(0);
 
-    for (n, pkg) in repo_upgrades.iter().enumerate() {
+    for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
         let local_pkg = config.alpm.localdb().pkg(pkg.name())?;
         print_upgrade(
             config,
-            n + 1,
+            n + aur_upgrades.len() + devel_upgrades.len() + 1,
             n_max,
             pkg.name(),
             pkg.db().unwrap().name(),
@@ -195,10 +195,10 @@ pub fn get_upgrades(
         );
     }
 
-    for (n, pkg) in aur_upgrades.iter().enumerate() {
+    for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
         print_upgrade(
             config,
-            n + repo_upgrades.len() + 1,
+            n + devel_upgrades.len() + 1,
             n_max,
             pkg.local.name(),
             "aur",
@@ -209,7 +209,7 @@ pub fn get_upgrades(
         );
     }
 
-    for (n, pkg) in devel_upgrades.iter().enumerate() {
+    for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
         print_upgrade(
             config,
             n + repo_upgrades.len() + aur_upgrades.len() + 1,
@@ -227,7 +227,8 @@ pub fn get_upgrades(
     let input = input.trim();
     let number_menu = NumberMenu::new(&input);
 
-    for (n, pkg) in repo_upgrades.iter().enumerate() {
+    for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
+        let n = n + devel_upgrades.len() + aur_upgrades.len();
         let remote = config.alpm.syncdbs().pkg(pkg.name()).unwrap();
         let db = remote.db().unwrap();
         if !number_menu.contains(n + 1, db.name()) || input.is_empty() {
@@ -237,8 +238,8 @@ pub fn get_upgrades(
         }
     }
 
-    for (n, pkg) in aur_upgrades.iter().enumerate() {
-        let n = n + repo_upgrades.len();
+    for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
+        let n = n + devel_upgrades.len();
         if !number_menu.contains(n + 1, "aur") || input.is_empty() {
             aur_keep.push(pkg.local.name().to_string());
         } else {
@@ -246,9 +247,8 @@ pub fn get_upgrades(
         }
     }
 
-    for (n, pkg) in devel_upgrades.iter().enumerate() {
-        let n = n + repo_upgrades.len() + aur_upgrades.len();
-        if !number_menu.contains(n + 1, "aur") || input.is_empty() {
+    for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
+        if !number_menu.contains(n + 1, "devel") || input.is_empty() {
             aur_keep.push(pkg.to_string());
         } else {
             aur_skip.push(pkg.to_string());
