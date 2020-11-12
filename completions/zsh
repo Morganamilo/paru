@@ -86,7 +86,7 @@ _pacman_opts_common=(
 	'--gpgflags[Pass arguments to gpg]:gpgflags'
 	'--gitflags[Pass arguments to git]:flags'
 	'--sudoflags[Pass arguments to sudo]:flags'
-	'--batflags[Pass arguments to sudo]:flags'
+	'--batflags[Pass arguments to bat]:flags'
 	'--gpgflags[Pass arguments to gpg]:flags'
 	'--fmflags[Pass arguments to file manager]:flags'
 
