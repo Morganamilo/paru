@@ -1,5 +1,32 @@
 # Changelog
 
+## Paru v1.1.0 (2020-11-12) 
+
+### Fixed
+
+- Don't try to remove packages with -c when nothing to remove d3c668e
+- Fix error if running `-Sy` with no tagets 95f5681
+- Hide warnings for debug packages b3e0fe0
+- Don't try to install non existing devel packages 5e910d9
+- Fix clean checking for wrong file type e9a260e
+- Try and make pkg writable before deleting 70676bf
+- Remove dashes from InstallDebug in paru.conf.5 #86
+- Add missing asp completion 8e19638
+-  Fix -Qu return value not always being correct 0b791bc
+
+### Added
+
+- Add AUR comment support faf4d51
+- Add --bat and --batflags 8693ccd
+
+### Changed
+
+- Print [ignored] for ignored aur packages during -Qu 960fb1a
+- Sort devel.json 30e1c6b
+- Add mflags example to config ecc4ecd
+- Always pass ignored packages to pacman 591d593
+- Flip upgrade menu 79a4ab7
+
 ## Paru v1.0.2 (2020-11-2)
 
 ### Fixed
