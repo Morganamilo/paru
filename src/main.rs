@@ -163,7 +163,7 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
             args.op = "remove";
             Ok(exec::pacman(config, &args)?.code())
         } else {
-            println!(" there is nothing to do");
+            println!("there is nothing to do");
             Ok(0)
         }
     } else if !config.targets.is_empty() {
