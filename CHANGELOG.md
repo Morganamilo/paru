@@ -1,6 +1,13 @@
 # Changelog
 
-## Paru v1.1.0 (2020-11-12) 
+## Paru v1.1.1 (2020-11-12)
+
+### Fixed
+
+- Fix numbers in upgrade menu being printed improperly for devel packages #100
+- Fix `--batflags` zsh completion #98
+
+## Paru v1.1.0 (2020-11-12)
 
 ### Fixed
 
