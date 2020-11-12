@@ -212,7 +212,7 @@ pub fn get_upgrades(
     for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
         print_upgrade(
             config,
-            n + repo_upgrades.len() + aur_upgrades.len() + 1,
+            n + 1,
             n_max,
             pkg,
             "devel",
