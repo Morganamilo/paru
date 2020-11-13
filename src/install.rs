@@ -447,16 +447,16 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
     if !actions.missing.is_empty() {
         let mut err = "could not find all required packages:".to_string();
         for missing in &actions.missing {
-            let stack = if missing.stack.is_empty() {
-                "target".to_string()
+            if missing.stack.is_empty() {
+                err.push_str(&format!("\n    {} (target)", c.error.paint(&missing.dep)));
             } else {
-                missing.stack.join(" -> ")
+                let stack = missing.stack.join(" -> ");
+                err.push_str(&format!(
+                    "\n    {} (wanted by: {})",
+                    c.error.paint(&missing.dep),
+                    stack
+                ));
             };
-            err.push_str(&format!(
-                "\n    {} ({})",
-                c.error.paint(&missing.dep),
-                stack
-            ));
         }
 
         bail!("{}", err);
