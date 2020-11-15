@@ -28,11 +28,16 @@ pub fn newest_pkg(config: &Config) -> i64 {
     max
 }
 
-pub fn news(config: &Config) -> Result<i32> {
+pub async fn news(config: &Config) -> Result<i32> {
     let url = config.arch_url.join("feeds/news")?;
+    let client = config.raur.client();
 
-    let resp = reqwest::blocking::get(url.clone()).with_context(|| format!("{}", url))?;
-    let bytes = resp.bytes()?;
+    let resp = client
+        .get(url.clone())
+        .send()
+        .await
+        .with_context(|| format!("{}", url))?;
+    let bytes = resp.bytes().await?;
     let channel = Channel::read_from(bytes.as_ref())?;
     let c = config.color;
 

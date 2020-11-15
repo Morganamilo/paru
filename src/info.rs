@@ -7,10 +7,10 @@ use crate::util::split_repo_aur_targets;
 use alpm_utils::Targ;
 use ansi_term::Style;
 use anyhow::Error;
-use raur_ext::Package;
+use raur::ArcPackage as Package;
 use term_size::dimensions_stdout;
 
-pub fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
+pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
     let targets = targets.iter().map(Targ::from).collect::<Vec<_>>();
 
@@ -20,7 +20,8 @@ pub fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let aur = if !aur.is_empty() {
         let color = conf.color;
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
-        let warnings = cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore)?;
+        let warnings =
+            cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore).await?;
         for pkg in &warnings.missing {
             eprintln!(
                 "{} package '{}' was not found",

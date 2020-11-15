@@ -13,7 +13,7 @@ enum AnyPkg<'a> {
     AurPkg(&'a raur::Package),
 }
 
-pub fn search(config: &Config) -> Result<i32> {
+pub async fn search(config: &Config) -> Result<i32> {
     let quiet = config.args.has_arg("q", "quiet");
     let repo_pkgs = search_repos(config, &config.targets)?;
 
@@ -23,7 +23,9 @@ pub fn search(config: &Config) -> Result<i32> {
         .map(|t| t.to_lowercase())
         .collect::<Vec<_>>();
 
-    let pkgs = search_aur(config, &targets).context("aur search failed")?;
+    let pkgs = search_aur(config, &targets)
+        .await
+        .context("aur search failed")?;
 
     if config.sort_mode == "topdown" {
         for pkg in &repo_pkgs {
@@ -59,7 +61,7 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
     Ok(ret)
 }
 
-fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
+async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
     if targets.is_empty() || config.mode == "repo" {
         return Ok(Vec::new());
     }
@@ -79,7 +81,7 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
     if by == SearchBy::NameDesc {
         let target = targets.iter().max_by_key(|t| t.len()).unwrap();
         let target = target.to_lowercase();
-        let pkgs = config.raur.search_by(target, by)?;
+        let pkgs = config.raur.search_by(target, by).await?;
         matches.extend(pkgs);
         matches.retain(|p| {
             let name = p.name.to_lowercase();
@@ -96,7 +98,7 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
     } else if by == SearchBy::Name {
         let target = targets.iter().max_by_key(|t| t.len()).unwrap();
         let target = target.to_lowercase();
-        let pkgs = config.raur.search_by(target, by)?;
+        let pkgs = config.raur.search_by(target, by).await?;
         matches.extend(pkgs);
         matches.retain(|p| {
             targets
@@ -106,7 +108,7 @@ fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>>
     } else {
         for target in targets {
             let target = target.to_lowercase();
-            let pkgs = config.raur.search_by(target, by)?;
+            let pkgs = config.raur.search_by(target, by).await?;
             matches.extend(pkgs);
         }
     }
@@ -210,9 +212,9 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 }
 
-pub fn search_install(config: &mut Config) -> Result<i32> {
+pub async fn search_install(config: &mut Config) -> Result<i32> {
     let repo_pkgs = search_repos(config, &config.targets)?;
-    let aur_pkgs = search_aur(config, &config.targets)?;
+    let aur_pkgs = search_aur(config, &config.targets).await?;
     let mut all_pkgs = Vec::new();
     let c = config.color;
 
@@ -322,7 +324,7 @@ pub fn search_install(config: &mut Config) -> Result<i32> {
         println!(" there is nothing to do")
     } else {
         config.need_root = true;
-        install(config, &pkgs)?;
+        install(config, &pkgs).await?;
     }
 
     Ok(0)

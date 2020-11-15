@@ -1,5 +1,6 @@
 use crate::args::Arg;
 use crate::clean::clean_untracked;
+use crate::completion::update_aur_cache;
 use crate::config::Config;
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
@@ -22,7 +23,7 @@ use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage, Resolver};
-use raur_ext::Cache;
+use raur::Cache;
 use srcinfo::Srcinfo;
 
 fn early_refresh(config: &Config) -> Result<()> {
@@ -41,8 +42,8 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
-    let mut cache = raur_ext::Cache::new();
+pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
+    let mut cache = Cache::new();
     let c = config.color;
 
     if config.sudo_loop {
@@ -50,7 +51,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     }
 
     if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
-        let ret = news::news(config)?;
+        let ret = news::news(config).await?;
 
         if ret != 1 {
             ask(config, "Continue with install?", true);
@@ -104,7 +105,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
                 c.action.paint("::"),
                 c.bold.paint("Looking for AUR upgrades")
             );
-            resolver.aur_updates()?
+            resolver.aur_updates().await?
         } else {
             AurUpdates::default()
         };
@@ -119,7 +120,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             );
         }
 
-        let upgrades = get_upgrades(config, resolver.cache(), aur_upgrades.updates)?;
+        let upgrades = get_upgrades(config, resolver.cache(), aur_upgrades.updates).await?;
         for pkg in &upgrades.repo_skip {
             let arg = Arg {
                 key: "ignore".to_string(),
@@ -162,7 +163,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
         c.bold.paint("Resolving dependencies...")
     );
 
-    let mut actions = resolver.resolve_targets(&targets)?;
+    let mut actions = resolver.resolve_targets(&targets).await?;
 
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
         bail!("can't install AUR package as root");
@@ -192,7 +193,7 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
             false
         };
 
-    let err = install_actions(config, &mut actions, &conflicts.0, &conflicts.1);
+    let err = install_actions(config, &mut actions, &conflicts.0, &conflicts.1).await;
 
     if remove_make {
         let mut args = config.pacman_globals();
@@ -228,9 +229,9 @@ pub fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     err
 }
 
-fn install_actions(
+async fn install_actions<'a>(
     config: &Config,
-    actions: &mut Actions,
+    actions: &mut Actions<'a>,
     conflicts: &[Conflict],
     inner_conflicts: &[Conflict],
 ) -> Result<i32> {
@@ -251,7 +252,7 @@ fn install_actions(
         }
     }
 
-    download::new_aur_pkgbuilds(config, &bases, &srcinfos)?;
+    download::new_aur_pkgbuilds(config, &bases, &srcinfos).await?;
 
     for base in &bases.bases {
         if srcinfos.contains_key(base.package_base()) {
@@ -359,10 +360,11 @@ fn install_actions(
     repo_install(config, &actions.install)?;
 
     let url = config.aur_url.clone();
-    let cache_dir = config.cache_dir.clone();
+    let dir = config.cache_dir.clone();
     let interval = config.completion_interval;
-    std::thread::spawn(move || {
-        crate::completion::update_aur_cache(&url, &cache_dir, Some(interval)).unwrap();
+
+    tokio::spawn(async move {
+        let _ = update_aur_cache(&url, &dir, Some(interval)).await;
     });
 
     let conflicts = conflicts
@@ -372,7 +374,7 @@ fn install_actions(
         .collect::<HashSet<_>>();
 
     //download_pkgbuild_sources(config, &actions.build)?;
-    build_install_pkgbuilds(config, &mut actions.build, srcinfos, &bases, &conflicts)?;
+    build_install_pkgbuilds(config, &mut actions.build, srcinfos, &bases, &conflicts).await?;
 
     Ok(0)
 }
@@ -677,7 +679,7 @@ fn do_install(
     Ok(())
 }
 
-fn build_install_pkgbuilds(
+async fn build_install_pkgbuilds(
     config: &Config,
     build: &mut [aur_depends::Base],
     srcinfos: HashMap<String, Srcinfo>,
@@ -694,7 +696,7 @@ fn build_install_pkgbuilds(
         println!("fetching devel info...");
         (
             load_devel_info(config)?.unwrap_or_default(),
-            fetch_devel_info(config, bases, srcinfos)?,
+            fetch_devel_info(config, bases, srcinfos).await?,
         )
     } else {
         (DevelInfo::default(), DevelInfo::default())

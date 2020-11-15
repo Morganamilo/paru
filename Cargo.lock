@@ -8,9 +8,9 @@ checksum = "ee2a4ec343196209d6594e19543ae87a39f96d5534d7174822a3ad825dd6ed7e"
 
 [[package]]
 name = "alpm"
-version = "1.1.1"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8938aab2ddfd75acf4b674cf4504dd526591ae3632b094b2cbe8cfb3867494a8"
+checksum = "42069961efa8d1854bc666041c87dc25db28705f2bfc68eebc2435ce739fcbdc"
 dependencies = [
  "alpm-sys",
  "bitflags",
@@ -81,6 +81,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.41"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b246867b8b3b6ae56035f1eb1ed557c1d8eae97f0d53696138a50fa0e3a3b8c0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -93,23 +104,22 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.9.5"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5c0493bb37eb2202393d4c7cc6a9f6527f66cdaad44a8ad5e71a66d0aa1d0f4"
+checksum = "af3ca72a874aa969c8b6a70b1fbbc79e041950c6e1b52d3fc1f6f13e513acbfe"
 dependencies = [
  "alpm",
  "alpm-utils",
  "bitflags",
  "log",
  "raur",
- "raur-ext",
 ]
 
 [[package]]
 name = "aur-fetch"
-version = "0.7.3"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d02235aa25cc9b4c6a4945e68b21591e64d1d022a3f77a4ef34391f5f7c4d94"
+checksum = "37cc85eb9512c5bef356f98bcfb342a4945cc97399f94ad21be9d52ce3a0fa12"
 dependencies = [
  "futures",
  "tempfile",
@@ -1049,9 +1059,9 @@ checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
 
 [[package]]
 name = "once_cell"
-version = "1.4.1"
+version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "260e51e7efe62b592207e9e13a68e43692a7a279171d6ba57abd208bf23645ad"
+checksum = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0"
 
 [[package]]
 name = "openssl"
@@ -1117,7 +1127,6 @@ dependencies = [
  "once_cell",
  "pacmanconf",
  "raur",
- "raur-ext",
  "reqwest",
  "rss",
  "serde",
@@ -1358,24 +1367,16 @@ dependencies = [
 
 [[package]]
 name = "raur"
-version = "3.0.1"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "461c8e33c12bbe96a2cf0d166bf1d85d153552e29b62ee16e7b2f38e8bc5b09a"
+checksum = "f334efffb4c97ed33c6be25b66655737a9522781d9ef9aa3c3a7bcd266e66f6c"
 dependencies = [
+ "async-trait",
  "reqwest",
  "serde",
  "serde_derive",
  "serde_json",
  "url",
-]
-
-[[package]]
-name = "raur-ext"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aae28cdc11ab496ec1b2d3677d531d83a40b04c6ee5456830b94be2de6bc3394"
-dependencies = [
- "raur",
 ]
 
 [[package]]

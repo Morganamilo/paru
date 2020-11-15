@@ -122,7 +122,7 @@ pub struct Config {
     pub raur: raur::Handle,
     #[default(aur_fetch::Handle::with_cache_dir(""))]
     pub fetch: aur_fetch::Handle,
-    pub cache: raur_ext::Cache,
+    pub cache: raur::Cache,
     pub need_root: bool,
 
     pub pacman: pacmanconf::Config,
@@ -356,7 +356,7 @@ impl Config {
             "failed to initialize noconfirm"
         );
 
-        self.raur = raur::Handle::default().with_url(self.aur_url.join("rpc")?.as_str())?;
+        self.raur = raur::Handle::new_with_url(self.aur_url.join("rpc")?.as_str());
 
         self.fetch = aur_fetch::Handle {
             git: self.git_bin.clone().into(),

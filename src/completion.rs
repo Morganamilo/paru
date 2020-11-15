@@ -7,16 +7,18 @@ use std::path::Path;
 use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
-use reqwest::blocking::get;
+use reqwest::get;
 use url::Url;
 
-fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
+async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     let url = aur_url.join("packages.gz")?;
-    let resp = get(url.clone()).with_context(|| format!("get {}", url))?;
+    let resp = get(url.clone())
+        .await
+        .with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
     ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.bytes()?;
+    let data = resp.bytes().await?;
 
     let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new().write(true).create(true).open(&path);
@@ -33,7 +35,7 @@ fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -> Result<()> {
+pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -> Result<()> {
     let path = cache_dir.join("packages.aur");
     let metadata = metadata(&path);
 
@@ -50,14 +52,15 @@ pub fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -
     };
 
     if need_refresh {
-        save_aur_list(aur_url, cache_dir)?;
+        save_aur_list(aur_url, cache_dir).await?;
     }
 
     Ok(())
 }
 
-fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
+async fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
     update_aur_cache(&config.aur_url, &config.cache_dir, timeout)
+        .await
         .context("could not update aur cache")?;
     let path = config.cache_dir.join("packages.aur");
     let file = OpenOptions::new().read(true).open(path)?;
@@ -82,13 +85,13 @@ fn repo_list<W: Write>(config: &Config, w: &mut W) {
     }
 }
 
-pub fn print(config: &Config, timeout: Option<u64>) -> i32 {
+pub async fn print(config: &Config, timeout: Option<u64>) -> i32 {
     let stdout = stdout();
     let mut stdout = stdout.lock();
 
     repo_list(config, &mut stdout);
 
-    if let Err(err) = aur_list(config, &mut stdout, timeout) {
+    if let Err(err) = aur_list(config, &mut stdout, timeout).await {
         print_error(config.color.error, err);
         return 1;
     }

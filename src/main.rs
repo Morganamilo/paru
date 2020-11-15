@@ -63,14 +63,15 @@ fn print_error(color: Style, err: Error) {
     eprintln!();
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
 
-    let i = main2();
+    let i = main2().await;
     std::process::exit(i);
 }
 
-fn main2() -> i32 {
+async fn main2() -> i32 {
     //env_logger::init();
     let mut config = match Config::new() {
         Ok(config) => config,
@@ -80,7 +81,7 @@ fn main2() -> i32 {
         }
     };
 
-    match run(&mut config) {
+    match run(&mut config).await {
         Err(err) => {
             print_error(config.color.error, err);
             1
@@ -89,7 +90,7 @@ fn main2() -> i32 {
     }
 }
 
-fn run(config: &mut Config) -> Result<i32> {
+async fn run(config: &mut Config) -> Result<i32> {
     if let Some(ref config_path) = config.config_path {
         let file = read_to_string(config_path)?;
         let name = config_path.display().to_string();
@@ -102,56 +103,56 @@ fn run(config: &mut Config) -> Result<i32> {
     } else {
         config.parse_args(args)?;
     }
-    handle_cmd(config)
+    handle_cmd(config).await
 }
 
-fn handle_cmd(config: &mut Config) -> Result<i32> {
+async fn handle_cmd(config: &mut Config) -> Result<i32> {
     let ret = match config.op.as_str() {
         "database" | "files" | "deptest" | "upgrade" => exec::pacman(config, &config.args)?.code(),
-        "query" => handle_query(config)?,
-        "sync" => handle_sync(config)?,
+        "query" => handle_query(config).await?,
+        "sync" => handle_sync(config).await?,
         "remove" => handle_remove(config)?,
-        "getpkgbuild" => handle_get_pkg_build(config)?,
-        "show" => handle_show(config)?,
-        "yay" => handle_yay(config)?,
+        "getpkgbuild" => handle_get_pkg_build(config).await?,
+        "show" => handle_show(config).await?,
+        "yay" => handle_yay(config).await?,
         _ => bail!("unknown op '{}'", config.op),
     };
 
     Ok(ret)
 }
 
-fn handle_query(config: &mut Config) -> Result<i32> {
+async fn handle_query(config: &mut Config) -> Result<i32> {
     let args = &config.args;
     if args.has_arg("u", "upgrades") {
-        print_upgrade_list(config)
+        print_upgrade_list(config).await
     } else {
         Ok(exec::pacman(config, args)?.code())
     }
 }
 
-fn handle_show(config: &Config) -> Result<i32> {
+async fn handle_show(config: &Config) -> Result<i32> {
     if config.news > 0 {
-        news::news(config)
+        news::news(config).await
     } else if config.complete {
-        Ok(completion::print(config, None))
+        Ok(completion::print(config, None).await)
     } else {
         Ok(0)
     }
 }
 
-fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
+async fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
     if config.print {
-        download::show_pkgbuilds(config)
+        download::show_pkgbuilds(config).await
     } else if config.comments {
-        download::show_comments(config)
+        download::show_comments(config).await
     } else {
-        download::getpkgbuilds(config)
+        download::getpkgbuilds(config).await
     }
 }
 
-fn handle_yay(config: &mut Config) -> Result<i32> {
+async fn handle_yay(config: &mut Config) -> Result<i32> {
     if config.gendb {
-        devel::gendb(config)?;
+        devel::gendb(config).await?;
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
@@ -167,7 +168,7 @@ fn handle_yay(config: &mut Config) -> Result<i32> {
             Ok(0)
         }
     } else if !config.targets.is_empty() {
-        search::search_install(config)
+        search::search_install(config).await
     } else {
         bail!("no operation specified (use -h for help)");
     }
@@ -191,20 +192,20 @@ fn handle_remove(config: &mut Config) -> Result<i32> {
     Ok(0)
 }
 
-fn handle_sync(config: &mut Config) -> Result<i32> {
+async fn handle_sync(config: &mut Config) -> Result<i32> {
     if config.args.has_arg("i", "info") {
-        info::info(config, config.args.count("i", "info") > 1)
+        info::info(config, config.args.count("i", "info") > 1).await
     } else if config.args.has_arg("c", "clean") {
         clean::clean(config)?;
         Ok(0)
     } else if config.args.has_arg("l", "list") {
-        sync::list(config)
+        sync::list(config).await
     } else if config.args.has_arg("s", "search") {
-        search::search(config)
+        search::search(config).await
     } else if config.args.has_arg("g", "groups") {
         Ok(exec::pacman(config, &config.args)?.code())
     } else {
         let target = std::mem::take(&mut config.targets);
-        install::install(config, &target)
+        install::install(config, &target).await
     }
 }

@@ -16,7 +16,7 @@ use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
 use indicatif::{ProgressBar, ProgressStyle};
 use kuchiki::traits::*;
-use raur_ext::{Package, RaurExt};
+use raur::{ArcPackage as Package, Raur};
 use srcinfo::Srcinfo;
 use url::Url;
 
@@ -66,7 +66,7 @@ impl Bases {
 
 #[derive(Debug, Default)]
 pub struct Warnings<'a> {
-    pub pkgs: Vec<raur_ext::Package>,
+    pub pkgs: Vec<Package>,
     pub missing: Vec<&'a str>,
     pub ood: Vec<&'a str>,
     pub orphans: Vec<&'a str>,
@@ -113,16 +113,16 @@ impl<'a> Warnings<'a> {
     }
 }
 
-pub fn cache_info_with_warnings<'a, S: AsRef<str>>(
+pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
     raur: &raur::Handle,
-    cache: &'a mut raur_ext::Cache,
+    cache: &'a mut raur::Cache,
     pkgs: &'a [S],
     ignore: &[String],
 ) -> StdResult<Warnings<'a>, raur::Error> {
     let mut missing = Vec::new();
     let mut ood = Vec::new();
     let mut orphaned = Vec::new();
-    let aur_pkgs = raur.cache_info(cache, pkgs)?;
+    let aur_pkgs = raur.cache_info(cache, pkgs).await?;
 
     for pkg in pkgs {
         if !ignore.iter().any(|p| p == pkg.as_ref()) && !cache.contains(pkg.as_ref()) {
@@ -152,7 +152,7 @@ pub fn cache_info_with_warnings<'a, S: AsRef<str>>(
     Ok(ret)
 }
 
-pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
+pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     let pkgs = config
         .targets
         .iter()
@@ -172,7 +172,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         let bold = config.color.bold;
         println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
         let warnings =
-            cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore)?;
+            cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore).await?;
         if !warnings.missing.is_empty() {
             ret |= ret
         }
@@ -185,7 +185,7 @@ pub fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 
             config.fetch.clone_dir = std::env::current_dir()?;
 
-            aur_pkgbuilds(config, &bases)?;
+            aur_pkgbuilds(config, &bases).await?;
         }
     }
     Ok(ret)
@@ -257,7 +257,7 @@ pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     );
 }
 
-pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
+pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     let download = bases
         .bases
         .iter()
@@ -281,15 +281,18 @@ pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     }
 
     let fetched = if cols < 80 {
-        config.fetch.download_cb(&download, |cb| {
-            let base = bases
-                .bases
-                .iter()
-                .find(|b| b.package_base() == cb.pkg)
-                .unwrap();
+        config
+            .fetch
+            .download_cb(&download, |cb| {
+                let base = bases
+                    .bases
+                    .iter()
+                    .find(|b| b.package_base() == cb.pkg)
+                    .unwrap();
 
-            print_download(config, cb.n, download.len(), &base.to_string());
-        })?
+                print_download(config, cb.n, download.len(), &base.to_string());
+            })
+            .await?
     } else {
         let total = download.len().to_string();
         let truncate = cols - (80 - (total.len() * 2)).min(cols);
@@ -308,18 +311,21 @@ pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
         prefix.truncate(truncate);
         pb.set_prefix(&prefix);
 
-        let fetched = config.fetch.download_cb(&download, |cb| {
-            let base = bases
-                .bases
-                .iter()
-                .find(|b| b.package_base() == cb.pkg)
-                .unwrap();
+        let fetched = config
+            .fetch
+            .download_cb(&download, |cb| {
+                let base = bases
+                    .bases
+                    .iter()
+                    .find(|b| b.package_base() == cb.pkg)
+                    .unwrap();
 
-            pb.inc(1);
-            let mut prefix = format!("{}{:<100}", base, "");
-            prefix.truncate(truncate);
-            pb.set_prefix(&prefix);
-        })?;
+                pb.inc(1);
+                let mut prefix = format!("{}{:<100}", base, "");
+                prefix.truncate(truncate);
+                pb.set_prefix(&prefix);
+            })
+            .await?;
 
         pb.finish();
         fetched
@@ -330,14 +336,14 @@ pub fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     Ok(())
 }
 
-pub fn new_aur_pkgbuilds(
+pub async fn new_aur_pkgbuilds(
     config: &Config,
     bases: &Bases,
     srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<()> {
     let mut pkgs = Vec::new();
     if config.redownload == "all" {
-        return aur_pkgbuilds(config, bases);
+        return aur_pkgbuilds(config, bases).await;
     }
 
     for base in &bases.bases {
@@ -352,13 +358,14 @@ pub fn new_aur_pkgbuilds(
     }
 
     let bases = Bases { bases: pkgs };
-    aur_pkgbuilds(config, &bases)
+    aur_pkgbuilds(config, &bases).await
 }
 
-pub fn show_comments(config: &mut Config) -> Result<i32> {
-    let client = reqwest::blocking::Client::new();
+pub async fn show_comments(config: &mut Config) -> Result<i32> {
+    let client = config.raur.client();
 
-    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[])?;
+    let warnings =
+        cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[]).await?;
     warnings.missing(config.color, config.cols);
     let ret = !warnings.missing.is_empty() as i32;
     let bases = Bases::from_iter(warnings.pkgs);
@@ -372,14 +379,14 @@ pub fn show_comments(config: &mut Config) -> Result<i32> {
 
         let response = client
             .get(url.clone())
-            .send()
+            .send().await
             .with_context(|| format!("{}: {}", base, url))?;
         if !response.status().is_success() {
             bail!("{}: {}: {}", base, url, response.status());
         }
 
         let parser = kuchiki::parse_html();
-        let document = parser.one(response.text()?);
+        let document = parser.one(response.text().await?);
 
         let titles = document
             .select("div.comments h4.comment-header")
@@ -421,7 +428,7 @@ pub fn show_comments(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
+pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
@@ -478,10 +485,10 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() {
-        let client = reqwest::blocking::Client::new();
+        let client = config.raur.client();
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
 
-        let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &[])?;
+        let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &[]).await?;
         warnings.missing(config.color, config.cols);
         let ret = !warnings.missing.is_empty() as i32;
         let bases = Bases::from_iter(warnings.pkgs);
@@ -493,16 +500,16 @@ pub fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
             let response = client
                 .get(url.clone())
-                .send()
+                .send().await
                 .with_context(|| format!("{}: {}", base, url))?;
             if !response.status().is_success() {
                 bail!("{}: {}: {}", base, url, response.status());
             }
 
             if bat {
-                pipe_bat(config, &response.bytes()?)?;
+                pipe_bat(config, &response.bytes().await?)?;
             } else {
-                let _ = stdout.write_all(&response.bytes()?);
+                let _ = stdout.write_all(&response.bytes().await?);
             }
 
             let _ = stdout.write_all(b"\n");

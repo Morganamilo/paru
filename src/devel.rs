@@ -1,23 +1,22 @@
 use crate::config::Config;
-use crate::print_error;
 use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::print_error;
 use crate::util::split_repo_aur_pkgs;
 
+use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet, BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::{create_dir_all, OpenOptions};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
-use std::cmp::Ordering;
 
 use anyhow::{Context, Result};
-use futures::future::{join_all, try_join_all};
-use raur_ext::{RaurExt, Cache};
+use futures::future::{join_all, select_ok, try_join_all, FutureExt};
+use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
-
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct _PkgInfo {
@@ -40,17 +39,21 @@ impl Hash for RepoInfo {
 
 impl PartialOrd for RepoInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.url.cmp(&other.url).then(self.branch.cmp(&other.branch)))
+        Some(
+            self.url
+                .cmp(&other.url)
+                .then(self.branch.cmp(&other.branch)),
+        )
     }
 }
-
 
 impl Ord for RepoInfo {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.url.cmp(&other.url).then(self.branch.cmp(&other.branch))
+        self.url
+            .cmp(&other.url)
+            .then(self.branch.cmp(&other.branch))
     }
 }
-
 
 impl std::cmp::PartialEq for RepoInfo {
     fn eq(&self, other: &Self) -> bool {
@@ -100,7 +103,7 @@ where
     ordered.serialize(serializer)
 }
 
-pub fn gendb(config: &mut Config) -> Result<()> {
+pub async fn gendb(config: &mut Config) -> Result<()> {
     let action = config.color.action;
     let bold = config.color.bold;
 
@@ -111,7 +114,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
     let aur = split_repo_aur_pkgs(config, &pkgs).1;
 
     println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
-    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore)?;
+    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
     warnings.all(config.color, config.cols);
 
     let bases = Bases::from_iter(warnings.pkgs);
@@ -136,7 +139,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
         }
     }
 
-    download::new_aur_pkgbuilds(config, &bases, &srcinfos)?;
+    download::new_aur_pkgbuilds(config, &bases, &srcinfos).await?;
 
     for base in &bases.bases {
         if failed.contains(base.package_base()) || srcinfos.contains_key(base.package_base()) {
@@ -167,7 +170,7 @@ pub fn gendb(config: &mut Config) -> Result<()> {
         bold.paint("Looking for devel repos...")
     );
 
-    let devel_info = fetch_devel_info(config, &bases, srcinfos)?;
+    let devel_info = fetch_devel_info(config, &bases, srcinfos).await?;
     save_devel_info(config, &devel_info).context("failed to save devel info")?;
     Ok(())
 }
@@ -187,10 +190,10 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     Ok(())
 }
 
-async fn ls_remote(config: &Config, remote: String, branch: Option<&str>) -> Result<String> {
-    let mut command = AsyncCommand::new(&config.git_bin);
+async fn ls_remote(git: &str, flags: &[String], remote: String, branch: Option<&str>) -> Result<String> {
+    let mut command = AsyncCommand::new(git);
     command
-        .args(&config.git_flags)
+        .args(flags)
         .env("GIT_TERMINAL_PROMPT", "0")
         .arg("ls-remote")
         .arg(&remote)
@@ -204,8 +207,6 @@ async fn ls_remote(config: &Config, remote: String, branch: Option<&str>) -> Res
         .unwrap()
         .to_string();
 
-    let _action = config.color.action;
-    //println!(" found git repo: {}",  remote);
     Ok(sha)
 }
 
@@ -240,23 +241,18 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
     Some((remote, protocol, branch))
 }
 
-pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> {
-    let mut rt = tokio::runtime::Runtime::new()?;
+pub async fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> {
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
 
-    let mut updates = rt.block_on(async {
-        let mut futures = Vec::new();
+    let mut futures = Vec::new();
 
-        for (pkg, repos) in &devel_info.info {
-            for repo in &repos.repos {
-                futures.push(has_update(config, pkg, repo));
-            }
-        }
+    for (pkg, repos) in &devel_info.info {
+        futures.push(pkg_has_update(config, pkg, &repos.repos));
+    }
 
-        let updates = join_all(futures).await;
-        updates.into_iter().flatten().collect::<Vec<_>>()
-    });
+    let updates = join_all(futures).await;
+    let mut updates = updates.into_iter().flatten().collect::<Vec<_>>();
 
     updates.sort_unstable();
     updates.dedup();
@@ -268,10 +264,10 @@ pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> 
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    let info = config.raur.cache_info(cache, &updates)?;
+    let info = config.raur.cache_info(cache, &updates).await?;
     let updates = updates
         .into_iter()
-        .map(|u| pkgbases.remove(u.as_str()).unwrap())
+        .map(|u| pkgbases.remove(u).unwrap())
         .collect::<Vec<_>>();
 
     for update in &updates {
@@ -297,63 +293,81 @@ pub fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> 
     Ok(updates)
 }
 
-async fn has_update(config: &Config, pkg: &str, url: &RepoInfo) -> Option<String> {
-    if let Ok(sha) = ls_remote(config, url.url.clone(), url.branch.as_deref()).await {
-        if sha != *url.commit {
-            return Some(pkg.to_string());
-        }
+pub async fn pkg_has_update<'a>(
+    config: &Config,
+    pkg: &'a str,
+    info: &HashSet<RepoInfo>,
+) -> Option<&'a str> {
+    if info.is_empty() {
+        return None;
     }
 
-    None
+    let mut futures = Vec::with_capacity(info.len());
+
+    for info in info {
+        futures.push(has_update(&config.git_bin, &config.git_flags, info).boxed());
+    }
+
+    if select_ok(futures).await.ok().map(|v| v.0)? {
+        Some(pkg)
+    } else {
+        None
+    }
 }
 
-pub fn fetch_devel_info(
+async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<bool> {
+    let sha = ls_remote(git, flags, url.url.clone(), url.branch.as_deref()).await?;
+    if sha != *url.commit {
+        return Ok(true);
+    }
+
+    Ok(false)
+}
+
+pub async fn fetch_devel_info(
     config: &Config,
     bases: &Bases,
     srcinfos: HashMap<String, Srcinfo>,
 ) -> Result<DevelInfo> {
     let mut devel_info = DevelInfo::default();
 
-    let mut rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(async {
-        let mut parsed = Vec::new();
-        let mut futures = Vec::new();
+    let mut parsed = Vec::new();
+    let mut futures = Vec::new();
 
-        for base in &bases.bases {
-            let srcinfo = srcinfos.get(base.package_base());
+    for base in &bases.bases {
+        let srcinfo = srcinfos.get(base.package_base());
 
-            let srcinfo = match srcinfo {
-                Some(v) => v,
-                None => continue,
-            };
+        let srcinfo = match srcinfo {
+            Some(v) => v,
+            None => continue,
+        };
 
-            for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
-                if let Some((remote, _, branch)) = parse_url(&url) {
-                    let future = ls_remote(config, remote.clone(), branch);
-                    futures.push(future);
-                    parsed.push((remote, base.package_base().to_string(), branch));
-                }
+        for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
+            if let Some((remote, _, branch)) = parse_url(&url) {
+                let future = ls_remote(&config.git_bin, &config.git_flags, remote.clone(), branch);
+                futures.push(future);
+                parsed.push((remote, base.package_base().to_string(), branch));
             }
         }
+    }
 
-        let commits = try_join_all(futures).await?;
-        for ((remote, pkgbase, branch), commit) in parsed.into_iter().zip(commits) {
-            let url_info = RepoInfo {
-                url: remote,
-                branch: branch.map(|s| s.to_string()),
-                commit,
-            };
+    let commits = try_join_all(futures).await?;
+    for ((remote, pkgbase, branch), commit) in parsed.into_iter().zip(commits) {
+        let url_info = RepoInfo {
+            url: remote,
+            branch: branch.map(|s| s.to_string()),
+            commit,
+        };
 
-            devel_info
-                .info
-                .entry(pkgbase)
-                .or_default()
-                .repos
-                .insert(url_info);
-        }
+        devel_info
+            .info
+            .entry(pkgbase)
+            .or_default()
+            .repos
+            .insert(url_info);
+    }
 
-        Ok(devel_info)
-    })
+    Ok(devel_info)
 }
 
 pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
@@ -366,8 +380,7 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
 
         if !devel_info._info.is_empty() {
             for (pkg, info) in devel_info._info.drain() {
-               devel_info.info.insert(pkg, PkgInfo { repos: info.repos });
-
+                devel_info.info.insert(pkg, PkgInfo { repos: info.repos });
             }
         }
 

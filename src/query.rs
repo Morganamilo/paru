@@ -6,9 +6,9 @@ use crate::exec;
 use crate::util::{split_repo_aur_mode, split_repo_aur_pkgs};
 
 use anyhow::Result;
-use raur_ext::RaurExt;
+use raur::Raur;
 
-pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
+pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut cache = HashSet::new();
     let db = config.alpm.localdb();
     let args = &config.args;
@@ -49,7 +49,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         let mut devel = Vec::new();
         if config.devel {
-            devel.extend(devel_updates(config, &mut cache)?);
+            devel.extend(devel_updates(config, &mut cache).await?);
         }
 
         for &pkg in &aur {
@@ -65,7 +65,7 @@ pub fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let aur = String::from_utf8(output.stdout)?;
         let aur = aur.trim().lines().collect::<Vec<_>>();
 
-        config.raur.cache_info(&mut cache, &aur)?;
+        config.raur.cache_info(&mut cache, &aur).await?;
 
         for target in aur {
             if let Some(pkg) = cache.get(target) {

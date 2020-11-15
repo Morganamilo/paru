@@ -2,10 +2,9 @@ use crate::config::Config;
 use crate::exec;
 
 use anyhow::{ensure, Context, Result};
-use reqwest::blocking::get;
 use std::io::Write;
 
-pub fn list(config: &Config) -> Result<i32> {
+pub async fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
     let dbs = config.alpm.syncdbs();
 
@@ -22,20 +21,25 @@ pub fn list(config: &Config) -> Result<i32> {
     }
 
     if has_aur {
-        list_aur(config)?;
+        list_aur(config).await?;
     }
 
     Ok(0)
 }
 
-pub fn list_aur(config: &Config) -> Result<()> {
+pub async fn list_aur(config: &Config) -> Result<()> {
     let url = config.aur_url.join("packages.gz")?;
-    let resp = get(url.clone()).with_context(|| format!("get {}", url))?;
+    let client = config.raur.client();
+    let resp = client
+        .get(url.clone())
+        .send()
+        .await
+        .with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
     let db = config.alpm.localdb();
     ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.bytes()?;
+    let data = resp.bytes().await?;
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
