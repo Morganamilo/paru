@@ -433,10 +433,6 @@ paru \-S \fIfoo\fR \-\-mflags "\-\-skipchecksums \-\-skippgpcheck"
 Installs \fIfoo\fR while skipping checksums and PGP checks.
 
 .TP
-paru \-P \-\-stats
-Shows statistics for installed packages and system health.
-
-.TP
 pacman -Qmq | grep -Ee '-(cvs|svn|git|hg|bzr|darcs)$' | paru -S --needed -
 pacaur-like devel check.
 
