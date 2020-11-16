@@ -190,7 +190,12 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     Ok(())
 }
 
-async fn ls_remote(git: &str, flags: &[String], remote: String, branch: Option<&str>) -> Result<String> {
+async fn ls_remote(
+    git: &str,
+    flags: &[String],
+    remote: String,
+    branch: Option<&str>,
+) -> Result<String> {
     let mut command = AsyncCommand::new(git);
     command
         .args(flags)
@@ -241,9 +246,8 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
     Some((remote, protocol, branch))
 }
 
-pub async fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<String>> {
-    let mut devel_info = load_devel_info(config)?.unwrap_or_default();
-    let db = config.alpm.localdb();
+pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
+    let devel_info = load_devel_info(config)?.unwrap_or_default();
 
     let mut futures = Vec::new();
 
@@ -252,34 +256,35 @@ pub async fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<Str
     }
 
     let updates = join_all(futures).await;
-    let mut updates = updates.into_iter().flatten().collect::<Vec<_>>();
+    let mut updates = updates
+        .into_iter()
+        .flatten()
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
 
     updates.sort_unstable();
     updates.dedup();
+    Ok(updates)
+}
 
+pub async fn filter_devel_updates(
+    config: &Config,
+    cache: &mut Cache,
+    updates: &[String],
+) -> Result<Vec<String>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let db = config.alpm.localdb();
 
     for pkg in db.pkgs().iter() {
         let name = pkg.base().unwrap_or(pkg.name());
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    let info = config.raur.cache_info(cache, &updates).await?;
+    config.raur.cache_info(cache, &updates).await?;
     let updates = updates
         .into_iter()
-        .map(|u| pkgbases.remove(u).unwrap())
+        .map(|u| pkgbases.remove(u.as_str()).unwrap())
         .collect::<Vec<_>>();
-
-    for update in &updates {
-        if !update
-            .iter()
-            .any(|pkg| info.iter().any(|i| i.name == pkg.name()))
-        {
-            devel_info
-                .info
-                .remove(update[0].base().unwrap_or(update[0].name()));
-        }
-    }
 
     let updates = updates
         .iter()
@@ -287,8 +292,6 @@ pub async fn devel_updates(config: &Config, cache: &mut Cache) -> Result<Vec<Str
         .map(|p| p.name().to_string())
         .filter(|p| cache.contains(p.as_str()))
         .collect();
-
-    //save_devel_info(config, &devel_info)?;
 
     Ok(updates)
 }

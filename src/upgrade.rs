@@ -1,11 +1,12 @@
 use crate::config::Config;
-use crate::devel::devel_updates;
+use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::util::{input, NumberMenu};
 
 use alpm_utils::DbListExt;
 use anyhow::Result;
-use raur::Cache;
+use aur_depends::{AurUpdates, Resolver};
+use futures::try_join;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
@@ -101,24 +102,73 @@ fn print_upgrade(
     );
 }
 
-pub async fn get_upgrades<'a>(
+async fn get_aur_only_upgrades<'a, 'b>(
     config: &Config,
-    cache: &mut Cache,
-    mut aur_upgrades: Vec<aur_depends::AurUpdate<'a>>,
-) -> Result<Upgrades> {
-    let c = config.color;
-
-    let mut devel_upgrades = if config.devel && config.mode != "repo" {
-        println!(
-            "{} {}",
-            c.action.paint("::"),
-            c.bold.paint("Looking for devel upgrades")
-        );
-
-        devel_updates(config, cache).await?
+    resolver: &mut Resolver<'a, 'b>,
+    print: bool,
+) -> Result<AurUpdates<'a>> {
+    if config.mode != "repo" {
+        if print {
+            let c = config.color;
+            println!(
+                "{} {}",
+                c.action.paint("::"),
+                c.bold.paint("Looking for AUR upgrades")
+            );
+        }
+        Ok(resolver.aur_updates().await?)
     } else {
-        Vec::new()
-    };
+        Ok(AurUpdates::default())
+    }
+}
+
+async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
+    if config.devel && config.mode != "repo" {
+        let c = config.color;
+        if print {
+            println!(
+                "{} {}",
+                c.action.paint("::"),
+                c.bold.paint("Looking for devel upgrades")
+            );
+        }
+
+        possible_devel_updates(config).await
+    } else {
+        Ok(Vec::new())
+    }
+}
+
+pub async fn aur_upgrades<'a>(
+    config: &Config,
+    resolver: &mut Resolver<'a, '_>,
+    print: bool,
+) -> Result<(AurUpdates<'a>, Vec<String>)> {
+    try_join!(
+        get_aur_only_upgrades(config, resolver, print),
+        get_devel_upgrades(config, print)
+    )
+}
+
+pub async fn get_upgrades<'a, 'b>(
+    config: &Config,
+    resolver: &mut Resolver<'a, 'b>,
+) -> Result<Upgrades> {
+    let (aur_upgrades, devel_upgrades) = aur_upgrades(config, resolver, true).await?;
+
+    for pkg in aur_upgrades.ignored {
+        eprintln!(
+            "{} {}: ignoring package upgrade ({} => {})",
+            config.color.warning.paint("warning:"),
+            pkg.local.name(),
+            pkg.local.version(),
+            pkg.remote.version
+        );
+    }
+
+    let mut aur_upgrades = aur_upgrades.updates;
+    let mut devel_upgrades =
+        filter_devel_updates(config, resolver.cache(), &devel_upgrades).await?;
 
     let repo_upgrades = if config.mode != "aur" && config.combined_upgrade {
         repo_upgrades(config)?

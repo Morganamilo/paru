@@ -1,12 +1,13 @@
 use std::collections::HashSet;
 
 use crate::config::Config;
-use crate::devel::devel_updates;
+use crate::devel::{possible_devel_updates};
 use crate::exec;
 use crate::util::{split_repo_aur_mode, split_repo_aur_pkgs};
 
 use anyhow::Result;
-use raur::Raur;
+use futures::try_join;
+use raur::{Raur, Cache};
 
 pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut cache = HashSet::new();
@@ -47,11 +48,6 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let error = config.color.error;
         let upgrade = config.color.upgrade;
 
-        let mut devel = Vec::new();
-        if config.devel {
-            devel.extend(devel_updates(config, &mut cache).await?);
-        }
-
         for &pkg in &aur {
             if db.pkg(pkg).is_err() {
                 eprintln!("{} package '{}' was not found", error.paint("error:"), pkg);
@@ -63,9 +59,24 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         args.targets = aur.into_iter().collect();
         let output = exec::pacman_output(config, &args)?;
         let aur = String::from_utf8(output.stdout)?;
+
         let aur = aur.trim().lines().collect::<Vec<_>>();
 
-        config.raur.cache_info(&mut cache, &aur).await?;
+        async fn devel_up(config: &Config) -> Result<Vec<String>>{
+            if config.devel {
+                let updates = possible_devel_updates(config).await?;
+                Ok(updates)
+            } else {
+                Ok(Vec::new())
+            }
+        }
+
+        async fn aur_up(config: &Config, cache: &mut Cache, pkgs: &[&str]) -> Result<()> {
+            config.raur.cache_info(cache, pkgs).await?;
+            Ok(())
+        }
+
+        let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
 
         for target in aur {
             if let Some(pkg) = cache.get(target) {

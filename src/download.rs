@@ -379,7 +379,8 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 
         let response = client
             .get(url.clone())
-            .send().await
+            .send()
+            .await
             .with_context(|| format!("{}: {}", base, url))?;
         if !response.status().is_success() {
             bail!("{}: {}: {}", base, url, response.status());
@@ -500,7 +501,8 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
             let response = client
                 .get(url.clone())
-                .send().await
+                .send()
+                .await
                 .with_context(|| format!("{}: {}", base, url))?;
             if !response.status().is_success() {
                 bail!("{}: {}: {}", base, url, response.status());

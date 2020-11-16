@@ -22,7 +22,7 @@ use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
-use aur_depends::{Actions, AurUpdates, Conflict, Flags, RepoPackage, Resolver};
+use aur_depends::{Actions, Conflict, Flags, RepoPackage, Resolver};
 use raur::Cache;
 use srcinfo::Srcinfo;
 
@@ -99,28 +99,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
-        let aur_upgrades = if config.mode != "repo" {
-            println!(
-                "{} {}",
-                c.action.paint("::"),
-                c.bold.paint("Looking for AUR upgrades")
-            );
-            resolver.aur_updates().await?
-        } else {
-            AurUpdates::default()
-        };
-
-        for pkg in aur_upgrades.ignored {
-            eprintln!(
-                "{} {}: ignoring package upgrade ({} => {})",
-                c.warning.paint("warning:"),
-                pkg.local.name(),
-                pkg.local.version(),
-                pkg.remote.version
-            );
-        }
-
-        let upgrades = get_upgrades(config, resolver.cache(), aur_upgrades.updates).await?;
+        let upgrades = get_upgrades(config, &mut resolver).await?;
         for pkg in &upgrades.repo_skip {
             let arg = Arg {
                 key: "ignore".to_string(),
