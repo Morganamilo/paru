@@ -121,6 +121,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     // No aur stuff, let's just use pacman
     if aur_targets.is_empty() && upgrades.aur_keep.is_empty() && config.combined_upgrade {
+        print_warnings(config, &cache, None);
         let mut args = config.pacman_args();
         let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
         args.targets = targets.iter().map(|s| s.as_str()).collect();
@@ -154,6 +155,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     if actions.build.is_empty() && actions.install.is_empty() {
         if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
+            print_warnings(config, &cache, None);
             println!(" there is nothing to do");
         }
         return Ok(0);
@@ -1074,6 +1076,10 @@ fn is_debug(pkg: alpm::Package) -> bool {
 
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     let mut warnings = crate::download::Warnings::default();
+
+    if config.mode == "repo" {
+        return;
+    }
 
     if config.args.has_arg("u", "sysupgrade") {
         let pkgs = config.alpm.localdb().pkgs();

@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
 use crate::config::Config;
-use crate::devel::{possible_devel_updates};
+use crate::devel::possible_devel_updates;
 use crate::exec;
 use crate::util::{split_repo_aur_mode, split_repo_aur_pkgs};
 
 use anyhow::Result;
 use futures::try_join;
-use raur::{Raur, Cache};
+use raur::{Cache, Raur};
 
 pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut cache = HashSet::new();
@@ -62,7 +62,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         let aur = aur.trim().lines().collect::<Vec<_>>();
 
-        async fn devel_up(config: &Config) -> Result<Vec<String>>{
+        async fn devel_up(config: &Config) -> Result<Vec<String>> {
             if config.devel {
                 let updates = possible_devel_updates(config).await?;
                 Ok(updates)
