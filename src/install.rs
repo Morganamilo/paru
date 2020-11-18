@@ -1101,7 +1101,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
-            .filter(|pkg| !pkg.ends_with("-debug"))
             .collect::<Vec<_>>();
 
         warnings.orphans = pkgs
@@ -1112,7 +1111,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
-            .filter(|pkg| !pkg.ends_with("-debug"))
             .collect::<Vec<_>>();
     }
 
@@ -1121,9 +1119,9 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             actions
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
+                .filter(|pkg| !is_debug(*pkg))
                 .filter(|pkg| pkg.out_of_date.is_some())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
-                .filter(|pkg| !pkg.name.ends_with("-debug"))
                 .map(|pkg| pkg.name.as_str()),
         );
 
@@ -1131,9 +1129,9 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             actions
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
+                .filter(|pkg| !is_debug(*pkg))
                 .filter(|pkg| pkg.maintainer.is_none())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
-                .filter(|pkg| !pkg.name.ends_with("-debug"))
                 .map(|pkg| pkg.name.as_str()),
         );
     }
