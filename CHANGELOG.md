@@ -1,5 +1,19 @@
 # Changelog
 
+## Paru v1.1.2 (2020-11-18)
+
+### Fixed
+
+- Fix some packages not resolving and tweak package not found message e860dad
+- Remove --stats from docs f8ce25b
+- removing code that would false-flag debug pkgs #105 4ec0bb9
+
+### Changed
+
+- Improve error message for unknown option b3d0e95
+- Do aur + devel upgrade concurrently 836bba8
+- Fix warnings not showing with upgrade menu fedddb6
+
 ## Paru v1.1.1 (2020-11-12)
 
 ### Fixed
