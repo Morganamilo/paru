@@ -1119,7 +1119,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             actions
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
-                .filter(|pkg| !is_debug(*pkg))
                 .filter(|pkg| pkg.out_of_date.is_some())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
                 .map(|pkg| pkg.name.as_str()),
@@ -1129,7 +1128,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             actions
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
-                .filter(|pkg| !is_debug(*pkg))
                 .filter(|pkg| pkg.maintainer.is_none())
                 .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
                 .map(|pkg| pkg.name.as_str()),
