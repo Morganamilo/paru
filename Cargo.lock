@@ -1133,6 +1133,7 @@ dependencies = [
  "serde_json",
  "smart-default",
  "srcinfo",
+ "tempfile",
  "term_size",
  "tokio",
  "url",

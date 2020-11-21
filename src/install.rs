@@ -258,7 +258,11 @@ async fn install_actions<'a>(
         .collect::<Vec<_>>();
 
     if let Some(ref fm) = config.fm {
-        file_manager(config, fm, &pkgs)?;
+        let _view = file_manager(config, fm, &pkgs)?;
+
+        if !ask(config, "Proceed with installation?", true) {
+            return Ok(1);
+        }
     } else {
         let mut printed = false;
         let unseen = config.fetch.unseen(&pkgs)?;
@@ -296,10 +300,10 @@ async fn install_actions<'a>(
         if !printed {
             println!(" nothing new to review");
         }
-    }
 
-    if !ask(config, "Proceed with installation?", true) {
-        return Ok(1);
+        if !ask(config, "Proceed with installation?", true) {
+            return Ok(1);
+        }
     }
 
     config.fetch.mark_seen(&pkgs)?;
@@ -360,7 +364,7 @@ async fn install_actions<'a>(
     Ok(0)
 }
 
-fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<()> {
+fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<tempfile::TempDir> {
     let has_diff = config.fetch.has_diff(pkgs)?;
     config.fetch.save_diffs(&has_diff)?;
     let view = config.fetch.make_view(pkgs, &has_diff)?;
@@ -372,7 +376,7 @@ fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<()> {
         .spawn()?
         .wait()?;
     ensure!(ret.success(), "file manager did not execute successfully");
-    Ok(())
+    Ok(view)
 }
 
 fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
