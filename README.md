@@ -15,7 +15,7 @@ Paru is an AUR helper written in Rust and based on the design of [`yay`](https:/
 ## Installation
 
 ```
-sudo pacman -S --needed base-devel
+sudo pacman -S --needed base-devel git
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
