@@ -1,26 +1,35 @@
 use crate::config::Config;
-use crate::exec;
+use crate::{exec, repo};
 
 use anyhow::{ensure, Context, Result};
 use std::io::Write;
 
 pub async fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
+
+    if config.local {
+        args.targets = repo::configured_local_repos(&config);
+    }
+
+    let mut show_aur = args.targets.is_empty() && config.mode != "repo";
     let dbs = config.alpm.syncdbs();
 
     if args.targets.is_empty() {
-        args.targets = dbs.iter().map(|db| db.name()).collect();
-        args.target("aur")
+        if config.mode != "aur" {
+            args.targets = dbs.iter().map(|db| db.name()).collect();
+        }
     };
 
-    let has_aur = args.targets.contains(&"aur");
-    args.targets.retain(|&t| t != "aur");
+    if config.aur_namespace() {
+        show_aur |= args.targets.contains(&"aur");
+        args.targets.retain(|&t| t != "aur");
+    }
 
     if !args.targets.is_empty() {
         exec::pacman(config, &args)?;
     }
 
-    if has_aur {
+    if show_aur {
         list_aur(config).await?;
     }
 

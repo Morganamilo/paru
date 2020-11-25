@@ -1,6 +1,8 @@
 use crate::args::Args;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
+use crate::repo;
+
 use crate::util::get_provider;
 
 use std::env::var;
@@ -8,6 +10,8 @@ use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::PathBuf;
 
+#[cfg(feature = "git")]
+use alpm::DownloadEvent;
 use alpm::{set_questioncb, Question, SigLevel, Usage};
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
@@ -34,9 +38,32 @@ impl std::ops::Deref for Alpm {
     }
 }
 
+impl std::ops::DerefMut for Alpm {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.alpm.as_mut().unwrap()
+    }
+}
+
 impl Alpm {
     fn new(alpm: alpm::Alpm) -> Self {
         Self { alpm: Some(alpm) }
+    }
+}
+
+#[derive(Debug, SmartDefault, Clone, PartialEq, Eq)]
+pub enum LocalRepos {
+    #[default]
+    None,
+    Default,
+    Repo(Vec<String>),
+}
+
+impl LocalRepos {
+    pub fn new(repo: Option<&str>) -> Self {
+        match repo {
+            Some(s) => LocalRepos::Repo(s.split_whitespace().map(|s| s.to_string()).collect()),
+            None => LocalRepos::Default,
+        }
     }
 }
 
@@ -211,6 +238,9 @@ pub struct Config {
     pub makepkg_conf: Option<String>,
     pub pacman_conf: Option<String>,
 
+    pub repos: LocalRepos,
+    pub local: bool,
+
     //pacman
     pub db_path: Option<String>,
     pub root: Option<String>,
@@ -368,6 +398,28 @@ impl Config {
 
         self.need_root = self.need_root();
 
+        if self.repos != LocalRepos::None {
+            let repos = repo::configured_local_repos(self);
+
+            if repos.is_empty() {
+                bail!(
+                    "no local repos configured, add one to your pacman.conf:
+    [options]
+    CacheDir = /var/lib/repo/aur
+
+    [aur]
+    SigLevel = PackageOptional DatabaseOptional
+    Server = file:///var/lib/repo/aur"
+                );
+            }
+
+            for repo in repos {
+                if !self.pacman.repos.iter().any(|r| r.name == repo) {
+                    bail!("can not find local repo '{}' in pacman.conf", repo);
+                }
+            }
+        }
+
         Ok(())
     }
 
@@ -396,8 +448,12 @@ impl Config {
 
         set_questioncb!(alpm, question);
 
+        #[cfg(feature = "git")]
+        alpm::set_dlcb!(alpm, download);
+
         for repo in &self.pacman.repos {
             let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
+            db.set_servers(repo.servers.iter())?;
 
             let mut usage = Usage::NONE;
 
@@ -417,6 +473,9 @@ impl Config {
 
             db.set_usage(usage)?;
         }
+
+        #[cfg(feature = "git")]
+        alpm.set_parallel_downloads(1);
 
         alpm.set_ignorepkgs(self.ignore.iter())?;
         alpm.set_ignoregroups(self.ignore_group.iter())?;
@@ -595,6 +654,7 @@ impl Config {
                 self.remove_make = validate(value, yes_no_ask)?;
             }
             "UpgradeMenu" => self.upgrade_menu = true,
+            "LocalRepo" => self.repos = LocalRepos::new(value),
             _ => ok1 = false,
         }
 
@@ -626,6 +686,10 @@ impl Config {
             ensure!(ok1 || has_value, "option '{}' does not take a value", key);
         }
         Ok(())
+    }
+
+    pub fn aur_namespace(&self) -> bool {
+        !self.pacman.repos.iter().any(|r| r.name == "aur")
     }
 }
 
@@ -698,6 +762,14 @@ fn question(question: &mut Question) {
         Question::InstallIgnorepkg(question) => {
             question.set_install(true);
         }
+        _ => (),
+    }
+}
+
+#[cfg(feature = "git")]
+fn download(filename: &str, event: DownloadEvent) {
+    match event {
+        DownloadEvent::Init(_) => println!("  syncing {}...", filename),
         _ => (),
     }
 }

@@ -1,7 +1,10 @@
-use crate::config::Config;
+use crate::config::{Config, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
+use crate::repo;
 use crate::util::{input, NumberMenu};
+
+use std::collections::HashMap;
 
 use alpm_utils::DbListExt;
 use anyhow::Result;
@@ -10,6 +13,7 @@ use futures::try_join;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
+    pub aur_repos: HashMap<String, String>,
     pub repo_keep: Vec<String>,
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
@@ -116,7 +120,17 @@ async fn get_aur_only_upgrades<'a, 'b>(
                 c.bold.paint("Looking for AUR upgrades")
             );
         }
-        Ok(resolver.aur_updates().await?)
+
+        let updates = match config.repos {
+            LocalRepos::None => resolver.aur_updates().await?,
+            _ => {
+                resolver
+                    .local_aur_updates(&repo::configured_local_repos(config))
+                    .await?
+            }
+        };
+
+        Ok(updates)
     } else {
         Ok(AurUpdates::default())
     }
@@ -185,6 +199,13 @@ pub async fn get_upgrades<'a, 'b>(
     let mut aur_skip = Vec::new();
     let mut aur_keep = Vec::new();
 
+    let mut aur_repos = HashMap::new();
+    for pkg in &aur_upgrades {
+        if let Some(db) = pkg.local.db() {
+            aur_repos.insert(pkg.local.name().to_string(), db.name().to_string());
+        }
+    }
+
     if devel_upgrades.is_empty() && aur_upgrades.is_empty() && repo_upgrades.is_empty() {
         return Ok(Upgrades::default());
     }
@@ -197,6 +218,7 @@ pub async fn get_upgrades<'a, 'b>(
         aur.extend(devel_upgrades);
 
         let upgrades = Upgrades {
+            aur_repos,
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
             aur_keep: aur,
             aur_skip,
@@ -306,6 +328,7 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     let upgrades = Upgrades {
+        aur_repos,
         repo_keep,
         repo_skip,
         aur_keep,

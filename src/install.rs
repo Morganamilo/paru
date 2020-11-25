@@ -1,12 +1,13 @@
 use crate::args::Arg;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::Config;
+use crate::config::{Config, LocalRepos};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
 use crate::keys::check_pgp_keys;
 use crate::print_error;
+use crate::repo;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
 use crate::{args, exec, news};
@@ -22,7 +23,7 @@ use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
-use aur_depends::{Actions, Conflict, Flags, RepoPackage, Resolver};
+use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
 use raur::Cache;
 use srcinfo::Srcinfo;
 
@@ -43,6 +44,11 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
+    if config.local && config.args.has_arg("y", "refresh") {
+        repo::refresh(config, targets_str)?;
+        return Ok(0);
+    }
+
     let mut cache = Cache::new();
     let c = config.color;
 
@@ -70,6 +76,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     let targets = args::parse_targets(&targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets);
+    let mut done_something = false;
 
     if targets_str.is_empty()
         && !config.args.has_arg("u", "sysupgrade")
@@ -89,6 +96,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         {
             let targets = repo_targets.iter().map(|t| t.to_string()).collect();
             repo_targets.clear();
+            done_something = true;
             early_pacman(config, targets)?;
         }
     }
@@ -137,7 +145,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     if targets.is_empty() {
         print_warnings(config, &cache, None);
-        println!(" there is nothing to do");
+        if !done_something {
+            println!(" there is nothing to do");
+        }
         return Ok(0);
     }
 
@@ -178,24 +188,55 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             false
         };
 
-    let err = install_actions(config, &mut actions, &conflicts.0, &conflicts.1).await;
+    if !ask(config, "Proceed to review?", true) {
+        return Ok(1);
+    }
+
+    let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
+    let srcinfos = download_pkgbuilds(config, &bases).await?;
+
+    let mut err = install_actions(config, &mut actions, &srcinfos, &bases).await;
+
+    let conflicts = conflicts
+        .0
+        .iter()
+        .map(|c| c.pkg.as_str())
+        .chain(conflicts.1.iter().map(|c| c.pkg.as_str()))
+        .collect::<HashSet<_>>();
+
+    let mut build = actions.build;
+    let install_targets = actions
+        .install
+        .iter()
+        .filter(|p| p.make)
+        .map(|p| p.pkg.name().to_string())
+        .collect::<Vec<_>>();
+
+    if err.is_ok() {
+        //download_pkgbuild_sources(config, &actions.build)?;
+        err = build_install_pkgbuilds(
+            config,
+            &mut build,
+            &srcinfos,
+            &upgrades.aur_repos,
+            &bases,
+            &conflicts,
+        )
+        .await;
+    }
 
     if remove_make {
         let mut args = config.pacman_globals();
         args.op("remove").arg("noconfirm");
-        args.targets = actions
-            .iter_build_pkgs()
+        args.targets = build
+            .iter()
+            .flat_map(|b| &b.pkgs)
             .filter(|p| p.make)
             .map(|p| p.pkg.name.as_str())
             .collect();
 
-        args.targets.extend(
-            actions
-                .install
-                .iter()
-                .filter(|p| p.make)
-                .map(|p| p.pkg.name()),
-        );
+        args.targets
+            .extend(install_targets.iter().map(|s| s.as_str()));
 
         if let Err(err) = exec::pacman(config, &args) {
             print_error(config.color.error, err);
@@ -203,7 +244,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     }
 
     if config.clean_after {
-        for base in &actions.build {
+        for base in &build {
             let path = config.build_dir.join(base.package_base());
             if let Err(err) = clean_untracked(config, &path) {
                 print_error(config.color.error, err);
@@ -214,17 +255,10 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     err
 }
 
-async fn install_actions<'a>(
+async fn download_pkgbuilds<'a>(
     config: &Config,
-    actions: &mut Actions<'a>,
-    conflicts: &[Conflict],
-    inner_conflicts: &[Conflict],
-) -> Result<i32> {
-    if !ask(config, "Proceed to review?", true) {
-        return Ok(1);
-    }
-
-    let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
+    bases: &Bases,
+) -> Result<HashMap<String, Srcinfo>> {
     let mut srcinfos = HashMap::new();
 
     for base in &bases.bases {
@@ -254,7 +288,15 @@ async fn install_actions<'a>(
             bail!("could not find .SRINFO for '{}'", base.package_base());
         }
     }
+    Ok(srcinfos)
+}
 
+async fn install_actions<'a>(
+    config: &Config,
+    actions: &mut Actions<'a>,
+    srcinfos: &HashMap<String, Srcinfo>,
+    bases: &Bases,
+) -> Result<i32> {
     let pkgs = actions
         .build
         .iter()
@@ -355,15 +397,6 @@ async fn install_actions<'a>(
     tokio::spawn(async move {
         let _ = update_aur_cache(&url, &dir, Some(interval)).await;
     });
-
-    let conflicts = conflicts
-        .iter()
-        .map(|c| c.pkg.as_str())
-        .chain(inner_conflicts.iter().map(|c| c.pkg.as_str()))
-        .collect::<HashSet<_>>();
-
-    //download_pkgbuild_sources(config, &actions.build)?;
-    build_install_pkgbuilds(config, &mut actions.build, srcinfos, &bases, &conflicts).await?;
 
     Ok(0)
 }
@@ -669,12 +702,13 @@ fn do_install(
 }
 
 async fn build_install_pkgbuilds(
-    config: &Config,
+    config: &mut Config,
     build: &mut [aur_depends::Base],
-    srcinfos: HashMap<String, Srcinfo>,
+    srcinfos: &HashMap<String, Srcinfo>,
+    aur_repos: &HashMap<String, String>,
     bases: &Bases,
     conflicts: &HashSet<&str>,
-) -> Result<()> {
+) -> Result<i32> {
     let mut deps = Vec::new();
     let mut exp = Vec::new();
     let mut install_queue = Vec::new();
@@ -690,6 +724,23 @@ async fn build_install_pkgbuilds(
     } else {
         (DevelInfo::default(), DevelInfo::default())
     };
+
+    let repo = repo::configured_local_repos(config);
+    let repo = repo.get(0).map(|repo| {
+        config
+            .pacman
+            .repos
+            .iter()
+            .find(|r| r.name == *repo)
+            .unwrap()
+    });
+
+    if let Some(repo) = repo {
+        let file = repo::file(repo).unwrap();
+        repo::init(config, file, &repo.name)?;
+    }
+
+    let repo = repo.cloned();
 
     for base in build {
         let mut debug_paths = Vec::new();
@@ -767,40 +818,7 @@ async fn build_install_pkgbuilds(
             base.pkgs.extend(debug);
         }
 
-        if config.args.has_arg("needed", "needed") {
-            let mut all_installed = true;
-
-            for pkg in &base.pkgs {
-                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
-                    if pkg.version().as_str() == version {
-                        continue;
-                    }
-                }
-
-                all_installed = false;
-                break;
-            }
-
-            if all_installed {
-                println!(
-                    "{} {}-{} is up to date -- skipping",
-                    c.warning.paint("::"),
-                    base.package_base(),
-                    base.pkgs[0].pkg.version
-                );
-                continue;
-            }
-        }
-
-        let needs_build = base
-            .pkgs
-            .iter()
-            .any(|p| !Path::new(pkgdest.get(&p.pkg.name).unwrap()).exists());
-
-        if needs_build
-            || (config.rebuild == "yes" && base.pkgs.iter().any(|p| p.target))
-            || config.rebuild == "all"
-        {
+        if needs_build(config, base, &pkgdest, &version) {
             // actual build
             exec::makepkg(
                 config,
@@ -826,19 +844,29 @@ async fn build_install_pkgbuilds(
             }
         }
 
+        if let Some(ref repo) = repo {
+            let pkgs = pkgdest.values().collect::<Vec<_>>();
+            if let Some(repo) = aur_repos.get(base.package_base()) {
+                let repo = config
+                    .pacman
+                    .repos
+                    .iter()
+                    .find(|db| db.name == *repo)
+                    .unwrap();
+                let path = repo::file(repo).unwrap();
+                let name = repo.name.clone();
+                repo::add(config, path, &name, false, &pkgs)?;
+                repo::refresh(config, &[name])?;
+            } else {
+                let path = repo::file(&repo).unwrap();
+                repo::add(config, path, &repo.name, false, &pkgs)?;
+                repo::refresh(config, &[repo.name.clone()])?;
+            }
+        }
+
         for pkg in &base.pkgs {
-            if config.args.has_arg("needed", "needed") {
-                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
-                    if pkg.version().as_str() == version {
-                        println!(
-                            "{} {}-{} is up to date -- skipping install",
-                            c.warning.paint("::"),
-                            base.package_base(),
-                            base.pkgs[0].pkg.version
-                        );
-                        continue;
-                    }
-                }
+            if !needs_install(config, base, &version, pkg) {
+                continue;
             }
 
             if config.globals.has_arg("asexplicit", "asexplicit") {
@@ -883,7 +911,7 @@ async fn build_install_pkgbuilds(
         &mut devel_info,
     )?;
 
-    Ok(())
+    Ok(0)
 }
 
 fn asdeps(config: &Config, pkgs: &[&str]) -> Result<()> {
@@ -980,6 +1008,12 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
     }
     if config.op == "yay" {
         flags.remove(Flags::TARGET_PROVIDES);
+    }
+    if config.repos != LocalRepos::None {
+        flags |= Flags::LOCAL_REPO;
+    }
+    if !config.aur_namespace() {
+        flags.remove(Flags::AUR_NAMESPACE);
     }
 
     flags
@@ -1149,4 +1183,83 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     warnings.orphans.dedup();
 
     warnings.all(config.color, config.cols);
+}
+
+fn needs_build(
+    config: &Config,
+    base: &Base,
+    pkgdest: &HashMap<String, String>,
+    version: &str,
+) -> bool {
+    if (config.rebuild == "yes" && base.pkgs.iter().any(|p| p.target)) || config.rebuild == "all" {
+        return true;
+    }
+
+    if config.args.has_arg("needed", "needed") {
+        let mut all_installed = true;
+        let c = config.color;
+
+        if config.repos != LocalRepos::None {
+            let dbs = config.alpm.syncdbs();
+            let repos = repo::configured_local_repos(config);
+
+            for pkg in &base.pkgs {
+                for repo in &repos {
+                    let repo = dbs.iter().find(|db| db.name() == *repo).unwrap();
+                    if let Ok(pkg) = repo.pkg(pkg.pkg.name.as_str()) {
+                        if pkg.version() != version {
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            for pkg in &base.pkgs {
+                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
+                    if pkg.version() == version {
+                        continue;
+                    }
+                }
+
+                all_installed = false;
+                break;
+            }
+
+            if all_installed {
+                println!(
+                    "{} {}-{} is up to date -- skipping",
+                    c.warning.paint("::"),
+                    base.package_base(),
+                    base.pkgs[0].pkg.version
+                );
+                return false;
+            }
+        }
+    }
+
+    !base
+        .pkgs
+        .iter()
+        .all(|p| Path::new(pkgdest.get(&p.pkg.name).unwrap()).exists())
+}
+
+fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) -> bool {
+    if config.args.has_arg("needed", "needed") {
+        if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
+            if pkg.version().as_str() == version {
+                let c = config.color;
+                println!(
+                    "{} {}-{} is up to date -- skipping install",
+                    c.warning.paint("::"),
+                    base.package_base(),
+                    base.pkgs[0].pkg.version
+                );
+                return false;
+            }
+        }
+    }
+
+    true
 }

@@ -135,6 +135,30 @@ pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Resu
     Ok(Status(ret.code().unwrap_or(1)))
 }
 
+pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
+    cmd: C,
+    dir: P,
+    args: &[S],
+) -> Result<Status> {
+    let ret = Command::new(cmd.as_ref())
+        .current_dir(dir)
+        .args(args)
+        .spawn()
+        .with_context(|| {
+            format!(
+                "failed to run: {} {}",
+                cmd.as_ref().to_string_lossy(),
+                args.iter()
+                    .map(|a| a.as_ref().to_string_lossy())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            )
+        })?
+        .wait()?;
+
+    Ok(Status(ret.code().unwrap_or(1)))
+}
+
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
     let ret = Command::new(&config.makepkg_bin)
         .current_dir(dir)

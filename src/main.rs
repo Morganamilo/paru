@@ -14,6 +14,8 @@ mod install;
 mod keys;
 mod news;
 mod query;
+mod remove;
+mod repo;
 mod search;
 mod sync;
 mod upgrade;
@@ -23,7 +25,6 @@ mod util;
 extern crate smart_default;
 
 use crate::config::Config;
-use crate::devel::{load_devel_info, save_devel_info};
 use crate::query::print_upgrade_list;
 
 use std::error::Error as StdError;
@@ -175,21 +176,7 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
 }
 
 fn handle_remove(config: &mut Config) -> Result<i32> {
-    let mut devel_info = load_devel_info(config)?.unwrap_or_default();
-
-    let ret = exec::pacman(config, &config.args)?.code();
-
-    if ret == 0 {
-        for target in &config.targets {
-            devel_info.info.remove(target);
-        }
-
-        if let Err(err) = save_devel_info(config, &devel_info) {
-            print_error(config.color.error, err);
-        }
-    }
-
-    Ok(0)
+    remove::remove(config)
 }
 
 async fn handle_sync(config: &mut Config) -> Result<i32> {

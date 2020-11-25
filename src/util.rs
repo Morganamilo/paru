@@ -55,7 +55,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         } else if config.mode == "repo" {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
-            if repo == "aur" {
+            if config.aur_namespace() && repo == "aur" {
                 aur.push(targ);
             } else {
                 local.push(targ);
