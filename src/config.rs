@@ -525,7 +525,7 @@ impl Config {
             "SudoFlags" => self.sudo_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
-            _ => bail!("unknown option '{}' in section [bin]", key),
+            _ => eprintln!("error: unknown option '{}' in section [bin]", key),
         };
 
         Ok(())
@@ -620,8 +620,11 @@ impl Config {
             _ => ok2 = false,
         };
 
-        ensure!(ok1 || ok2, "unknown option '{}' in section [options]", key);
-        ensure!(ok1 || has_value, "option '{}' does not take a value", key);
+        if !(ok1 || ok2) {
+            eprintln!("error: unknown option '{}' in section [options]", key)
+        } else {
+            ensure!(ok1 || has_value, "option '{}' does not take a value", key);
+        }
         Ok(())
     }
 }
