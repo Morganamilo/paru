@@ -326,7 +326,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("ask") => TakesValue::Required,
         Arg::Long("arch") => TakesValue::Required,
         Arg::Long("cachedir") => TakesValue::Required,
-        Arg::Long("color") => TakesValue::Optional,
+        Arg::Long("color") => TakesValue::Required,
         Arg::Long("config") => TakesValue::Required,
         Arg::Long("gpgdir") => TakesValue::Required,
         Arg::Long("hookdir") => TakesValue::Required,
