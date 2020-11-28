@@ -183,6 +183,7 @@ pub struct Config {
     pub sort_mode: String,
     #[default = "any"]
     pub mode: String,
+    pub aur_filter: bool,
 
     #[default = 7]
     pub completion_interval: u64,

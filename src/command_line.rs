@@ -227,7 +227,10 @@ impl Config {
             Arg::Long("norebuild") => self.rebuild = "no".into(),
             Arg::Long("topdown") => self.sort_mode = "topdown".to_string(),
             Arg::Long("bottomup") => self.sort_mode = "bottomup".to_string(),
-            Arg::Long("aur") | Arg::Short('a') => self.mode = "aur".to_string(),
+            Arg::Long("aur") | Arg::Short('a') => {
+                self.mode = "aur".to_string();
+                self.aur_filter = true;
+            }
             Arg::Long("repo") => self.mode = "repo".to_string(),
             Arg::Long("gendb") => self.gendb = true,
             Arg::Long("nocheck") => self.no_check = true,

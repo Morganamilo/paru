@@ -1,8 +1,21 @@
 use crate::config::Config;
 use crate::{exec, repo};
 
-use anyhow::{ensure, Context, Result};
 use std::io::Write;
+
+use anyhow::{ensure, Context, Result};
+use raur::Raur;
+
+pub async fn filter(config: &Config) -> Result<i32> {
+    let mut cache = raur::Cache::new();
+    config.raur.cache_info(&mut cache, &config.targets).await?;
+
+    for targ in config.targets.iter().filter(|t| cache.contains(t.as_str())) {
+        println!("{}", targ);
+    }
+
+    Ok(0)
+}
 
 pub async fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();

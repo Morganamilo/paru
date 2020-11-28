@@ -109,10 +109,11 @@ async fn run(config: &mut Config) -> Result<i32> {
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
     let ret = match config.op.as_str() {
-        "database" | "files" | "deptest" | "upgrade" => exec::pacman(config, &config.args)?.code(),
+        "database" | "files" | "upgrade" => exec::pacman(config, &config.args)?.code(),
         "query" => handle_query(config).await?,
         "sync" => handle_sync(config).await?,
         "remove" => handle_remove(config)?,
+        "deptest" => handle_test(config).await?,
         "getpkgbuild" => handle_get_pkg_build(config).await?,
         "show" => handle_show(config).await?,
         "yay" => handle_yay(config).await?,
@@ -177,6 +178,14 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
 
 fn handle_remove(config: &mut Config) -> Result<i32> {
     remove::remove(config)
+}
+
+async fn handle_test(config: &Config) -> Result<i32> {
+    if config.aur_filter {
+        sync::filter(config).await
+    } else {
+        Ok(exec::pacman(config, &config.args)?.code())
+    }
 }
 
 async fn handle_sync(config: &mut Config) -> Result<i32> {
