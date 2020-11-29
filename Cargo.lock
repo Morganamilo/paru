@@ -1092,9 +1092,9 @@ dependencies = [
 
 [[package]]
 name = "pacmanconf"
-version = "0.1.3"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b892ebccc90867a9df918574770c63e785aff95054910efd0fd33e84fd4d462e"
+checksum = "b0731c42e70bc50276db3651c4121c066d48551534637a1fe965594202f29e54"
 dependencies = [
  "cini",
 ]

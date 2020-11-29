@@ -288,6 +288,13 @@ impl Config {
             //TODO
             Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("local") => self.local = true,
+            Arg::Long("chroot") => {
+                self.chroot = true;
+                if self.repos == LocalRepos::None {
+                    self.repos = LocalRepos::Default;
+                }
+            }
+            Arg::Long("nochroot") => self.chroot = false,
             Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
             Arg::Short(a) if !arg.is_pacman_arg() => bail!("unknown option -{}", a),
             _ => (),

@@ -1,4 +1,5 @@
 use crate::args::Arg;
+use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos};
@@ -14,6 +15,7 @@ use crate::{args, exec, news};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
+use std::env::consts::ARCH;
 use std::io::{stdin, stdout, BufRead, Write};
 use std::iter::FromIterator;
 use std::path::Path;
@@ -195,7 +197,13 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
-    let mut err = install_actions(config, &mut actions, &srcinfos, &bases).await;
+    let mut err = if !config.chroot {
+        install_actions(config, &mut actions, &srcinfos, &bases).await
+    } else {
+        Ok(0)
+    };
+
+    update_aur_list(config);
 
     let conflicts = conflicts
         .0
@@ -389,14 +397,6 @@ async fn install_actions<'a>(
     }
 
     repo_install(config, &actions.install)?;
-
-    let url = config.aur_url.clone();
-    let dir = config.cache_dir.clone();
-    let interval = config.completion_interval;
-
-    tokio::spawn(async move {
-        let _ = update_aur_cache(&url, &dir, Some(interval)).await;
-    });
 
     Ok(0)
 }
@@ -715,6 +715,33 @@ async fn build_install_pkgbuilds(
     let mut conflict = false;
     let c = config.color;
 
+    let chroot = Chroot {
+        path: config.chroot_dir.join(ARCH),
+        pacman_conf: config
+            .pacman_conf
+            .as_deref()
+            .unwrap_or("/etc/pacman.conf")
+            .to_string(),
+        makepkg_conf: config
+            .makepkg_conf
+            .as_deref()
+            .unwrap_or("/etc/makepkg.conf")
+            .to_string(),
+        ro: repo::all_files(config)
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
+        rw: config.pacman.cache_dir.clone(),
+    };
+
+    if config.chroot {
+        if !chroot.exists() {
+            chroot.create(config, &["base-devel"])?;
+        } else {
+            chroot.update()?;
+        }
+    }
+
     let (mut devel_info, mut new_devel_info) = if config.devel {
         println!("fetching devel info...");
         (
@@ -742,13 +769,13 @@ async fn build_install_pkgbuilds(
 
     let repo = repo.cloned();
 
-    for base in build {
+    for base in build.iter_mut() {
         let mut debug_paths = Vec::new();
         let dir = config.build_dir.join(base.package_base());
 
         let mut satisfied = false;
 
-        if config.batch_install {
+        if !config.chroot && config.batch_install {
             for pkg in &base.pkgs {
                 let mut deps = pkg
                     .pkg
@@ -770,7 +797,7 @@ async fn build_install_pkgbuilds(
             }
         }
 
-        if !satisfied {
+        if !config.chroot && !satisfied {
             do_install(
                 config,
                 &mut deps,
@@ -782,15 +809,19 @@ async fn build_install_pkgbuilds(
             conflict = false;
         }
 
-        // download sources
-        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
-            .success()
-            .with_context(|| format!("failed to download sources for '{}'", base))?;
+        if config.chroot {
+            chroot.build(&dir, &["-cu"], &["-ofA"])?;
+        } else {
+            // download sources
+            exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+                .success()
+                .with_context(|| format!("failed to download sources for '{}'", base))?;
 
-        // pkgver bump
-        exec::makepkg(config, &dir, &["-ofCA"])?
-            .success()
-            .with_context(|| format!("failed to build '{}'", base))?;
+            // pkgver bump
+            exec::makepkg(config, &dir, &["-ofCA"])?
+                .success()
+                .with_context(|| format!("failed to build '{}'", base))?;
+        }
 
         println!("{}: parsing pkg list...", base);
         let (mut pkgdest, version) = parse_package_list(config, &dir)?;
@@ -820,13 +851,21 @@ async fn build_install_pkgbuilds(
 
         if needs_build(config, base, &pkgdest, &version) {
             // actual build
-            exec::makepkg(
-                config,
-                &dir,
-                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
-            )?
-            .success()
-            .with_context(|| format!("failed to build '{}'", base))?;
+            if config.chroot {
+                chroot.build(
+                    &dir,
+                    &[],
+                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                )?;
+            } else {
+                exec::makepkg(
+                    config,
+                    &dir,
+                    &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
+                )?
+                .success()
+                .with_context(|| format!("failed to build '{}'", base))?;
+            }
         } else {
             println!(
                 "{} {}-{} is up to date -- skipping build",
@@ -902,14 +941,30 @@ async fn build_install_pkgbuilds(
         }
     }
 
-    do_install(
-        config,
-        &mut deps,
-        &mut exp,
-        &mut install_queue,
-        conflict,
-        &mut devel_info,
-    )?;
+    if config.chroot {
+        if !config.args.has_arg("b", "download-only") {
+            let targets = build
+                .iter()
+                .flat_map(|b| &b.pkgs)
+                .filter(|p| p.target)
+                .map(|p| p.pkg.name.as_str())
+                .collect();
+
+            let mut args = config.pacman_args();
+            args.op("sync");
+            args.targets = targets;
+            exec::pacman(config, &args)?.success()?;
+        }
+    } else {
+        do_install(
+            config,
+            &mut deps,
+            &mut exp,
+            &mut install_queue,
+            conflict,
+            &mut devel_info,
+        )?;
+    }
 
     Ok(0)
 }
@@ -1262,4 +1317,14 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) 
     }
 
     true
+}
+
+fn update_aur_list(config: &Config) {
+    let url = config.aur_url.clone();
+    let dir = config.cache_dir.clone();
+    let interval = config.completion_interval;
+
+    tokio::spawn(async move {
+        let _ = update_aur_cache(&url, &dir, Some(interval)).await;
+    });
 }

@@ -110,6 +110,23 @@ pub fn file(repo: &pacmanconf::Repository) -> Option<&str> {
         .map(|s| s.trim_start_matches("file://"))
 }
 
+pub fn all_files(config: &Config) -> Vec<&str> {
+    config
+        .pacman
+        .repos
+        .iter()
+        .filter(|r| is_configured_local_repo(config, r))
+        .flat_map(|r| files(r))
+        .collect()
+}
+
+pub fn files(repo: &pacmanconf::Repository) -> Vec<&str> {
+    repo.servers
+        .iter()
+        .map(|s| s.trim_start_matches("file://"))
+        .collect()
+}
+
 pub fn is_local(repo: &pacmanconf::Repository) -> bool {
     !repo.servers.is_empty() && repo.servers.iter().all(|s| s.starts_with("file://"))
 }

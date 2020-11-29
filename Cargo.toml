@@ -19,7 +19,7 @@ alpm-utils = "0.6.2"
 aur-depends = "0.11.1"
 aur-fetch = "0.8.1"
 cini = "0.1.1"
-pacmanconf = "0.1.3"
+pacmanconf = "0.2.0"
 raur = "4.0.1"
 srcinfo = "1.0.0"
 

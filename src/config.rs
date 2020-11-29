@@ -10,9 +10,9 @@ use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::PathBuf;
 
-#[cfg(feature = "git")]
-use alpm::DownloadEvent;
 use alpm::{set_questioncb, Question, SigLevel, Usage};
+#[cfg(feature = "git")]
+use alpm::{DownloadEvent, DownloadResult};
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
@@ -241,6 +241,9 @@ pub struct Config {
 
     pub repos: LocalRepos,
     pub local: bool,
+    #[default = "/var/lib/aurbuild/"]
+    pub chroot_dir: PathBuf,
+    pub chroot: bool,
 
     //pacman
     pub db_path: Option<String>,
@@ -656,6 +659,12 @@ impl Config {
             }
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
+            "Chroot" => {
+                if self.repos == LocalRepos::None {
+                    self.repos = LocalRepos::Default;
+                }
+                self.chroot = true;
+            }
             _ => ok1 = false,
         }
 
@@ -771,6 +780,9 @@ fn question(question: &mut Question) {
 fn download(filename: &str, event: DownloadEvent) {
     match event {
         DownloadEvent::Init(_) => println!("  syncing {}...", filename),
+        DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {
+            println!("  failed to sync {}", filename);
+        }
         _ => (),
     }
 }

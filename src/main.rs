@@ -1,6 +1,7 @@
 #![cfg_attr(feature = "backtrace", feature(backtrace))]
 
 mod args;
+mod chroot;
 mod clean;
 mod command_line;
 mod completion;
