@@ -1,5 +1,16 @@
 # Changelog
 
+## Paru v1.1.3 (2020-11-29)
+
+### Fixed
+
+- Fix --color behaving differently to pacman 5b56f86
+
+### Changed
+
+- Wait for editor to exit before deleting view #110
+- Warn instead of error on unknown values in paru.conf 0e4e618
+
 ## Paru v1.1.2 (2020-11-18)
 
 ### Fixed
