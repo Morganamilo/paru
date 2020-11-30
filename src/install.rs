@@ -810,7 +810,9 @@ async fn build_install_pkgbuilds(
         }
 
         if config.chroot {
-            chroot.build(&dir, &["-cu"], &["-ofA"])?;
+            chroot
+                .build(&dir, &["-cu"], &["-ofA"])
+                .with_context(|| format!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
             exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
@@ -852,11 +854,13 @@ async fn build_install_pkgbuilds(
         if needs_build(config, base, &pkgdest, &version) {
             // actual build
             if config.chroot {
-                chroot.build(
-                    &dir,
-                    &[],
-                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                )?;
+                chroot
+                    .build(
+                        &dir,
+                        &[],
+                        &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                    )
+                    .with_context(|| format!("failed to build '{}'", base))?;
             } else {
                 exec::makepkg(
                     config,
