@@ -22,7 +22,8 @@ fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     let conf = conf
         .lines()
         .filter(|l| !l.starts_with("DbPath"))
-        .collect::<String>();
+        .collect::<Vec<_>>()
+        .join("\n");
 
     tmp.as_file_mut().write_all(conf.as_bytes())?;
     tmp.flush()?;

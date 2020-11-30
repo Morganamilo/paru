@@ -295,6 +295,7 @@ impl Config {
                 }
             }
             Arg::Long("nochroot") => self.chroot = false,
+            Arg::Long("movepkgs") => self.move_pkgs = true,
             Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
             Arg::Short(a) if !arg.is_pacman_arg() => bail!("unknown option -{}", a),
             _ => (),

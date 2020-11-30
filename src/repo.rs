@@ -39,10 +39,6 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     )?
     .success()?;
 
-    let mut args = vec![OsStr::new("repo-add"), OsStr::new("-R"), file.as_os_str()];
-    args.extend(pkgs.iter().map(|p| p.as_ref()));
-    exec::command(sudo, ".", &args)?.success()?;
-
     if !pkgs.is_empty() {
         let cmd = if mv {
             OsStr::new("mv")
@@ -50,11 +46,20 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
             OsStr::new("cp")
         };
 
-        let mut args = vec![cmd];
+        let mut args = vec![cmd, OsStr::new("-f")];
         args.extend(pkgs.iter().map(OsStr::new));
         args.push(path.as_os_str());
         exec::command(sudo, ".", &args)?.success()?;
     }
+
+    let mut args = vec![OsStr::new("repo-add"), OsStr::new("-R"), file.as_os_str()];
+    let pkgs = pkgs
+        .iter()
+        .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
+        .collect::<Vec<_>>();
+
+    args.extend(pkgs.iter().map(|p| p.as_os_str()));
+    exec::command(sudo, ".", &args)?.success()?;
 
     Ok(())
 }

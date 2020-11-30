@@ -894,11 +894,11 @@ async fn build_install_pkgbuilds(
                     .unwrap();
                 let path = repo::file(repo).unwrap();
                 let name = repo.name.clone();
-                repo::add(config, path, &name, false, &pkgs)?;
+                repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
                 repo::refresh(config, &[name])?;
             } else {
                 let path = repo::file(&repo).unwrap();
-                repo::add(config, path, &repo.name, false, &pkgs)?;
+                repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
                 repo::refresh(config, &[repo.name.clone()])?;
             }
         }

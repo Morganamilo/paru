@@ -244,6 +244,7 @@ pub struct Config {
     #[default = "/var/lib/aurbuild/"]
     pub chroot_dir: PathBuf,
     pub chroot: bool,
+    pub move_pkgs: bool,
 
     //pacman
     pub db_path: Option<String>,
@@ -665,6 +666,7 @@ impl Config {
                 }
                 self.chroot = true;
             }
+            "MovePkgs" => self.move_pkgs = true,
             _ => ok1 = false,
         }
 
