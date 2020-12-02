@@ -558,6 +558,7 @@ impl Config {
         let mut ok2 = true;
 
         match key {
+            "TopDown" => self.sort_mode = "topdown".into(),
             "BottomUp" => self.sort_mode = "bottomup".into(),
             "AurOnly" => self.mode = "aur".into(),
             "RepoOnly" => self.mode = "repo".into(),
