@@ -373,7 +373,8 @@ fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<tempfile::Te
         .args(&config.fm_flags)
         .arg(view.path())
         .current_dir(view.path())
-        .spawn()?
+        .spawn()
+        .with_context(|| format!("Failed to spawn file manager command {}", fm))?
         .wait()?;
     ensure!(ret.success(), "file manager did not execute successfully");
     Ok(view)
