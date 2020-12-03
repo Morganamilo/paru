@@ -286,8 +286,8 @@ async fn install_actions<'a>(
                         .arg("-lPKGBUILD")
                         .arg(path)
                         .args(&config.bat_flags)
-                        .spawn()?
-                        .wait()?;
+                        .status()
+                        .with_context(|| format!("failed to run {}", config.bat_bin))?;
                 } else {
                     let pkgbuild = std::fs::read_to_string(&path)
                         .context(format!("failed to open {}", path.display()))?;
@@ -373,8 +373,8 @@ fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<tempfile::Te
         .args(&config.fm_flags)
         .arg(view.path())
         .current_dir(view.path())
-        .spawn()?
-        .wait()?;
+        .status()
+        .with_context(|| format!("failed to execute file manager: {}", fm))?;
     ensure!(ret.success(), "file manager did not execute successfully");
     Ok(view)
 }

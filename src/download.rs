@@ -475,8 +475,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 let ret = Command::new(asp)
                     .arg("show")
                     .arg(&pkg.pkg)
-                    .spawn()?
-                    .wait()
+                    .status()
                     .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
 
                 ensure!(ret.success(), "asp returned {}", ret.code().unwrap_or(1));

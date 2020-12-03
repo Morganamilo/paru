@@ -61,7 +61,7 @@ fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()
         .args(&config.gpg_flags)
         .arg("--recv-keys")
         .args(import.keys())
-        .spawn()
+        .status()
         .with_context(|| {
             format!(
                 "failed to run {} {} --recv-keys {}",
@@ -69,9 +69,6 @@ fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()
                 config.gpg_flags.join(" "),
                 import.keys().cloned().collect::<Vec<_>>().join(" ")
             )
-        })?
-        .wait()
-        .context("failed to import keys")?;
-
+        })?;
     Ok(())
 }

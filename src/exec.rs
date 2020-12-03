@@ -65,7 +65,7 @@ fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
     Command::new(sudo)
         .arg("-v")
         .args(flags)
-        .spawn()
+        .status()
         .with_context(|| {
             let flags = flags
                 .iter()
@@ -73,8 +73,7 @@ fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
                 .collect::<Vec<_>>()
                 .join(" ");
             format!("failed to run: {} -v {}", sudo, flags)
-        })?
-        .wait()?;
+        })?;
     Ok(())
 }
 
@@ -93,9 +92,8 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
 
     let ret = command
         .args(args.args())
-        .spawn()
-        .with_context(|| format!("failed to run: {} {}", args.bin, args.args().join(" ")))?
-        .wait()?;
+        .status()
+        .with_context(|| format!("failed to run: {} {}", args.bin, args.args().join(" ")))?;
     Ok(Status(ret.code().unwrap_or(1)))
 }
 
@@ -121,7 +119,7 @@ pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Resu
         .current_dir(dir)
         .args(&config.mflags)
         .args(args)
-        .spawn()
+        .status()
         .with_context(|| {
             format!(
                 "failed to run: {} {} {}",
@@ -132,8 +130,7 @@ pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Resu
                     .collect::<Vec<_>>()
                     .join(" ")
             )
-        })?
-        .wait()?;
+        })?;
 
     Ok(Status(ret.code().unwrap_or(1)))
 }
