@@ -1071,9 +1071,6 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
     if config.repos != LocalRepos::None {
         flags |= Flags::LOCAL_REPO;
     }
-    if !config.aur_namespace() {
-        flags.remove(Flags::AUR_NAMESPACE);
-    }
 
     flags
 }
@@ -1089,7 +1086,7 @@ fn resolver<'a, 'b>(
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    aur_depends::Resolver::new(alpm, cache, raur, flags)
+    let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
         .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .provider_callback(move |dep, pkgs| {
             let prompt = format!("There are {} providers available for {}:", pkgs.len(), dep);
@@ -1162,7 +1159,15 @@ fn resolver<'a, 'b>(
             }
 
             pkgs
-        })
+        });
+
+    if config.aur_namespace() {
+        resolver.aur_namespace();
+    } else {
+        resolver.custom_aur_namespace("__aur__".to_string());
+    }
+
+    resolver
 }
 
 fn is_debug(pkg: alpm::Package) -> bool {
