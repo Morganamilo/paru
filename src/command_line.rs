@@ -319,6 +319,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("searchby") => TakesValue::Required,
         Arg::Long("removemake") => TakesValue::Optional,
         Arg::Long("redownload") => TakesValue::Optional,
+        Arg::Long("rebuild") => TakesValue::Optional,
         Arg::Long("develsuffixes") => TakesValue::Required,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
