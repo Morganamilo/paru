@@ -169,6 +169,7 @@ pub async fn get_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b>,
 ) -> Result<Upgrades> {
     let (aur_upgrades, devel_upgrades) = aur_upgrades(config, resolver, true).await?;
+    let dbs = config.alpm.syncdbs();
 
     for pkg in aur_upgrades.ignored {
         eprintln!(
@@ -268,12 +269,16 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
+        let remote = dbs
+            .pkg(pkg.local.name())
+            .map(|p| p.db().unwrap().name())
+            .unwrap_or("aur");
         print_upgrade(
             config,
             n + devel_upgrades.len() + 1,
             n_max,
             pkg.local.name(),
-            "aur",
+            remote,
             db_pkg_max,
             pkg.local.version(),
             old_max,
@@ -282,12 +287,17 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
+        let remote = dbs
+            .pkg(pkg.as_str())
+            .map(|p| p.db().unwrap().name())
+            .map(|p| format!("{}-devel", p));
+        let remote = remote.as_deref().unwrap_or("devel");
         print_upgrade(
             config,
             n + 1,
             n_max,
             pkg,
-            "devel",
+            remote,
             db_pkg_max,
             db.pkg(pkg.as_str()).unwrap().version(),
             old_max,
@@ -301,7 +311,7 @@ pub async fn get_upgrades<'a, 'b>(
 
     for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
         let n = n + devel_upgrades.len() + aur_upgrades.len();
-        let remote = config.alpm.syncdbs().pkg(pkg.name()).unwrap();
+        let remote = dbs.pkg(pkg.name()).unwrap();
         let db = remote.db().unwrap();
         if !number_menu.contains(n + 1, db.name()) || input.is_empty() {
             repo_keep.push(pkg.name().to_string());
@@ -311,8 +321,12 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
+        let remote = dbs
+            .pkg(pkg.local.name())
+            .map(|p| p.db().unwrap().name())
+            .unwrap_or("aur");
         let n = n + devel_upgrades.len();
-        if !number_menu.contains(n + 1, "aur") || input.is_empty() {
+        if !number_menu.contains(n + 1, remote) || input.is_empty() {
             aur_keep.push(pkg.local.name().to_string());
         } else {
             aur_skip.push(pkg.local.name().to_string());
@@ -320,7 +334,12 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
-        if !number_menu.contains(n + 1, "devel") || input.is_empty() {
+        let remote = dbs
+            .pkg(pkg.as_str())
+            .map(|p| p.db().unwrap().name())
+            .map(|p| format!("{}-devel", p));
+        let remote = remote.as_deref().unwrap_or("devel");
+        if !number_menu.contains(n + 1, &format!("{}-devel", remote)) || input.is_empty() {
             aur_keep.push(pkg.to_string());
         } else {
             aur_skip.push(pkg.to_string());

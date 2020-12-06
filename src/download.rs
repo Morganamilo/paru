@@ -9,7 +9,7 @@ use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
-use alpm_utils::{DbListExt, Targ, AsTarg};
+use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
@@ -442,7 +442,10 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
         } else if config.mode == "repo" {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
-            if matches!(repo, "testing" | "community-testing" | "core" | "extra" | "community" | "multilib") {
+            if matches!(
+                repo,
+                "testing" | "community-testing" | "core" | "extra" | "community" | "multilib"
+            ) {
                 local.push(targ);
             } else {
                 aur.push(targ);
