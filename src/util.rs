@@ -114,7 +114,8 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
 pub fn input(config: &Config, question: &str) -> String {
     let action = config.color.action;
     let bold = config.color.bold;
-    print!("{} {}", action.paint("::"), bold.paint(question),);
+    println!("{} {}", action.paint("::"), bold.paint(question));
+    print!("{} ", action.paint("::"));
     let _ = stdout().lock().flush();
     if config.no_confirm {
         println!();

@@ -273,7 +273,7 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    let input = input(config, "Packages to exclude: ");
+    let input = input(config, "Packages to exclude:");
     let input = input.trim();
     let number_menu = NumberMenu::new(&input);
 
