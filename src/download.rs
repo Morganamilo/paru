@@ -1,6 +1,5 @@
 use crate::config::{Colors, Config};
 use crate::fmt::print_indent;
-use crate::util::split_repo_aur_targets;
 
 use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
@@ -10,7 +9,7 @@ use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
-use alpm_utils::{DbListExt, Targ};
+use alpm_utils::{DbListExt, Targ, AsTarg};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Base;
@@ -159,7 +158,7 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         .map(|t| t.as_str())
         .collect::<Vec<_>>();
 
-    let (repo, aur) = split_repo_aur_targets(config, &pkgs);
+    let (repo, aur) = split_repo_aur_pkgbuilds(config, &pkgs);
     let mut ret = 0;
 
     if !repo.is_empty() {
@@ -429,12 +428,52 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
+fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
+    config: &Config,
+    targets: &'a [T],
+) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
+    let mut local = Vec::new();
+    let mut aur = Vec::new();
+
+    for targ in targets {
+        let targ = targ.as_targ();
+        if config.mode == "aur" {
+            aur.push(targ);
+        } else if config.mode == "repo" {
+            local.push(targ);
+        } else if let Some(repo) = targ.repo {
+            if matches!(repo, "testing" | "community-testing" | "core" | "extra" | "community" | "multilib") {
+                local.push(targ);
+            } else {
+                aur.push(targ);
+            }
+        } else if config
+            .alpm
+            .syncdbs()
+            .find_target_satisfier(targ.pkg)
+            .is_some()
+            || config
+                .alpm
+                .syncdbs()
+                .iter()
+                .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
+                .any(|db| db.group(targ.pkg).is_ok())
+        {
+            local.push(targ);
+        } else {
+            aur.push(targ);
+        }
+    }
+
+    (local, aur)
+}
+
 pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
 
-    let (repo, aur) = split_repo_aur_targets(config, &config.targets);
+    let (repo, aur) = split_repo_aur_pkgbuilds(config, &config.targets);
 
     if !repo.is_empty() {
         let asp = &config.asp_bin;
