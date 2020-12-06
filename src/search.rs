@@ -286,7 +286,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         }
     }
 
-    let input = input(config, "Packages to install (eg: 1 2 3, 1-3 or ^4): ");
+    let input = input(config, "Packages to install (eg: 1 2 3, 1-3):");
 
     if input.trim().is_empty() {
         println!(" there is nothing to do");
