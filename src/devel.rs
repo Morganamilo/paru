@@ -248,14 +248,27 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
 
 pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let devel_info = load_devel_info(config)?.unwrap_or_default();
-
+    let db = config.alpm.localdb();
     let mut futures = Vec::new();
+    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+
+    for pkg in db.pkgs().iter() {
+        let name = pkg.base().unwrap_or(pkg.name());
+        pkgbases.entry(name).or_default().push(pkg);
+    }
 
     for (pkg, repos) in &devel_info.info {
+        if let Some(pkgs) = pkgbases.get(pkg.as_str()) {
+            if pkgs.iter().all(|p| p.should_ignore()) {
+                continue;
+            }
+        }
+
         futures.push(pkg_has_update(config, pkg, &repos.repos));
     }
 
     let updates = join_all(futures).await;
+
     let mut updates = updates
         .into_iter()
         .flatten()
@@ -289,6 +302,7 @@ pub async fn filter_devel_updates(
     let updates = updates
         .iter()
         .flatten()
+        .filter(|p| !p.should_ignore())
         .map(|p| p.name().to_string())
         .filter(|p| cache.contains(p.as_str()))
         .collect();
