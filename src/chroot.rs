@@ -108,6 +108,7 @@ impl Chroot {
         }
 
         args.push(OsStr::new("--"));
+        args.push(OsStr::new("--confirm"));
 
         for flag in flags {
             args.push(OsStr::new(flag));
