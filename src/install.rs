@@ -51,7 +51,11 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     }
 
     if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
-        let ret = news::news(config).await?;
+        let mut ret = 0;
+        match news::news(config).await {
+            Ok(v) => ret = v,
+            Err(err) => eprintln!("{} could not get news: {}", c.error.paint("error:"), err),
+        }
 
         if ret != 1 {
             ask(config, "Continue with install?", true);
