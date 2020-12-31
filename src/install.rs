@@ -197,8 +197,13 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
+    let ret = review(config, &actions, &srcinfos, &bases)?;
+    if ret != 0 {
+        return Ok(ret);
+    }
+
     let mut err = if !config.chroot {
-        install_actions(config, &mut actions, &srcinfos, &bases).await
+        repo_install(config, &mut actions.install)
     } else {
         Ok(0)
     };
@@ -299,12 +304,12 @@ async fn download_pkgbuilds<'a>(
     Ok(srcinfos)
 }
 
-async fn install_actions<'a>(
-    config: &Config,
-    actions: &mut Actions<'a>,
+fn review<'a>(config: &Config, actions: &Actions<'a>,
+
     srcinfos: &HashMap<String, Srcinfo>,
+
     bases: &Bases,
-) -> Result<i32> {
+    ) -> Result<i32> {
     let pkgs = actions
         .build
         .iter()
@@ -395,8 +400,6 @@ async fn install_actions<'a>(
     if config.pgp_fetch {
         check_pgp_keys(config, &bases, &srcinfos)?;
     }
-
-    repo_install(config, &actions.install)?;
 
     Ok(0)
 }
