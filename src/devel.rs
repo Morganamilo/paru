@@ -11,7 +11,7 @@ use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use futures::future::{join_all, select_ok, try_join_all, FutureExt};
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
@@ -325,20 +325,20 @@ pub async fn pkg_has_update<'a>(
         futures.push(has_update(&config.git_bin, &config.git_flags, info).boxed());
     }
 
-    if select_ok(futures).await.ok().map(|v| v.0)? {
+    if select_ok(futures).await.is_ok() {
         Some(pkg)
     } else {
         None
     }
 }
 
-async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<bool> {
+async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
     let sha = ls_remote(git, flags, url.url.clone(), url.branch.as_deref()).await?;
     if sha != *url.commit {
-        return Ok(true);
+        return Ok(());
     }
 
-    Ok(false)
+    bail!("package does nto have an update")
 }
 
 pub async fn fetch_devel_info(
