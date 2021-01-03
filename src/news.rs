@@ -61,7 +61,7 @@ pub async fn news(config: &Config) -> Result<i32> {
     }
 
     if !printed {
-        eprintln!("no new news");
+        eprintln!("No recent news");
         Ok(1)
     } else {
         Ok(0)
