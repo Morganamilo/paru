@@ -1,6 +1,7 @@
-use crate::config::Config;
+use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
 use crate::print_error;
+use crate::repo;
 use crate::util::split_repo_aur_pkgs;
 
 use std::cmp::Ordering;
@@ -170,7 +171,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         bold.paint("Looking for devel repos...")
     );
 
-    let devel_info = fetch_devel_info(config, &bases, srcinfos).await?;
+    let devel_info = fetch_devel_info(config, &bases, &srcinfos).await?;
     save_devel_info(config, &devel_info).context("failed to save devel info")?;
     Ok(())
 }
@@ -257,7 +258,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    for (pkg, repos) in &devel_info.info {
+    'outer: for (pkg, repos) in &devel_info.info {
         if let Some(pkgs) = pkgbases.get(pkg.as_str()) {
             if pkgs.iter().all(|p| p.should_ignore()) {
                 continue;
@@ -265,6 +266,22 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
         }
 
         futures.push(pkg_has_update(config, pkg, &repos.repos));
+        if config.repos != LocalRepos::None {
+            for repo in repo::configured_local_repos(config) {
+                let db = config
+                    .alpm
+                    .syncdbs()
+                    .iter()
+                    .find(|db| db.name() == repo)
+                    .unwrap();
+                if db.pkg(pkg.as_str()).is_ok() {
+                    futures.push(pkg_has_update(config, pkg, &repos.repos));
+                    continue 'outer;
+                }
+            }
+        } else {
+            futures.push(pkg_has_update(config, pkg, &repos.repos));
+        }
     }
 
     let updates = join_all(futures).await;
@@ -344,7 +361,7 @@ async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
 pub async fn fetch_devel_info(
     config: &Config,
     bases: &Bases,
-    srcinfos: HashMap<String, Srcinfo>,
+    srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<DevelInfo> {
     let mut devel_info = DevelInfo::default();
 

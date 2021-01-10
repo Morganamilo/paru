@@ -1,5 +1,5 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
-use crate::config::{Colors, Config};
+use crate::config::{Colors, Config, LocalRepos};
 
 use std::fmt;
 
@@ -227,7 +227,10 @@ impl Config {
             Arg::Long("norebuild") => self.rebuild = "no".into(),
             Arg::Long("topdown") => self.sort_mode = "topdown".to_string(),
             Arg::Long("bottomup") => self.sort_mode = "bottomup".to_string(),
-            Arg::Long("aur") | Arg::Short('a') => self.mode = "aur".to_string(),
+            Arg::Long("aur") | Arg::Short('a') => {
+                self.mode = "aur".to_string();
+                self.aur_filter = true;
+            }
             Arg::Long("repo") => self.mode = "repo".to_string(),
             Arg::Long("gendb") => self.gendb = true,
             Arg::Long("nocheck") => self.no_check = true,
@@ -282,6 +285,17 @@ impl Config {
                 .extend(value?.split(',').map(|s| s.to_string())),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
+            //TODO
+            Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
+            Arg::Long("local") => self.local = true,
+            Arg::Long("chroot") => {
+                self.chroot = true;
+                if self.repos == LocalRepos::None {
+                    self.repos = LocalRepos::Default;
+                }
+            }
+            Arg::Long("nochroot") => self.chroot = false,
+            Arg::Long("movepkgs") => self.move_pkgs = true,
             Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
             Arg::Short(a) if !arg.is_pacman_arg() => bail!("unknown option -{}", a),
             _ => (),
@@ -321,6 +335,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("redownload") => TakesValue::Optional,
         Arg::Long("rebuild") => TakesValue::Optional,
         Arg::Long("develsuffixes") => TakesValue::Required,
+        Arg::Long("localrepo") => TakesValue::Optional,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,

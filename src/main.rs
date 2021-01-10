@@ -1,6 +1,7 @@
 #![cfg_attr(feature = "backtrace", feature(backtrace))]
 
 mod args;
+mod chroot;
 mod clean;
 mod command_line;
 mod completion;
@@ -14,6 +15,8 @@ mod install;
 mod keys;
 mod news;
 mod query;
+mod remove;
+mod repo;
 mod search;
 mod sync;
 mod upgrade;
@@ -23,7 +26,6 @@ mod util;
 extern crate smart_default;
 
 use crate::config::Config;
-use crate::devel::{load_devel_info, save_devel_info};
 use crate::query::print_upgrade_list;
 
 use std::error::Error as StdError;
@@ -108,10 +110,11 @@ async fn run(config: &mut Config) -> Result<i32> {
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
     let ret = match config.op.as_str() {
-        "database" | "files" | "deptest" | "upgrade" => exec::pacman(config, &config.args)?.code(),
+        "database" | "files" | "upgrade" => exec::pacman(config, &config.args)?.code(),
         "query" => handle_query(config).await?,
         "sync" => handle_sync(config).await?,
         "remove" => handle_remove(config)?,
+        "deptest" => handle_test(config).await?,
         "getpkgbuild" => handle_get_pkg_build(config).await?,
         "show" => handle_show(config).await?,
         "yay" => handle_yay(config).await?,
@@ -175,21 +178,15 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
 }
 
 fn handle_remove(config: &mut Config) -> Result<i32> {
-    let mut devel_info = load_devel_info(config)?.unwrap_or_default();
+    remove::remove(config)
+}
 
-    let ret = exec::pacman(config, &config.args)?.code();
-
-    if ret == 0 {
-        for target in &config.targets {
-            devel_info.info.remove(target);
-        }
-
-        if let Err(err) = save_devel_info(config, &devel_info) {
-            print_error(config.color.error, err);
-        }
+async fn handle_test(config: &Config) -> Result<i32> {
+    if config.aur_filter {
+        sync::filter(config).await
+    } else {
+        Ok(exec::pacman(config, &config.args)?.code())
     }
-
-    Ok(0)
 }
 
 async fn handle_sync(config: &mut Config) -> Result<i32> {
