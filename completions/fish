@@ -168,8 +168,8 @@ complete -c $progname -n "$getpkgbuild" -s c -l comments -d "Print the AUR comme
 complete -c $progname -n "$getpkgbuild" -xa "$listall"
 
 # New options
-complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the AUR' -f
-complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the repositories' -f
+complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f
+complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the AUR' -f
 complete -c $progname -n "not $noopt" -l aururl -d 'Set an alternative AUR URL' -f
 complete -c $progname -n "not $noopt" -l builddir -d 'Directory to use for Building AUR Packages' -r
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
