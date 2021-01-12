@@ -31,7 +31,9 @@ use srcinfo::Srcinfo;
 
 fn early_refresh(config: &Config) -> Result<()> {
     let mut args = config.pacman_globals();
-    args.arg("y");
+    for _ in 0..config.args.count("y", "refresh") {
+        args.arg("y");
+    }
     args.targets.clear();
     exec::pacman(config, &args)?.success()?;
     Ok(())
