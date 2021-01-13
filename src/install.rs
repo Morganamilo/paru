@@ -182,7 +182,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     print_install(config, &actions);
 
     let remove_make =
-        if actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make) {
+        if !config.chroot && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make)) {
             if config.remove_make == "ask" {
                 ask(config, "Remove make dependencies after install?", false)
             } else {
