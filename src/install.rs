@@ -770,7 +770,6 @@ if config.chroot {
         if !chroot.exists() {
             chroot.create(config, &["base-devel"])?;
         } else {
-            println!("{:#?}", chroot);
             chroot.update()?;
         }
     }
