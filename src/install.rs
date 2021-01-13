@@ -15,7 +15,6 @@ use crate::{args, exec, news};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::env::consts::ARCH;
 use std::io::{stdin, stdout, BufRead, Write};
 use std::iter::FromIterator;
 use std::path::Path;
@@ -721,7 +720,7 @@ async fn build_install_pkgbuilds(
     let c = config.color;
 
     let chroot = Chroot {
-        path: config.chroot_dir.join(ARCH),
+        path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf
             .as_deref()

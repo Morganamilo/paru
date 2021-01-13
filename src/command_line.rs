@@ -293,6 +293,9 @@ impl Config {
                 if self.repos == LocalRepos::None {
                     self.repos = LocalRepos::Default;
                 }
+                if let Ok(p) = value {
+                    self.chroot_dir = p.into();
+                }
             }
             Arg::Long("nochroot") => self.chroot = false,
             Arg::Long("movepkgs") => self.move_pkgs = true,
@@ -336,6 +339,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("rebuild") => TakesValue::Optional,
         Arg::Long("develsuffixes") => TakesValue::Required,
         Arg::Long("localrepo") => TakesValue::Optional,
+        Arg::Long("chroot") => TakesValue::Optional,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,

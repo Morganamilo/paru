@@ -5,10 +5,11 @@ use crate::repo;
 
 use crate::util::get_provider;
 
+use std::env::consts::ARCH;
 use std::env::var;
 use std::fs::File;
 use std::io::{stdin, BufRead};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use alpm::{set_questioncb, Question, SigLevel, Usage};
 #[cfg(feature = "git")]
@@ -241,7 +242,7 @@ pub struct Config {
 
     pub repos: LocalRepos,
     pub local: bool,
-    #[default = "/var/lib/aurbuild/"]
+    #[default(Path::new("/var/lib/aurbuild/").join(ARCH))]
     pub chroot_dir: PathBuf,
     pub chroot: bool,
     pub move_pkgs: bool,
@@ -665,6 +666,9 @@ impl Config {
                     self.repos = LocalRepos::Default;
                 }
                 self.chroot = true;
+                if let Some(p) = value {
+                    self.chroot_dir = p.into();
+                }
             }
             "MovePkgs" => self.move_pkgs = true,
             _ => ok1 = false,
