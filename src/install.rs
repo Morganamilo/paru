@@ -126,7 +126,17 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     let mut targets = repo_targets;
     targets.extend(&aur_targets);
-    targets.extend(upgrades.aur_keep.iter().map(Targ::from));
+    if config.aur_namespace() {
+        targets.extend(upgrades.aur_keep.iter().map(|p| Targ {
+            repo: Some("aur"),
+            pkg: p,
+        }));
+    } else {
+        targets.extend(upgrades.aur_keep.iter().map(|p| Targ {
+            repo: Some("__aur__"),
+            pkg: p,
+        }));
+    }
     targets.extend(upgrades.repo_keep.iter().map(Targ::from));
 
     // No aur stuff, let's just use pacman
