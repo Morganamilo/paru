@@ -765,7 +765,7 @@ async fn build_install_pkgbuilds(
 
     let repo = repo.cloned();
 
-if config.chroot {
+    if config.chroot {
         if !chroot.exists() {
             chroot.create(config, &["base-devel"])?;
         } else {
@@ -961,6 +961,9 @@ if config.chroot {
             let mut args = config.pacman_args();
             args.op("sync");
             args.targets = targets;
+            if !conflict {
+                args.arg("noconfirm");
+            }
             exec::pacman(config, &args)?.success()?;
         }
     } else {
