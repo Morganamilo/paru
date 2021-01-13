@@ -739,14 +739,6 @@ async fn build_install_pkgbuilds(
         rw: config.pacman.cache_dir.clone(),
     };
 
-    if config.chroot {
-        if !chroot.exists() {
-            chroot.create(config, &["base-devel"])?;
-        } else {
-            chroot.update()?;
-        }
-    }
-
     let (mut devel_info, mut new_devel_info) = if config.devel {
         println!("fetching devel info...");
         (
@@ -773,6 +765,15 @@ async fn build_install_pkgbuilds(
     }
 
     let repo = repo.cloned();
+
+if config.chroot {
+        if !chroot.exists() {
+            chroot.create(config, &["base-devel"])?;
+        } else {
+            println!("{:#?}", chroot);
+            chroot.update()?;
+        }
+    }
 
     for base in build.iter_mut() {
         let mut debug_paths = Vec::new();
