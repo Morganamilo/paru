@@ -907,6 +907,9 @@ async fn build_install_pkgbuilds(
                 repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
                 repo::refresh(config, &[repo.name.clone()])?;
             }
+            if config.devel {
+                save_devel_info(config, &devel_info)?;
+            }
         }
 
         for pkg in &base.pkgs {

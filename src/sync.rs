@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::{exec};
+use crate::exec;
 
 use std::io::Write;
 
