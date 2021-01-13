@@ -246,6 +246,11 @@ pub struct Config {
     pub chroot_dir: PathBuf,
     pub chroot: bool,
     pub move_pkgs: bool,
+    pub install: bool,
+    pub update: bool,
+    pub quiet: bool,
+    pub list: bool,
+    pub delete: bool,
 
     //pacman
     pub db_path: Option<String>,

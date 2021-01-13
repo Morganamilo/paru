@@ -47,11 +47,6 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
-    if config.local && config.args.has_arg("y", "refresh") {
-        repo::refresh(config, targets_str)?;
-        return Ok(0);
-    }
-
     let mut cache = Cache::new();
     let c = config.color;
 
@@ -180,16 +175,17 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     print_install(config, &actions);
 
-    let remove_make =
-        if !config.chroot && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make)) {
-            if config.remove_make == "ask" {
-                ask(config, "Remove make dependencies after install?", false)
-            } else {
-                config.remove_make == "yes"
-            }
+    let remove_make = if !config.chroot
+        && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make))
+    {
+        if config.remove_make == "ask" {
+            ask(config, "Remove make dependencies after install?", false)
         } else {
-            false
-        };
+            config.remove_make == "yes"
+        }
+    } else {
+        false
+    };
 
     if !ask(config, "Proceed to review?", true) {
         return Ok(1);
@@ -305,12 +301,14 @@ async fn download_pkgbuilds<'a>(
     Ok(srcinfos)
 }
 
-fn review<'a>(config: &Config, actions: &Actions<'a>,
+fn review<'a>(
+    config: &Config,
+    actions: &Actions<'a>,
 
     srcinfos: &HashMap<String, Srcinfo>,
 
     bases: &Bases,
-    ) -> Result<i32> {
+) -> Result<i32> {
     let pkgs = actions
         .build
         .iter()

@@ -255,6 +255,13 @@ impl Config {
                 self.clean += 1;
                 self.comments = true;
             }
+
+            Arg::Long("install") | Arg::Short('i') => self.install = true,
+            Arg::Long("update") | Arg::Short('u') => self.update = true,
+            Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
+            Arg::Long("list") | Arg::Short('l') => self.list = true,
+            Arg::Long("delete") | Arg::Short('d') => self.delete = true,
+
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             Arg::Long("comments") => self.comments = true,
@@ -268,6 +275,8 @@ impl Config {
             Arg::Long("upgrade") | Arg::Short('U') => set_op("upgrade"),
             Arg::Long("show") | Arg::Short('P') => set_op("show"),
             Arg::Long("getpkgbuild") | Arg::Short('G') => set_op("getpkgbuild"),
+            Arg::Long("repoctl") | Arg::Short('L') => set_op("repoctl"),
+            Arg::Long("chrootctl") | Arg::Short('C') => set_op("chrootctl"),
             // globals
             Arg::Long("noconfirm") => self.no_confirm = true,
             Arg::Long("confirm") => self.no_confirm = false,

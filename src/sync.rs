@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::{exec, repo};
+use crate::{exec};
 
 use std::io::Write;
 
@@ -19,10 +19,6 @@ pub async fn filter(config: &Config) -> Result<i32> {
 
 pub async fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
-
-    if config.local {
-        args.targets = repo::configured_local_repos(&config);
-    }
 
     let mut show_aur = args.targets.is_empty() && config.mode != "repo";
     let dbs = config.alpm.syncdbs();

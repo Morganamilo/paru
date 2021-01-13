@@ -25,11 +25,14 @@ mod util;
 #[macro_use]
 extern crate smart_default;
 
+use crate::chroot::Chroot;
 use crate::config::Config;
 use crate::query::print_upgrade_list;
 
+use std::collections::HashMap;
 use std::error::Error as StdError;
-use std::fs::read_to_string;
+use std::ffi::OsStr;
+use std::fs::{read_dir, read_to_string};
 
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
@@ -118,6 +121,8 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
         "getpkgbuild" => handle_get_pkg_build(config).await?,
         "show" => handle_show(config).await?,
         "yay" => handle_yay(config).await?,
+        "repoctl" => handle_repo(config)?,
+        "chrootctl" => handle_chroot(config)?,
         _ => bail!("unknown op '{}'", config.op),
     };
 
@@ -205,4 +210,146 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         let target = std::mem::take(&mut config.targets);
         install::install(config, &target).await
     }
+}
+
+fn handle_repo(config: &mut Config) -> Result<i32> {
+    use std::os::unix::ffi::OsStrExt;
+
+    let repos = config
+        .pacman
+        .repos
+        .iter()
+        .filter(|r| repo::is_configured_local_repo(config, r))
+        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(&r.name));
+
+    let repoc = config.color.sl_repo;
+    let pkgc = config.color.sl_pkg;
+    let version = config.color.sl_version;
+    let installedc = config.color.sl_installed;
+
+    if config.update {
+        let repos = repos.clone().map(|r| r.name.clone()).collect::<Vec<_>>();
+        repo::refresh(config, &repos)?;
+        return Ok(0);
+    }
+
+    let dbs = config.alpm.syncdbs();
+
+    if config.delete {
+        let mut remove = HashMap::<&str, Vec<&str>>::new();
+        let mut rmfiles = Vec::new();
+        for repo in repos.clone() {
+            let repo = dbs.iter().find(|r| r.name() == repo.name).unwrap();
+            for pkg in repo.pkgs() {
+                if config.targets.iter().any(|p| p == pkg.name()) {
+                    remove.entry(repo.name()).or_default().push(pkg.name());
+                }
+            }
+        }
+
+        for repo in repos.clone() {
+            if let Some(pkgs) = remove.get(repo.name.as_str()) {
+                let path = repo.servers[0].trim_start_matches("file://");
+                repo::remove(config, path, &repo.name, pkgs)?;
+
+                let files = read_dir(path)?;
+
+                for file in files {
+                    let file = file?;
+                    if let Ok(pkg) = config.alpm.pkg_load(
+                        file.path().as_os_str().as_bytes(),
+                        false,
+                        alpm::SigLevel::NONE,
+                    ) {
+                        if pkgs.contains(&pkg.name()) {
+                            rmfiles.push(file.path());
+                        }
+                    }
+                }
+            }
+        }
+
+        if !rmfiles.is_empty() {
+            let mut args = vec![OsStr::new("rm")];
+            args.extend(rmfiles.iter().map(|f| f.as_os_str()));
+            exec::command(&config.sudo_bin, ".", &args)?.success()?;
+        }
+
+        return Ok(0);
+    }
+
+    for repo in repos {
+        if config.list {
+            let repo = dbs.iter().find(|r| r.name() == repo.name).unwrap();
+            for pkg in repo.pkgs() {
+                if config.quiet {
+                    println!("{}", pkg.name());
+                } else {
+                    print!(
+                        "{} {} {}",
+                        repoc.paint(repo.name()),
+                        pkgc.paint(pkg.name()),
+                        version.paint(pkg.version().as_str())
+                    );
+                    let local_pkg = config.alpm.localdb().pkg(pkg.name());
+
+                    if let Ok(local_pkg) = local_pkg {
+                        let installed = if local_pkg.version() != pkg.version() {
+                            format!(" [installed: {}]", local_pkg.version())
+                        } else {
+                            format!(" [installed]")
+                        };
+                        print!("{}", installedc.paint(installed));
+                    }
+                    println!();
+                }
+            }
+        } else {
+            if config.quiet {
+                println!("{}", repo.name);
+            } else {
+                println!(
+                    "{} {}",
+                    repo.name,
+                    repo.servers[0].trim_start_matches("file://")
+                );
+            }
+        }
+    }
+
+    Ok(0)
+}
+
+fn handle_chroot(config: &Config) -> Result<i32> {
+    let chroot = Chroot {
+        path: config.chroot_dir.clone(),
+        pacman_conf: config
+            .pacman_conf
+            .as_deref()
+            .unwrap_or("/etc/pacman.conf")
+            .to_string(),
+        makepkg_conf: config
+            .makepkg_conf
+            .as_deref()
+            .unwrap_or("/etc/makepkg.conf")
+            .to_string(),
+        ro: repo::all_files(config)
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
+        rw: config.pacman.cache_dir.clone(),
+    };
+
+    if config.update {
+        chroot.update()?;
+    }
+
+    if config.install {
+        let mut args = vec!["pacman", "-S"];
+        args.extend(config.targets.iter().map(|s| s.as_str()));
+        chroot.run(&args)?;
+    } else {
+        chroot.run(&config.targets)?;
+    }
+    Ok(0)
 }
