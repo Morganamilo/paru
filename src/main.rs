@@ -215,25 +215,33 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
 fn handle_repo(config: &mut Config) -> Result<i32> {
     use std::os::unix::ffi::OsStrExt;
 
-    let repos = config
-        .pacman
-        .repos
-        .iter()
-        .filter(|r| repo::is_configured_local_repo(config, r))
-        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(&r.name));
-
     let repoc = config.color.sl_repo;
     let pkgc = config.color.sl_pkg;
     let version = config.color.sl_version;
     let installedc = config.color.sl_installed;
 
     if config.update {
-        let repos = repos.clone().map(|r| r.name.clone()).collect::<Vec<_>>();
+        let repos = config
+            .pacman
+            .repos
+            .iter()
+            .filter(|r| repo::is_configured_local_repo(config, r))
+            .filter(|r| {
+                config.delete || config.targets.is_empty() || config.targets.contains(&r.name)
+            })
+            .map(|r| r.name.clone())
+            .collect::<Vec<_>>();
         repo::refresh(config, &repos)?;
-        return Ok(0);
     }
 
     let dbs = config.alpm.syncdbs();
+
+    let repos = config
+        .pacman
+        .repos
+        .iter()
+        .filter(|r| repo::is_configured_local_repo(config, r))
+        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(&r.name));
 
     if config.delete {
         let mut remove = HashMap::<&str, Vec<&str>>::new();
@@ -274,6 +282,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             args.extend(rmfiles.iter().map(|f| f.as_os_str()));
             exec::command(&config.sudo_bin, ".", &args)?.success()?;
         }
+
+        let repos = repos.clone().map(|r| r.name.clone()).collect::<Vec<_>>();
+        repo::refresh(config, &repos)?;
 
         return Ok(0);
     }
