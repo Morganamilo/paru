@@ -917,6 +917,11 @@ async fn build_install_pkgbuilds(
                 repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
                 repo::refresh(config, &[repo.name.clone()])?;
             }
+            if let Some(info) = new_devel_info.info.remove(base.package_base()) {
+                devel_info
+                    .info
+                    .insert(base.package_base().to_string(), info);
+            }
             if config.devel {
                 save_devel_info(config, &devel_info)?;
             }
@@ -953,10 +958,12 @@ async fn build_install_pkgbuilds(
             install_queue.push(path);
         }
 
-        if let Some(info) = new_devel_info.info.remove(base.package_base()) {
-            devel_info
-                .info
-                .insert(base.package_base().to_string(), info);
+        if repo.is_none() {
+            if let Some(info) = new_devel_info.info.remove(base.package_base()) {
+                devel_info
+                    .info
+                    .insert(base.package_base().to_string(), info);
+            }
         }
     }
 

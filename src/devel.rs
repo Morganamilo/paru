@@ -265,7 +265,6 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
             }
         }
 
-        futures.push(pkg_has_update(config, pkg, &repos.repos));
         if config.repos != LocalRepos::None {
             for repo in repo::configured_local_repos(config) {
                 let db = config
@@ -355,7 +354,7 @@ async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
         return Ok(());
     }
 
-    bail!("package does nto have an update")
+    bail!("package does not have an update")
 }
 
 pub async fn fetch_devel_info(
