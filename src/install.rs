@@ -18,7 +18,7 @@ use std::collections::{HashMap, HashSet};
 use std::io::{stdin, stdout, BufRead, Write};
 use std::iter::FromIterator;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
@@ -332,14 +332,26 @@ fn review<'a>(
             return Ok(1);
         }
     } else {
-        let mut printed = false;
         let unseen = config.fetch.unseen(&pkgs)?;
         let has_diff = config.fetch.has_diff(&unseen)?;
-        for pkg in &has_diff {
-            config.fetch.print_diff(pkg)?;
-            print!("\n\n\n");
-            printed = true;
+        let mut printed = !has_diff.is_empty();
+        let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
+
+        let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
+
+        let mut command = Command::new(&pager)
+            .stdin(Stdio::piped())
+            .env("LESS", "SRX")
+            .spawn()
+            .with_context(|| format!("failed to run {}", pager))?;
+
+        let mut stdin = command.stdin.take().unwrap();
+
+        for diff in diffs {
+            stdin.write_all(diff.as_bytes())?;
+            stdin.write_all(b"\n\n\n")?;
         }
+
         for pkg in &unseen {
             if !has_diff.contains(pkg) {
                 let path = config.build_dir.join(pkg).join("PKGBUILD");
@@ -348,22 +360,30 @@ fn review<'a>(
                     && Command::new(&config.bat_bin).arg("-V").output().is_ok();
 
                 if bat {
-                    Command::new(&config.bat_bin)
+                    let output = Command::new(&config.bat_bin)
                         .arg("-pp")
                         .arg("--color=always")
                         .arg("-lPKGBUILD")
                         .arg(path)
                         .args(&config.bat_flags)
-                        .status()
+                        .output()
                         .with_context(|| format!("failed to run {}", config.bat_bin))?;
+                    stdin.write_all(&output.stdout)?;
+                    stdin.write_all(b"\n\n\n")?;
                 } else {
                     let pkgbuild = std::fs::read_to_string(&path)
                         .context(format!("failed to open {}", path.display()))?;
-                    print!("{}\n\n\n", pkgbuild);
+                    stdin.write_all(pkgbuild.as_bytes())?;
+                    stdin.write_all(b"\n\n\n")?;
                 }
                 printed = true;
             }
         }
+
+        drop(stdin);
+        command
+            .wait()
+            .with_context(|| format!("failed to run {}", pager))?;
 
         if !printed {
             println!(" nothing new to review");
