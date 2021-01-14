@@ -1213,21 +1213,34 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") {
-        let pkgs = config.alpm.localdb().pkgs();
+        let repos = repo::configured_local_repos(config);
+        let mut pkgs = Vec::new();
+        let pkgs = if !repos.is_empty() {
+            pkgs.clear();
+
+            for db in config.alpm.syncdbs() {
+                if repos.contains(&db.name()) {
+                    pkgs.extend(db.pkgs().iter());
+                }
+            }
+            pkgs
+        } else {
+            let mut pkgs = config.alpm.localdb().pkgs().iter().collect::<Vec<_>>();
+            pkgs.retain(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err());
+            pkgs
+        };
 
         warnings.missing = pkgs
             .iter()
-            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
             .filter(|pkg| !cache.contains(pkg.name()))
-            .filter(|pkg| !is_debug(*pkg))
+            .filter(|pkg| !is_debug(**pkg))
             .map(|pkg| pkg.name())
             .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
             .collect::<Vec<_>>();
 
         warnings.ood = pkgs
             .iter()
-            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
-            .filter(|pkg| !is_debug(*pkg))
+            .filter(|pkg| !is_debug(**pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
@@ -1236,8 +1249,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
 
         warnings.orphans = pkgs
             .iter()
-            .filter(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err())
-            .filter(|pkg| !is_debug(*pkg))
+            .filter(|pkg| !is_debug(**pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
