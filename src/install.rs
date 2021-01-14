@@ -25,6 +25,7 @@ use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
+use pacmanconf::Repository;
 use raur::Cache;
 use srcinfo::Srcinfo;
 
@@ -745,7 +746,7 @@ async fn build_install_pkgbuilds(
     let mut exp = Vec::new();
     let mut install_queue = Vec::new();
     let mut conflict = false;
-    let c = config.color;
+    let mut failed = Vec::new();
 
     let chroot = Chroot {
         path: config.chroot_dir.clone(),
@@ -802,188 +803,25 @@ async fn build_install_pkgbuilds(
     }
 
     for base in build.iter_mut() {
-        let mut debug_paths = Vec::new();
-        let dir = config.build_dir.join(base.package_base());
+        failed.push(base.clone());
 
-        let mut satisfied = false;
+        let err = build_install_pkgbuild(
+            config,
+            aur_repos,
+            conflicts,
+            &chroot,
+            base,
+            &mut deps,
+            &mut exp,
+            &mut install_queue,
+            &mut conflict,
+            &mut devel_info,
+            &mut new_devel_info,
+            repo.as_ref(),
+        );
 
-        if !config.chroot && config.batch_install {
-            for pkg in &base.pkgs {
-                let mut deps = pkg
-                    .pkg
-                    .depends
-                    .iter()
-                    .chain(&pkg.pkg.make_depends)
-                    .chain(&pkg.pkg.check_depends);
-
-                satisfied = deps
-                    .find(|dep| {
-                        config
-                            .alpm
-                            .localdb()
-                            .pkgs()
-                            .find_satisfier(dep.as_str())
-                            .is_none()
-                    })
-                    .is_none();
-            }
-        }
-
-        if !config.chroot && !satisfied {
-            do_install(
-                config,
-                &mut deps,
-                &mut exp,
-                &mut install_queue,
-                conflict,
-                &mut devel_info,
-            )?;
-            conflict = false;
-        }
-
-        if config.chroot {
-            chroot
-                .build(&dir, &["-cu"], &["-ofA"])
-                .with_context(|| format!("failed to download sources for '{}'", base))?;
-        } else {
-            // download sources
-            exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
-                .success()
-                .with_context(|| format!("failed to download sources for '{}'", base))?;
-
-            // pkgver bump
-            exec::makepkg(config, &dir, &["-ofCA"])?
-                .success()
-                .with_context(|| format!("failed to build '{}'", base))?;
-        }
-
-        println!("{}: parsing pkg list...", base);
-        let (mut pkgdest, version) = parse_package_list(config, &dir)?;
-
-        if config.install_debug {
-            let mut debug = Vec::new();
-            for dest in pkgdest.values() {
-                let file = dest.rsplit('/').next().unwrap();
-
-                for pkg in &base.pkgs {
-                    let debug_pkg = format!("{}-debug-", pkg.pkg.name);
-
-                    if file.starts_with(&debug_pkg) {
-                        let debug_pkg = format!("{}-debug", pkg.pkg.name);
-                        let mut pkg = pkg.clone();
-                        let mut raur_pkg = (*pkg.pkg).clone();
-                        raur_pkg.name = debug_pkg;
-                        pkg.pkg = raur_pkg.into();
-                        debug_paths.push((pkg.pkg.name.clone(), dest));
-                        debug.push(pkg);
-                    }
-                }
-            }
-
-            base.pkgs.extend(debug);
-        }
-
-        if needs_build(config, base, &pkgdest, &version) {
-            // actual build
-            if config.chroot {
-                chroot
-                    .build(
-                        &dir,
-                        &[],
-                        &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                    )
-                    .with_context(|| format!("failed to build '{}'", base))?;
-            } else {
-                exec::makepkg(
-                    config,
-                    &dir,
-                    &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
-                )?
-                .success()
-                .with_context(|| format!("failed to build '{}'", base))?;
-            }
-        } else {
-            println!(
-                "{} {}-{} is up to date -- skipping build",
-                c.warning.paint("::"),
-                base.package_base(),
-                base.pkgs[0].pkg.version
-            )
-        }
-
-        for (pkg, path) in debug_paths {
-            if !Path::new(path).exists() {
-                base.pkgs.retain(|p| p.pkg.name != pkg);
-            } else {
-                println!("adding {} to the install list", pkg);
-            }
-        }
-
-        if let Some(ref repo) = repo {
-            let pkgs = pkgdest.values().collect::<Vec<_>>();
-            if let Some(repo) = aur_repos.get(base.package_base()) {
-                let repo = config
-                    .pacman
-                    .repos
-                    .iter()
-                    .find(|db| db.name == *repo)
-                    .unwrap();
-                let path = repo::file(repo).unwrap();
-                let name = repo.name.clone();
-                repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
-                repo::refresh(config, &[name])?;
-            } else {
-                let path = repo::file(&repo).unwrap();
-                repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
-                repo::refresh(config, &[repo.name.clone()])?;
-            }
-            if let Some(info) = new_devel_info.info.remove(base.package_base()) {
-                devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            }
-            if config.devel {
-                save_devel_info(config, &devel_info)?;
-            }
-        }
-
-        for pkg in &base.pkgs {
-            if !needs_install(config, base, &version, pkg) {
-                continue;
-            }
-
-            if config.globals.has_arg("asexplicit", "asexplicit") {
-                exp.push(pkg.pkg.name.as_str());
-            } else if config.globals.has_arg("asdeps", "asdeps") {
-                deps.push(pkg.pkg.name.as_str());
-            } else if config.alpm.localdb().pkg(&*pkg.pkg.name).is_err() {
-                if pkg.target {
-                    exp.push(pkg.pkg.name.as_str())
-                } else {
-                    deps.push(pkg.pkg.name.as_str())
-                }
-            }
-
-            let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
-                format!(
-                    "could not find package '{}' in package list for '{}'",
-                    pkg.pkg.name, base
-                )
-            })?;
-
-            conflict |= base
-                .pkgs
-                .iter()
-                .any(|p| conflicts.contains(p.pkg.name.as_str()));
-            install_queue.push(path);
-        }
-
-        if repo.is_none() {
-            if let Some(info) = new_devel_info.info.remove(base.package_base()) {
-                devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            }
+        if err.is_ok() {
+            failed.pop().unwrap();
         }
     }
 
@@ -991,6 +829,7 @@ async fn build_install_pkgbuilds(
         if !config.args.has_arg("b", "download-only") {
             let targets = build
                 .iter()
+                .filter(|b| !failed.iter().any(|f| b.package_base() == f.package_base()))
                 .flat_map(|b| &b.pkgs)
                 .filter(|p| p.target)
                 .map(|p| p.pkg.name.as_str())
@@ -1015,7 +854,213 @@ async fn build_install_pkgbuilds(
         )?;
     }
 
-    Ok(0)
+    if !failed.is_empty() {
+        let b = config.color.bold;
+        let e = config.color.error;
+        let len = ":: packages not in the AUR: ".len();
+        let failed = failed.iter().map(|f| f.to_string());
+        print!("{} {}", e.paint("::"), b.paint("Packages failed to build: "));
+        print_indent(Style::new(), len, 4, config.cols, "  ", failed);
+        Ok(1)
+    } else {
+        Ok(0)
+    }
+
+}
+
+fn build_install_pkgbuild<'a>(
+    config: &mut Config,
+    aur_repos: &HashMap<String, String>,
+    conflicts: &HashSet<&str>,
+    chroot: &Chroot,
+    base: &'a mut Base,
+    deps: &mut Vec<&'a str>,
+    exp: &mut Vec<&'a str>,
+    install_queue: &mut Vec<String>,
+    conflict: &mut bool,
+    devel_info: &mut DevelInfo,
+    new_devel_info: &mut DevelInfo,
+    repo: Option<&Repository>,
+) -> Result<()> {
+    let c = config.color;
+    let mut debug_paths = Vec::new();
+    let dir = config.build_dir.join(base.package_base());
+
+    let mut satisfied = false;
+
+    if !config.chroot && config.batch_install {
+        for pkg in &base.pkgs {
+            let mut deps = pkg
+                .pkg
+                .depends
+                .iter()
+                .chain(&pkg.pkg.make_depends)
+                .chain(&pkg.pkg.check_depends);
+
+            satisfied = deps
+                .find(|dep| {
+                    config
+                        .alpm
+                        .localdb()
+                        .pkgs()
+                        .find_satisfier(dep.as_str())
+                        .is_none()
+                })
+                .is_none();
+        }
+    }
+
+    if !config.chroot && !satisfied {
+        do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
+        *conflict = false;
+    }
+
+    if config.chroot {
+        chroot
+            .build(&dir, &["-cu"], &["-ofA"])
+            .with_context(|| format!("failed to download sources for '{}'", base))?;
+    } else {
+        // download sources
+        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+            .success()
+            .with_context(|| format!("failed to download sources for '{}'", base))?;
+
+        // pkgver bump
+        exec::makepkg(config, &dir, &["-ofCA"])?
+            .success()
+            .with_context(|| format!("failed to build '{}'", base))?;
+    }
+
+    println!("{}: parsing pkg list...", base);
+    let (mut pkgdest, version) = parse_package_list(config, &dir)?;
+
+    if config.install_debug {
+        let mut debug = Vec::new();
+        for dest in pkgdest.values() {
+            let file = dest.rsplit('/').next().unwrap();
+
+            for pkg in &base.pkgs {
+                let debug_pkg = format!("{}-debug-", pkg.pkg.name);
+
+                if file.starts_with(&debug_pkg) {
+                    let debug_pkg = format!("{}-debug", pkg.pkg.name);
+                    let mut pkg = pkg.clone();
+                    let mut raur_pkg = (*pkg.pkg).clone();
+                    raur_pkg.name = debug_pkg;
+                    pkg.pkg = raur_pkg.into();
+                    debug_paths.push((pkg.pkg.name.clone(), dest));
+                    debug.push(pkg);
+                }
+            }
+        }
+
+        base.pkgs.extend(debug);
+    }
+
+    if needs_build(config, base, &pkgdest, &version) {
+        // actual build
+        if config.chroot {
+            chroot
+                .build(
+                    &dir,
+                    &[],
+                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                )
+                .with_context(|| format!("failed to build '{}'", base))?;
+        } else {
+            exec::makepkg(
+                config,
+                &dir,
+                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
+            )?
+            .success()
+            .with_context(|| format!("failed to build '{}'", base))?;
+        }
+    } else {
+        println!(
+            "{} {}-{} is up to date -- skipping build",
+            c.warning.paint("::"),
+            base.package_base(),
+            base.pkgs[0].pkg.version
+        )
+    }
+
+    for (pkg, path) in debug_paths {
+        if !Path::new(path).exists() {
+            base.pkgs.retain(|p| p.pkg.name != pkg);
+        } else {
+            println!("adding {} to the install list", pkg);
+        }
+    }
+
+    if let Some(ref repo) = repo {
+        let pkgs = pkgdest.values().collect::<Vec<_>>();
+        if let Some(repo) = aur_repos.get(base.package_base()) {
+            let repo = config
+                .pacman
+                .repos
+                .iter()
+                .find(|db| db.name == *repo)
+                .unwrap();
+            let path = repo::file(repo).unwrap();
+            let name = repo.name.clone();
+            repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
+            repo::refresh(config, &[name])?;
+        } else {
+            let path = repo::file(&repo).unwrap();
+            repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
+            repo::refresh(config, &[repo.name.clone()])?;
+        }
+        if let Some(info) = new_devel_info.info.remove(base.package_base()) {
+            devel_info
+                .info
+                .insert(base.package_base().to_string(), info);
+        }
+        if config.devel {
+            save_devel_info(config, &devel_info)?;
+        }
+    }
+
+    for pkg in &base.pkgs {
+        if !needs_install(config, base, &version, pkg) {
+            continue;
+        }
+
+        if config.globals.has_arg("asexplicit", "asexplicit") {
+            exp.push(pkg.pkg.name.as_str());
+        } else if config.globals.has_arg("asdeps", "asdeps") {
+            deps.push(pkg.pkg.name.as_str());
+        } else if config.alpm.localdb().pkg(&*pkg.pkg.name).is_err() {
+            if pkg.target {
+                exp.push(pkg.pkg.name.as_str())
+            } else {
+                deps.push(pkg.pkg.name.as_str())
+            }
+        }
+
+        let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
+            format!(
+                "could not find package '{}' in package list for '{}'",
+                pkg.pkg.name, base
+            )
+        })?;
+
+        *conflict |= base
+            .pkgs
+            .iter()
+            .any(|p| conflicts.contains(p.pkg.name.as_str()));
+        install_queue.push(path);
+    }
+
+    if repo.is_none() {
+        if let Some(info) = new_devel_info.info.remove(base.package_base()) {
+            devel_info
+                .info
+                .insert(base.package_base().to_string(), info);
+        }
+    }
+
+    Ok(())
 }
 
 fn asdeps(config: &Config, pkgs: &[&str]) -> Result<()> {
