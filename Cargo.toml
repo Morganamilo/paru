@@ -10,7 +10,7 @@ repository = "http://github.com/Morganamilo/paru"
 documentation = "https://docs.rs/paru"
 license = "GPL-3.0"
 keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
-include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md"]
+include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
