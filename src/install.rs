@@ -335,59 +335,58 @@ fn review<'a>(
     } else {
         let unseen = config.fetch.unseen(&pkgs)?;
         let has_diff = config.fetch.has_diff(&unseen)?;
-        let mut printed = !has_diff.is_empty();
+        let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
         let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
 
-        let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
+        if printed {
+            let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
 
-        let mut command = Command::new(&pager)
-            .stdin(Stdio::piped())
-            .env("LESS", "SRX")
-            .spawn()
-            .with_context(|| format!("failed to run {}", pager))?;
+            let mut command = Command::new(&pager)
+                .stdin(Stdio::piped())
+                .env("LESS", "SRX")
+                .spawn()
+                .with_context(|| format!("failed to run {}", pager))?;
 
-        let mut stdin = command.stdin.take().unwrap();
+            let mut stdin = command.stdin.take().unwrap();
 
-        for diff in diffs {
-            stdin.write_all(diff.as_bytes())?;
-            stdin.write_all(b"\n\n\n")?;
-        }
-
-        for pkg in &unseen {
-            if !has_diff.contains(pkg) {
-                let path = config.build_dir.join(pkg).join("PKGBUILD");
-
-                let bat = config.color.enabled
-                    && Command::new(&config.bat_bin).arg("-V").output().is_ok();
-
-                if bat {
-                    let output = Command::new(&config.bat_bin)
-                        .arg("-pp")
-                        .arg("--color=always")
-                        .arg("-lPKGBUILD")
-                        .arg(path)
-                        .args(&config.bat_flags)
-                        .output()
-                        .with_context(|| format!("failed to run {}", config.bat_bin))?;
-                    stdin.write_all(&output.stdout)?;
-                    stdin.write_all(b"\n\n\n")?;
-                } else {
-                    let pkgbuild = std::fs::read_to_string(&path)
-                        .context(format!("failed to open {}", path.display()))?;
-                    stdin.write_all(pkgbuild.as_bytes())?;
-                    stdin.write_all(b"\n\n\n")?;
-                }
-                printed = true;
+            for diff in diffs {
+                stdin.write_all(diff.as_bytes())?;
+                stdin.write_all(b"\n\n\n")?;
             }
-        }
 
-        if !printed {
-            println!(" nothing new to review");
-        } else {
+            for pkg in &unseen {
+                if !has_diff.contains(pkg) {
+                    let path = config.build_dir.join(pkg).join("PKGBUILD");
+
+                    let bat = config.color.enabled
+                        && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+
+                    if bat {
+                        let output = Command::new(&config.bat_bin)
+                            .arg("-pp")
+                            .arg("--color=always")
+                            .arg("-lPKGBUILD")
+                            .arg(path)
+                            .args(&config.bat_flags)
+                            .output()
+                            .with_context(|| format!("failed to run {}", config.bat_bin))?;
+                        stdin.write_all(&output.stdout)?;
+                        stdin.write_all(b"\n\n\n")?;
+                    } else {
+                        let pkgbuild = std::fs::read_to_string(&path)
+                            .context(format!("failed to open {}", path.display()))?;
+                        stdin.write_all(pkgbuild.as_bytes())?;
+                        stdin.write_all(b"\n\n\n")?;
+                    }
+                }
+            }
+
             drop(stdin);
             command
                 .wait()
                 .with_context(|| format!("failed to run {}", pager))?;
+        } else {
+            println!(" nothing new to review");
         }
 
         if !ask(config, "Proceed with installation?", true) {
