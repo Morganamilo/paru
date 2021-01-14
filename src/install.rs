@@ -381,13 +381,13 @@ fn review<'a>(
             }
         }
 
-        drop(stdin);
-        command
-            .wait()
-            .with_context(|| format!("failed to run {}", pager))?;
-
         if !printed {
             println!(" nothing new to review");
+        } else {
+            drop(stdin);
+            command
+                .wait()
+                .with_context(|| format!("failed to run {}", pager))?;
         }
 
         if !ask(config, "Proceed with installation?", true) {
@@ -859,13 +859,16 @@ async fn build_install_pkgbuilds(
         let e = config.color.error;
         let len = ":: packages not in the AUR: ".len();
         let failed = failed.iter().map(|f| f.to_string());
-        print!("{} {}", e.paint("::"), b.paint("Packages failed to build: "));
+        print!(
+            "{} {}",
+            e.paint("::"),
+            b.paint("Packages failed to build: ")
+        );
         print_indent(Style::new(), len, 4, config.cols, "  ", failed);
         Ok(1)
     } else {
         Ok(0)
     }
-
 }
 
 fn build_install_pkgbuild<'a>(
