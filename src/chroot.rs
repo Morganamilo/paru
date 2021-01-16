@@ -21,7 +21,7 @@ fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     // Bug with dbpath in pacstrap
     let conf = conf
         .lines()
-        .filter(|l| !l.starts_with("DbPath"))
+        .filter(|l| !l.starts_with("DBPath"))
         .collect::<Vec<_>>()
         .join("\n");
 
