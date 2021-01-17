@@ -16,7 +16,6 @@ use crate::{args, exec, news};
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::io::{stdin, stdout, BufRead, Write};
-use std::iter::FromIterator;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -202,7 +201,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         return Ok(1);
     }
 
-    let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
+    let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     let ret = review(config, &actions, &srcinfos, &bases)?;
