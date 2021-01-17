@@ -14,7 +14,7 @@ pub fn remove(config: &mut Config) -> Result<i32> {
         .targets
         .iter()
         .filter_map(|pkg| db.pkg(pkg.as_str()).ok())
-        .map(|pkg| pkg.base().unwrap_or(pkg.name()))
+        .map(|pkg| pkg.base().unwrap_or_else(|| pkg.name()))
         .collect::<Vec<_>>();
 
     let mut db_map: HashMap<String, Vec<String>> = HashMap::new();

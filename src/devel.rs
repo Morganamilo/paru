@@ -254,7 +254,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
 
     for pkg in db.pkgs().iter() {
-        let name = pkg.base().unwrap_or(pkg.name());
+        let name = pkg.base().unwrap_or_else(|| pkg.name());
         pkgbases.entry(name).or_default().push(pkg);
     }
 
@@ -305,7 +305,7 @@ pub async fn filter_devel_updates(
     let db = config.alpm.localdb();
 
     for pkg in db.pkgs().iter() {
-        let name = pkg.base().unwrap_or(pkg.name());
+        let name = pkg.base().unwrap_or_else(|| pkg.name());
         pkgbases.entry(name).or_default().push(pkg);
     }
 
@@ -418,7 +418,7 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
         }
 
         for pkg in config.alpm.localdb().pkgs().iter() {
-            let name = pkg.base().unwrap_or(pkg.name());
+            let name = pkg.base().unwrap_or_else(|| pkg.name());
             pkgbases.entry(name).or_default().push(pkg);
         }
 
