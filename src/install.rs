@@ -1028,9 +1028,9 @@ fn build_install_pkgbuild<'a>(
             continue;
         }
 
-        if config.globals.has_arg("asexplicit", "asexplicit") {
+        if config.args.has_arg("asexplicit", "asexplicit") {
             exp.push(pkg.pkg.name.as_str());
-        } else if config.globals.has_arg("asdeps", "asdeps") {
+        } else if config.args.has_arg("asdeps", "asdeps") {
             deps.push(pkg.pkg.name.as_str());
         } else if config.alpm.localdb().pkg(&*pkg.pkg.name).is_err() {
             if pkg.target {
