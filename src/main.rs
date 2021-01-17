@@ -308,7 +308,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                         let installed = if local_pkg.version() != pkg.version() {
                             format!(" [installed: {}]", local_pkg.version())
                         } else {
-                            format!(" [installed]")
+                            " [installed]".to_string()
                         };
                         print!("{}", installedc.paint(installed));
                     }

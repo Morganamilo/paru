@@ -264,7 +264,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };
@@ -279,7 +279,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };

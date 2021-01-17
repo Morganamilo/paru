@@ -246,11 +246,10 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     let total = total.to_string();
     println!(
-        " ({:>padding$}/{}) {}: {}",
+        " ({:>padding$}/{}) downloading: {}",
         n,
         total,
         //config.color.action.paint("::"),
-        "downloading",
         pkg,
         padding = total.len(),
     );
