@@ -206,6 +206,8 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         search::search(config).await
     } else if config.args.has_arg("g", "groups") {
         Ok(exec::pacman(config, &config.args)?.code())
+    } else if config.args.has_arg("p", "print") || config.args.has_arg("p", "print-format") {
+        Ok(exec::pacman(config, &config.args)?.code())
     } else {
         let target = std::mem::take(&mut config.targets);
         install::install(config, &target).await
