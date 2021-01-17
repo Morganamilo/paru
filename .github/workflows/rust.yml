@@ -1,0 +1,78 @@
+name: Rust
+
+on:
+  pull_request:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+  CI: 1
+
+jobs:
+  cargo-audit:
+    name: Audit Rust vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: rust-audit-check
+      uses: actions-rs/audit-check@v1.2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  cargo-test:
+    name: Cargo Test
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:base-devel
+
+    steps:
+    - name: Install Packages
+      run: pacman -Syu rust clang gcc --noconfirm --needed
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Compile
+      run: cargo test --no-run --locked
+
+    - name: Test
+      run: cargo test
+
+  cargo-fmt:
+    name: Code Format
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:base-devel
+
+    steps:
+    - name: Install Packages
+      run: pacman -Syu rust clang gcc --noconfirm --needed
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Check format
+      run: cargo fmt --all -- --check
+
+  cargo-clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:base-devel
+
+    steps:
+    - name: Install Packages
+      run: pacman -Syu rust clang gcc --noconfirm --needed
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
