@@ -531,18 +531,22 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         return Ok((Vec::new(), Vec::new()));
     }
 
+    if config.chroot && config.args.has_arg("w", "downloadonly") {
+        return Ok((Vec::new(), Vec::new()));
+    }
+
     println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Calculating conflicts...")
     );
-    let conflicts = actions.calculate_conflicts(true);
+    let conflicts = actions.calculate_conflicts(!config.chroot);
     println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Calculating inner conflicts...")
     );
-    let inner_conflicts = actions.calculate_inner_conflicts(true);
+    let inner_conflicts = actions.calculate_inner_conflicts(!config.chroot);
 
     if !conflicts.is_empty() || !inner_conflicts.is_empty() {
         eprintln!();
@@ -825,7 +829,7 @@ async fn build_install_pkgbuilds(
     }
 
     if config.chroot {
-        if !config.args.has_arg("b", "download-only") {
+        if !config.args.has_arg("w", "downloadonly") {
             let targets = build
                 .iter()
                 .filter(|b| !failed.iter().any(|f| b.package_base() == f.package_base()))
