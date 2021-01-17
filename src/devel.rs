@@ -311,7 +311,7 @@ pub async fn filter_devel_updates(
 
     config.raur.cache_info(cache, &updates).await?;
     let updates = updates
-        .into_iter()
+        .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
         .collect::<Vec<_>>();
 
