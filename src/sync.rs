@@ -23,10 +23,8 @@ pub async fn list(config: &Config) -> Result<i32> {
     let mut show_aur = args.targets.is_empty() && config.mode != "repo";
     let dbs = config.alpm.syncdbs();
 
-    if args.targets.is_empty() {
-        if config.mode != "aur" {
-            args.targets = dbs.iter().map(|db| db.name()).collect();
-        }
+    if args.targets.is_empty() && config.mode != "aur" {
+        args.targets = dbs.iter().map(|db| db.name()).collect();
     };
 
     if config.aur_namespace() {

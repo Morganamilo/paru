@@ -315,16 +315,14 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                     println!();
                 }
             }
+        } else if config.quiet {
+            println!("{}", repo.name);
         } else {
-            if config.quiet {
-                println!("{}", repo.name);
-            } else {
-                println!(
-                    "{} {}",
-                    repo.name,
-                    repo.servers[0].trim_start_matches("file://")
-                );
-            }
+            println!(
+                "{} {}",
+                repo.name,
+                repo.servers[0].trim_start_matches("file://")
+            );
         }
     }
 
