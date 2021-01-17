@@ -166,7 +166,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         c.bold.paint("Resolving dependencies...")
     );
 
-    let mut actions = resolver.resolve_targets(&targets).await?;
+    let actions = resolver.resolve_targets(&targets).await?;
 
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
         bail!("can't install AUR package as root");
@@ -211,7 +211,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     }
 
     let mut err = if !config.chroot {
-        repo_install(config, &mut actions.install)
+        repo_install(config, &actions.install)
     } else {
         Ok(0)
     };
