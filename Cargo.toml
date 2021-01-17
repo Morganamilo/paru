@@ -16,11 +16,11 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 [dependencies]
 alpm = "1.1.6"
 alpm-utils = "0.6.2"
-aur-depends = "0.12.0"
-aur-fetch = "0.8.1"
+aur-depends = "0.13.0"
+aur-fetch = "0.9.0"
 cini = "0.1.1"
 pacmanconf = "0.2.0"
-raur = "4.0.1"
+raur = "5.0.0"
 srcinfo = "1.0.0"
 
 
@@ -34,14 +34,14 @@ htmlescape = "0.3.1"
 indicatif = "0.15.0"
 nix = "0.19.0"
 once_cell = "1.5.2"
-reqwest = { version = "0.10.9", features = ["gzip"] }
+reqwest = { version = "0.11.0", features = ["gzip"] }
 rss = { version = "1.9.0", default-features = false }
 serde = { version = "1.0.117", features = ["derive"] }
 serde_json = "1.0.59"
 smart-default = "0.6.0"
 tempfile = "3.1.0"
 term_size = "0.3.2"
-tokio = { version = "0.2.22", features = ["process", "macros"] }
+tokio = { version = "1.0.1", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.0"
 kuchiki = "0.8.1"
 

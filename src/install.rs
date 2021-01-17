@@ -536,13 +536,13 @@ fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, V
         c.action.paint("::"),
         c.bold.paint("Calculating conflicts...")
     );
-    let conflicts = actions.calculate_conflicts();
+    let conflicts = actions.calculate_conflicts(true);
     println!(
         "{} {}",
         c.action.paint("::"),
         c.bold.paint("Calculating inner conflicts...")
     );
-    let inner_conflicts = actions.calculate_inner_conflicts()?;
+    let inner_conflicts = actions.calculate_inner_conflicts(true);
 
     if !conflicts.is_empty() || !inner_conflicts.is_empty() {
         eprintln!();
