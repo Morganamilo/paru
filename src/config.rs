@@ -709,8 +709,13 @@ impl Config {
         Ok(())
     }
 
-    pub fn aur_namespace(&self) -> bool {
-        !self.pacman.repos.iter().any(|r| r.name == "aur")
+    pub fn aur_namespace(&self) -> &str {
+        if self.pacman.repos.iter().any(|r| r.name == "aur") {
+            // hack for search install
+            "__aur__"
+        } else {
+            "aur"
+        }
     }
 }
 

@@ -29,10 +29,8 @@ pub async fn list(config: &Config) -> Result<i32> {
         }
     };
 
-    if config.aur_namespace() {
-        show_aur |= args.targets.contains(&"aur");
-        args.targets.retain(|&t| t != "aur");
-    }
+    show_aur |= args.targets.contains(&config.aur_namespace());
+    args.targets.retain(|&t| t != config.aur_namespace());
 
     if !args.targets.is_empty() {
         exec::pacman(config, &args)?;
