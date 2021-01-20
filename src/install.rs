@@ -831,8 +831,13 @@ async fn build_install_pkgbuilds(
                 .map(|p| p.pkg.name.as_str())
                 .collect();
 
-            let mut args = config.pacman_args();
+            let mut args = config.pacman_globals();
             args.op("sync");
+            if config.args.has_arg("asexplicit", "asexplicit") {
+                args.arg("asexplicit");
+            } else if config.args.has_arg("asdeps", "asdeps") {
+                args.arg("asdeps");
+            }
             args.targets = targets;
             if !conflict {
                 args.arg("noconfirm");
