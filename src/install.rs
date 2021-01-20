@@ -49,6 +49,7 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let mut cache = Cache::new();
+    let flags = flags(config);
     let c = config.color;
 
     if config.sudo_loop {
@@ -106,7 +107,6 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
-    let flags = flags(config);
     let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
