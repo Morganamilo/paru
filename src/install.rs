@@ -120,6 +120,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             config.globals.args.push(arg.clone());
             config.args.args.push(arg);
         }
+        done_something = false;
         upgrades
     } else {
         Default::default()
