@@ -19,6 +19,7 @@ use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
 use atty::Stream::Stdout;
 use cini::{Callback, CallbackKind, Ini};
+use globset::{Glob, GlobSet, GlobSetBuilder};
 use nix::unistd::dup2;
 use once_cell::sync::OnceCell;
 use std::os::unix::io::AsRawFd;
@@ -232,7 +233,10 @@ pub struct Config {
     pub fm_flags: Vec<String>,
 
     pub devel_suffixes: Vec<String>,
-    pub no_warn: Vec<String>,
+    #[default(GlobSet::empty())]
+    pub no_warn: GlobSet,
+    #[default(GlobSetBuilder::new())]
+    pub no_warn_builder: GlobSetBuilder,
     pub install_debug: bool,
 
     pub upgrade_menu: bool,
@@ -430,7 +434,7 @@ impl Config {
                 }
             }
         }
-
+        self.no_warn = self.no_warn_builder.build()?;
         Ok(())
     }
 
@@ -649,7 +653,9 @@ impl Config {
             "NoWarn" => {
                 let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
                 let split = value.split_whitespace().map(|s| s.to_string());
-                self.no_warn.extend(split);
+                for word in split {
+                    self.no_warn_builder.add(Glob::new(&word)?);
+                }
             }
             "InstallDebug" => self.install_debug = true,
             "Redownload" => {

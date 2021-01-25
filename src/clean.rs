@@ -134,7 +134,7 @@ fn clean_aur_pkg(
         let local_db = config.alpm.localdb();
         for pkg in &srcinfo.pkgs {
             if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
-                if pkg.version().as_ref() == srcinfo.version() {
+                if pkg.version().as_str() == srcinfo.version() {
                     return Ok(());
                 }
             }
@@ -145,7 +145,7 @@ fn clean_aur_pkg(
         for pkg in &srcinfo.pkgs {
             let sync_dbs = config.alpm.syncdbs();
             if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
-                if pkg.version().as_ref() == srcinfo.version() {
+                if pkg.version().as_str() == srcinfo.version() {
                     return Ok(());
                 }
             }

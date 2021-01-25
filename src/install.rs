@@ -1300,7 +1300,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| !cache.contains(pkg.name()))
             .filter(|pkg| !is_debug(**pkg))
             .map(|pkg| pkg.name())
-            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
+            .filter(|pkg| !config.no_warn.is_match(pkg))
             .collect::<Vec<_>>();
 
         warnings.ood = pkgs
@@ -1309,7 +1309,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
-            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
+            .filter(|pkg| !config.no_warn.is_match(pkg))
             .collect::<Vec<_>>();
 
         warnings.orphans = pkgs
@@ -1318,7 +1318,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
-            .filter(|pkg| !config.no_warn.iter().any(|nw| nw == pkg))
+            .filter(|pkg| !config.no_warn.is_match(pkg))
             .collect::<Vec<_>>();
     }
 
@@ -1328,7 +1328,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.out_of_date.is_some())
-                .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
+                .filter(|pkg| !config.no_warn.is_match(&pkg.name))
                 .map(|pkg| pkg.name.as_str()),
         );
 
@@ -1337,7 +1337,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
                 .iter_build_pkgs()
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.maintainer.is_none())
-                .filter(|pkg| !config.no_warn.iter().any(|nw| *nw == pkg.name))
+                .filter(|pkg| !config.no_warn.is_match(&pkg.name))
                 .map(|pkg| pkg.name.as_str()),
         );
     }
