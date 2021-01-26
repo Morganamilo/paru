@@ -320,71 +320,73 @@ fn review<'a>(
         .map(|b| b.package_base())
         .collect::<Vec<_>>();
 
-    if let Some(ref fm) = config.fm {
-        let _view = file_manager(config, fm, &pkgs)?;
+    if !config.no_confirm {
+        if let Some(ref fm) = config.fm {
+            let _view = file_manager(config, fm, &pkgs)?;
 
-        if !ask(config, "Proceed with installation?", true) {
-            return Ok(1);
-        }
-    } else {
-        let unseen = config.fetch.unseen(&pkgs)?;
-        let has_diff = config.fetch.has_diff(&unseen)?;
-        let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
-        let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
-
-        if printed {
-            let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
-
-            let mut command = Command::new(&pager)
-                .stdin(Stdio::piped())
-                .env("LESS", "SRX")
-                .spawn()
-                .with_context(|| format!("failed to run {}", pager))?;
-
-            let mut stdin = command.stdin.take().unwrap();
-
-            for diff in diffs {
-                stdin.write_all(diff.as_bytes())?;
-                stdin.write_all(b"\n\n\n")?;
+            if !ask(config, "Proceed with installation?", true) {
+                return Ok(1);
             }
+        } else {
+            let unseen = config.fetch.unseen(&pkgs)?;
+            let has_diff = config.fetch.has_diff(&unseen)?;
+            let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
+            let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
 
-            for pkg in &unseen {
-                if !has_diff.contains(pkg) {
-                    let path = config.build_dir.join(pkg).join("PKGBUILD");
+            if printed {
+                let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
 
-                    let bat = config.color.enabled
-                        && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+                let mut command = Command::new(&pager)
+                    .stdin(Stdio::piped())
+                    .env("LESS", "SRX")
+                    .spawn()
+                    .with_context(|| format!("failed to run {}", pager))?;
 
-                    if bat {
-                        let output = Command::new(&config.bat_bin)
-                            .arg("-pp")
-                            .arg("--color=always")
-                            .arg("-lPKGBUILD")
-                            .arg(path)
-                            .args(&config.bat_flags)
-                            .output()
-                            .with_context(|| format!("failed to run {}", config.bat_bin))?;
-                        stdin.write_all(&output.stdout)?;
-                        stdin.write_all(b"\n\n\n")?;
-                    } else {
-                        let pkgbuild = std::fs::read_to_string(&path)
-                            .context(format!("failed to open {}", path.display()))?;
-                        stdin.write_all(pkgbuild.as_bytes())?;
-                        stdin.write_all(b"\n\n\n")?;
+                let mut stdin = command.stdin.take().unwrap();
+
+                for diff in diffs {
+                    stdin.write_all(diff.as_bytes())?;
+                    stdin.write_all(b"\n\n\n")?;
+                }
+
+                for pkg in &unseen {
+                    if !has_diff.contains(pkg) {
+                        let path = config.build_dir.join(pkg).join("PKGBUILD");
+
+                        let bat = config.color.enabled
+                            && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+
+                        if bat {
+                            let output = Command::new(&config.bat_bin)
+                                .arg("-pp")
+                                .arg("--color=always")
+                                .arg("-lPKGBUILD")
+                                .arg(path)
+                                .args(&config.bat_flags)
+                                .output()
+                                .with_context(|| format!("failed to run {}", config.bat_bin))?;
+                            stdin.write_all(&output.stdout)?;
+                            stdin.write_all(b"\n\n\n")?;
+                        } else {
+                            let pkgbuild = std::fs::read_to_string(&path)
+                                .context(format!("failed to open {}", path.display()))?;
+                            stdin.write_all(pkgbuild.as_bytes())?;
+                            stdin.write_all(b"\n\n\n")?;
+                        }
                     }
                 }
+
+                drop(stdin);
+                command
+                    .wait()
+                    .with_context(|| format!("failed to run {}", pager))?;
+            } else {
+                println!(" nothing new to review");
             }
 
-            drop(stdin);
-            command
-                .wait()
-                .with_context(|| format!("failed to run {}", pager))?;
-        } else {
-            println!(" nothing new to review");
-        }
-
-        if !ask(config, "Proceed with installation?", true) {
-            return Ok(1);
+            if !ask(config, "Proceed with installation?", true) {
+                return Ok(1);
+            }
         }
     }
 
