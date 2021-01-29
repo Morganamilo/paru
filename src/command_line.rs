@@ -296,6 +296,7 @@ impl Config {
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
             Arg::Long("local") => self.local = true,
+            Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("chroot") => {
                 self.chroot = true;
                 if self.repos == LocalRepos::None {
