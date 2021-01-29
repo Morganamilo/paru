@@ -223,7 +223,7 @@ Sort AUR results by a specific field during search. Defaults to votes.
 Search for AUR packages by querying the specified field. Defaults to name-desc.
 
 .TP
-.B \-\-upgrademenu
+.B \-\-[no]upgrademenu
 Show a detailed list of updates in a similar format to pacman's VerbosePkgLists
 option. (See 
 .BR pacman.conf(5)).
@@ -235,7 +235,6 @@ this can lead to partial upgrades. This feature is intended to easily skip AUR
 updates on the fly that may be broken or have a long compile time. Ultimately
 it is up to the user what upgrades they skip.
 
-.TP
 .B \-\-noupgrademenu
 Do not show the upgrade menu.
 
@@ -400,6 +399,25 @@ long builds.
 .TP
 .B \-\-nosudoloop
 Do not loop sudo calls in the background.
+
+.TP
+.B localrepo [= Repos...]
+Build packages into a local repo. The repo must already be declared in pacman.conf
+but does not have to already exist on disk.
+
+Optionally a list of repos to use can be passed. By default paru will consider all
+local repos, building new packages into the fist listed repo and upgrading the packages
+in other enabled repos.
+
+.TP
+.B \-\-chroot [= /path/to/chroot]
+Build packages in a chroot. This rquires the LocalRepo option to be enabled.
+Optionaly a directory may be passed to specify where the create the chroot.
+
+.TP
+.B \-\-nochroot
+Don't build packages in a chroot.
+
 
 .SH EXAMPLES
 .TP

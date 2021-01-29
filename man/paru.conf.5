@@ -180,6 +180,24 @@ set.
 .B NoWarn = Packages...
 Don't warn when these packages are not in the aur, out of date, or orphaned.
 
+.TP
+.B MovePkgs
+When building into a local repo, move packages into the repo instead of copying.
+
+.TP
+.B LocalRepo [= Repos...]
+Build packages into a local repo. The repo must already be declared in pacman.conf
+but does not have to already exist on disk.
+
+Optionally a list of repos to use can be passed. By default paru will consider all
+local repos, building new packages into the fist listed repo and upgrading the packages
+in other enabled repos.
+
+.TP
+.B Chroot [= path/to/chroot]
+Build packages in a chroot. This rquires the LocalRepo option to be enabled.
+Optionaly a directory may be passed to specify where the create the chroot.
+
 .SH BIN
 Options belonging to the [bin] section.
 
