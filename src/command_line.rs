@@ -264,6 +264,7 @@ impl Config {
 
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
+            Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op("database"),
