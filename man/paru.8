@@ -35,17 +35,29 @@ Printing related options.
 Downloads PKGBUILDs from the ABS or AUR. The ABS can only be used for Arch
 Linux repositories.
 
+.TP
+.B \-L, \-\-repoctl
+List local repos.
+
+.TP
+.B \-C, \-\-chrootctl
+Interactive shell to the chroot.
+
 .RE
 If no arguments are provided 'paru \-Syu' will be performed.
 
 .SH EXTENDED PACMAN OPERATIONS
 .TP
-.B \-R, \-S, \-Si, \-Sl, \-Ss, \-Su, \-Sc, \-Qu
+.B \-R, \-S, \-Si, \-Sl, \-Ss, \-Su, \-Sc, \-Qu \-T
 These operations are extended to support both AUR and repo packages.
 
 .TP
 .B \-R
 Paru will also remove cached data about devel packages.
+
+.TP
+.B \-R \-\-local
+Paru will also remove the package from the local repo.
 
 .TP
 .B \-Sc
@@ -56,6 +68,10 @@ built packages but will keep already downloaded VCS sources.
 .TP
 .B \-S, \-Si, \-Sl, \-Ss, \-Su, \-Qu
 Paru will also handle AUR packages for these operations.
+
+.TP
+.B \-Ta
+Will filter a list of packages to ones that appear in the AUR.
 
 .SH NO OPERATION
 
@@ -101,6 +117,28 @@ Prints the PKGBUILD to the terminal instead of downloading it.
 .TP
 .B \-c, \-\-comments
 Print the AUR comments from the PKGBUILD's AUR page.
+
+.SH REPOCTL OPTIONS (APPLY TO \-L AND \-\-REPOCTL)
+.TP
+.B \-l, \-\-list
+List packages in local repos
+
+.TP
+.B \-d, \-\-delete
+Remove a package from the local repo.
+
+.TP
+.B \-q, \-\-quiet
+Show less information.
+
+.SH CHROOTCTL OPTIONS (APPLY TO \-C AND \-\-CHROOTCTL)
+.TP
+.B \-i, \-\-install
+Install a package into the chroot.
+
+.TP
+.B \-u, \-\-upgrade
+Upgrade the chroot.
 
 .SH NEW OPTIONS
 .TP
