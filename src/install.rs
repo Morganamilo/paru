@@ -849,7 +849,10 @@ async fn build_install_pkgbuilds(
             if !conflict {
                 args.arg("noconfirm");
             }
-            exec::pacman(config, &args)?.success()?;
+
+            if !args.args.is_empty() {
+                exec::pacman(config, &args)?.success()?;
+            }
         }
     } else {
         do_install(
