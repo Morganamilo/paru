@@ -1,5 +1,30 @@
 # Changelog
 
+## Paru v1.2.0 (2021-1-29)
+
+### Fixed
+
+- Fix devel packages with multiple sources not updating 237f739
+- Fix tab completion for -a in fish #155
+- Fix -y's not being respected dcdf6f1
+- Fix asdeps/asexp check 3657863
+
+### Added
+
+- aarch64 builds #182
+- Add doas example to config 164f349
+- Local repo and chroot support 4078200 319859f
+
+### Changed
+
+- Don't error out when arch news is down 929fa34
+- Simplify help file 1031ebc 55b2992
+- Print all diffs into a single less instance 89c3f22
+- Continue building packages when one fails 315f93e
+- Ignore aur when p/print is passed 76433ff
+- --noconfirm also skips review #175
+- NoWarn now supports globbing #176
+
 ## Paru v1.1.4 (2020-12-21)
 
 ### Fixed
