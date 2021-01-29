@@ -66,7 +66,7 @@ New options:
     --[no]sudoloop         Loop sudo calls in the background to avoid timeout
     --[no]chroot           Build packages in a chroot
     --nocheck              Don't resolve checkdepends or run the check function
-    --develsuffixes        Suffixes that paru will use to decide if a package is a devel package
+    --develsuffixes        Suffixes used to decide if a package is a devel package
     --bottomup             Shows AUR's packages first and then repository's
     --topdown              Shows repository's packages first and then AUR's
 
