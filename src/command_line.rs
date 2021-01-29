@@ -294,8 +294,6 @@ impl Config {
                 .extend(value?.split(',').map(|s| s.to_string())),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
-            //TODO
-            Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("local") => self.local = true,
             Arg::Long("chroot") => {
                 self.chroot = true;
