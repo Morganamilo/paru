@@ -9,6 +9,8 @@ _pacman_opts_commands=(
 	{-D,--database}'[Modify database]'
 	{-F,--files}'[Query the files database]'
 	{-G,--getpkgbuild}'[Get PKGBUILD from ABS or AUR]'
+	{-L, --repoctl}'[List local repos]'
+	{-C, --chrootctl}'[Interactive shell to the chroot]'
 	{-Q,--query}'[Query the package database]'
 	{-R,--remove}'[Remove a package from the system]'
 	{-P,--show}'[Print paru information]'
@@ -146,7 +148,19 @@ _pacman_opts_query_modifiers=(
 _pacman_opts_getpkgbuild_modifiers=(
 	{-p,--print}'[Print PKGBUILD instead of downloading]'
 	{-c,--comments}"[Print the AUR comments from the PKGBUILD's AUR page]"
+)
 
+# -L
+_pacman_opts_repoctl_modifiers=(
+	{-l,--list}'[List packages in local repos]'
+	{-d,--delete}"[Remove a package from the local repo]"
+	{-q,--quiet}'[Show less information]'
+)
+
+# -L
+_pacman_opts_chrootctl_modifiers=(
+	{-i,--install}'[Install a package into the chroot]'
+	{-u,--upgrade}'[Upgrade the chroot]'
 )
 
 # -P
@@ -541,6 +555,14 @@ _pacman_zsh_comp() {
 		G*)
 			_arguments -s : \
 				"$_pacman_opts_getpkgbuild_modifiers[@]"
+			;;
+		L*)
+			_arguments -s : \
+				"$_pacman_opts_repoctl_modifiers[@]"
+			;;
+		C*)
+			_arguments -s : \
+				"$_pacman_opts_chrootctl_modifiers[@]"
 			;;
 
 		*)

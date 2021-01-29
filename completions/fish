@@ -11,6 +11,8 @@ set -l listpacman "(__fish_print_packages)"
 set -l paruspecific '__fish_contains_opt -s'
 set -l show '__fish_contains_opt -s P show'
 set -l getpkgbuild '__fish_contains_opt -s G getpkgbuild'
+set -l repoctl '__fish_contains_opt -s L repoctl'
+set -l chrootctl '__fish_contains_opt -s C chrootctl'
 
 # Pacman constants
 set -l listinstalled "(pacman -Q | string replace ' ' \t)"
@@ -153,6 +155,8 @@ complete -c $progname -n "$upgrade" -xa '(__fish_complete_suffix pkg.tar.zst; __
 # paru operations
 complete -c $progname -s P -f -l show -n "$noopt" -d 'Print information'
 complete -c $progname -s G -f -l getpkgbuild -n "$noopt" -d 'Get PKGBUILD from ABS or AUR'
+complete -c $progname -s L -f -l repoctl -n "$noopt" -d 'List local repos'
+complete -c $progname -s C -f -l chrootctl -n "$noopt" -d 'Interactive shell to the chroot'
 
 
 # paru options
@@ -167,6 +171,15 @@ complete -c $progname -n "$getpkgbuild" -s p -l print -d 'Print PKGBUILD instead
 complete -c $progname -n "$getpkgbuild" -s c -l comments -d "Print the AUR comments from the PKGBUILD's AUR page" -f
 
 complete -c $progname -n "$getpkgbuild" -xa "$listall"
+
+# Repoctl options
+complete -c $progname -n "$repoctl" -s l -l list -d 'List packages in local repos' -f
+complete -c $progname -n "$repoctl" -s d -l delete -d 'Remove a package from the local repo' -f
+complete -c $progname -n "$repoctl" -s q -l quiet -d 'Show less information' -f
+
+# Chrootctl options
+complete -c $progname -n "$chrootctl" -s l -l install -d 'Install a package into the chroot' -f
+complete -c $progname -n "$chrootctl" -s u -l upgrade -d 'Upgrade the chroot' -f
 
 # New options
 complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f
