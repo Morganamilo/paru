@@ -303,7 +303,9 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                     AnyPkg::RepoPkg(pkg) => {
                         pkgs.push(format!("{}/{}", pkg.db().unwrap().name(), pkg.name()))
                     }
-                    AnyPkg::AurPkg(pkg) => pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name)),
+                    AnyPkg::AurPkg(pkg) => {
+                        pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name))
+                    }
                 }
             }
         }
@@ -314,7 +316,9 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                     AnyPkg::RepoPkg(pkg) => {
                         pkgs.push(format!("{}/{}", pkg.db().unwrap().name(), pkg.name()))
                     }
-                    AnyPkg::AurPkg(pkg) => pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name)),
+                    AnyPkg::AurPkg(pkg) => {
+                        pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name))
+                    }
                 }
             }
         }
