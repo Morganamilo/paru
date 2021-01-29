@@ -59,7 +59,7 @@ _paru() {
   files=('list machinereadable refresh regex' 'l x y')
   query=('changelog check deps explicit file foreign groups info list native owns
           search unrequired upgrades' 'c e g i k l m n o p s t u')
-  remove=('cascade dbonly nodeps assume-installed nosave print recursive unneeded' 'c n p s u')
+  remove=('cascade dbonly nodeps assume-installed nosave print recursive unneeded local' 'c n p s u')
   sync=('asdeps asexplicit clean dbonly downloadonly overwrite groups ignore ignoregroup
          info list needed nodeps assume-installed print refresh recursive search sysupgrade'
     'c g i l p s u w y')
@@ -75,7 +75,7 @@ _paru() {
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
            nouseask combinedupgrade nocombinedupgrade batchinstall nobatchinstall provides
            noprovides devel nodevel develsuffixes sudoloop nosudoloop bottomup topdown
-           newsonupgrade bat batflags' 'b d h q r v a')
+           newsonupgrade bat batflags chroot nochroot localrepo' 'b d h q r v a')
 
   show=('news' 'w')
   getpkgbuild=('print comments' 'p c')

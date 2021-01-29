@@ -132,6 +132,7 @@ complete -c $progname -n "$remove" -s c -l cascade -d 'Also remove packages depe
 complete -c $progname -n "$remove" -s n -l nosave -d 'Ignore file backup designations' -f
 complete -c $progname -n "$remove" -s s -l recursive -d 'Also remove dependencies of PACKAGE' -f
 complete -c $progname -n "$remove" -s u -l unneeded -d 'Only remove targets not required by PACKAGE' -f
+complete -c $progname -n "$remove" -l local -d 'Also remove the package from the local repo' -f
 complete -c $progname -n "$remove" -d 'Installed package' -xa "$listinstalled"
 
 # Sync options
@@ -215,3 +216,6 @@ complete -c $progname -n "not $noopt" -l batflags -d 'Pass the following options
 complete -c $progname -n "not $noopt" -l fmflags -d 'Pass the following options to file manager' -f
 complete -c $progname -n "not $noopt" -l sudoloop -d 'Loop sudo calls in the background to avoid timeout' -f
 complete -c $progname -n "not $noopt" -l nosudoloop -d 'Do not loop sudo calls in the background' -f
+complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' -f
+complete -c $progname -n "not $noopt" -l nochroot -d "Don't build packages in a chroot" -f
+complete -c $progname -n "not $noopt" -l localrepo -d 'Build packages in a local repo' -f
