@@ -332,6 +332,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("sudo") => TakesValue::Required,
         Arg::Long("asp") => TakesValue::Required,
         Arg::Long("fm") => TakesValue::Required,
+        Arg::Long("bat") => TakesValue::Required,
         Arg::Long("makepkgconf") => TakesValue::Required,
         Arg::Long("editorflags") => TakesValue::Required,
         Arg::Long("mflags") => TakesValue::Required,
