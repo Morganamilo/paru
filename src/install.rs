@@ -336,12 +336,14 @@ fn review<'a>(
             if printed {
                 let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
 
-                let mut command = Command::new(&pager);
+                let mut command = Command::new("sh");
 
                 if std::env::var("LESS").is_err() {
                     command.env("LESS", "SRX");
                 }
                 let mut command = command
+                    .arg("-c")
+                    .arg(&pager)
                     .stdin(Stdio::piped())
                     .spawn()
                     .with_context(|| format!("failed to run {}", pager))?;
