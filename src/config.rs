@@ -10,6 +10,7 @@ use std::env::var;
 use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use alpm::{set_questioncb, Question, SigLevel, Usage};
 #[cfg(feature = "git")]
@@ -403,7 +404,10 @@ impl Config {
             "failed to initialize noconfirm"
         );
 
-        self.raur = raur::Handle::new_with_url(self.aur_url.join("rpc")?.as_str());
+        let client = reqwest::Client::builder()
+            .tcp_keepalive(Duration::new(15, 0))
+            .build()?;
+        self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
 
         self.fetch = aur_fetch::Handle {
             git: self.git_bin.clone().into(),
