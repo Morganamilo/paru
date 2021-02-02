@@ -1,5 +1,17 @@
 # Changelog
 
+## Paru v1.2.1 (2021-2-2)
+
+### Fixed
+
+- Fix -G with split packages 16998c9
+- Fix --bat not expecting an argument  e82a0ff
+- Make PAGER a command instead of just the binary name d3e605c
+
+### Added
+
+- Add out of date info on -Ss 5e458eb
+
 ## Paru v1.2.0 (2021-1-29)
 
 ### Fixed
