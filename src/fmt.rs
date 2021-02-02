@@ -11,6 +11,12 @@ pub fn date(date: i64) -> String {
     date.to_rfc2822()
 }
 
+pub fn ymd(date: i64) -> String {
+    let date = NaiveDateTime::from_timestamp(date, 0);
+    let date = DateTime::<chrono::Utc>::from_utc(date, chrono::Utc);
+    date.format("%Y-%m-%d").to_string()
+}
+
 pub fn print_indent<S: AsRef<str>>(
     color: Style,
     start: usize,
