@@ -210,10 +210,11 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
     for &pkg in pkgs {
         let pkg = pkg.pkg;
-        if db.pkg(pkg).is_err() {
-            missing.push(pkg);
-        } else {
+        if let Ok(pkg) = db.pkg(pkg) {
+            let pkg = pkg.base().unwrap_or_else(|| pkg.name());
             ok.push(pkg);
+        } else {
+            missing.push(pkg);
         }
     }
 
