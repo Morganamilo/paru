@@ -211,6 +211,8 @@ pub struct Config {
     pub print: bool,
     pub news_on_upgrade: bool,
     pub comments: bool,
+    #[default = 15]
+    pub keepalive_timeout: u64,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -405,7 +407,7 @@ impl Config {
         );
 
         let client = reqwest::Client::builder()
-            .tcp_keepalive(Duration::new(15, 0))
+            .tcp_keepalive(Duration::new(self.keepalive_timeout, 0))
             .build()?;
         self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
 
@@ -709,6 +711,7 @@ impl Config {
             "SortBy" => self.sort_by = validate(value?, sort_by)?,
             "SearchBy" => self.search_by = validate(value?, search_by)?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
+            "KeepaliveTimeout" => self.keepalive_timeout = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,
         };
