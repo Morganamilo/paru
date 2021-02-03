@@ -1,5 +1,13 @@
 # Changelog
 
+## Paru v1.2.2 (2021-2-3)
+
+### Fixed
+
+- Fix upgrademenu padding wrong with local repo 3198feb
+- Fix chroot not installing repo packages f083096
+- Fix sigpipe killing paru during review 27733e3
+
 ## Paru v1.2.1 (2021-2-2)
 
 ### Fixed
