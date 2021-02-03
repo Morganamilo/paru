@@ -208,7 +208,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let mut err = if !config.chroot {
         repo_install(config, &mut actions.install)
     } else {
-        Ok(0)
+        let mut install = actions.install.to_vec();
+        install.retain(|pkg| pkg.target);
+        repo_install(config, &mut install)
     };
 
     update_aur_list(config);
