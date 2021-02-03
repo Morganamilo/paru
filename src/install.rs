@@ -25,10 +25,10 @@ use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
+use nix::sys::signal::{signal, SigHandler, Signal};
 use pacmanconf::Repository;
 use raur::Cache;
 use srcinfo::Srcinfo;
-use nix::sys::signal::{signal, SigHandler, Signal};
 
 fn early_refresh(config: &Config) -> Result<()> {
     let mut args = config.pacman_globals();
@@ -391,7 +391,6 @@ fn review<'a>(
                     .wait()
                     .with_context(|| format!("failed to run {}", pager))?;
                 unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
-
             } else {
                 println!(" nothing new to review");
             }

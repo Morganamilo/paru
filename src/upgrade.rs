@@ -235,8 +235,24 @@ pub async fn get_upgrades<'a, 'b>(
     let db_pkg_max = repo_upgrades
         .iter()
         .map(|u| u.name().len() + u.db().unwrap().name().len())
-        .chain(aur_upgrades.iter().map(|u| u.local.name().len() + 3))
-        .chain(devel_upgrades.iter().map(|u| u.len() + 5))
+        .chain(aur_upgrades.iter().map(|u| {
+            u.local.name().len()
+                + dbs
+                    .pkg(u.local.name())
+                    .ok()
+                    .and_then(|pkg| pkg.db())
+                    .map(|db| db.name().len())
+                    .unwrap_or(3)
+        }))
+        .chain(devel_upgrades.iter().map(|u| {
+            u.len()
+                + dbs
+                    .pkg(u.as_str())
+                    .ok()
+                    .and_then(|pkg| pkg.db())
+                    .map(|db| db.name().len() + 6)
+                    .unwrap_or(5)
+        }))
         .max()
         .unwrap_or(0);
 
