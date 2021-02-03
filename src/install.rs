@@ -28,6 +28,7 @@ use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resol
 use pacmanconf::Repository;
 use raur::Cache;
 use srcinfo::Srcinfo;
+use nix::sys::signal::{signal, SigHandler, Signal};
 
 fn early_refresh(config: &Config) -> Result<()> {
     let mut args = config.pacman_globals();
@@ -336,6 +337,7 @@ fn review<'a>(
             if printed {
                 let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
 
+                unsafe { signal(Signal::SIGPIPE, SigHandler::SigIgn).unwrap() };
                 let mut command = Command::new("sh");
 
                 if std::env::var("LESS").is_err() {
@@ -351,8 +353,8 @@ fn review<'a>(
                 let mut stdin = command.stdin.take().unwrap();
 
                 for diff in diffs {
-                    stdin.write_all(diff.as_bytes())?;
-                    stdin.write_all(b"\n\n\n")?;
+                    let _ = stdin.write_all(diff.as_bytes());
+                    let _ = stdin.write_all(b"\n\n\n");
                 }
 
                 for pkg in &unseen {
@@ -371,13 +373,13 @@ fn review<'a>(
                                 .args(&config.bat_flags)
                                 .output()
                                 .with_context(|| format!("failed to run {}", config.bat_bin))?;
-                            stdin.write_all(&output.stdout)?;
-                            stdin.write_all(b"\n\n\n")?;
+                            let _ = stdin.write_all(&output.stdout);
+                            let _ = stdin.write_all(b"\n\n\n");
                         } else {
                             let pkgbuild = std::fs::read_to_string(&path)
                                 .context(format!("failed to open {}", path.display()))?;
-                            stdin.write_all(pkgbuild.as_bytes())?;
-                            stdin.write_all(b"\n\n\n")?;
+                            let _ = stdin.write_all(pkgbuild.as_bytes());
+                            let _ = stdin.write_all(b"\n\n\n");
                         }
                     }
                 }
@@ -386,6 +388,8 @@ fn review<'a>(
                 command
                     .wait()
                     .with_context(|| format!("failed to run {}", pager))?;
+                unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
+
             } else {
                 println!(" nothing new to review");
             }
