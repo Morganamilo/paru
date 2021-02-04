@@ -15,6 +15,7 @@ use crate::{args, exec, news};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
+use std::env::var;
 use std::io::{stdin, stdout, BufRead, Write};
 use std::iter::FromIterator;
 use std::path::Path;
@@ -337,7 +338,11 @@ fn review<'a>(
             let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
-                let pager = std::env::var("PAGER").unwrap_or_else(|_| "less".to_string());
+                let pager = config
+                    .pager_cmd
+                    .clone()
+                    .or_else(|| var("PAGER").ok())
+                    .unwrap_or_else(|| "less".to_string());
 
                 unsafe { signal(Signal::SIGPIPE, SigHandler::SigIgn).unwrap() };
                 let mut command = Command::new("sh");

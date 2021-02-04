@@ -234,6 +234,7 @@ pub struct Config {
     pub sudo_flags: Vec<String>,
     pub bat_flags: Vec<String>,
     pub fm_flags: Vec<String>,
+    pub pager_cmd: Option<String>,
 
     pub devel_suffixes: Vec<String>,
     #[default(GlobSet::empty())]
@@ -597,6 +598,7 @@ impl Config {
             "Asp" => self.asp_bin = value,
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
+            "Pager" => self.pager_cmd = Some(value),
             "Bat" => self.bat_bin = value,
             "FileManager" => self.fm = Some(value),
             "MFlags" => self.mflags.extend(split),
