@@ -16,10 +16,12 @@ use crate::{args, exec, news};
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
-use std::io::{stdin, stdout, BufRead, Write};
+use std::fs::{read_dir, read_link, OpenOptions};
+use std::io::{stdin, stdout, BufRead, Read, Write};
 use std::iter::FromIterator;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::ffi::OsStr;
 
 use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
@@ -313,11 +315,10 @@ async fn download_pkgbuilds<'a>(
 fn review<'a>(
     config: &Config,
     actions: &Actions<'a>,
-
     srcinfos: &HashMap<String, Srcinfo>,
-
     bases: &Bases,
 ) -> Result<i32> {
+    let c = config.color;
     let pkgs = actions
         .build
         .iter()
@@ -365,29 +366,76 @@ fn review<'a>(
                     let _ = stdin.write_all(b"\n\n\n");
                 }
 
+                let bat = config.color.enabled
+                    && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+
+                let mut buf = Vec::new();
                 for pkg in &unseen {
                     if !has_diff.contains(pkg) {
-                        let path = config.build_dir.join(pkg).join("PKGBUILD");
+                        let path = config.build_dir.join(pkg);
 
-                        let bat = config.color.enabled
-                            && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+                        for file in read_dir(&path)
+                            .with_context(|| format!("failed to read dir: {}", path.display()))?
+                        {
+                            let file = file?;
 
-                        if bat {
-                            let output = Command::new(&config.bat_bin)
-                                .arg("-pp")
-                                .arg("--color=always")
-                                .arg("-lPKGBUILD")
-                                .arg(path)
-                                .args(&config.bat_flags)
-                                .output()
-                                .with_context(|| format!("failed to run {}", config.bat_bin))?;
-                            let _ = stdin.write_all(&output.stdout);
-                            let _ = stdin.write_all(b"\n\n\n");
-                        } else {
-                            let pkgbuild = std::fs::read_to_string(&path)
-                                .context(format!("failed to open {}", path.display()))?;
-                            let _ = stdin.write_all(pkgbuild.as_bytes());
-                            let _ = stdin.write_all(b"\n\n\n");
+                            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".git")) {
+                                continue;
+                            }
+                            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".SRCINFO")) {
+                                continue;
+                            }
+                            if file.file_type()?.is_dir() {
+                                let s = format!("{} is a directory\n\n", file.path().display());
+                                let _ =
+                                    write!(stdin, "{}", c.bold.paint(s));
+                                continue;
+                            }
+                            if file.file_type()?.is_symlink() {
+                                let s = format!(
+                                    "{} -> {}\n\n\n",
+                                    file.path().display(),
+                                    read_link(file.path())?.display()
+                                );
+                                let _ = write!(stdin, "{}", c.bold.paint(s));
+                                continue;
+                            }
+
+                            let _ = write!(stdin, "{}\n",  c.bold.paint(file.path().display().to_string()));
+                            if bat {
+                                let output = Command::new(&config.bat_bin)
+                                    .arg("-pp")
+                                    .arg("--color=always")
+                                    .arg(file.path())
+                                    .args(&config.bat_flags)
+                                    .output()
+                                    .with_context(|| {
+                                        format!(
+                                            "failed to run {} {}",
+                                            config.bat_bin,
+                                            file.path().display()
+                                        )
+                                    })?;
+                                let _ = stdin.write_all(&output.stdout);
+                                let _ = stdin.write_all(b"\n\n");
+                            } else {
+                                let mut pkgbbuild = OpenOptions::new()
+                                    .read(true)
+                                    .open(&file.path())
+                                    .with_context(|| {
+                                        format!("failed to open: {}", file.path().display())
+                                    })?;
+                                buf.clear();
+                                pkgbbuild.read_to_end(&mut buf)?;
+
+                                let _ = match std::str::from_utf8(&buf) {
+                                    Ok(_) => stdin.write_all(&buf),
+                                    Err(_) => {
+                                        write!(stdin, "binary file: {}", file.path().display())
+                                    }
+                                };
+                                let _ = stdin.write_all(b"\n\n");
+                            }
                         }
                     }
                 }
