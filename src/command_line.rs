@@ -144,7 +144,6 @@ impl Config {
 
         match takes_value(arg) {
             TakesValue::Required if value.is_none() => bail!("option {} expects a value", arg),
-            TakesValue::No if forced => bail!("option {} does not allow a value", arg),
             _ => (),
         }
 
@@ -310,6 +309,11 @@ impl Config {
             Arg::Long("movepkgs") => self.move_pkgs = true,
             Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
             Arg::Short(a) if !arg.is_pacman_arg() => bail!("unknown option -{}", a),
+            _ => (),
+        }
+
+        match takes_value(arg) {
+            TakesValue::No if forced => bail!("option {} does not allow a value", arg),
             _ => (),
         }
 
