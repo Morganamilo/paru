@@ -62,18 +62,14 @@ fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
 }
 
 fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    Command::new(sudo)
-        .arg("-v")
-        .args(flags)
-        .status()
-        .with_context(|| {
-            let flags = flags
-                .iter()
-                .map(|s| s.as_ref().to_string_lossy().into_owned())
-                .collect::<Vec<_>>()
-                .join(" ");
-            format!("failed to run: {} -v {}", sudo, flags)
-        })?;
+    Command::new(sudo).args(flags).status().with_context(|| {
+        let flags = flags
+            .iter()
+            .map(|s| s.as_ref().to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+            .join(" ");
+        format!("failed to run: {} {}", sudo, flags)
+    })?;
     Ok(())
 }
 

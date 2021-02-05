@@ -246,8 +246,14 @@ impl Config {
             Arg::Long("nocombinedupgrade") => self.combined_upgrade = false,
             Arg::Long("batchinstall") => self.batch_install = true,
             Arg::Long("nobatchinstall") => self.batch_install = false,
-            Arg::Long("sudoloop") => self.sudo_loop = true,
-            Arg::Long("nosudoloop") => self.sudo_loop = false,
+            Arg::Long("sudoloop") => {
+                self.sudo_loop = value
+                    .unwrap_or("-v")
+                    .split_whitespace()
+                    .map(|s| s.to_string())
+                    .collect()
+            }
+            Arg::Long("nosudoloop") => self.sudo_loop.clear(),
             Arg::Long("clean") => self.clean += 1,
             Arg::Long("complete") => self.complete = true,
             Arg::Short('c') => {
@@ -255,7 +261,6 @@ impl Config {
                 self.clean += 1;
                 self.comments = true;
             }
-
             Arg::Long("install") | Arg::Short('i') => self.install = true,
             Arg::Long("update") | Arg::Short('u') => self.update = true,
             Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
@@ -352,6 +357,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("removemake") => TakesValue::Optional,
         Arg::Long("redownload") => TakesValue::Optional,
         Arg::Long("rebuild") => TakesValue::Optional,
+        Arg::Long("sudoloop") => TakesValue::Optional,
         Arg::Long("develsuffixes") => TakesValue::Required,
         Arg::Long("localrepo") => TakesValue::Optional,
         Arg::Long("chroot") => TakesValue::Optional,

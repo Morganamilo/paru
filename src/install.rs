@@ -54,8 +54,8 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let flags = flags(config);
     let c = config.color;
 
-    if config.sudo_loop {
-        exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_flags.clone())?;
+    if !config.sudo_loop.is_empty() {
+        exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_loop.clone())?;
     }
 
     if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {

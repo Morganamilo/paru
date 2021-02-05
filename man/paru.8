@@ -429,9 +429,12 @@ When building packages if the package is found in cache and is an equal version
 to the one wanted skip the package build and use the existing package.
 
 .TP
-.B \-\-sudoloop
+.B \-\-sudoloop [= args...]
 Periodically call sudo in the background to prevent it from timing out during
 long builds.
+
+Optionally args can be passed to choose how to loop the command. This may be
+useful for doas where looping is done differently.
 
 .TP
 .B \-\-nosudoloop

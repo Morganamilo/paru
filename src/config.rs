@@ -198,7 +198,6 @@ pub struct Config {
 
     pub no_check: bool,
     pub no_confirm: bool,
-    pub sudo_loop: bool,
     pub devel: bool,
     pub clean_after: bool,
     pub provides: bool,
@@ -227,6 +226,7 @@ pub struct Config {
     #[default = "bat"]
     pub bat_bin: String,
     pub fm: Option<String>,
+    pub sudo_loop: Vec<String>,
 
     pub mflags: Vec<String>,
     pub git_flags: Vec<String>,
@@ -643,7 +643,13 @@ impl Config {
             "BottomUp" => self.sort_mode = "bottomup".into(),
             "AurOnly" => self.mode = "aur".into(),
             "RepoOnly" => self.mode = "repo".into(),
-            "SudoLoop" => self.sudo_loop = true,
+            "SudoLoop" => {
+                self.sudo_loop = value
+                    .unwrap_or("-v")
+                    .split_whitespace()
+                    .map(|s| s.to_string())
+                    .collect()
+            }
             "Devel" => self.devel = true,
             "NoCheck" => self.no_check = true,
             "CleanAfter" => self.clean_after = true,

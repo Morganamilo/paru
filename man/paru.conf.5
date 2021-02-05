@@ -43,9 +43,12 @@ Assume all targets are from the repositories. Additionally, actions such as
 sysupgrade will only act on repository packages.
 
 .TP
-.B SudoLoop
+.B SudoLoop [= args...]
 Periodically call sudo in the background to prevent it from timing out during
 long builds.
+
+Optionally args can be passed to choose how to loop the command. This may be
+useful for doas where looping is done differently.
 
 .TP
 .B NoCheck
