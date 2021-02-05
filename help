@@ -49,6 +49,8 @@ New options:
     --sortby    <field>    Sort AUR results by a specific field during search
     --searchby  <field>    Search for packages using a specified field
 
+    --skipreview           Skip the review process
+    --noskipreview         Don't skip the review process
     --[no]upgrademenu      Show interactive menu to skip upgrades
     --[no]removemake       Remove makedepends after install
     --[no]cleanafter       Remove package sources after successful install

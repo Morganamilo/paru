@@ -232,6 +232,8 @@ impl Config {
                 self.aur_filter = true;
             }
             Arg::Long("repo") => self.mode = "repo".to_string(),
+            Arg::Long("skipreview") => self.skip_review = true,
+            Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
             Arg::Long("nocheck") => self.no_check = true,
             Arg::Long("devel") => self.devel = true,

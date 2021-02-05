@@ -101,6 +101,9 @@ _pacman_opts_common=(
 	'--chroot[Build packages in a chroot]'
 	"--nochroot[Don't build packages in a chroot]"
 	'--localrepo[Build packages in a local repo]'
+
+	'--upgrademenu[Skip the review process]'
+	"--upgrademenu[Don't skip the review process]"
 )
 
 # options for passing to _arguments: options for --upgrade commands

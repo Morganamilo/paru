@@ -16,12 +16,12 @@ use crate::{args, exec, news};
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
+use std::ffi::OsStr;
 use std::fs::{read_dir, read_link, OpenOptions};
 use std::io::{stdin, stdout, BufRead, Read, Write};
 use std::iter::FromIterator;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::ffi::OsStr;
 
 use alpm::Alpm;
 use alpm_utils::{DbListExt, Targ};
@@ -196,16 +196,24 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         false
     };
 
-    if !ask(config, "Proceed to review?", true) {
-        return Ok(1);
+    if !config.skip_review {
+        if !ask(config, "Proceed to review?", true) {
+            return Ok(1);
+        }
+    } else {
+        if !ask(config, "Proceed with install?", true) {
+            return Ok(1);
+        }
     }
 
     let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
-    let ret = review(config, &actions, &srcinfos, &bases)?;
-    if ret != 0 {
-        return Ok(ret);
+    if !config.skip_review {
+        let ret = review(config, &actions, &srcinfos, &bases)?;
+        if ret != 0 {
+            return Ok(ret);
+        }
     }
 
     let mut err = if !config.chroot {
@@ -379,16 +387,19 @@ fn review<'a>(
                         {
                             let file = file?;
 
-                            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".git")) {
+                            if file.file_type()?.is_dir()
+                                && file.path().file_name() == Some(OsStr::new(".git"))
+                            {
                                 continue;
                             }
-                            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".SRCINFO")) {
+                            if file.file_type()?.is_dir()
+                                && file.path().file_name() == Some(OsStr::new(".SRCINFO"))
+                            {
                                 continue;
                             }
                             if file.file_type()?.is_dir() {
                                 let s = format!("{} is a directory\n\n", file.path().display());
-                                let _ =
-                                    write!(stdin, "{}", c.bold.paint(s));
+                                let _ = write!(stdin, "{}", c.bold.paint(s));
                                 continue;
                             }
                             if file.file_type()?.is_symlink() {
@@ -401,7 +412,11 @@ fn review<'a>(
                                 continue;
                             }
 
-                            let _ = write!(stdin, "{}\n",  c.bold.paint(file.path().display().to_string()));
+                            let _ = write!(
+                                stdin,
+                                "{}\n",
+                                c.bold.paint(file.path().display().to_string())
+                            );
                             if bat {
                                 let output = Command::new(&config.bat_bin)
                                     .arg("-pp")

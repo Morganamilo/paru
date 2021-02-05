@@ -75,7 +75,8 @@ _paru() {
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
            nouseask combinedupgrade nocombinedupgrade batchinstall nobatchinstall provides
            noprovides devel nodevel develsuffixes sudoloop nosudoloop bottomup topdown
-           newsonupgrade bat batflags chroot nochroot localrepo' 'b d h q r v a')
+           newsonupgrade bat batflags chroot nochroot localrepo review skipreview'
+	   'b d h q r v a')
 
   show=('news' 'w')
   getpkgbuild=('print comments' 'p c')

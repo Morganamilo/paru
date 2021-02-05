@@ -196,6 +196,7 @@ pub struct Config {
     pub help: bool,
     pub version: bool,
 
+    pub skip_review: bool,
     pub no_check: bool,
     pub no_confirm: bool,
     pub devel: bool,
@@ -640,6 +641,7 @@ impl Config {
         let mut ok2 = true;
 
         match key {
+            "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = "bottomup".into(),
             "AurOnly" => self.mode = "aur".into(),
             "RepoOnly" => self.mode = "repo".into(),
