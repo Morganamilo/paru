@@ -50,7 +50,7 @@ _pacman_opts_common=(
 	{-a,--aur}'[Assume targets are from the AUR]'
 	'--aururl[Set an alternative AUR URL]:url'
 
-	'--builddir[Directory to use for building AUR Packages]:build dir:_files -/'
+	'--clonedir[Directory used to download and run PKGBUILDs]:build dir:_files -/'
 	'--makepkg[makepkg command to use]:makepkg:_files'
 	'--pacman[pacman command to use]:pacman:_files'
 	'--git[git command to use]:git:_files'

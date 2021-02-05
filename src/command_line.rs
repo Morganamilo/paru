@@ -190,6 +190,7 @@ impl Config {
             Arg::Long("fm") => self.fm = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
+            Arg::Long("builddir") | Arg::Long("clonedir") => self.build_dir = value?.into(),
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
             Arg::Long("mflags") => self.mflags.extend(split_whitespace(value?)),
             Arg::Long("gitflags") => self.git_flags.extend(split_whitespace(value?)),
@@ -359,7 +360,8 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,
         Arg::Long("ask") => TakesValue::Required,
         Arg::Long("arch") => TakesValue::Required,
-        Arg::Long("cachedir") => TakesValue::Required,
+        Arg::Long("builddir") => TakesValue::Required,
+        Arg::Long("clonedir") => TakesValue::Required,
         Arg::Long("color") => TakesValue::Required,
         Arg::Long("config") => TakesValue::Required,
         Arg::Long("gpgdir") => TakesValue::Required,

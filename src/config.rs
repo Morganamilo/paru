@@ -704,7 +704,7 @@ impl Config {
 
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
-            "BuildDir" => self.build_dir = PathBuf::from(value?),
+            "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
             "Redownload" => self.redownload = validate(value?, no_all)?,
             "Rebuild" => self.rebuild = validate(value?, no_all)?,
             "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,

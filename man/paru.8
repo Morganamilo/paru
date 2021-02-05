@@ -159,9 +159,8 @@ Set an alternative AUR URL. This is mostly useful for users in China who wish
 to use https://aur.tuna.tsinghua.edu.cn/.
 
 .TP
-.B \-\-builddir <dir>
-Directory to use for building AUR Packages. This directory is also used as
-the AUR cache when deciding if paru should skip builds.
+.B \-\-clonedir <dir>
+Directory used to download and run PKGBUILDs.
 
 .TP
 .B \-\-makepkg <command>
@@ -498,7 +497,7 @@ pacaur-like devel check.
 .B AURDEST
 Can be set to configure the build directory.
 
-Overridden by \-\-builddir.
+Overridden by \-\-clonedir.
 
 .TP
 .B PARU_CONF
