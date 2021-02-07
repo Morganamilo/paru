@@ -233,4 +233,4 @@ complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' 
 complete -c $progname -n "not $noopt" -l nochroot -d "Don't build packages in a chroot" -f
 complete -c $progname -n "not $noopt" -l localrepo -d 'Build packages in a local repo' -f
 complete -c $progname -n "not $noopt" -l skipreview -d 'Skip the review process' -f
-complete -c $progname -n "not $noopt" -l review -d "Don't kip the review process" -f
+complete -c $progname -n "not $noopt" -l review -d "Don't skip the review process" -f
