@@ -18,6 +18,7 @@ use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
+use alpm_utils::DbListExt;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct _PkgInfo {
@@ -278,7 +279,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
                     continue 'outer;
                 }
             }
-        } else {
+        } else if config.alpm.syncdbs().pkg(pkg.as_str()).is_err() {
             futures.push(pkg_has_update(config, pkg, &repos.repos));
         }
     }
