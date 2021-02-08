@@ -70,6 +70,7 @@ fn print_error(color: Style, err: Error) {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
 
     let i = main2().await;
@@ -113,7 +114,8 @@ async fn run(config: &mut Config) -> Result<i32> {
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
     let ret = match config.op.as_str() {
-        "database" | "files" | "upgrade" => exec::pacman(config, &config.args)?.code(),
+        "database" | "files" => exec::pacman(config, &config.args)?.code(),
+        "upgrade" => handle_upgrade(config).await?,
         "query" => handle_query(config).await?,
         "sync" => handle_sync(config).await?,
         "remove" => handle_remove(config)?,
@@ -127,6 +129,14 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
     };
 
     Ok(ret)
+}
+
+async fn handle_upgrade(config: &mut Config) -> Result<i32> {
+    if config.targets.is_empty() {
+        install::build_pkgbuild(config).await
+    } else {
+        Ok(exec::pacman(config, &config.args)?.code())
+    }
 }
 
 async fn handle_query(config: &mut Config) -> Result<i32> {

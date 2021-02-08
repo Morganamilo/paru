@@ -16,7 +16,7 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 [dependencies]
 alpm = "1.1.8"
 alpm-utils = "0.6.2"
-aur-depends = "0.13.0"
+aur-depends = "0.14.0"
 aur-fetch = "0.9.1"
 cini = "0.1.1"
 pacmanconf = "0.2.0"
@@ -45,6 +45,7 @@ tempfile = "3.2.0"
 term_size = "0.3.2"
 tokio = { version = "1.1.0", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.0"
+env_logger = "0.8.2"
 
 [profile.release]
 lto = true

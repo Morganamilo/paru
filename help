@@ -12,7 +12,7 @@ Pacman operations:
     paru {-R --remove}      [options] <package(s)>
     paru {-S --sync}        [options] [package(s)]
     paru {-T --deptest}     [options] [package(s)]
-    paru {-U --upgrade}     [options] <file(s)>
+    paru {-U --upgrade}     [options] [file(s)]
 
 New operations:
     paru {-P --show}        [options]
@@ -80,3 +80,6 @@ show specific options:
 getpkgbuild specific options:
     -p --print            Print pkgbuild to stdout
     -c --comments         Print AUR comments for pkgbuild
+
+upgrade specific options:
+    -i --install          Install package as well as building

@@ -36,6 +36,11 @@ Downloads PKGBUILDs from the ABS or AUR. The ABS can only be used for Arch
 Linux repositories.
 
 .TP
+.B \-U, \-\-upgrade
+When ran without targets, like makepkg, builds a PKGBUILD in the currrent directory.
+
+
+.TP
 .B \-L, \-\-repoctl
 List local repos.
 
@@ -139,6 +144,11 @@ Install a package into the chroot.
 .TP
 .B \-u, \-\-upgrade
 Upgrade the chroot.
+
+.SH UPGRADE OPTIONS (APPLY TO \-U AND \-\-UPGRADE)
+.TP
+.B \-i, \-\-install
+Also install the package once built.
 
 .SH NEW OPTIONS
 .TP
@@ -249,7 +259,8 @@ separated list that is quoted by the shell.
 .B \-\-completioninterval <days>
 Time in days to refresh the completion cache. Setting this to 0 will cause the
 cache to be refreshed every time, while setting this to -1 will cause the cache
-to never be refreshed. Defaults to 7.
+to never be re    -c --comments         Print AUR comments for pkgbuild
+freshed. Defaults to 7.
 
 .TP
 .B \-\-sortby <votes|popularity|id|baseid|name|base|submitted|modified>

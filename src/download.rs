@@ -19,7 +19,7 @@ use raur::{ArcPackage as Package, Raur};
 use srcinfo::Srcinfo;
 use url::Url;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Bases {
     pub bases: Vec<Base>,
 }

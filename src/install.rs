@@ -33,6 +33,43 @@ use pacmanconf::Repository;
 use raur::Cache;
 use srcinfo::Srcinfo;
 
+#[derive(SmartDefault, PartialEq, Eq)]
+enum Status {
+    #[default]
+    Ok,
+    NothingToDo,
+    Stop(i32),
+}
+
+#[derive(SmartDefault)]
+struct BuildInfo {
+    #[default(Ok(0))]
+    err: Result<i32>,
+    status: Status,
+    build: Vec<aur_depends::Base>,
+    srcinfos: HashMap<String, Srcinfo>,
+    aur_repos: HashMap<String, String>,
+    bases: Bases,
+    conflicts: HashSet<String>,
+    remove_make: Vec<String>,
+}
+
+impl BuildInfo {
+    fn nothing_to_do() -> Self {
+        BuildInfo {
+            status: Status::NothingToDo,
+            ..Default::default()
+        }
+    }
+
+    fn stop() -> Self {
+        BuildInfo {
+            status: Status::Stop(1),
+            ..Default::default()
+        }
+    }
+}
+
 fn early_refresh(config: &Config) -> Result<()> {
     let mut args = config.pacman_globals();
     for _ in 0..config.args.count("y", "refresh") {
@@ -51,9 +88,194 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
     Ok(())
 }
 
+pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
+    let mut cache = Cache::new();
+    let c = config.color;
+
+    let arch = config.alpm.arch();
+    let dir = std::env::current_dir()?;
+    let srcinfo_dir = dir.join(".SRCINFO");
+    let srcinfo = Srcinfo::parse_file(&srcinfo_dir)?;
+
+    let deps = srcinfo
+        .pkgs
+        .iter()
+        .chain(Some(&srcinfo.pkg))
+        .flat_map(|pkg| pkg.depends.iter().filter(|d| d.supports(arch)))
+        .flat_map(|av| &av.vec)
+        .collect::<Vec<_>>();
+
+    let make_deps = srcinfo
+        .base
+        .makedepends
+        .iter()
+        .filter(|d| d.supports(arch))
+        .flat_map(|av| &av.vec)
+        .collect::<Vec<_>>();
+
+    if !config.sudo_loop.is_empty() {
+        exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_loop.clone())?;
+    }
+
+    config.op = "sync".to_string();
+    config.args.op = config.op.clone();
+    config.globals.op = config.op.clone();
+
+    let flags = flags(config);
+    let resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
+
+    println!(
+        "{} {}",
+        c.action.paint("::"),
+        c.bold.paint("Resolving dependencies...")
+    );
+
+    let actions = resolver.resolve_depends(&deps, &make_deps).await?;
+    let mut build_info = prepare_build(config, HashMap::new(), &mut cache, actions).await?;
+
+    if let Status::Stop(ret) = build_info.status {
+        return Ok(ret);
+    }
+
+    if !build_info.build.is_empty() {
+        if build_info.err.is_ok() {
+            let err = build_install_pkgbuilds(config, &mut build_info).await;
+            build_info.err = err;
+        }
+
+        build_cleanup(config, &build_info)?;
+    }
+
+    build_info.err?;
+
+    let chroot = chroot(config);
+
+    let repo = repo::configured_local_repos(config);
+    let repo = repo.get(0).map(|repo| {
+        config
+            .pacman
+            .repos
+            .iter()
+            .find(|r| r.name == *repo)
+            .unwrap()
+    });
+
+    if let Some(repo) = repo {
+        let file = repo::file(repo).unwrap();
+        repo::init(config, file, &repo.name)?;
+    }
+
+    let repo = repo.cloned();
+
+    if config.chroot {
+        if !chroot.exists() {
+            chroot.create(config, &["base-devel"])?;
+        } else {
+            chroot.update()?;
+        }
+    }
+
+    if config.chroot {
+        chroot
+            .build(&dir, &["-cu"], &["-ofA"])
+            .context("failed to download sources")?;
+    } else {
+        // download sources
+        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+            .success()
+            .context("failed to download sources")?;
+
+        // pkgver bump
+        exec::makepkg(config, &dir, &["-ofCA"])?
+            .success()
+            .context("failed to build")?;
+    }
+
+    println!("parsing pkg list...");
+    let (mut pkgdest, _) = parse_package_list(config, &dir)?;
+
+    if !pkgdest.values().all(|p| Path::new(p).exists()) {
+        // actual build
+        if config.chroot {
+            chroot
+                .build(
+                    &dir,
+                    &[],
+                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                )
+                .context("failed to build")?;
+        } else {
+            exec::makepkg(
+                config,
+                &dir,
+                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
+            )?
+            .success()
+            .context("failed to build")?;
+        }
+    } else {
+        println!(
+            "{} {}-{} is up to date -- skipping build",
+            c.warning.paint("::"),
+            srcinfo.base.pkgbase,
+            srcinfo.base.pkgver,
+        )
+    }
+
+    pkgdest.retain(|_, v| Path::new(v).exists());
+
+    let db = config.alpm.syncdbs();
+    if let Some(ref repo) = repo {
+        let pkgs = pkgdest.values().collect::<Vec<_>>();
+        if let Some(repo) = db
+            .pkg(srcinfo.base.pkgbase.as_str())
+            .ok()
+            .and_then(|pkg| pkg.db())
+        {
+            let repo = config
+                .pacman
+                .repos
+                .iter()
+                .find(|db| db.name == repo.name())
+                .unwrap();
+            let path = repo::file(repo).unwrap();
+            let name = repo.name.clone();
+            repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
+            repo::refresh(config, &[name])?;
+        } else {
+            let path = repo::file(&repo).unwrap();
+            repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
+            repo::refresh(config, &[repo.name.clone()])?;
+        }
+    }
+
+    if config.install {
+        let mut args = config.pacman_globals();
+
+        if config.chroot {
+            args.op("sync");
+            args.targets = pkgdest.keys().map(|s| s.as_str()).collect();
+        } else {
+            args.op("upgrade");
+            args.targets = pkgdest.values().map(|s| s.as_str()).collect();
+        }
+
+        if config.args.has_arg("asexplicit", "asexplicit") {
+            args.arg("asexplicit");
+        } else if config.args.has_arg("asdeps", "asdeps") {
+            args.arg("asdeps");
+        }
+
+        args.arg("noconfirm");
+        let code = exec::pacman(config, &args)?.code();
+        return Ok(code);
+    }
+
+    Ok(0)
+}
+
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let mut cache = Cache::new();
-    let flags = flags(config);
     let c = config.color;
 
     if !config.sudo_loop.is_empty() {
@@ -111,6 +333,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
+    let flags = flags(config);
     let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
@@ -164,8 +387,32 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         c.bold.paint("Resolving dependencies...")
     );
 
-    let mut actions = resolver.resolve_targets(&targets).await?;
+    let actions = resolver.resolve_targets(&targets).await?;
+    let mut build_info = prepare_build(config, upgrades.aur_repos, &mut cache, actions).await?;
 
+    if let Status::Stop(ret) = build_info.status {
+        return Ok(ret);
+    }
+
+    if build_info.status == Status::NothingToDo {
+        return Ok(1);
+    }
+
+    if build_info.err.is_ok() {
+        let err = build_install_pkgbuilds(config, &mut build_info).await;
+        build_info.err = err;
+    }
+
+    build_cleanup(config, &build_info)?;
+    build_info.err
+}
+
+async fn prepare_build<'a>(
+    config: &Config,
+    aur_repos: HashMap<String, String>,
+    cache: &mut Cache,
+    mut actions: Actions<'a>,
+) -> Result<BuildInfo> {
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
         bail!("can't install AUR package as root");
     }
@@ -175,16 +422,15 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     print_warnings(config, &cache, Some(&actions));
 
     if actions.build.is_empty() && actions.install.is_empty() {
-        if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
-            print_warnings(config, &cache, None);
-            println!(" there is nothing to do");
-        }
-        return Ok(0);
+        //if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
+        println!(" there is nothing to do");
+        //}
+        return Ok(BuildInfo::nothing_to_do());
     }
 
     print_install(config, &actions);
 
-    let remove_make = if !config.chroot
+    let has_make = if !config.chroot
         && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make))
     {
         if config.remove_make == "ask" {
@@ -198,11 +444,11 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     if !config.skip_review {
         if !ask(config, "Proceed to review?", true) {
-            return Ok(1);
+            return Ok(BuildInfo::stop());
         }
     } else {
         if !ask(config, "Proceed with install?", true) {
-            return Ok(1);
+            return Ok(BuildInfo::stop());
         }
     }
 
@@ -212,11 +458,13 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     if !config.skip_review {
         let ret = review(config, &actions, &srcinfos, &bases)?;
         if ret != 0 {
-            return Ok(ret);
+            let mut bi = BuildInfo::stop();
+            bi.status = Status::Stop(ret);
+            return Ok(bi);
         }
     }
 
-    let mut err = if !config.chroot {
+    let err = if !config.chroot {
         repo_install(config, &mut actions.install)
     } else {
         let mut install = actions.install.to_vec();
@@ -229,59 +477,70 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let conflicts = conflicts
         .0
         .iter()
-        .map(|c| c.pkg.as_str())
-        .chain(conflicts.1.iter().map(|c| c.pkg.as_str()))
+        .map(|c| c.pkg.clone())
+        .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
         .collect::<HashSet<_>>();
 
-    let mut build = actions.build;
-    let install_targets = actions
-        .install
-        .iter()
-        .filter(|p| p.make)
-        .map(|p| p.pkg.name().to_string())
-        .collect::<Vec<_>>();
+    let build = actions.build;
 
-    if err.is_ok() {
-        //download_pkgbuild_sources(config, &actions.build)?;
-        err = build_install_pkgbuilds(
-            config,
-            &mut build,
-            &srcinfos,
-            &upgrades.aur_repos,
-            &bases,
-            &conflicts,
-        )
-        .await;
+    let mut remove_make = Vec::new();
+
+    if has_make {
+        remove_make.extend(
+            actions
+                .install
+                .iter()
+                .filter(|p| p.make)
+                .map(|p| p.pkg.name().to_string())
+                .collect::<Vec<_>>(),
+        );
+
+        remove_make.extend(
+            build
+                .iter()
+                .flat_map(|b| &b.pkgs)
+                .filter(|p| p.make)
+                .map(|p| p.pkg.name.clone()),
+        );
     }
 
-    if remove_make {
+    Ok(BuildInfo {
+        err,
+        status: Status::Ok,
+        build,
+        srcinfos,
+        aur_repos,
+        bases,
+        conflicts,
+        remove_make,
+    })
+}
+
+fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
+    let mut ret = 0;
+
+    if !bi.remove_make.is_empty() {
         let mut args = config.pacman_globals();
         args.op("remove").arg("noconfirm");
-        args.targets = build
-            .iter()
-            .flat_map(|b| &b.pkgs)
-            .filter(|p| p.make)
-            .map(|p| p.pkg.name.as_str())
-            .collect();
-
-        args.targets
-            .extend(install_targets.iter().map(|s| s.as_str()));
+        args.targets = bi.remove_make.iter().map(|s| s.as_str()).collect();
 
         if let Err(err) = exec::pacman(config, &args) {
             print_error(config.color.error, err);
+            ret = 1;
         }
     }
 
     if config.clean_after {
-        for base in &build {
+        for base in &bi.build {
             let path = config.build_dir.join(base.package_base());
             if let Err(err) = clean_untracked(config, &path) {
                 print_error(config.color.error, err);
+                ret = 1;
             }
         }
     }
 
-    err
+    Ok(ret)
 }
 
 async fn download_pkgbuilds<'a>(
@@ -541,6 +800,7 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
     args.remove("asdeps")
         .remove("asexplicit")
         .remove("y")
+        .remove("i")
         .remove("refresh");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
@@ -813,21 +1073,8 @@ fn do_install(
     Ok(())
 }
 
-async fn build_install_pkgbuilds(
-    config: &mut Config,
-    build: &mut [aur_depends::Base],
-    srcinfos: &HashMap<String, Srcinfo>,
-    aur_repos: &HashMap<String, String>,
-    bases: &Bases,
-    conflicts: &HashSet<&str>,
-) -> Result<i32> {
-    let mut deps = Vec::new();
-    let mut exp = Vec::new();
-    let mut install_queue = Vec::new();
-    let mut conflict = false;
-    let mut failed = Vec::new();
-
-    let chroot = Chroot {
+fn chroot(config: &Config) -> Chroot {
+    Chroot {
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf
@@ -844,13 +1091,23 @@ async fn build_install_pkgbuilds(
             .map(|s| s.to_string())
             .collect(),
         rw: config.pacman.cache_dir.clone(),
-    };
+    }
+}
+
+async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) -> Result<i32> {
+    let mut deps = Vec::new();
+    let mut exp = Vec::new();
+    let mut install_queue = Vec::new();
+    let mut conflict = false;
+    let mut failed = Vec::new();
+
+    let chroot = chroot(config);
 
     let (mut devel_info, mut new_devel_info) = if config.devel {
         println!("fetching devel info...");
         (
             load_devel_info(config)?.unwrap_or_default(),
-            fetch_devel_info(config, bases, srcinfos).await?,
+            fetch_devel_info(config, &bi.bases, &bi.srcinfos).await?,
         )
     } else {
         (DevelInfo::default(), DevelInfo::default())
@@ -881,13 +1138,13 @@ async fn build_install_pkgbuilds(
         }
     }
 
-    for base in build.iter_mut() {
+    for base in bi.build.iter_mut() {
         failed.push(base.clone());
 
         let err = build_install_pkgbuild(
             config,
-            aur_repos,
-            conflicts,
+            &bi.aur_repos,
+            &bi.conflicts,
             &chroot,
             base,
             &mut deps,
@@ -906,7 +1163,8 @@ async fn build_install_pkgbuilds(
 
     if config.chroot {
         if !config.args.has_arg("w", "downloadonly") {
-            let targets = build
+            let targets = bi
+                .build
                 .iter()
                 .filter(|b| !failed.iter().any(|f| b.package_base() == f.package_base()))
                 .flat_map(|b| &b.pkgs)
@@ -961,7 +1219,7 @@ async fn build_install_pkgbuilds(
 fn build_install_pkgbuild<'a>(
     config: &mut Config,
     aur_repos: &HashMap<String, String>,
-    conflicts: &HashSet<&str>,
+    conflicts: &HashSet<String>,
     chroot: &Chroot,
     base: &'a mut Base,
     deps: &mut Vec<&'a str>,
