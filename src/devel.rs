@@ -12,13 +12,13 @@ use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
 
+use alpm_utils::DbListExt;
 use anyhow::{bail, Context, Result};
 use futures::future::{join_all, select_ok, try_join_all, FutureExt};
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
-use alpm_utils::DbListExt;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct _PkgInfo {

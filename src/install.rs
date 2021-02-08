@@ -95,7 +95,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let arch = config.alpm.arch();
     let dir = std::env::current_dir()?;
     let srcinfo_dir = dir.join(".SRCINFO");
-    let srcinfo = Srcinfo::parse_file(&srcinfo_dir)?;
+    let srcinfo = Srcinfo::parse_file(&srcinfo_dir).context("failed to parse .SRCINFO")?;
 
     let deps = srcinfo
         .pkgs
