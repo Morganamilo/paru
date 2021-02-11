@@ -98,6 +98,8 @@ pub struct Colors {
     pub new_version: Style,
     pub number_menu: Style,
     pub group: Style,
+    pub stats_line_separator: Style,
+    pub stats_value: Style,
 }
 
 impl From<&str> for Colors {
@@ -138,6 +140,8 @@ impl Colors {
             new_version: Style::new().fg(Green),
             number_menu: Style::new().fg(Purple),
             group: Style::new().fg(Blue).bold(),
+            stats_line_separator: Style::new().fg(Blue).bold(),
+            stats_value: Style::new().fg(Cyan),
         }
     }
 }
@@ -337,6 +341,7 @@ pub struct Config {
     pub config_path: Option<PathBuf>,
 
     pub news: u32,
+    pub stats: bool,
     pub gendb: bool,
 
     #[default(YesNoAll::No)]
