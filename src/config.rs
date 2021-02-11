@@ -901,7 +901,7 @@ fn help() {
     print!("{}", help);
 }
 
-fn version() {
+pub fn version() {
     let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
     print!("paru v{}", ver);
     #[cfg(feature = "git")]

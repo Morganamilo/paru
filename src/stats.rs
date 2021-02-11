@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{version, Config};
 
 use alpm::PackageReason;
 use alpm_utils::DbListExt;
@@ -71,6 +71,7 @@ pub fn stats(config: &Config) -> Result<i32> {
     let c = config.color;
     let info = collect_info(config, 10)?;
 
+    version();
     print_line_separator(config);
 
     println!(
