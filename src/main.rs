@@ -162,7 +162,7 @@ async fn handle_show(config: &Config) -> Result<i32> {
     } else if config.complete {
         Ok(completion::print(config, None).await)
     } else if config.stats {
-        stats::stats(config)
+        stats::stats(config).await
     } else {
         Ok(0)
     }

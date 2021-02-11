@@ -2,6 +2,7 @@ use crate::config::{version, Config};
 
 use alpm::PackageReason;
 use alpm_utils::DbListExt;
+use raur::Raur;
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -11,20 +12,24 @@ use indicatif::HumanBytes;
 
 struct Info<'a> {
     installed_packages: usize,
-    foreign_packages: u32,
-    explicit_packages: u32,
+    foreign_packages: usize,
+    explicit_packages: usize,
     total_size: i64,
     max_packages: Vec<(i64, &'a str)>,
+    orphaned: Vec<String>,
+    outdated: Vec<String>,
 }
 
-fn collect_info(config: &Config, max_n: usize) -> Result<Info> {
+async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> {
     let db = config.alpm.localdb();
     let sync_db = config.alpm.syncdbs();
 
     let installed_packages = db.pkgs().len();
-    let mut foreign_packages = 0;
+    let mut foreign_packages = Vec::new();
     let mut explicit_packages = 0;
     let mut total_size = 0;
+    let mut orphaned = Vec::new();
+    let mut outdated = Vec::new();
 
     let mut max_packages = BinaryHeap::with_capacity(max_n + 1);
 
@@ -34,12 +39,22 @@ fn collect_info(config: &Config, max_n: usize) -> Result<Info> {
             max_packages.pop();
         }
         if let Err(alpm::Error::PkgNotFound) = sync_db.pkg(pkg.name()) {
-            foreign_packages += 1;
+            foreign_packages.push(pkg.name());
         }
         if pkg.reason() == PackageReason::Explicit {
             explicit_packages += 1;
         }
         total_size += pkg.isize();
+    }
+
+    let aur_info = config.raur.info(&foreign_packages).await?;
+    for pkg in aur_info.into_iter() {
+        if pkg.maintainer.is_none() {
+            orphaned.push(pkg.name.clone());
+        }
+        if pkg.out_of_date.is_some() {
+            outdated.push(pkg.name.clone());
+        }
     }
 
     let max_packages = max_packages
@@ -50,10 +65,12 @@ fn collect_info(config: &Config, max_n: usize) -> Result<Info> {
 
     Ok(Info {
         installed_packages,
-        foreign_packages,
+        foreign_packages: foreign_packages.len(),
         explicit_packages,
         total_size,
         max_packages,
+        orphaned,
+        outdated,
     })
 }
 
@@ -67,9 +84,9 @@ fn print_line_separator(config: &Config) {
     );
 }
 
-pub fn stats(config: &Config) -> Result<i32> {
+pub async fn stats(config: &Config) -> Result<i32> {
     let c = config.color;
-    let info = collect_info(config, 10)?;
+    let info = collect_info(config, 10).await?;
 
     version();
     print_line_separator(config);
@@ -104,6 +121,18 @@ pub fn stats(config: &Config) -> Result<i32> {
     }
 
     print_line_separator(config);
+
+    print!("{}", c.bold.paint("Orphaned AUR Packages:"));
+    for orphan in info.orphaned {
+        print!(" {}", c.stats_value.paint(orphan));
+    }
+    println!();
+
+    print!("{}", c.bold.paint("Flagged Out Of Date AUR Packages:"));
+    for outdated in info.outdated {
+        print!(" {}", c.stats_value.paint(outdated));
+    }
+    println!();
 
     Ok(0)
 }
