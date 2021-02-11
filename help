@@ -75,6 +75,7 @@ New options:
 
 show specific options:
     -c --complete         Used for completions
+    -s --stats            Display system package statistics
     -w --news             Print arch news
 
 getpkgbuild specific options:
