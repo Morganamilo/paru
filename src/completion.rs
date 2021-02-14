@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::print_error;
 
-use std::fs::{metadata, OpenOptions};
+use std::fs::{metadata, OpenOptions, create_dir_all};
 use std::io::{stdout, BufRead, BufReader, Write};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
@@ -20,6 +20,7 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
 
     let data = resp.bytes().await?;
 
+    create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new().write(true).create(true).open(&path);
     let mut file =
