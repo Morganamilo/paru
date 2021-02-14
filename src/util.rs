@@ -31,16 +31,6 @@ pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -
     (local, aur)
 }
 
-pub fn split_repo_aur_mode<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {
-    if config.mode == "aur" {
-        (Vec::new(), pkgs.to_vec())
-    } else if config.mode == "repo" {
-        (pkgs.to_vec(), Vec::new())
-    } else {
-        split_repo_aur_pkgs(config, pkgs)
-    }
-}
-
 pub fn split_repo_aur_targets<'a, T: AsTarg>(
     config: &Config,
     targets: &'a [T],
