@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::print_error;
 
-use std::fs::{metadata, OpenOptions, create_dir_all};
+use std::fs::{create_dir_all, metadata, OpenOptions};
 use std::io::{stdout, BufRead, BufReader, Write};
 use std::path::Path;
 use std::time::{Duration, SystemTime};

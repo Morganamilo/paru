@@ -719,12 +719,12 @@ fn review<'a>(
                     .wait()
                     .with_context(|| format!("failed to run {}", pager))?;
                 unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
+
+                if !ask(config, "Proceed with installation?", true) {
+                    return Ok(1);
+                }
             } else {
                 println!(" nothing new to review");
-            }
-
-            if !ask(config, "Proceed with installation?", true) {
-                return Ok(1);
             }
         }
     }
