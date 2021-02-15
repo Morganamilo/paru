@@ -23,7 +23,8 @@ use std::iter::FromIterator;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-use alpm::Alpm;
+use alpm::{Alpm, Depend, Version};
+use alpm_utils::depends::{satisfies_dep, satisfies_provide};
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
@@ -131,7 +132,8 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     );
 
     let actions = resolver.resolve_depends(&deps, &make_deps).await?;
-    let mut build_info = prepare_build(config, HashMap::new(), &mut cache, actions).await?;
+    let mut build_info =
+        prepare_build(config, HashMap::new(), &mut cache, actions, Some(&srcinfo)).await?;
 
     if let Status::Stop(ret) = build_info.status {
         return Ok(ret);
@@ -388,7 +390,8 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     );
 
     let actions = resolver.resolve_targets(&targets).await?;
-    let mut build_info = prepare_build(config, upgrades.aur_repos, &mut cache, actions).await?;
+    let mut build_info =
+        prepare_build(config, upgrades.aur_repos, &mut cache, actions, None).await?;
 
     if let Status::Stop(ret) = build_info.status {
         return Ok(ret);
@@ -412,12 +415,13 @@ async fn prepare_build<'a>(
     aur_repos: HashMap<String, String>,
     cache: &mut Cache,
     mut actions: Actions<'a>,
+    srcinfo: Option<&Srcinfo>,
 ) -> Result<BuildInfo> {
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
         bail!("can't install AUR package as root");
     }
 
-    let conflicts = check_actions(config, &actions)?;
+    let conflicts = check_actions(config, &mut actions, srcinfo)?;
 
     print_warnings(config, &cache, Some(&actions));
 
@@ -831,10 +835,42 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
     Ok(0)
 }
 
-fn check_actions(config: &Config, actions: &Actions) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
+fn check_actions(
+    config: &Config,
+    actions: &mut Actions,
+    srcinfo: Option<&Srcinfo>,
+) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
     let c = config.color;
     let dups = actions.duplicate_targets();
     ensure!(dups.is_empty(), "duplicate packages: {}", dups.join(" "));
+
+    if !actions.missing.is_empty() {
+        if let Some(srcinfo) = srcinfo {
+            let provides = srcinfo
+                .pkgs
+                .iter()
+                .flat_map(|p| &p.provides)
+                .filter(|v| v.supports(config.alpm.arch()))
+                .flat_map(|v| &v.vec);
+            let names = srcinfo.pkgs.iter().map(|p| &p.pkgname);
+
+            for provide in provides {
+                actions.missing.retain(|m| {
+                    !satisfies_provide(Depend::new(m.dep.as_str()), Depend::new(provide.as_str()))
+                })
+            }
+
+            for name in names {
+                actions.missing.retain(|m| {
+                    !satisfies_dep(
+                        Depend::new(m.dep.as_str()),
+                        name,
+                        Version::new(srcinfo.version()),
+                    )
+                })
+            }
+        }
+    }
 
     if !actions.missing.is_empty() {
         let mut err = "could not find all required packages:".to_string();
