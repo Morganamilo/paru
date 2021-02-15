@@ -189,8 +189,10 @@ When building into a local repo, move packages into the repo instead of copying.
 
 .TP
 .B LocalRepo [= Repos...]
-Build packages into a local repo. The repo must already be declared in pacman.conf
-but does not have to already exist on disk.
+Use a local repo to build and upgrade AUR packages.
+
+Paru will act on packages in the enabled repos instead of foreign packages.
+The repo must already be declared in pacman.conf but does not have to already exist on disk.
 
 Optionally a list of repos to use can be passed. By default paru will consider all
 local repos, building new packages into the fist listed repo and upgrading the packages
