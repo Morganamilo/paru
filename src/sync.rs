@@ -14,7 +14,11 @@ pub async fn filter(config: &Config) -> Result<i32> {
         println!("{}", targ);
     }
 
-    Ok(0)
+    if cache.len() == config.targets.len() {
+        Ok(0)
+    } else {
+        Ok(127)
+    }
 }
 
 pub async fn list(config: &Config) -> Result<i32> {
