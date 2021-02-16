@@ -1,6 +1,6 @@
 # Paru
 
-An AUR helper and pacman wrapper
+Feature packed AUR helper
 
 [![paru](https://img.shields.io/aur/version/paru?color=1793d1&label=paru&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru/)
 [![paru-bin](https://img.shields.io/aur/version/paru-bin?color=1793d1&label=paru-bin&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/paru-bin/)
@@ -8,7 +8,7 @@ An AUR helper and pacman wrapper
 
 ## Description
 
-Paru is an AUR helper written in Rust and based on the design of [`yay`](https://github.com/Jguer/yay). It aims to be your standard pacman wrapping AUR helper with minimal interaction.
+Paru is your standard pacman wrapping AUR helper with lots of features and minimal interaction.
 
 [![asciicast](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE.svg)](https://asciinema.org/a/sEh1ZpZZUgXUsgqKxuDdhpdEE)
 
@@ -41,6 +41,8 @@ makepkg -si
 
 `paru` -- Alias for `paru -Syu`.
 
+`paru -S <target>` -- Install a specific package.
+
 `paru -Sua` -- Upgrade AUR packages.
 
 `paru -Qua` -- Print available AUR updates.
@@ -52,6 +54,8 @@ makepkg -si
 `paru -Gc <target>` -- Print the AUR comments  of `<target>`.
 
 `paru --gendb` -- Generate the devel database for tracking `*-git` packages. This is only needed when you initially start using paru.
+
+`paru -Ui` -- Build and install a PKGBUILD in the current directory.
 
 ## Debugging
 
