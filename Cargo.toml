@@ -36,16 +36,16 @@ indicatif = "0.15.0"
 kuchiki = "0.8.1"
 nix = "0.19.1"
 once_cell = "1.5.2"
-reqwest = { version = "0.11.0", features = ["gzip"] }
+reqwest = { version = "0.11.1", features = ["gzip"] }
 rss = { version = "1.10.0", default-features = false }
 serde = { version = "1.0.123", features = ["derive"] }
-serde_json = "1.0.61"
+serde_json = "1.0.62"
 smart-default = "0.6.0"
 tempfile = "3.2.0"
 term_size = "0.3.2"
-tokio = { version = "1.1.0", features = ["process", "macros", "rt-multi-thread"] }
-url = "2.2.0"
-env_logger = "0.8.2"
+tokio = { version = "1.2.0", features = ["process", "macros", "rt-multi-thread"] }
+url = "2.2.1"
+env_logger = "0.8.3"
 
 [profile.release]
 lto = true
