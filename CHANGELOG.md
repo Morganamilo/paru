@@ -1,5 +1,31 @@
 # Changelog
 
+## Paru v1.3.0 (2021-2-19)
+
+### Fixed
+
+- Fix misleading error when doing --nonexistantarg=foo 37fddea
+- Fix build dir not existing and rename to clonedir 5786bb2
+- Fix -Qu with local repo 7a9454f
+- Fix typos #225 #245
+- Create cache dir before caching aur list f18a901
+- Make -Ta return 127 when not all packages are in AUR b91d7ee
+ 
+### Added
+
+- Add pager option ca9bfea
+- Add PARU_PAGER 097433d
+- Allow setting custom sudo loop behaviour c165166
+- Add --skipreview a6c8511
+- Add paru -U e54d635
+
+### Changed
+
+- Show all files in review 9830c74
+- Skip review prompt when nothign to review 2a5e441
+- Improve local repo documentation 
+
+
 ## Paru v1.2.2 (2021-2-3)
 
 ### Fixed
