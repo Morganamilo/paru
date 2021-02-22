@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY ../ .
 
+
 RUN echo "keyserver hkp://keyserver.ubuntu.com" >> /etc/pacman.d/gnupg/gpg.conf
 RUN df -h
 RUN grep "[[:space:]]ro[[:space:],]" /proc/mounts 
