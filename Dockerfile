@@ -13,5 +13,6 @@ RUN echo "[options]" >> /etc/pacman.conf
 RUN echo "NoExtract = /etc/hosts /etc/resolv.conf" >> /etc/pacman.conf
 RUN pacman -Sy --noconfirm archlinux-keyring
 RUN pacman -Su --noconfirm rust
+RUN df -h
 RUN ./dist
 
