@@ -1,4 +1,4 @@
-# Paru
+ # Paru
 
 An AUR helper and pacman wrapper
 
