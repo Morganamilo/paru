@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY ../ .
 
-RUN pacman -Syu --noconfirm rust
+RUN pacman -Sy --noconfirm archlinux-keyring
+RUN pacman -Su --noconfirm rust
 RUN ls -la
 RUN ./dist
 
