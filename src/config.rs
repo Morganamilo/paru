@@ -189,6 +189,8 @@ pub struct Config {
     #[default = "any"]
     pub mode: String,
     pub aur_filter: bool,
+    #[default = "ask"]
+    pub skip_review: String,
 
     #[default = 7]
     pub completion_interval: u64,
@@ -196,7 +198,6 @@ pub struct Config {
     pub help: bool,
     pub version: bool,
 
-    pub skip_review: bool,
     pub no_check: bool,
     pub no_confirm: bool,
     pub devel: bool,
@@ -636,12 +637,12 @@ impl Config {
             "makedepends",
             "optdepends",
         ];
+        let always_never_ask = &["always", "never", "ask"];
 
         let mut ok1 = true;
         let mut ok2 = true;
 
         match key {
-            "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = "bottomup".into(),
             "AurOnly" => self.mode = "aur".into(),
             "RepoOnly" => self.mode = "repo".into(),
@@ -686,6 +687,10 @@ impl Config {
                 let value = value.unwrap_or("yes").into();
                 self.remove_make = validate(value, yes_no_ask)?;
             }
+            "SkipReview" => {
+                let value = value.unwrap_or("always").into();
+                self.skip_review = validate(value, always_never_ask)?;
+            }
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
@@ -716,6 +721,7 @@ impl Config {
             "Redownload" => self.redownload = validate(value?, no_all)?,
             "Rebuild" => self.rebuild = validate(value?, no_all)?,
             "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,
+            "SkipReview" => self.skip_review = validate(value?, always_never_ask)?,
             "SortBy" => self.sort_by = validate(value?, sort_by)?,
             "SearchBy" => self.search_by = validate(value?, search_by)?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,

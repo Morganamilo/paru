@@ -141,6 +141,7 @@ impl Config {
             "makedepends",
             "optdepends",
         ];
+        let always_never_ask = &["always", "never", "ask"];
 
         match takes_value(arg) {
             TakesValue::Required if value.is_none() => bail!("option {} expects a value", arg),
@@ -232,8 +233,10 @@ impl Config {
                 self.aur_filter = true;
             }
             Arg::Long("repo") => self.mode = "repo".to_string(),
-            Arg::Long("skipreview") => self.skip_review = true,
-            Arg::Long("review") => self.skip_review = false,
+            Arg::Long("review") => self.skip_review = "never".to_string(),
+            Arg::Long("skipreview") => {
+                self.skip_review = validate(value.unwrap_or("always"), always_never_ask)?
+            }
             Arg::Long("gendb") => self.gendb = true,
             Arg::Long("nocheck") => self.no_check = true,
             Arg::Long("devel") => self.devel = true,
@@ -363,6 +366,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("develsuffixes") => TakesValue::Required,
         Arg::Long("localrepo") => TakesValue::Optional,
         Arg::Long("chroot") => TakesValue::Optional,
+        Arg::Long("skipreview") => TakesValue::Optional,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,

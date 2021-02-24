@@ -204,8 +204,12 @@ Build packages in a chroot. This rquires the LocalRepo option to be enabled.
 Optionaly a directory may be passed to specify where the create the chroot.
 
 .TP
-.B SkipReview
+.B SkipReview [= always|never|ask]
 Skip the review process.
+If not set it defaults to ask.
+If empty or set to always it will always skip the review process without prompting the user for input.
+If set to never it will always perform the review process without prompting the user for input.
+If set to ask it will ask the user if it wants to skip the review process.
 
 .SH BIN
 Options belonging to the [bin] section.

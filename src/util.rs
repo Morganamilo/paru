@@ -101,6 +101,32 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     }
 }
 
+pub fn ask_review(config: &Config) -> bool {
+    let action = config.color.action;
+    let bold = config.color.bold;
+    let yn = "[Y/n]:";
+    print!(
+        "{} {} {} ",
+        action.paint("::"),
+        bold.paint("Review diffs?"),
+        bold.paint(yn)
+    );
+    let _ = stdout().lock().flush();
+    let stdin = stdin();
+    let mut input = String::new();
+    let _ = stdin.read_line(&mut input);
+    let input = input.to_lowercase();
+    let input = input.trim();
+
+    if input == "y" || input == "yes" {
+        true
+    } else if input == "n" || input == "no" {
+        false
+    } else {
+        true
+    }
+}
+
 pub fn input(config: &Config, question: &str) -> String {
     let action = config.color.action;
     let bold = config.color.bold;

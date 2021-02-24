@@ -270,8 +270,11 @@ Sort AUR results by a specific field during search. Defaults to votes.
 Search for AUR packages by querying the specified field. Defaults to name-desc.
 
 .TP
-.B \-\-skipreview
+.B \-\-skipreview [= always|never|ask]
 Skip the review process.
+If empty or set to always it will always skip the review process without prompting the user for input.
+If set to never it will always perform the review process without prompting the user for input.
+If set to ask it will ask the user if it wants to skip the review process.
 
 .TP
 .B \-\-review

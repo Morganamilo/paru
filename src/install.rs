@@ -10,7 +10,7 @@ use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::repo;
 use crate::upgrade::get_upgrades;
-use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
+use crate::util::{ask, ask_review, get_provider, split_repo_aur_targets, NumberMenu};
 use crate::{args, exec, news};
 
 use std::collections::hash_map::Entry;
@@ -448,20 +448,14 @@ async fn prepare_build<'a>(
         false
     };
 
-    if !config.skip_review {
-        if !ask(config, "Proceed to review?", true) {
-            return Ok(BuildInfo::stop());
-        }
-    } else {
-        if !ask(config, "Proceed with install?", true) {
-            return Ok(BuildInfo::stop());
-        }
+    if !ask(config, "Proceed with install?", true) {
+        return Ok(BuildInfo::stop());
     }
 
     let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
-    if !config.skip_review {
+    if config.skip_review == "never" || (config.skip_review == "ask" && ask_review(config)) {
         let ret = review(config, &actions, &srcinfos, &bases)?;
         if ret != 0 {
             let mut bi = BuildInfo::stop();
