@@ -657,7 +657,7 @@ fn review<'a>(
                             {
                                 continue;
                             }
-                            if file.file_type()?.is_dir()
+                            if file.file_type()?.is_file()
                                 && file.path().file_name() == Some(OsStr::new(".SRCINFO"))
                             {
                                 continue;
