@@ -60,6 +60,7 @@ New options:
     --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs
     --[no]useask           Automatically resolve conflicts using pacman's ask flag
     --[no]newsonupgrade    Print new news during sysupgrade
+    --[no]showupstream     Print the upstream url of packages
     --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together
     --[no]batchinstall     Build multiple AUR packages then install them together
     --[no]provides         Look for matching providers when searching for packages
