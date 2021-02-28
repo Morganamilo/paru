@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::fmt::{color_repo, print_indent};
+use crate::info;
 use crate::install::install;
 use crate::util::{input, NumberMenu};
 
@@ -162,34 +163,22 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         print!(" {}", c.ss_orphaned.paint("[Orphaned]"));
     }
 
-    println!();
-
-    if config.args.count("s", "search") > 1 {
-        if let Some(ref url) = pkg.url {
-            print!("    ");
-            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
-            let upstream_url = upstream_url.split_whitespace();
-            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
-        }
-
-        print!("    ");
-        let aur_url = format!(
-            "{} {}packages/{}",
-            c.bold.paint("AUR URL:"),
-            config.aur_url,
-            pkg.package_base
-        );
-        let aur_url = aur_url.split_whitespace();
-        print_indent(Style::new(), 4, 4, config.cols, " ", aur_url)
-    }
-
-    print!("    ");
+    print!("\n    ");
     let desc = pkg
         .description
         .as_deref()
         .unwrap_or("None")
         .split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
+
+    if config.args.count("s", "search") > 1 {
+        if let Some(ref url) = pkg.url {
+            info::print(c, 14, config.cols, "    URL", url);
+        }
+
+        let aur_url = format!("{}packages/{}", config.aur_url, pkg.package_base);
+        info::print(c, 14, config.cols, "    AUR URL", aur_url.as_str());
+    }
 }
 
 fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
@@ -232,21 +221,16 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
         print!("{}", c.ss_orphaned.paint(")"));
     }
 
-    println!();
-
-    if config.args.count("s", "search") > 1 {
-        if let Some(url) = pkg.url() {
-            print!("    ");
-            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
-            let upstream_url = upstream_url.split_whitespace();
-            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
-        }
-    }
-
-    print!("    ");
+    print!("\n    ");
     let desc = pkg.desc();
     let desc = desc.as_deref().unwrap_or_default().split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
+
+    if config.args.count("s", "search") > 1 {
+        if let Some(url) = pkg.url() {
+            info::print(c, 14, config.cols, "    URL", url);
+        }
+    }
 }
 
 pub async fn search_install(config: &mut Config) -> Result<i32> {
