@@ -162,25 +162,34 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         print!(" {}", c.ss_orphaned.paint("[Orphaned]"));
     }
 
-    print!("\n    ");
+    println!();
+
+    if config.args.count("s", "search") > 1 {
+        if let Some(ref url) = pkg.url {
+            print!("    ");
+            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
+            let upstream_url = upstream_url.split_whitespace();
+            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
+        }
+
+        print!("    ");
+        let aur_url = format!(
+            "{} {}packages/{}",
+            c.bold.paint("AUR URL:"),
+            config.aur_url,
+            pkg.package_base
+        );
+        let aur_url = aur_url.split_whitespace();
+        print_indent(Style::new(), 4, 4, config.cols, " ", aur_url)
+    }
+
+    print!("    ");
     let desc = pkg
         .description
         .as_deref()
         .unwrap_or("None")
         .split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
-
-    if config.pacman_args().count("s", "search") > 1 && pkg.url.is_some() {
-        print!("    ");
-        let upstream_url = pkg
-            .url
-            .as_deref()
-            .unwrap() // is Some(), can't fail
-            .to_owned();
-        let upstream = format!("{} {}", Style::new().bold().paint("URL:"), upstream_url);
-        let upstream = upstream.split_whitespace();
-        print_indent(Style::new(), 4, 4, config.cols, " ", upstream);
-    }
 }
 
 fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
@@ -223,22 +232,21 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
         print!("{}", c.ss_orphaned.paint(")"));
     }
 
-    print!("\n    ");
+    println!();
+
+    if config.args.count("s", "search") > 1 {
+        if let Some(url) = pkg.url() {
+            print!("    ");
+            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
+            let upstream_url = upstream_url.split_whitespace();
+            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
+        }
+    }
+
+    print!("    ");
     let desc = pkg.desc();
     let desc = desc.as_deref().unwrap_or_default().split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
-
-    if config.pacman_args().count("s", "search") > 1 && pkg.url().is_some() {
-        print!("    ");
-        let upstream_url = pkg
-            .url()
-            .as_deref()
-            .unwrap() // is Some(), can't fail
-            .to_owned();
-        let upstream = format!("{} {}", Style::new().bold().paint("URL:"), upstream_url);
-        let upstream = upstream.split_whitespace();
-        print_indent(Style::new(), 4, 4, config.cols, " ", upstream);
-    }
 }
 
 pub async fn search_install(config: &mut Config) -> Result<i32> {
