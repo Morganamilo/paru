@@ -211,7 +211,6 @@ pub struct Config {
     pub print: bool,
     pub news_on_upgrade: bool,
     pub comments: bool,
-    pub show_upstream: bool,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -699,7 +698,6 @@ impl Config {
                 }
             }
             "MovePkgs" => self.move_pkgs = true,
-            "ShowUpstream" => self.show_upstream = true,
             _ => ok1 = false,
         }
 
