@@ -103,7 +103,7 @@ pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Res
     Ok(())
 }
 
-fn print(color: Colors, indent: usize, cols: Option<usize>, k: &str, v: &str) {
+pub fn print(color: Colors, indent: usize, cols: Option<usize>, k: &str, v: &str) {
     print_info(color, false, indent, cols, k, v.split_whitespace());
 }
 

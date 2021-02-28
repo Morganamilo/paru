@@ -2,6 +2,7 @@ use crate::config::Config;
 use crate::fmt::{color_repo, print_indent};
 use crate::install::install;
 use crate::util::{input, NumberMenu};
+use crate::info;
 
 use ansi_term::Style;
 use anyhow::{Context, Result};
@@ -167,20 +168,12 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     if config.args.count("s", "search") > 1 {
         if let Some(ref url) = pkg.url {
             print!("    ");
-            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
-            let upstream_url = upstream_url.split_whitespace();
-            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
+            info::print(c, 4, config.cols, "URL", url);
         }
 
         print!("    ");
-        let aur_url = format!(
-            "{} {}packages/{}",
-            c.bold.paint("AUR URL:"),
-            config.aur_url,
-            pkg.package_base
-        );
-        let aur_url = aur_url.split_whitespace();
-        print_indent(Style::new(), 4, 4, config.cols, " ", aur_url)
+        let aur_url = format!("{}packages/{}", config.aur_url, pkg.package_base);
+        info::print(c, 4, config.cols, "AUR URL", aur_url.as_str());
     }
 
     print!("    ");
@@ -237,9 +230,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     if config.args.count("s", "search") > 1 {
         if let Some(url) = pkg.url() {
             print!("    ");
-            let upstream_url = format!("{} {}", c.bold.paint("URL:"), url);
-            let upstream_url = upstream_url.split_whitespace();
-            print_indent(Style::new(), 4, 4, config.cols, " ", upstream_url)
+            info::print(c, 4, config.cols, "URL", url);
         }
     }
 
