@@ -33,6 +33,7 @@ use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
+use std::process::Command;
 
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
@@ -113,6 +114,12 @@ async fn run(config: &mut Config) -> Result<i32> {
 }
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
+    if config.op == "chrootctl" || config.chroot {
+        if Command::new("arch-nspawn").arg("-h").output().is_err() {
+            bail!("can not use chroot builds: devtools is not installed");
+        }
+    }
+
     let ret = match config.op.as_str() {
         "database" | "files" => exec::pacman(config, &config.args)?.code(),
         "upgrade" => handle_upgrade(config).await?,

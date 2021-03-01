@@ -197,8 +197,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     let asp = &config.asp_bin;
 
     if Command::new(asp).output().is_err() {
-        eprintln!("{} is not installed: can not get repo packages", asp);
-        return Ok(1);
+        bail!("can not get repo packages: asp is not installed");
     }
 
     let cd = read_dir(cd)?

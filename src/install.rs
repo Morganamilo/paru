@@ -292,9 +292,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         }
 
         if ret != 1 {
-           if ! ask(config, "Continue with install?", true) {
+            if !ask(config, "Continue with install?", true) {
                 return Ok(1);
-           }
+            }
         }
     }
 
