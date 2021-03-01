@@ -46,7 +46,7 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
         Ok(metadate) => match timeout {
             Some(timeout) => {
                 metadate.modified()?
-                    > SystemTime::now() + Duration::from_secs(60 * 60 * 24 * timeout)
+                    < SystemTime::now() - Duration::from_secs(60 * 60 * 24 * timeout)
             }
             None => false,
         },
