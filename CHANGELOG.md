@@ -1,5 +1,20 @@
 # Changelog
 
+## Paru v1.4.0 (2021-3-14)
+
+### Fixed
+
+- Fix news continuie prompt not working c9431b4
+- Fix ignore of .SRCINFO during initial review #264
+- Fix packages.aur not being updated 28478c8
+- Fix help menu: rename --noskipreview to --review #272
+- Fix wrong return code with --needed 64409bf
+
+### Added
+
+- Added verbose search (-Sss) #266
+- Warn when using chroot without devtools 06ff12a
+
 ## Paru v1.3.0 (2021-2-19)
 
 ### Fixed
