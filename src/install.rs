@@ -400,7 +400,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     }
 
     if build_info.status == Status::NothingToDo {
-        return Ok(1);
+        return Ok(0);
     }
 
     if build_info.err.is_ok() {
