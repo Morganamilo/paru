@@ -73,6 +73,23 @@ fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
     Ok(())
 }
 
+fn wait_for_lock(config: &Config) {
+    let path = Path::new(config.alpm.dbpath()).join("db.lck");
+    let c = config.color;
+    if path.exists() {
+        println!(
+            "{} {}",
+            c.error.paint("::"),
+            c.bold.paint("Pacman is currently in use, please wait...")
+        );
+
+        std::thread::sleep(Duration::from_secs(3));
+        while path.exists() {
+            std::thread::sleep(Duration::from_secs(3));
+        }
+    }
+}
+
 pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
     config: &Config,
     args: &Args<S>,
@@ -85,6 +102,10 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
     } else {
         Command::new(args.bin.as_ref())
     };
+
+    if config.need_root {
+        wait_for_lock(config);
+    }
 
     let ret = command
         .args(args.args())
