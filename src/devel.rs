@@ -423,6 +423,17 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
             pkgbases.entry(name).or_default().push(pkg);
         }
 
+        for pkg in config
+            .alpm
+            .syncdbs()
+            .iter()
+            .filter(|d| repo::is_local_db(d))
+            .flat_map(|d| d.pkgs())
+        {
+            let name = pkg.base().unwrap_or(pkg.name());
+            pkgbases.entry(name).or_default().push(pkg);
+        }
+
         devel_info
             .info
             .retain(|pkg, _| pkgbases.get(pkg.as_str()).is_some());

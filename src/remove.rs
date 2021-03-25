@@ -5,6 +5,7 @@ use crate::{exec, repo};
 
 use std::collections::HashMap;
 
+use alpm_utils::DbListExt;
 use anyhow::Result;
 
 pub fn remove(config: &mut Config) -> Result<i32> {
@@ -42,6 +43,9 @@ pub fn remove(config: &mut Config) -> Result<i32> {
     }
 
     for target in bases {
+        if !config.local && config.alpm.syncdbs().pkg(target).is_ok() {
+            continue;
+        }
         devel_info.info.remove(target);
     }
 
