@@ -42,12 +42,17 @@ pub fn remove(config: &mut Config) -> Result<i32> {
         return Ok(ret);
     }
 
+    let mut dbs = config.alpm.syncdbs().to_list();
+    dbs.retain(|d| repo::is_local_db(d));
+
     for target in bases {
-        if !config.local && config.alpm.syncdbs().pkg(target).is_ok() {
+        if !config.local && dbs.pkg(target).is_ok() {
             continue;
         }
         devel_info.info.remove(target);
     }
+
+    drop(dbs);
 
     if let Err(err) = save_devel_info(config, &devel_info) {
         print_error(config.color.error, err);

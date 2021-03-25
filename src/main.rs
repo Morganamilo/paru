@@ -52,8 +52,8 @@ fn print_error(color: Style, err: Error) {
     }
     let mut iter = err.chain().peekable();
 
-    if StdError::is::<exec::PacmanError>(*iter.peek().unwrap())
-        || StdError::is::<exec::Status>(*iter.peek().unwrap())
+    if <dyn StdError>::is::<exec::PacmanError>(*iter.peek().unwrap())
+        || <dyn StdError>::is::<exec::Status>(*iter.peek().unwrap())
     {
         eprint!("{}", iter.peek().unwrap());
         return;
