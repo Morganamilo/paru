@@ -306,16 +306,15 @@ pub async fn filter_devel_updates(
     let db = config.alpm.localdb();
 
     for pkg in config
-            .alpm
-            .syncdbs()
-            .iter()
-            .filter(|d| repo::is_local_db(d))
-            .flat_map(|d| d.pkgs())
-        {
-
+        .alpm
+        .syncdbs()
+        .iter()
+        .filter(|d| repo::is_local_db(d))
+        .flat_map(|d| d.pkgs())
+    {
         let name = pkg.base().unwrap_or(pkg.name());
         pkgbases.entry(name).or_default().push(pkg);
-        }
+    }
 
     for pkg in db.pkgs().iter() {
         let name = pkg.base().unwrap_or(pkg.name());

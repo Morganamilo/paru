@@ -1568,22 +1568,6 @@ fn resolver<'a, 'b>(
 
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
         .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
-        .provider_callback(move |dep, pkgs| {
-            let prompt = format!("There are {} providers available for {}:", pkgs.len(), dep);
-            println!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
-            println!(
-                "{} {} {}:",
-                c.action.paint("::"),
-                c.bold.paint("Repository"),
-                color_repo(c.enabled, "AUR")
-            );
-            print!("    ");
-            for (n, pkg) in pkgs.iter().enumerate() {
-                print!("{}) {}  ", n + 1, pkg);
-            }
-
-            get_provider(pkgs.len())
-        })
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();
@@ -1640,6 +1624,25 @@ fn resolver<'a, 'b>(
 
             pkgs
         });
+
+    if !config.args.has_arg("u", "sysupgrade") {
+        resolver = resolver.provider_callback(move |dep, pkgs| {
+            let prompt = format!("There are {} providers available for {}:", pkgs.len(), dep);
+            println!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
+            println!(
+                "{} {} {}:",
+                c.action.paint("::"),
+                c.bold.paint("Repository"),
+                color_repo(c.enabled, "AUR")
+            );
+            print!("    ");
+            for (n, pkg) in pkgs.iter().enumerate() {
+                print!("{}) {}  ", n + 1, pkg);
+            }
+
+            get_provider(pkgs.len())
+        });
+    }
 
     resolver.custom_aur_namespace(config.aur_namespace().to_string());
     resolver
