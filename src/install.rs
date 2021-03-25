@@ -1201,14 +1201,18 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
 
     if config.chroot {
         if !config.args.has_arg("w", "downloadonly") {
-            let targets = bi
+            let mut targets = bi
                 .build
                 .iter()
                 .filter(|b| !failed.iter().any(|f| b.package_base() == f.package_base()))
                 .flat_map(|b| &b.pkgs)
                 .filter(|p| p.target)
                 .map(|p| p.pkg.name.as_str())
-                .collect();
+                .collect::<Vec<_>>();
+
+            if config.args.has_arg("u", "sysupgrade") {
+                targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
+            }
 
             let mut args = config.pacman_globals();
             args.op("sync");
