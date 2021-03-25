@@ -615,8 +615,8 @@ fn review<'a>(
                 let pager = config
                     .pager_cmd
                     .clone()
-                    .or_else(|| var("PAGER").ok())
                     .or_else(|| var("PARU_PAGER").ok())
+                    .or_else(|| var("PAGER").ok())
                     .unwrap_or_else(|| "less".to_string());
 
                 unsafe { signal(Signal::SIGPIPE, SigHandler::SigIgn).unwrap() };
