@@ -1226,7 +1226,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
                 args.arg("noconfirm");
             }
 
-            if !args.args.is_empty() {
+            if !args.targets.is_empty() {
                 exec::pacman(config, &args)?.success()?;
             }
         }
