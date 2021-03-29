@@ -94,23 +94,31 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
     config: &Config,
     args: &Args<S>,
 ) -> Result<Status> {
-    let mut command = if config.need_root {
-        let mut command = Command::new(&config.sudo_bin);
-        command.args(&config.sudo_flags);
-        command.arg(args.bin.as_ref());
-        command
-    } else {
-        Command::new(args.bin.as_ref())
-    };
+    let mut command: std::process::Command;
+    let error_msg: String;
 
     if config.need_root {
         wait_for_lock(config);
+
+        command = Command::new(&config.sudo_bin);
+        command.args(&config.sudo_flags);
+        command.arg(args.bin.as_ref());
+        let mut sudo_command = config.sudo_flags.clone();
+        sudo_command.insert(0, config.sudo_bin.clone());
+        error_msg = format!("failed to run: {} {} {}",
+            sudo_command.join(" "),
+            args.bin,
+            args.args().join(" ")
+        );
+    } else {
+        command = Command::new(args.bin.as_ref());
+        error_msg = format!("failed to run: {} {}", args.bin, args.args().join(" "));
     }
 
     let ret = command
         .args(args.args())
         .status()
-        .with_context(|| format!("failed to run: {} {}", args.bin, args.args().join(" ")))?;
+        .with_context(|| error_msg)?;
     Ok(Status(ret.code().unwrap_or(1)))
 }
 
