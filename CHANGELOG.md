@@ -1,5 +1,24 @@
 # Changelog
 
+## Paru v1.5.0 (2021-3-30)
+
+### Fixed
+
+- Fix typos #283 #276
+- Fix packages being marked as explicit when they shouldn't 47c4caf
+- Fix PAGER having higher priority than PARU_PAGER 82a7326
+- Fix pacman error message not including sudo #297
+
+### Added
+
+- Wait for pacman when db is locked 57d73db
+
+### Changed
+
+- Only upgrade installed packages when using chroot 4d126bc
+- Handle devel packages in local repo but not installed c5dfff2 c698f2e
+- Don't enable provider menu on sysupgrade c698f2e
+
 ## Paru v1.4.0 (2021-3-14)
 
 ### Fixed
