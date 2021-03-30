@@ -105,7 +105,8 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
         command.arg(args.bin.as_ref());
         let mut sudo_command = config.sudo_flags.clone();
         sudo_command.insert(0, config.sudo_bin.clone());
-        error_msg = format!("failed to run: {} {} {}",
+        error_msg = format!(
+            "failed to run: {} {} {}",
             sudo_command.join(" "),
             args.bin,
             args.args().join(" ")
