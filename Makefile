@@ -1,9 +1,8 @@
-DESTDIR = /usr/local
-BINDIR = $(DESTDIR)/bin
-MANDIR = $(DESTDIR)/share/man
+PREFIX = /usr/local
+BINDIR = $(PREFIX)$(DESTDIR)/bin
+MANDIR = $(PREFIX)$(DESTDIR)/share/man
 
 paru:
-	@set -o errexit -o pipefail
 	@cargo build --release --locked --target-dir target
 	@strip target/release/paru
 	@tar --zstd -cfparu.tar.zst  man completions paru.conf -C target/release paru
