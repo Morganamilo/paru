@@ -279,7 +279,6 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             args.arg("asdeps");
         }
 
-        args.arg("noconfirm");
         let code = exec::pacman(config, &args)?.code();
         return Ok(code);
     }
