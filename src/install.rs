@@ -28,6 +28,7 @@ use alpm_utils::depends::{satisfies_dep, satisfies_provide};
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
+use args::Args;
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
 use nix::sys::signal::{signal, SigHandler, Signal};
 use pacmanconf::Repository;
@@ -87,6 +88,15 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
     args.targets(targets.iter().map(|i| i.as_str()));
     exec::pacman(config, &args)?.success()?;
     Ok(())
+}
+
+pub fn copy_overwrite<'a>(config: &'a Config, args: &mut Args<&'a str>) {
+    config
+        .args
+        .args
+        .iter()
+        .filter(|a| a.key == "overwrite")
+        .for_each(|a| args.push(&a.key, a.value.as_deref()));
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
@@ -253,6 +263,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if config.install {
         let mut args = config.pacman_globals();
+        copy_overwrite(config, &mut args);
 
         if config.chroot {
             args.op("sync");
@@ -1072,6 +1083,7 @@ fn do_install(
         let mut args = config.pacman_globals();
         let ask;
         args.op("upgrade");
+        copy_overwrite(config, &mut args);
 
         for _ in 0..args.count("d", "nodeps") {
             args.arg("d");
@@ -1216,6 +1228,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
 
             let mut args = config.pacman_globals();
             args.op("sync");
+            copy_overwrite(config, &mut args);
             if config.args.has_arg("asexplicit", "asexplicit") {
                 args.arg("asexplicit");
             } else if config.args.has_arg("asdeps", "asdeps") {

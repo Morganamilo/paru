@@ -188,10 +188,11 @@ impl<S: AsRef<str>> Args<S> {
     }
 
     pub fn push_value(&mut self, arg: S, value: S) {
-        let arg = Arg {
-            key: arg,
-            value: Some(value),
-        };
+        self.push(arg, Some(value));
+    }
+
+    pub fn push(&mut self, arg: S, value: Option<S>) {
+        let arg = Arg { key: arg, value };
         self.args.push(arg);
     }
 
