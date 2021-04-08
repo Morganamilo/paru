@@ -315,8 +315,12 @@ impl Config {
             }
             Arg::Long("nochroot") => self.chroot = false,
             Arg::Long("movepkgs") => self.move_pkgs = true,
-            Arg::Long(a) if !arg.is_pacman_arg() => bail!("unknown option --{}", a),
-            Arg::Short(a) if !arg.is_pacman_arg() => bail!("unknown option -{}", a),
+            Arg::Long(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
+                bail!("unknown option --{}", a)
+            }
+            Arg::Short(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
+                bail!("unknown option -{}", a)
+            }
             _ => (),
         }
 
@@ -363,13 +367,14 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("develsuffixes") => TakesValue::Required,
         Arg::Long("localrepo") => TakesValue::Optional,
         Arg::Long("chroot") => TakesValue::Optional,
+        Arg::Long("builddir") => TakesValue::Required,
+        Arg::Long("clonedir") => TakesValue::Required,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,
         Arg::Long("ask") => TakesValue::Required,
+        Arg::Long("cachedir") => TakesValue::Required,
         Arg::Long("arch") => TakesValue::Required,
-        Arg::Long("builddir") => TakesValue::Required,
-        Arg::Long("clonedir") => TakesValue::Required,
         Arg::Long("color") => TakesValue::Required,
         Arg::Long("config") => TakesValue::Required,
         Arg::Long("gpgdir") => TakesValue::Required,
