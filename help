@@ -53,7 +53,7 @@ New options:
     --review               Don't skip the review process
     --[no]upgrademenu      Show interactive menu to skip upgrades
     --[no]removemake       Remove makedepends after install
-    --[no]cleanafter       Remove package sources after successful install
+    --[no]cleanafter       Remove package sources after install
     --[no]rebuild          Always build target packages
     --[no]redownload       Always download PKGBUILDs of targets
 
