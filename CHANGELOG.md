@@ -1,5 +1,20 @@
 # Changelog
 
+## Paru v1.5.1 (2021-4-13)
+
+### Fixed
+
+- Fix --overwrite not being passed to pacman calls 28e4c0e
+- Fix typo in manpage #300
+- Fix args not allowing pacman globals e82ba9a
+- Fix copy error in help message 25f6cc7
+
+### Changed
+
+- Use makepkg to generate srcinfo with paru -U #307
+- Don't noconfirm -Ui 9d9cdb1
+- Use -d/--delete to clean the whole package instead of -Scc edd43ef
+
 ## Paru v1.5.0 (2021-3-30)
 
 ### Fixed
