@@ -142,55 +142,49 @@ impl Colors {
     }
 }
 
-pub trait CfgEnum: Sized + PartialEq + Clone + fmt::Debug + 'static {
+pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
     const VALUE_LOOKUP: &'static [(&'static str, Self)];
 
     fn as_str(&self) -> &'static str {
         Self::VALUE_LOOKUP
             .iter()
-            .find_map(|(k, v)| if self == v { Some(*k) } else { None })
-            .unwrap_or("IMPOSSIBLE_NO_NAME")
+            .find(|(_, v)| self == v)
+            .map(|(k, _)| k)
+            .unwrap()
     }
 
-    fn from_str(value: &str) -> Option<Self> {
-        Self::VALUE_LOOKUP.iter().find_map(|(valname, valresult)| {
-            if valname == &value {
-                Some(valresult.clone())
-            } else {
-                None
-            }
-        })
+    fn default_or(self, key: &str, value: Option<&str>) -> Result<Self> {
+        value.map_or(Ok(self), |value| ConfigEnum::from_str(key, value))
     }
 
-    #[allow(clippy::wrong_self_convention)]
-    fn from_str_validate_or(self, key: &str, maybevalue: Option<&str>) -> Result<Self> {
-        maybevalue.map_or(Ok(self), |value| CfgEnum::from_str_validate(key, value))
-    }
+    fn from_str(key: &str, value: &str) -> Result<Self> {
+        let val = Self::VALUE_LOOKUP
+            .iter()
+            .find(|(name, _)| name == &value)
+            .map(|(_, res)| *res);
 
-    fn from_str_validate(key: &str, value: &str) -> Result<Self> {
-        Self::from_str(value).map_or_else(
-            || {
-                let okvalues = Self::VALUE_LOOKUP
-                    .iter()
-                    .map(|v| v.0)
-                    .collect::<Vec<&str>>()
-                    .join("|");
-                bail!(
-                    "invalid value '{}' for key '{}', expected: {}",
-                    value,
-                    key,
-                    okvalues
-                )
-            },
-            Ok,
-        )
+        if let Some(val) = val {
+            Ok(val)
+        } else {
+            let okvalues = Self::VALUE_LOOKUP
+                .iter()
+                .map(|v| v.0)
+                .collect::<Vec<&str>>()
+                .join("|");
+            bail!(
+                "invalid value '{}' for key '{}', expected: {}",
+                value,
+                key,
+                okvalues
+            )
+        }
     }
 }
 
-type CfgEnumLookupTable<T> = &'static [(&'static str, T)];
+type ConfigEnumValues<T> = &'static [(&'static str, T)];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgOp {
+pub enum Op {
     ChrootCtl,
     Database,
     DepTest,
@@ -205,8 +199,8 @@ pub enum CfgOp {
     Yay,
 }
 
-impl CfgEnum for CfgOp {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
+impl ConfigEnum for Op {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
         ("chrootctl", Self::ChrootCtl),
         ("database", Self::Database),
         ("deptest", Self::DepTest),
@@ -222,14 +216,14 @@ impl CfgEnum for CfgOp {
     ];
 }
 
-impl fmt::Display for CfgOp {
+impl fmt::Display for Op {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgSortBy {
+pub enum SortBy {
     Base,
     BaseId,
     Id,
@@ -240,8 +234,8 @@ pub enum CfgSortBy {
     Votes,
 }
 
-impl CfgEnum for CfgSortBy {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
+impl ConfigEnum for SortBy {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
         ("base", Self::Base),
         ("baseid", Self::BaseId),
         ("id", Self::Id),
@@ -253,19 +247,8 @@ impl CfgEnum for CfgSortBy {
     ];
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgSearchBy {
-    CheckDepends,
-    Depends,
-    Maintainer,
-    MakeDepends,
-    Name,
-    NameDesc,
-    OptDepends,
-}
-
-impl CfgEnum for CfgSearchBy {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
+impl ConfigEnum for raur::SearchBy {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
         ("checkdepends", Self::CheckDepends),
         ("depends", Self::Depends),
         ("maintainer", Self::Maintainer),
@@ -277,49 +260,49 @@ impl CfgEnum for CfgSearchBy {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgSortMode {
+pub enum SortMode {
     BottomUp,
     TopDown,
 }
 
-impl CfgEnum for CfgSortMode {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
+impl ConfigEnum for SortMode {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
         &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgMode {
+pub enum Mode {
     Any,
     Aur,
     Repo,
 }
 
-impl CfgEnum for CfgMode {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
+impl ConfigEnum for Mode {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
         &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgYesNoAll {
+pub enum YesNoAll {
     Yes,
     No,
     All,
 }
 
-impl CfgEnum for CfgYesNoAll {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
+impl ConfigEnum for YesNoAll {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
         &[("yes", Self::Yes), ("no", Self::No), ("all", Self::All)];
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CfgYesNoAsk {
+pub enum YesNoAsk {
     Yes,
     No,
     Ask,
 }
 
-impl CfgEnum for CfgYesNoAsk {
-    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
+impl ConfigEnum for YesNoAsk {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
         &[("yes", Self::Yes), ("no", Self::No), ("ask", Self::Ask)];
 }
 
@@ -331,8 +314,8 @@ pub struct Config {
 
     pub cols: Option<usize>,
 
-    #[default(CfgOp::Yay)]
-    pub op: CfgOp,
+    #[default(Op::Yay)]
+    pub op: Op,
     pub raur: raur::Handle,
     #[default(aur_fetch::Handle::with_cache_dir(""))]
     pub fetch: aur_fetch::Handle,
@@ -356,20 +339,20 @@ pub struct Config {
     pub news: u32,
     pub gendb: bool,
 
-    #[default(CfgYesNoAll::No)]
-    pub redownload: CfgYesNoAll,
-    #[default(CfgYesNoAll::No)]
-    pub rebuild: CfgYesNoAll,
-    #[default(CfgYesNoAsk::No)]
-    pub remove_make: CfgYesNoAsk,
-    #[default(CfgSortBy::Votes)]
-    pub sort_by: CfgSortBy,
-    #[default(CfgSearchBy::NameDesc)]
-    pub search_by: CfgSearchBy,
-    #[default(CfgSortMode::TopDown)]
-    pub sort_mode: CfgSortMode,
-    #[default(CfgMode::Any)]
-    pub mode: CfgMode,
+    #[default(YesNoAll::No)]
+    pub redownload: YesNoAll,
+    #[default(YesNoAll::No)]
+    pub rebuild: YesNoAll,
+    #[default(YesNoAsk::No)]
+    pub remove_make: YesNoAsk,
+    #[default(SortBy::Votes)]
+    pub sort_by: SortBy,
+    #[default(raur::SearchBy::NameDesc)]
+    pub search_by: raur::SearchBy,
+    #[default(SortMode::TopDown)]
+    pub sort_mode: SortMode,
+    #[default(Mode::Any)]
+    pub mode: Mode,
     pub aur_filter: bool,
 
     #[default = 7]
@@ -514,7 +497,7 @@ impl Config {
         Ok(config)
     }
 
-    pub fn set_op_args_globals(&mut self, op: CfgOp) {
+    pub fn set_op_args_globals(&mut self, op: Op) {
         self.op = op;
         self.args.op = op.as_str().to_string();
         self.globals.op = op.as_str().to_string();
@@ -562,7 +545,7 @@ impl Config {
 
         if self.help {
             match self.op {
-                CfgOp::GetPkgBuild | CfgOp::Show | CfgOp::Yay => {
+                Op::GetPkgBuild | Op::Show | Op::Yay => {
                     help();
                     std::process::exit(0);
                 }
@@ -711,15 +694,15 @@ impl Config {
     fn need_root(&self) -> bool {
         let args = &self.args;
 
-        if self.op == CfgOp::Database {
+        if self.op == Op::Database {
             return !args.has_arg("k", "check");
-        } else if self.op == CfgOp::Files {
+        } else if self.op == Op::Files {
             return args.has_arg("y", "refresh");
-        } else if self.op == CfgOp::Query {
+        } else if self.op == Op::Query {
             return args.has_arg("k", "check");
-        } else if self.op == CfgOp::Remove {
+        } else if self.op == Op::Remove {
             return !(args.has_arg("p", "print") || args.has_arg("p", "print-format"));
-        } else if self.op == CfgOp::Sync {
+        } else if self.op == Op::Sync {
             if args.has_arg("y", "refresh") {
                 return true;
             }
@@ -730,8 +713,8 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode == CfgMode::Aur));
-        } else if self.op == CfgOp::Upgrade {
+                || (args.has_arg("c", "clean") && self.mode == Mode::Aur));
+        } else if self.op == Op::Upgrade {
             return true;
         }
 
@@ -808,9 +791,9 @@ impl Config {
 
         match key {
             "SkipReview" => self.skip_review = true,
-            "BottomUp" => self.sort_mode = CfgSortMode::BottomUp,
-            "AurOnly" => self.mode = CfgMode::Aur,
-            "RepoOnly" => self.mode = CfgMode::Repo,
+            "BottomUp" => self.sort_mode = SortMode::BottomUp,
+            "AurOnly" => self.mode = Mode::Aur,
+            "RepoOnly" => self.mode = Mode::Repo,
             "SudoLoop" => {
                 self.sudo_loop = value
                     .unwrap_or("-v")
@@ -840,9 +823,9 @@ impl Config {
                 }
             }
             "InstallDebug" => self.install_debug = true,
-            "Redownload" => self.redownload = CfgYesNoAll::All.from_str_validate_or(key, value)?,
-            "Rebuild" => self.rebuild = CfgYesNoAll::All.from_str_validate_or(key, value)?,
-            "RemoveMake" => self.remove_make = CfgYesNoAsk::Yes.from_str_validate_or(key, value)?,
+            "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
+            "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
+            "RemoveMake" => self.remove_make = YesNoAsk::Yes.default_or(key, value)?,
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
@@ -870,11 +853,11 @@ impl Config {
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
-            "Redownload" => self.redownload = CfgEnum::from_str_validate(key, value?.as_str())?,
-            "Rebuild" => self.rebuild = CfgEnum::from_str_validate(key, value?.as_str())?,
-            "RemoveMake" => self.remove_make = CfgEnum::from_str_validate(key, value?.as_str())?,
-            "SortBy" => self.sort_by = CfgEnum::from_str_validate(key, value?.as_str())?,
-            "SearchBy" => self.search_by = CfgEnum::from_str_validate(key, value?.as_str())?,
+            "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
+            "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,
+            "RemoveMake" => self.remove_make = ConfigEnum::from_str(key, value?.as_str())?,
+            "SortBy" => self.sort_by = ConfigEnum::from_str(key, value?.as_str())?,
+            "SearchBy" => self.search_by = ConfigEnum::from_str(key, value?.as_str())?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,

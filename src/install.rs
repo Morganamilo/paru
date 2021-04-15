@@ -2,7 +2,7 @@ use crate::args::Arg;
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{CfgMode, CfgOp, CfgYesNoAll, CfgYesNoAsk, Config, LocalRepos};
+use crate::config::{Mode, Op, YesNoAll, YesNoAsk, Config, LocalRepos};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
@@ -135,7 +135,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_loop.clone())?;
     }
 
-    config.set_op_args_globals(CfgOp::Sync);
+    config.set_op_args_globals(Op::Sync);
 
     let flags = flags(config);
     let resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
@@ -313,7 +313,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         }
     }
 
-    config.set_op_args_globals(CfgOp::Sync);
+    config.set_op_args_globals(Op::Sync);
     config.targets = targets_str.to_vec();
     config.args.targets = config.targets.clone();
 
@@ -328,7 +328,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         bail!("no targets specified (use -h for help)");
     }
 
-    if config.mode != CfgMode::Aur {
+    if config.mode != Mode::Aur {
         if config.combined_upgrade {
             if config.args.has_arg("y", "refresh") {
                 early_refresh(config)?;
@@ -452,10 +452,10 @@ async fn prepare_build<'a>(
     let has_make = if !config.chroot
         && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make))
     {
-        if config.remove_make == CfgYesNoAsk::Ask {
+        if config.remove_make == YesNoAsk::Ask {
             ask(config, "Remove make dependencies after install?", false)
         } else {
-            config.remove_make == CfgYesNoAsk::Yes
+            config.remove_make == YesNoAsk::Yes
         }
     } else {
         false
@@ -823,7 +823,7 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .remove("refresh");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
-    if !config.combined_upgrade || config.mode == CfgMode::Aur {
+    if !config.combined_upgrade || config.mode == Mode::Aur {
         args.remove("u").remove("sysupgrade");
     }
 
@@ -1551,16 +1551,16 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
         flags.remove(Flags::CHECK_DEPENDS);
         config.mflags.push("--nocheck".into());
     }
-    if config.mode == CfgMode::Aur {
+    if config.mode == Mode::Aur {
         flags |= Flags::AUR_ONLY;
     }
-    if config.mode == CfgMode::Repo {
+    if config.mode == Mode::Repo {
         flags |= Flags::REPO_ONLY;
     }
     if !config.provides {
         flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);
     }
-    if config.op == CfgOp::Yay {
+    if config.op == Op::Yay {
         flags.remove(Flags::TARGET_PROVIDES);
     }
     if config.repos != LocalRepos::None {
@@ -1676,7 +1676,7 @@ fn is_debug(pkg: alpm::Package) -> bool {
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     let mut warnings = crate::download::Warnings::default();
 
-    if config.mode == CfgMode::Repo {
+    if config.mode == Mode::Repo {
         return;
     }
 
@@ -1760,8 +1760,8 @@ fn needs_build(
     pkgdest: &HashMap<String, String>,
     version: &str,
 ) -> bool {
-    if (config.rebuild == CfgYesNoAll::Yes && base.pkgs.iter().any(|p| p.target))
-        || config.rebuild == CfgYesNoAll::All
+    if (config.rebuild == YesNoAll::Yes && base.pkgs.iter().any(|p| p.target))
+        || config.rebuild == YesNoAll::All
     {
         return true;
     }

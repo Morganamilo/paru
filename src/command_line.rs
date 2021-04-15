@@ -1,6 +1,6 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
 use crate::config::{
-    CfgEnum, CfgMode, CfgOp, CfgSortMode, CfgYesNoAll, CfgYesNoAsk, Colors, Config, LocalRepos,
+    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, SortMode, YesNoAll, YesNoAsk,
 };
 
 use std::fmt;
@@ -149,7 +149,7 @@ impl Config {
             });
         }
 
-        let mut set_op = |op: CfgOp| {
+        let mut set_op = |op: Op| {
             self.op = op;
             *op_count += 1;
         };
@@ -192,32 +192,30 @@ impl Config {
                     .parse()
                     .map_err(|_| anyhow!("option {} must be a number", arg))?
             }
-            Arg::Long("sortby") => self.sort_by = CfgEnum::from_str_validate(argkey, value?)?,
-            Arg::Long("searchby") => self.search_by = CfgEnum::from_str_validate(argkey, value?)?,
+            Arg::Long("sortby") => self.sort_by = ConfigEnum::from_str(argkey, value?)?,
+            Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("removemake") => {
-                self.remove_make = CfgYesNoAsk::Yes.from_str_validate_or(argkey, value.ok())?
+                self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
             }
             Arg::Long("upgrademenu") => self.upgrade_menu = true,
             Arg::Long("noupgrademenu") => self.upgrade_menu = false,
-            Arg::Long("noremovemake") => self.remove_make = CfgYesNoAsk::No,
+            Arg::Long("noremovemake") => self.remove_make = YesNoAsk::No,
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,
             Arg::Long("redownload") => {
-                self.redownload = CfgYesNoAll::Yes.from_str_validate_or(argkey, value.ok())?
+                self.redownload = YesNoAll::Yes.default_or(argkey, value.ok())?
             }
-            Arg::Long("noredownload") => self.redownload = CfgYesNoAll::No,
-            Arg::Long("rebuild") => {
-                self.rebuild = CfgYesNoAll::Yes.from_str_validate_or(argkey, value.ok())?
-            }
-            Arg::Long("norebuild") => self.rebuild = CfgYesNoAll::No,
-            Arg::Long("topdown") => self.sort_mode = CfgSortMode::TopDown,
-            Arg::Long("bottomup") => self.sort_mode = CfgSortMode::BottomUp,
+            Arg::Long("noredownload") => self.redownload = YesNoAll::No,
+            Arg::Long("rebuild") => self.rebuild = YesNoAll::Yes.default_or(argkey, value.ok())?,
+            Arg::Long("norebuild") => self.rebuild = YesNoAll::No,
+            Arg::Long("topdown") => self.sort_mode = SortMode::TopDown,
+            Arg::Long("bottomup") => self.sort_mode = SortMode::BottomUp,
             Arg::Long("aur") | Arg::Short('a') => {
-                self.mode = CfgMode::Aur;
+                self.mode = Mode::Aur;
                 self.aur_filter = true;
             }
-            Arg::Long("repo") => self.mode = CfgMode::Repo,
+            Arg::Long("repo") => self.mode = Mode::Repo,
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
@@ -260,17 +258,17 @@ impl Config {
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
             // ops
-            Arg::Long("database") | Arg::Short('D') => set_op(CfgOp::Database),
-            Arg::Long("files") | Arg::Short('F') => set_op(CfgOp::Files),
-            Arg::Long("query") | Arg::Short('Q') => set_op(CfgOp::Query),
-            Arg::Long("remove") | Arg::Short('R') => set_op(CfgOp::Remove),
-            Arg::Long("sync") | Arg::Short('S') => set_op(CfgOp::Sync),
-            Arg::Long("deptest") | Arg::Short('T') => set_op(CfgOp::DepTest),
-            Arg::Long("upgrade") | Arg::Short('U') => set_op(CfgOp::Upgrade),
-            Arg::Long("show") | Arg::Short('P') => set_op(CfgOp::Show),
-            Arg::Long("getpkgbuild") | Arg::Short('G') => set_op(CfgOp::GetPkgBuild),
-            Arg::Long("repoctl") | Arg::Short('L') => set_op(CfgOp::RepoCtl),
-            Arg::Long("chrootctl") | Arg::Short('C') => set_op(CfgOp::ChrootCtl),
+            Arg::Long("database") | Arg::Short('D') => set_op(Op::Database),
+            Arg::Long("files") | Arg::Short('F') => set_op(Op::Files),
+            Arg::Long("query") | Arg::Short('Q') => set_op(Op::Query),
+            Arg::Long("remove") | Arg::Short('R') => set_op(Op::Remove),
+            Arg::Long("sync") | Arg::Short('S') => set_op(Op::Sync),
+            Arg::Long("deptest") | Arg::Short('T') => set_op(Op::DepTest),
+            Arg::Long("upgrade") | Arg::Short('U') => set_op(Op::Upgrade),
+            Arg::Long("show") | Arg::Short('P') => set_op(Op::Show),
+            Arg::Long("getpkgbuild") | Arg::Short('G') => set_op(Op::GetPkgBuild),
+            Arg::Long("repoctl") | Arg::Short('L') => set_op(Op::RepoCtl),
+            Arg::Long("chrootctl") | Arg::Short('C') => set_op(Op::ChrootCtl),
             // globals
             Arg::Long("noconfirm") => self.no_confirm = true,
             Arg::Long("confirm") => self.no_confirm = false,

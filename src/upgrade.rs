@@ -1,4 +1,4 @@
-use crate::config::{Config, CfgMode, LocalRepos};
+use crate::config::{Config, Mode, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::repo;
@@ -111,7 +111,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b>,
     print: bool,
 ) -> Result<AurUpdates<'a>> {
-    if config.mode != CfgMode::Repo {
+    if config.mode != Mode::Repo {
         if print {
             let c = config.color;
             println!(
@@ -137,7 +137,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
 }
 
 async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
-    if config.devel && config.mode != CfgMode::Repo {
+    if config.devel && config.mode != Mode::Repo {
         let c = config.color;
         if print {
             println!(
@@ -185,7 +185,7 @@ pub async fn get_upgrades<'a, 'b>(
     let mut devel_upgrades =
         filter_devel_updates(config, resolver.cache(), &devel_upgrades).await?;
 
-    let repo_upgrades = if config.mode != CfgMode::Aur && config.combined_upgrade {
+    let repo_upgrades = if config.mode != Mode::Aur && config.combined_upgrade {
         repo_upgrades(config)?
     } else {
         Vec::new()
