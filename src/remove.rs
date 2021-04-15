@@ -1,5 +1,6 @@
 use crate::devel::{load_devel_info, save_devel_info};
 use crate::print_error;
+use crate::util::pkg_base_or_name;
 use crate::Config;
 use crate::{exec, repo};
 
@@ -15,7 +16,7 @@ pub fn remove(config: &mut Config) -> Result<i32> {
         .targets
         .iter()
         .filter_map(|pkg| db.pkg(pkg.as_str()).ok())
-        .map(|pkg| pkg.base().unwrap_or(pkg.name()))
+        .map(|pkg| pkg_base_or_name(&pkg))
         .collect::<Vec<_>>();
 
     let mut db_map: HashMap<String, Vec<String>> = HashMap::new();

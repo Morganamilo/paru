@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::io::{stdin, stdout, BufRead, Write};
 use std::ops::Range;
 
-use alpm::PackageReason;
+use alpm::{Package, PackageReason};
 use alpm_utils::{AsTarg, DbListExt, Targ};
 
 #[derive(Debug)]
@@ -14,6 +14,10 @@ pub struct NumberMenu<'a> {
     pub ex_range: Vec<Range<usize>>,
     pub in_word: Vec<&'a str>,
     pub ex_word: Vec<&'a str>,
+}
+
+pub fn pkg_base_or_name<'a>(pkg: &Package<'a>) -> &'a str {
+    pkg.base().unwrap_or_else(|| pkg.name())
 }
 
 pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {

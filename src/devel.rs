@@ -2,7 +2,7 @@ use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
 use crate::print_error;
 use crate::repo;
-use crate::util::split_repo_aur_pkgs;
+use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
@@ -255,7 +255,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
 
     for pkg in db.pkgs().iter() {
-        let name = pkg.base().unwrap_or(pkg.name());
+        let name =  pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
@@ -312,18 +312,18 @@ pub async fn filter_devel_updates(
         .filter(|d| repo::is_local_db(d))
         .flat_map(|d| d.pkgs())
     {
-        let name = pkg.base().unwrap_or(pkg.name());
+        let name = pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
     for pkg in db.pkgs().iter() {
-        let name = pkg.base().unwrap_or(pkg.name());
+        let name = pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
     config.raur.cache_info(cache, &updates).await?;
     let updates = updates
-        .into_iter()
+        .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
         .collect::<Vec<_>>();
 
@@ -338,11 +338,11 @@ pub async fn filter_devel_updates(
     Ok(updates)
 }
 
-pub async fn pkg_has_update<'a>(
-    config: &Config,
-    pkg: &'a str,
-    info: &HashSet<RepoInfo>,
-) -> Option<&'a str> {
+pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
+    config: &'cfg Config,
+    pkg: &'pkg str,
+    info: &'info HashSet<RepoInfo>,
+) -> Option<&'pkg str> {
     if info.is_empty() {
         return None;
     }
@@ -416,43 +416,43 @@ pub async fn fetch_devel_info(
 }
 
 pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
-    if let Ok(file) = OpenOptions::new().read(true).open(&config.devel_path) {
-        let devel_info = serde_json::from_reader(file)
-            .with_context(|| format!("invalid json: {}", config.devel_path.display()))?;
+    let file = match OpenOptions::new().read(true).open(&config.devel_path) {
+        Ok(file) => file,
+        _ => return Ok(None),
+    };
+    let devel_info = serde_json::from_reader(file)
+        .with_context(|| format!("invalid json: {}", config.devel_path.display()))?;
 
-        let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
-        let mut devel_info: DevelInfo = devel_info;
+    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let mut devel_info: DevelInfo = devel_info;
 
-        if !devel_info._info.is_empty() {
-            for (pkg, info) in devel_info._info.drain() {
-                devel_info.info.insert(pkg, PkgInfo { repos: info.repos });
-            }
+    if !devel_info._info.is_empty() {
+        for (pkg, info) in devel_info._info.drain() {
+            devel_info.info.insert(pkg, PkgInfo { repos: info.repos });
         }
-
-        for pkg in config.alpm.localdb().pkgs().iter() {
-            let name = pkg.base().unwrap_or(pkg.name());
-            pkgbases.entry(name).or_default().push(pkg);
-        }
-
-        for pkg in config
-            .alpm
-            .syncdbs()
-            .iter()
-            .filter(|d| repo::is_local_db(d))
-            .flat_map(|d| d.pkgs())
-        {
-            let name = pkg.base().unwrap_or(pkg.name());
-            pkgbases.entry(name).or_default().push(pkg);
-        }
-
-        devel_info
-            .info
-            .retain(|pkg, _| pkgbases.get(pkg.as_str()).is_some());
-
-        save_devel_info(config, &devel_info)?;
-
-        Ok(Some(devel_info))
-    } else {
-        Ok(None)
     }
+
+    for pkg in config.alpm.localdb().pkgs().iter() {
+        let name = pkg_base_or_name(&pkg);
+        pkgbases.entry(name).or_default().push(pkg);
+    }
+
+    for pkg in config
+        .alpm
+        .syncdbs()
+        .iter()
+        .filter(|d| repo::is_local_db(d))
+        .flat_map(|d| d.pkgs())
+    {
+        let name = pkg_base_or_name(&pkg);
+        pkgbases.entry(name).or_default().push(pkg);
+    }
+
+    devel_info
+        .info
+        .retain(|pkg, _| pkgbases.get(pkg.as_str()).is_some());
+
+    save_devel_info(config, &devel_info)?;
+
+    Ok(Some(devel_info))
 }
