@@ -142,7 +142,7 @@ impl Colors {
     }
 }
 
-pub trait CfgValue: Sized + PartialEq + Clone + fmt::Debug + 'static {
+pub trait CfgEnum: Sized + PartialEq + Clone + fmt::Debug + 'static {
     const VALUE_LOOKUP: &'static [(&'static str, Self)];
 
     fn as_str(&self) -> &'static str {
@@ -164,7 +164,7 @@ pub trait CfgValue: Sized + PartialEq + Clone + fmt::Debug + 'static {
 
     #[allow(clippy::wrong_self_convention)]
     fn from_str_validate_or(self, key: &str, maybevalue: Option<&str>) -> Result<Self> {
-        maybevalue.map_or(Ok(self), |value| CfgValue::from_str_validate(key, value))
+        maybevalue.map_or(Ok(self), |value| CfgEnum::from_str_validate(key, value))
     }
 
     fn from_str_validate(key: &str, value: &str) -> Result<Self> {
@@ -187,6 +187,8 @@ pub trait CfgValue: Sized + PartialEq + Clone + fmt::Debug + 'static {
     }
 }
 
+type CfgEnumLookupTable<T> = &'static [(&'static str, T)];
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CfgOp {
     ChrootCtl,
@@ -203,8 +205,8 @@ pub enum CfgOp {
     Yay,
 }
 
-impl CfgValue for CfgOp {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+impl CfgEnum for CfgOp {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
         ("chrootctl", Self::ChrootCtl),
         ("database", Self::Database),
         ("deptest", Self::DepTest),
@@ -220,8 +222,8 @@ impl CfgValue for CfgOp {
     ];
 }
 
-impl std::fmt::Display for CfgOp {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for CfgOp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
@@ -238,8 +240,8 @@ pub enum CfgSortBy {
     Votes,
 }
 
-impl CfgValue for CfgSortBy {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+impl CfgEnum for CfgSortBy {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
         ("base", Self::Base),
         ("baseid", Self::BaseId),
         ("id", Self::Id),
@@ -262,8 +264,8 @@ pub enum CfgSearchBy {
     OptDepends,
 }
 
-impl CfgValue for CfgSearchBy {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+impl CfgEnum for CfgSearchBy {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> = &[
         ("checkdepends", Self::CheckDepends),
         ("depends", Self::Depends),
         ("maintainer", Self::Maintainer),
@@ -280,8 +282,8 @@ pub enum CfgSortMode {
     TopDown,
 }
 
-impl CfgValue for CfgSortMode {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+impl CfgEnum for CfgSortMode {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
         &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
 }
 
@@ -292,8 +294,8 @@ pub enum CfgMode {
     Repo,
 }
 
-impl CfgValue for CfgMode {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+impl CfgEnum for CfgMode {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
         &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
 }
 
@@ -304,8 +306,8 @@ pub enum CfgYesNoAll {
     All,
 }
 
-impl CfgValue for CfgYesNoAll {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+impl CfgEnum for CfgYesNoAll {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
         &[("yes", Self::Yes), ("no", Self::No), ("all", Self::All)];
 }
 
@@ -316,8 +318,8 @@ pub enum CfgYesNoAsk {
     Ask,
 }
 
-impl CfgValue for CfgYesNoAsk {
-    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+impl CfgEnum for CfgYesNoAsk {
+    const VALUE_LOOKUP: CfgEnumLookupTable<Self> =
         &[("yes", Self::Yes), ("no", Self::No), ("ask", Self::Ask)];
 }
 
@@ -868,11 +870,11 @@ impl Config {
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
-            "Redownload" => self.redownload = CfgValue::from_str_validate(key, value?.as_str())?,
-            "Rebuild" => self.rebuild = CfgValue::from_str_validate(key, value?.as_str())?,
-            "RemoveMake" => self.remove_make = CfgValue::from_str_validate(key, value?.as_str())?,
-            "SortBy" => self.sort_by = CfgValue::from_str_validate(key, value?.as_str())?,
-            "SearchBy" => self.search_by = CfgValue::from_str_validate(key, value?.as_str())?,
+            "Redownload" => self.redownload = CfgEnum::from_str_validate(key, value?.as_str())?,
+            "Rebuild" => self.rebuild = CfgEnum::from_str_validate(key, value?.as_str())?,
+            "RemoveMake" => self.remove_make = CfgEnum::from_str_validate(key, value?.as_str())?,
+            "SortBy" => self.sort_by = CfgEnum::from_str_validate(key, value?.as_str())?,
+            "SearchBy" => self.search_by = CfgEnum::from_str_validate(key, value?.as_str())?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,

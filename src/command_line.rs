@@ -1,6 +1,6 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
 use crate::config::{
-    CfgMode, CfgOp, CfgSortMode, CfgValue, CfgYesNoAll, CfgYesNoAsk, Colors, Config, LocalRepos,
+    CfgEnum, CfgMode, CfgOp, CfgSortMode, CfgYesNoAll, CfgYesNoAsk, Colors, Config, LocalRepos,
 };
 
 use std::fmt;
@@ -192,8 +192,8 @@ impl Config {
                     .parse()
                     .map_err(|_| anyhow!("option {} must be a number", arg))?
             }
-            Arg::Long("sortby") => self.sort_by = CfgValue::from_str_validate(argkey, value?)?,
-            Arg::Long("searchby") => self.search_by = CfgValue::from_str_validate(argkey, value?)?,
+            Arg::Long("sortby") => self.sort_by = CfgEnum::from_str_validate(argkey, value?)?,
+            Arg::Long("searchby") => self.search_by = CfgEnum::from_str_validate(argkey, value?)?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("removemake") => {
                 self.remove_make = CfgYesNoAsk::Yes.from_str_validate_or(argkey, value.ok())?
