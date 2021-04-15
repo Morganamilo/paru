@@ -7,6 +7,7 @@ use crate::util::get_provider;
 
 use std::env::consts::ARCH;
 use std::env::var;
+use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
@@ -141,6 +142,170 @@ impl Colors {
     }
 }
 
+pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)];
+
+    fn as_str(&self) -> &'static str {
+        Self::VALUE_LOOKUP
+            .iter()
+            .find(|(_, v)| self == v)
+            .map(|(k, _)| k)
+            .unwrap()
+    }
+
+    fn default_or(self, key: &str, value: Option<&str>) -> Result<Self> {
+        value.map_or(Ok(self), |value| ConfigEnum::from_str(key, value))
+    }
+
+    fn from_str(key: &str, value: &str) -> Result<Self> {
+        let val = Self::VALUE_LOOKUP
+            .iter()
+            .find(|(name, _)| name == &value)
+            .map(|(_, res)| *res);
+
+        if let Some(val) = val {
+            Ok(val)
+        } else {
+            let okvalues = Self::VALUE_LOOKUP
+                .iter()
+                .map(|v| v.0)
+                .collect::<Vec<&str>>()
+                .join("|");
+            bail!(
+                "invalid value '{}' for key '{}', expected: {}",
+                value,
+                key,
+                okvalues
+            )
+        }
+    }
+}
+
+type ConfigEnumValues<T> = &'static [(&'static str, T)];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Op {
+    ChrootCtl,
+    Database,
+    DepTest,
+    Files,
+    GetPkgBuild,
+    Query,
+    Remove,
+    RepoCtl,
+    Show,
+    Sync,
+    Upgrade,
+    Yay,
+}
+
+impl ConfigEnum for Op {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("chrootctl", Self::ChrootCtl),
+        ("database", Self::Database),
+        ("deptest", Self::DepTest),
+        ("files", Self::Files),
+        ("getpkgbuild", Self::GetPkgBuild),
+        ("query", Self::Query),
+        ("remove", Self::Remove),
+        ("repoctl", Self::RepoCtl),
+        ("show", Self::Show),
+        ("sync", Self::Sync),
+        ("upgrade", Self::Upgrade),
+        ("yay", Self::Yay),
+    ];
+}
+
+impl fmt::Display for Op {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortBy {
+    Base,
+    BaseId,
+    Id,
+    Modified,
+    Name,
+    Popularity,
+    Submitted,
+    Votes,
+}
+
+impl ConfigEnum for SortBy {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("base", Self::Base),
+        ("baseid", Self::BaseId),
+        ("id", Self::Id),
+        ("modified", Self::Modified),
+        ("name", Self::Name),
+        ("popularity", Self::Popularity),
+        ("submitted", Self::Submitted),
+        ("votes", Self::Votes),
+    ];
+}
+
+impl ConfigEnum for raur::SearchBy {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("checkdepends", Self::CheckDepends),
+        ("depends", Self::Depends),
+        ("maintainer", Self::Maintainer),
+        ("makedepends", Self::MakeDepends),
+        ("name-desc", Self::NameDesc),
+        ("name", Self::Name),
+        ("optdepends", Self::OptDepends),
+    ];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortMode {
+    BottomUp,
+    TopDown,
+}
+
+impl ConfigEnum for SortMode {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
+        &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    Any,
+    Aur,
+    Repo,
+}
+
+impl ConfigEnum for Mode {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
+        &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum YesNoAll {
+    Yes,
+    No,
+    All,
+}
+
+impl ConfigEnum for YesNoAll {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
+        &[("yes", Self::Yes), ("no", Self::No), ("all", Self::All)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum YesNoAsk {
+    Yes,
+    No,
+    Ask,
+}
+
+impl ConfigEnum for YesNoAsk {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> =
+        &[("yes", Self::Yes), ("no", Self::No), ("ask", Self::Ask)];
+}
+
 #[derive(SmartDefault, Debug)]
 pub struct Config {
     section: Option<String>,
@@ -149,8 +314,8 @@ pub struct Config {
 
     pub cols: Option<usize>,
 
-    #[default = "yay"]
-    pub op: String,
+    #[default(Op::Yay)]
+    pub op: Op,
     pub raur: raur::Handle,
     #[default(aur_fetch::Handle::with_cache_dir(""))]
     pub fetch: aur_fetch::Handle,
@@ -174,20 +339,20 @@ pub struct Config {
     pub news: u32,
     pub gendb: bool,
 
-    #[default = "no"]
-    pub redownload: String,
-    #[default = "no"]
-    pub rebuild: String,
-    #[default = "no"]
-    pub remove_make: String,
-    #[default = "votes"]
-    pub sort_by: String,
-    #[default = "name-desc"]
-    pub search_by: String,
-    #[default = "topdown"]
-    pub sort_mode: String,
-    #[default = "any"]
-    pub mode: String,
+    #[default(YesNoAll::No)]
+    pub redownload: YesNoAll,
+    #[default(YesNoAll::No)]
+    pub rebuild: YesNoAll,
+    #[default(YesNoAsk::No)]
+    pub remove_make: YesNoAsk,
+    #[default(SortBy::Votes)]
+    pub sort_by: SortBy,
+    #[default(raur::SearchBy::NameDesc)]
+    pub search_by: raur::SearchBy,
+    #[default(SortMode::TopDown)]
+    pub sort_mode: SortMode,
+    #[default(Mode::Any)]
+    pub mode: Mode,
     pub aur_filter: bool,
 
     #[default = 7]
@@ -332,6 +497,12 @@ impl Config {
         Ok(config)
     }
 
+    pub fn set_op_args_globals(&mut self, op: Op) {
+        self.op = op;
+        self.args.op = op.as_str().to_string();
+        self.globals.op = op.as_str().to_string();
+    }
+
     pub fn pacman_args(&self) -> Args<&str> {
         self.args.as_str()
     }
@@ -365,16 +536,16 @@ impl Config {
             reopen_stdin()?;
         }
 
-        self.args.op = self.op.clone();
+        self.args.op = self.op.as_str().to_string();
         self.args.targets = self.targets.clone();
         self.args.bin = self.pacman_bin.clone();
 
-        self.globals.op = self.op.clone();
+        self.globals.op = self.op.as_str().to_string();
         self.globals.bin = self.pacman_bin.clone();
 
         if self.help {
-            match self.op.as_str() {
-                "getpkgbuild" | "show" | "yay" => {
+            match self.op {
+                Op::GetPkgBuild | Op::Show | Op::Yay => {
                     help();
                     std::process::exit(0);
                 }
@@ -523,15 +694,15 @@ impl Config {
     fn need_root(&self) -> bool {
         let args = &self.args;
 
-        if self.op == "database" {
+        if self.op == Op::Database {
             return !args.has_arg("k", "check");
-        } else if self.op == "files" {
+        } else if self.op == Op::Files {
             return args.has_arg("y", "refresh");
-        } else if self.op == "query" {
+        } else if self.op == Op::Query {
             return args.has_arg("k", "check");
-        } else if self.op == "remove" {
+        } else if self.op == Op::Remove {
             return !(args.has_arg("p", "print") || args.has_arg("p", "print-format"));
-        } else if self.op == "sync" {
+        } else if self.op == Op::Sync {
             if args.has_arg("y", "refresh") {
                 return true;
             }
@@ -542,8 +713,8 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode == "aur"));
-        } else if self.op == "upgrade" {
+                || (args.has_arg("c", "clean") && self.mode == Mode::Aur));
+        } else if self.op == Op::Upgrade {
             return true;
         }
 
@@ -615,36 +786,14 @@ impl Config {
     }
 
     fn parse_option(&mut self, key: &str, value: Option<&str>) -> Result<()> {
-        let no_all = &["no", "all"];
-        let yes_no_ask = &["yes", "no", "ask"];
-        let sort_by = &[
-            "votes",
-            "popularity",
-            "name",
-            "base",
-            "submitted",
-            "modified",
-            "id",
-            "baseid",
-        ];
-        let search_by = &[
-            "name",
-            "name-desc",
-            "maintainer",
-            "depends",
-            "checkdepends",
-            "makedepends",
-            "optdepends",
-        ];
-
         let mut ok1 = true;
         let mut ok2 = true;
 
         match key {
             "SkipReview" => self.skip_review = true,
-            "BottomUp" => self.sort_mode = "bottomup".into(),
-            "AurOnly" => self.mode = "aur".into(),
-            "RepoOnly" => self.mode = "repo".into(),
+            "BottomUp" => self.sort_mode = SortMode::BottomUp,
+            "AurOnly" => self.mode = Mode::Aur,
+            "RepoOnly" => self.mode = Mode::Repo,
             "SudoLoop" => {
                 self.sudo_loop = value
                     .unwrap_or("-v")
@@ -674,18 +823,9 @@ impl Config {
                 }
             }
             "InstallDebug" => self.install_debug = true,
-            "Redownload" => {
-                let value = value.unwrap_or("all").into();
-                self.redownload = validate(value, no_all)?;
-            }
-            "Rebuild" => {
-                let value = value.unwrap_or("all").into();
-                self.rebuild = validate(value, no_all)?;
-            }
-            "RemoveMake" => {
-                let value = value.unwrap_or("yes").into();
-                self.remove_make = validate(value, yes_no_ask)?;
-            }
+            "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
+            "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
+            "RemoveMake" => self.remove_make = YesNoAsk::Yes.default_or(key, value)?,
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
@@ -713,11 +853,11 @@ impl Config {
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
-            "Redownload" => self.redownload = validate(value?, no_all)?,
-            "Rebuild" => self.rebuild = validate(value?, no_all)?,
-            "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,
-            "SortBy" => self.sort_by = validate(value?, sort_by)?,
-            "SearchBy" => self.search_by = validate(value?, search_by)?,
+            "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
+            "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,
+            "RemoveMake" => self.remove_make = ConfigEnum::from_str(key, value?.as_str())?,
+            "SortBy" => self.sort_by = ConfigEnum::from_str(key, value?.as_str())?,
+            "SearchBy" => self.search_by = ConfigEnum::from_str(key, value?.as_str())?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,
@@ -754,13 +894,6 @@ fn version() {
     #[cfg(feature = "backtrace")]
     print!(" +backtrace");
     println!(" - libalpm v{}", alpm::version());
-}
-
-fn validate(key: String, valid: &[&str]) -> Result<String> {
-    if !valid.iter().cloned().any(|v| v == key) {
-        bail!("invalid value for '{}', expected: {}", key, valid.join("|"))
-    }
-    Ok(key)
 }
 
 fn reopen_stdin() -> Result<()> {

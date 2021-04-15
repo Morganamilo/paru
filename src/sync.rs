@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{Config, Mode};
 use crate::exec;
 
 use std::io::Write;
@@ -24,11 +24,11 @@ pub async fn filter(config: &Config) -> Result<i32> {
 pub async fn list(config: &Config) -> Result<i32> {
     let mut args = config.pacman_args();
 
-    let mut show_aur = args.targets.is_empty() && config.mode != "repo";
+    let mut show_aur = args.targets.is_empty() && config.mode != Mode::Repo;
     let dbs = config.alpm.syncdbs();
 
     if args.targets.is_empty() {
-        if config.mode != "aur" {
+        if config.mode != Mode::Aur {
             args.targets = dbs.iter().map(|db| db.name()).collect();
         }
     };

@@ -1,4 +1,4 @@
-use crate::config::{Colors, Config};
+use crate::config::{Colors, Config, YesNoAll, SortMode, Mode};
 use crate::fmt::print_indent;
 
 use std::collections::{HashMap, HashSet};
@@ -341,7 +341,7 @@ pub async fn new_aur_pkgbuilds(
     srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<()> {
     let mut pkgs = Vec::new();
-    if config.redownload == "all" {
+    if config.redownload == YesNoAll::All {
         return aur_pkgbuilds(config, bases).await;
     }
 
@@ -400,7 +400,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 
         let iter = titles.zip(comments).collect::<Vec<_>>();
 
-        if config.sort_mode == "topdown" {
+        if config.sort_mode == SortMode::TopDown {
             for (title, comment) in iter.into_iter() {
                 println!("{}", c.bold.paint(title.trim()));
 
@@ -437,9 +437,9 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode == "aur" {
+        if config.mode == Mode::Aur {
             aur.push(targ);
-        } else if config.mode == "repo" {
+        } else if config.mode == Mode::Repo {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
             if matches!(

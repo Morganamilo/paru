@@ -26,7 +26,7 @@ mod util;
 extern crate smart_default;
 
 use crate::chroot::Chroot;
-use crate::config::Config;
+use crate::config::{Config, Op};
 use crate::query::print_upgrade_list;
 
 use std::collections::HashMap;
@@ -114,25 +114,25 @@ async fn run(config: &mut Config) -> Result<i32> {
 }
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
-    if config.op == "chrootctl" || config.chroot {
+    if config.op == Op::ChrootCtl || config.chroot {
         if Command::new("arch-nspawn").arg("-h").output().is_err() {
             bail!("can not use chroot builds: devtools is not installed");
         }
     }
 
-    let ret = match config.op.as_str() {
-        "database" | "files" => exec::pacman(config, &config.args)?.code(),
-        "upgrade" => handle_upgrade(config).await?,
-        "query" => handle_query(config).await?,
-        "sync" => handle_sync(config).await?,
-        "remove" => handle_remove(config)?,
-        "deptest" => handle_test(config).await?,
-        "getpkgbuild" => handle_get_pkg_build(config).await?,
-        "show" => handle_show(config).await?,
-        "yay" => handle_yay(config).await?,
-        "repoctl" => handle_repo(config)?,
-        "chrootctl" => handle_chroot(config)?,
-        _ => bail!("unknown op '{}'", config.op),
+    let ret = match config.op {
+        Op::Database | Op::Files => exec::pacman(config, &config.args)?.code(),
+        Op::Upgrade => handle_upgrade(config).await?,
+        Op::Query => handle_query(config).await?,
+        Op::Sync => handle_sync(config).await?,
+        Op::Remove => handle_remove(config)?,
+        Op::DepTest => handle_test(config).await?,
+        Op::GetPkgBuild => handle_get_pkg_build(config).await?,
+        Op::Show => handle_show(config).await?,
+        Op::Yay => handle_yay(config).await?,
+        Op::RepoCtl => handle_repo(config)?,
+        Op::ChrootCtl => handle_chroot(config)?,
+        // _ => bail!("unknown op '{}'", config.op),
     };
 
     Ok(ret)

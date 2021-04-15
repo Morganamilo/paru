@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{Config, Mode};
 
 use crate::exec;
 use crate::print_error;
@@ -15,11 +15,11 @@ use anyhow::{bail, Context, Result};
 use srcinfo::Srcinfo;
 
 pub fn clean(config: &Config) -> Result<()> {
-    if config.mode != "aur" {
+    if config.mode != Mode::Aur {
         exec::pacman(config, &config.args)?;
     }
 
-    if config.mode != "repo" {
+    if config.mode != Mode::Repo {
         let remove_all = config.delete;
         let clean_method = &config.pacman.clean_method;
         let keep_installed = clean_method.iter().any(|a| a == "KeepInstalled");
@@ -31,7 +31,7 @@ pub fn clean(config: &Config) -> Result<()> {
             "Do you want to remove all other AUR packages from cache?"
         };
 
-        if config.mode == "any" {
+        if config.mode == Mode::Any {
             println!();
         }
 

@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::config::{Config, LocalRepos};
+use crate::config::{Config, Mode, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::util::split_repo_aur_pkgs;
 use crate::{exec, repo};
@@ -16,9 +16,9 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let args = &config.args;
 
     if args.has_arg("n", "native") {
-        config.mode = "repo".into();
+        config.mode = Mode::Repo;
     } else if args.has_arg("m", "foreign") {
-        config.mode = "aur".into();
+        config.mode = Mode::Aur;
     }
 
     let targets: Vec<_> = if config.targets.is_empty() {
@@ -54,13 +54,13 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut repo_ret = 1;
     let mut aur_ret = 1;
 
-    if !repo.is_empty() && config.mode != "aur" {
+    if !repo.is_empty() && config.mode != Mode::Aur {
         let mut args = config.pacman_args();
         args.targets = repo.into_iter().collect();
         repo_ret = exec::pacman(config, &args)?.code();
     }
 
-    if !aur.is_empty() && config.mode != "repo" {
+    if !aur.is_empty() && config.mode != Mode::Repo {
         let bold = config.color.bold;
         let error = config.color.error;
         let upgrade = config.color.upgrade;
