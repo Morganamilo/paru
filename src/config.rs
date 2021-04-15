@@ -7,6 +7,7 @@ use crate::util::get_provider;
 
 use std::env::consts::ARCH;
 use std::env::var;
+use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
@@ -141,6 +142,185 @@ impl Colors {
     }
 }
 
+pub trait CfgValue: Sized + PartialEq + Clone + fmt::Debug + 'static {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)];
+
+    fn as_str(&self) -> &'static str {
+        Self::VALUE_LOOKUP
+            .iter()
+            .find_map(|(k, v)| if self == v { Some(*k) } else { None })
+            .unwrap_or("IMPOSSIBLE_NO_NAME")
+    }
+
+    fn from_str(value: &str) -> Option<Self> {
+        Self::VALUE_LOOKUP.iter().find_map(|(valname, valresult)| {
+            if valname == &value {
+                Some(valresult.clone())
+            } else {
+                None
+            }
+        })
+    }
+
+    #[allow(clippy::wrong_self_convention)]
+    fn from_str_validate_or(self, key: &str, maybevalue: Option<&str>) -> Result<Self> {
+        maybevalue.map_or(Ok(self), |value| CfgValue::from_str_validate(key, value))
+    }
+
+    fn from_str_validate(key: &str, value: &str) -> Result<Self> {
+        Self::from_str(value).map_or_else(
+            || {
+                let okvalues = Self::VALUE_LOOKUP
+                    .iter()
+                    .map(|v| v.0)
+                    .collect::<Vec<&str>>()
+                    .join("|");
+                bail!(
+                    "invalid value '{}' for key '{}', expected: {}",
+                    value,
+                    key,
+                    okvalues
+                )
+            },
+            Ok,
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgOp {
+    ChrootCtl,
+    Database,
+    DepTest,
+    Files,
+    GetPkgBuild,
+    Query,
+    Remove,
+    RepoCtl,
+    Show,
+    Sync,
+    Upgrade,
+    Yay,
+}
+
+impl CfgValue for CfgOp {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+        ("chrootctl", Self::ChrootCtl),
+        ("database", Self::Database),
+        ("deptest", Self::DepTest),
+        ("files", Self::Files),
+        ("getpkgbuild", Self::GetPkgBuild),
+        ("query", Self::Query),
+        ("remove", Self::Remove),
+        ("repoctl", Self::RepoCtl),
+        ("show", Self::Show),
+        ("sync", Self::Sync),
+        ("upgrade", Self::Upgrade),
+        ("yay", Self::Yay),
+    ];
+}
+
+impl std::fmt::Display for CfgOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgSortBy {
+    Base,
+    BaseId,
+    Id,
+    Modified,
+    Name,
+    Popularity,
+    Submitted,
+    Votes,
+}
+
+impl CfgValue for CfgSortBy {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+        ("base", Self::Base),
+        ("baseid", Self::BaseId),
+        ("id", Self::Id),
+        ("modified", Self::Modified),
+        ("name", Self::Name),
+        ("popularity", Self::Popularity),
+        ("submitted", Self::Submitted),
+        ("votes", Self::Votes),
+    ];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgSearchBy {
+    CheckDepends,
+    Depends,
+    Maintainer,
+    MakeDepends,
+    Name,
+    NameDesc,
+    OptDepends,
+}
+
+impl CfgValue for CfgSearchBy {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] = &[
+        ("checkdepends", Self::CheckDepends),
+        ("depends", Self::Depends),
+        ("maintainer", Self::Maintainer),
+        ("makedepends", Self::MakeDepends),
+        ("name-desc", Self::NameDesc),
+        ("name", Self::Name),
+        ("optdepends", Self::OptDepends),
+    ];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgSortMode {
+    BottomUp,
+    TopDown,
+}
+
+impl CfgValue for CfgSortMode {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+        &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgMode {
+    Any,
+    Aur,
+    Repo,
+}
+
+impl CfgValue for CfgMode {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+        &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgYesNoAll {
+    Yes,
+    No,
+    All,
+}
+
+impl CfgValue for CfgYesNoAll {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+        &[("yes", Self::Yes), ("no", Self::No), ("all", Self::All)];
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CfgYesNoAsk {
+    Yes,
+    No,
+    Ask,
+}
+
+impl CfgValue for CfgYesNoAsk {
+    const VALUE_LOOKUP: &'static [(&'static str, Self)] =
+        &[("yes", Self::Yes), ("no", Self::No), ("ask", Self::Ask)];
+}
+
 #[derive(SmartDefault, Debug)]
 pub struct Config {
     section: Option<String>,
@@ -149,8 +329,8 @@ pub struct Config {
 
     pub cols: Option<usize>,
 
-    #[default = "yay"]
-    pub op: String,
+    #[default(CfgOp::Yay)]
+    pub op: CfgOp,
     pub raur: raur::Handle,
     #[default(aur_fetch::Handle::with_cache_dir(""))]
     pub fetch: aur_fetch::Handle,
@@ -174,20 +354,20 @@ pub struct Config {
     pub news: u32,
     pub gendb: bool,
 
-    #[default = "no"]
-    pub redownload: String,
-    #[default = "no"]
-    pub rebuild: String,
-    #[default = "no"]
-    pub remove_make: String,
-    #[default = "votes"]
-    pub sort_by: String,
-    #[default = "name-desc"]
-    pub search_by: String,
-    #[default = "topdown"]
-    pub sort_mode: String,
-    #[default = "any"]
-    pub mode: String,
+    #[default(CfgYesNoAll::No)]
+    pub redownload: CfgYesNoAll,
+    #[default(CfgYesNoAll::No)]
+    pub rebuild: CfgYesNoAll,
+    #[default(CfgYesNoAsk::No)]
+    pub remove_make: CfgYesNoAsk,
+    #[default(CfgSortBy::Votes)]
+    pub sort_by: CfgSortBy,
+    #[default(CfgSearchBy::NameDesc)]
+    pub search_by: CfgSearchBy,
+    #[default(CfgSortMode::TopDown)]
+    pub sort_mode: CfgSortMode,
+    #[default(CfgMode::Any)]
+    pub mode: CfgMode,
     pub aur_filter: bool,
 
     #[default = 7]
@@ -332,6 +512,12 @@ impl Config {
         Ok(config)
     }
 
+    pub fn set_op_args_globals(&mut self, op: CfgOp) {
+        self.op = op;
+        self.args.op = op.as_str().to_string();
+        self.globals.op = op.as_str().to_string();
+    }
+
     pub fn pacman_args(&self) -> Args<&str> {
         self.args.as_str()
     }
@@ -365,16 +551,16 @@ impl Config {
             reopen_stdin()?;
         }
 
-        self.args.op = self.op.clone();
+        self.args.op = self.op.as_str().to_string();
         self.args.targets = self.targets.clone();
         self.args.bin = self.pacman_bin.clone();
 
-        self.globals.op = self.op.clone();
+        self.globals.op = self.op.as_str().to_string();
         self.globals.bin = self.pacman_bin.clone();
 
         if self.help {
-            match self.op.as_str() {
-                "getpkgbuild" | "show" | "yay" => {
+            match self.op {
+                CfgOp::GetPkgBuild | CfgOp::Show | CfgOp::Yay => {
                     help();
                     std::process::exit(0);
                 }
@@ -523,15 +709,15 @@ impl Config {
     fn need_root(&self) -> bool {
         let args = &self.args;
 
-        if self.op == "database" {
+        if self.op == CfgOp::Database {
             return !args.has_arg("k", "check");
-        } else if self.op == "files" {
+        } else if self.op == CfgOp::Files {
             return args.has_arg("y", "refresh");
-        } else if self.op == "query" {
+        } else if self.op == CfgOp::Query {
             return args.has_arg("k", "check");
-        } else if self.op == "remove" {
+        } else if self.op == CfgOp::Remove {
             return !(args.has_arg("p", "print") || args.has_arg("p", "print-format"));
-        } else if self.op == "sync" {
+        } else if self.op == CfgOp::Sync {
             if args.has_arg("y", "refresh") {
                 return true;
             }
@@ -542,8 +728,8 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode == "aur"));
-        } else if self.op == "upgrade" {
+                || (args.has_arg("c", "clean") && self.mode == CfgMode::Aur));
+        } else if self.op == CfgOp::Upgrade {
             return true;
         }
 
@@ -615,36 +801,14 @@ impl Config {
     }
 
     fn parse_option(&mut self, key: &str, value: Option<&str>) -> Result<()> {
-        let no_all = &["no", "all"];
-        let yes_no_ask = &["yes", "no", "ask"];
-        let sort_by = &[
-            "votes",
-            "popularity",
-            "name",
-            "base",
-            "submitted",
-            "modified",
-            "id",
-            "baseid",
-        ];
-        let search_by = &[
-            "name",
-            "name-desc",
-            "maintainer",
-            "depends",
-            "checkdepends",
-            "makedepends",
-            "optdepends",
-        ];
-
         let mut ok1 = true;
         let mut ok2 = true;
 
         match key {
             "SkipReview" => self.skip_review = true,
-            "BottomUp" => self.sort_mode = "bottomup".into(),
-            "AurOnly" => self.mode = "aur".into(),
-            "RepoOnly" => self.mode = "repo".into(),
+            "BottomUp" => self.sort_mode = CfgSortMode::BottomUp,
+            "AurOnly" => self.mode = CfgMode::Aur,
+            "RepoOnly" => self.mode = CfgMode::Repo,
             "SudoLoop" => {
                 self.sudo_loop = value
                     .unwrap_or("-v")
@@ -674,18 +838,9 @@ impl Config {
                 }
             }
             "InstallDebug" => self.install_debug = true,
-            "Redownload" => {
-                let value = value.unwrap_or("all").into();
-                self.redownload = validate(value, no_all)?;
-            }
-            "Rebuild" => {
-                let value = value.unwrap_or("all").into();
-                self.rebuild = validate(value, no_all)?;
-            }
-            "RemoveMake" => {
-                let value = value.unwrap_or("yes").into();
-                self.remove_make = validate(value, yes_no_ask)?;
-            }
+            "Redownload" => self.redownload = CfgYesNoAll::All.from_str_validate_or(key, value)?,
+            "Rebuild" => self.rebuild = CfgYesNoAll::All.from_str_validate_or(key, value)?,
+            "RemoveMake" => self.remove_make = CfgYesNoAsk::Yes.from_str_validate_or(key, value)?,
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
@@ -713,11 +868,11 @@ impl Config {
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
-            "Redownload" => self.redownload = validate(value?, no_all)?,
-            "Rebuild" => self.rebuild = validate(value?, no_all)?,
-            "RemoveMake" => self.remove_make = validate(value?, yes_no_ask)?,
-            "SortBy" => self.sort_by = validate(value?, sort_by)?,
-            "SearchBy" => self.search_by = validate(value?, search_by)?,
+            "Redownload" => self.redownload = CfgValue::from_str_validate(key, value?.as_str())?,
+            "Rebuild" => self.rebuild = CfgValue::from_str_validate(key, value?.as_str())?,
+            "RemoveMake" => self.remove_make = CfgValue::from_str_validate(key, value?.as_str())?,
+            "SortBy" => self.sort_by = CfgValue::from_str_validate(key, value?.as_str())?,
+            "SearchBy" => self.search_by = CfgValue::from_str_validate(key, value?.as_str())?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
             _ => ok2 = false,
@@ -754,13 +909,6 @@ fn version() {
     #[cfg(feature = "backtrace")]
     print!(" +backtrace");
     println!(" - libalpm v{}", alpm::version());
-}
-
-fn validate(key: String, valid: &[&str]) -> Result<String> {
-    if !valid.iter().cloned().any(|v| v == key) {
-        bail!("invalid value for '{}', expected: {}", key, valid.join("|"))
-    }
-    Ok(key)
 }
 
 fn reopen_stdin() -> Result<()> {

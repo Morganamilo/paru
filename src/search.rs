@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{Config, CfgSearchBy, CfgSortMode, CfgMode};
 use crate::fmt::{color_repo, print_indent};
 use crate::info;
 use crate::install::install;
@@ -8,6 +8,8 @@ use ansi_term::Style;
 use anyhow::{Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
+
+use crate::config::CfgSortBy;
 
 enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
@@ -28,7 +30,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         .await
         .context("aur search failed")?;
 
-    if config.sort_mode == "topdown" {
+    if config.sort_mode == CfgSortMode::TopDown {
         for pkg in &repo_pkgs {
             print_alpm_pkg(config, pkg, quiet);
         }
@@ -48,7 +50,7 @@ pub async fn search(config: &Config) -> Result<i32> {
 }
 
 fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
-    if targets.is_empty() || config.mode == "aur" {
+    if targets.is_empty() || config.mode == CfgMode::Aur {
         return Ok(Vec::new());
     }
 
@@ -63,19 +65,19 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
 }
 
 async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
-    if targets.is_empty() || config.mode == "repo" {
+    if targets.is_empty() || config.mode == CfgMode::Repo {
         return Ok(Vec::new());
     }
 
     let mut matches = Vec::new();
 
-    let by = match config.search_by.as_str() {
-        "name" => SearchBy::Name,
-        "maintainer" => SearchBy::Maintainer,
-        "depends" => SearchBy::Depends,
-        "makedepends" => SearchBy::MakeDepends,
-        "checkdepends" => SearchBy::CheckDepends,
-        "optdepends" => SearchBy::OptDepends,
+    let by = match config.search_by {
+        CfgSearchBy::Name => SearchBy::Name,
+        CfgSearchBy::Maintainer => SearchBy::Maintainer,
+        CfgSearchBy::Depends => SearchBy::Depends,
+        CfgSearchBy::MakeDepends => SearchBy::MakeDepends,
+        CfgSearchBy::CheckDepends => SearchBy::CheckDepends,
+        CfgSearchBy::OptDepends => SearchBy::OptDepends,
         _ => SearchBy::NameDesc,
     };
 
@@ -114,14 +116,14 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
         }
     }
 
-    match config.sort_by.as_str() {
-        "votes" => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
-        "popularity" => matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap()),
-        "id" => matches.sort_by_key(|p| p.id),
-        "name" => matches.sort_by(|a, b| a.name.cmp(&b.name)),
-        "base" => matches.sort_by(|a, b| a.package_base.cmp(&b.package_base)),
-        "submitted" => matches.sort_by_key(|p| p.first_submitted),
-        "modified" => matches.sort_by_key(|p| p.last_modified),
+    match config.sort_by {
+        CfgSortBy::Votes => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
+        CfgSortBy::Popularity => matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap()),
+        CfgSortBy::Id => matches.sort_by_key(|p| p.id),
+        CfgSortBy::Name => matches.sort_by(|a, b| a.name.cmp(&b.name)),
+        CfgSortBy::Base => matches.sort_by(|a, b| a.package_base.cmp(&b.package_base)),
+        CfgSortBy::Submitted => matches.sort_by_key(|p| p.first_submitted),
+        CfgSortBy::Modified => matches.sort_by_key(|p| p.last_modified),
         _ => (),
     }
 
@@ -275,7 +277,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         all_pkgs.insert(0, pkg);
     }
 
-    if config.sort_mode == "topdown" {
+    if config.sort_mode == CfgSortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             match pkg {
                 AnyPkg::RepoPkg(pkg) => {
@@ -317,7 +319,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
     let menu = NumberMenu::new(&input);
     let mut pkgs = Vec::new();
 
-    if config.sort_mode == "topdown" {
+    if config.sort_mode == CfgSortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
                 match pkg {

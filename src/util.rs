@@ -1,4 +1,4 @@
-use crate::config::{Config, NO_CONFIRM};
+use crate::config::{Config, CfgMode, NO_CONFIRM};
 
 use std::cell::Cell;
 use std::collections::HashMap;
@@ -40,9 +40,9 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode == "aur" {
+        if config.mode == CfgMode::Aur {
             aur.push(targ);
-        } else if config.mode == "repo" {
+        } else if config.mode == CfgMode::Repo {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
             if repo == config.aur_namespace() {

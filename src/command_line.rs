@@ -1,9 +1,11 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
-use crate::config::{Colors, Config, LocalRepos};
+use crate::config::{
+    CfgMode, CfgOp, CfgSortMode, CfgValue, CfgYesNoAll, CfgYesNoAsk, Colors, Config, LocalRepos,
+};
 
 use std::fmt;
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use url::Url;
 
 #[derive(Debug, Copy, Clone)]
@@ -120,28 +122,6 @@ impl Config {
         op_count: &mut u8,
         forced: bool,
     ) -> Result<()> {
-        let yes_no_ask = &["yes", "no", "ask"];
-        let yes_no_all = &["yes", "no", "all"];
-        let sort_by = &[
-            "votes",
-            "popularity",
-            "name",
-            "base",
-            "submitted",
-            "modified",
-            "id",
-            "baseid",
-        ];
-        let search_by = &[
-            "name",
-            "name-desc",
-            "maintainer",
-            "depends",
-            "checkdepends",
-            "makedepends",
-            "optdepends",
-        ];
-
         match takes_value(arg) {
             TakesValue::Required if value.is_none() => bail!("option {} expects a value", arg),
             _ => (),
@@ -169,12 +149,16 @@ impl Config {
             });
         }
 
-        let mut set_op = |op: &str| {
-            self.op = op.into();
+        let mut set_op = |op: CfgOp| {
+            self.op = op;
             *op_count += 1;
         };
 
         let value = value.with_context(|| format!("option {} does not allow a value", arg));
+        let argkey = match arg {
+            Arg::Long(n) => n,
+            _ => "<impossible_key_of_short_arg>",
+        };
 
         match arg {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
@@ -208,30 +192,32 @@ impl Config {
                     .parse()
                     .map_err(|_| anyhow!("option {} must be a number", arg))?
             }
-            Arg::Long("sortby") => self.sort_by = validate(value?, sort_by)?,
-            Arg::Long("searchby") => self.search_by = validate(value?, search_by)?,
+            Arg::Long("sortby") => self.sort_by = CfgValue::from_str_validate(argkey, value?)?,
+            Arg::Long("searchby") => self.search_by = CfgValue::from_str_validate(argkey, value?)?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("removemake") => {
-                self.remove_make = validate(value.unwrap_or("yes"), yes_no_ask)?
+                self.remove_make = CfgYesNoAsk::Yes.from_str_validate_or(argkey, value.ok())?
             }
             Arg::Long("upgrademenu") => self.upgrade_menu = true,
             Arg::Long("noupgrademenu") => self.upgrade_menu = false,
-            Arg::Long("noremovemake") => self.remove_make = "no".to_string(),
+            Arg::Long("noremovemake") => self.remove_make = CfgYesNoAsk::No,
             Arg::Long("cleanafter") => self.clean_after = true,
             Arg::Long("nocleanafter") => self.clean_after = false,
             Arg::Long("redownload") => {
-                self.redownload = validate(value.unwrap_or("yes"), yes_no_all)?
+                self.redownload = CfgYesNoAll::Yes.from_str_validate_or(argkey, value.ok())?
             }
-            Arg::Long("noredownload") => self.redownload = "no".to_string(),
-            Arg::Long("rebuild") => self.rebuild = validate(value.unwrap_or("yes"), yes_no_all)?,
-            Arg::Long("norebuild") => self.rebuild = "no".into(),
-            Arg::Long("topdown") => self.sort_mode = "topdown".to_string(),
-            Arg::Long("bottomup") => self.sort_mode = "bottomup".to_string(),
+            Arg::Long("noredownload") => self.redownload = CfgYesNoAll::No,
+            Arg::Long("rebuild") => {
+                self.rebuild = CfgYesNoAll::Yes.from_str_validate_or(argkey, value.ok())?
+            }
+            Arg::Long("norebuild") => self.rebuild = CfgYesNoAll::No,
+            Arg::Long("topdown") => self.sort_mode = CfgSortMode::TopDown,
+            Arg::Long("bottomup") => self.sort_mode = CfgSortMode::BottomUp,
             Arg::Long("aur") | Arg::Short('a') => {
-                self.mode = "aur".to_string();
+                self.mode = CfgMode::Aur;
                 self.aur_filter = true;
             }
-            Arg::Long("repo") => self.mode = "repo".to_string(),
+            Arg::Long("repo") => self.mode = CfgMode::Repo,
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
@@ -274,17 +260,17 @@ impl Config {
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
             // ops
-            Arg::Long("database") | Arg::Short('D') => set_op("database"),
-            Arg::Long("files") | Arg::Short('F') => set_op("files"),
-            Arg::Long("query") | Arg::Short('Q') => set_op("query"),
-            Arg::Long("remove") | Arg::Short('R') => set_op("remove"),
-            Arg::Long("sync") | Arg::Short('S') => set_op("sync"),
-            Arg::Long("deptest") | Arg::Short('T') => set_op("deptest"),
-            Arg::Long("upgrade") | Arg::Short('U') => set_op("upgrade"),
-            Arg::Long("show") | Arg::Short('P') => set_op("show"),
-            Arg::Long("getpkgbuild") | Arg::Short('G') => set_op("getpkgbuild"),
-            Arg::Long("repoctl") | Arg::Short('L') => set_op("repoctl"),
-            Arg::Long("chrootctl") | Arg::Short('C') => set_op("chrootctl"),
+            Arg::Long("database") | Arg::Short('D') => set_op(CfgOp::Database),
+            Arg::Long("files") | Arg::Short('F') => set_op(CfgOp::Files),
+            Arg::Long("query") | Arg::Short('Q') => set_op(CfgOp::Query),
+            Arg::Long("remove") | Arg::Short('R') => set_op(CfgOp::Remove),
+            Arg::Long("sync") | Arg::Short('S') => set_op(CfgOp::Sync),
+            Arg::Long("deptest") | Arg::Short('T') => set_op(CfgOp::DepTest),
+            Arg::Long("upgrade") | Arg::Short('U') => set_op(CfgOp::Upgrade),
+            Arg::Long("show") | Arg::Short('P') => set_op(CfgOp::Show),
+            Arg::Long("getpkgbuild") | Arg::Short('G') => set_op(CfgOp::GetPkgBuild),
+            Arg::Long("repoctl") | Arg::Short('L') => set_op(CfgOp::RepoCtl),
+            Arg::Long("chrootctl") | Arg::Short('C') => set_op(CfgOp::ChrootCtl),
             // globals
             Arg::Long("noconfirm") => self.no_confirm = true,
             Arg::Long("confirm") => self.no_confirm = false,
@@ -388,14 +374,4 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("overwrite") => TakesValue::Required,
         _ => TakesValue::No,
     }
-}
-
-pub fn validate(key: &str, valid: &[&str]) -> Result<String> {
-    ensure!(
-        valid.contains(&key),
-        "invalid value for '{}', expected: {}",
-        key,
-        valid.join("|")
-    );
-    Ok(key.to_string())
 }
