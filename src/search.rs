@@ -71,15 +71,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
 
     let mut matches = Vec::new();
 
-    let by = match config.search_by {
-        SearchBy::Name => SearchBy::Name,
-        SearchBy::Maintainer => SearchBy::Maintainer,
-        SearchBy::Depends => SearchBy::Depends,
-        SearchBy::MakeDepends => SearchBy::MakeDepends,
-        SearchBy::CheckDepends => SearchBy::CheckDepends,
-        SearchBy::OptDepends => SearchBy::OptDepends,
-        _ => SearchBy::NameDesc,
-    };
+    let by = config.search_by;
 
     if by == SearchBy::NameDesc {
         let target = targets.iter().max_by_key(|t| t.len()).unwrap();
