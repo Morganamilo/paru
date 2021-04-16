@@ -255,7 +255,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
 
     for pkg in db.pkgs().iter() {
-        let name =  pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 

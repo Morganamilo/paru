@@ -1,4 +1,4 @@
-use crate::config::{Colors, Config, YesNoAll, SortMode, Mode};
+use crate::config::{Colors, Config, Mode, SortMode, YesNoAll};
 use crate::fmt::print_indent;
 
 use std::collections::{HashMap, HashSet};

@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::config::{Config, Mode, LocalRepos};
+use crate::config::{Config, LocalRepos, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::util::split_repo_aur_pkgs;
 use crate::{exec, repo};
