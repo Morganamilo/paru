@@ -2,7 +2,7 @@ use crate::args::Arg;
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Mode, Op, YesNoAll, YesNoAsk, Config, LocalRepos};
+use crate::config::{Config, LocalRepos, Mode, Op, YesNoAll, YesNoAsk};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
@@ -19,7 +19,6 @@ use std::env::var;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_link, OpenOptions};
 use std::io::{stdin, stdout, BufRead, Read, Write};
-use std::iter::FromIterator;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -160,7 +159,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             build_info.err = err;
         }
 
-        build_cleanup(config, &build_info)?;
+        build_cleanup(config, &build_info);
     }
 
     build_info.err?;
@@ -306,10 +305,8 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             Err(err) => eprintln!("{} could not get news: {}", c.error.paint("error:"), err),
         }
 
-        if ret != 1 {
-            if !ask(config, "Continue with install?", true) {
-                return Ok(1);
-            }
+        if ret != 1 && !ask(config, "Continue with install?", true) {
+            return Ok(1);
         }
     }
 
@@ -421,15 +418,15 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         build_info.err = err;
     }
 
-    build_cleanup(config, &build_info)?;
+    build_cleanup(config, &build_info);
     build_info.err
 }
 
-async fn prepare_build<'a>(
+async fn prepare_build(
     config: &Config,
     aur_repos: HashMap<String, String>,
     cache: &mut Cache,
-    mut actions: Actions<'a>,
+    mut actions: Actions<'_>,
     srcinfo: Option<&Srcinfo>,
 ) -> Result<BuildInfo> {
     if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
@@ -465,13 +462,11 @@ async fn prepare_build<'a>(
         if !ask(config, "Proceed to review?", true) {
             return Ok(BuildInfo::stop());
         }
-    } else {
-        if !ask(config, "Proceed with install?", true) {
-            return Ok(BuildInfo::stop());
-        }
+    } else if !ask(config, "Proceed with install?", true) {
+        return Ok(BuildInfo::stop());
     }
 
-    let bases = Bases::from_iter(actions.iter_build_pkgs().map(|p| p.pkg.clone()));
+    let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if !config.skip_review {
@@ -484,11 +479,11 @@ async fn prepare_build<'a>(
     }
 
     let err = if !config.chroot {
-        repo_install(config, &mut actions.install)
+        repo_install(config, &actions.install)
     } else {
         let mut install = actions.install.to_vec();
         install.retain(|pkg| pkg.target);
-        repo_install(config, &mut install)
+        repo_install(config, &install)
     };
 
     update_aur_list(config);
@@ -535,7 +530,7 @@ async fn prepare_build<'a>(
     })
 }
 
-fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
+fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
     let mut ret = 0;
 
     if !bi.remove_make.is_empty() {
@@ -559,7 +554,7 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
         }
     }
 
-    Ok(ret)
+    ret
 }
 
 async fn download_pkgbuilds<'a>(
@@ -690,9 +685,9 @@ fn review<'a>(
                                 continue;
                             }
 
-                            let _ = write!(
+                            let _ = writeln!(
                                 stdin,
-                                "{}\n",
+                                "{}",
                                 c.bold.paint(file.path().display().to_string())
                             );
                             if bat {
@@ -1273,6 +1268,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     }
 }
 
+#[allow(clippy::clippy::too_many_arguments)]
 fn build_install_pkgbuild<'a>(
     config: &mut Config,
     aur_repos: &HashMap<String, String>,

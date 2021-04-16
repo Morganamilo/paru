@@ -442,7 +442,10 @@ impl Ini for Config {
 
     fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
         let err = match cb.kind {
-            CallbackKind::Section(section) => self.parse_section(section),
+            CallbackKind::Section(section) => {
+                self.section = Some(section.to_string());
+                Ok(())
+            }
             CallbackKind::Directive(_, key, value) => self.parse_directive(key, value),
         };
 
@@ -719,11 +722,6 @@ impl Config {
         }
 
         false
-    }
-
-    fn parse_section(&mut self, section: &str) -> Result<()> {
-        self.section = Some(section.to_string());
-        Ok(())
     }
 
     fn parse_directive(&mut self, key: &str, value: Option<&str>) -> Result<()> {

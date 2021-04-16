@@ -114,10 +114,10 @@ async fn run(config: &mut Config) -> Result<i32> {
 }
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
-    if config.op == Op::ChrootCtl || config.chroot {
-        if Command::new("arch-nspawn").arg("-h").output().is_err() {
-            bail!("can not use chroot builds: devtools is not installed");
-        }
+    if (config.op == Op::ChrootCtl || config.chroot)
+        && Command::new("arch-nspawn").arg("-h").output().is_err()
+    {
+        bail!("can not use chroot builds: devtools is not installed");
     }
 
     let ret = match config.op {
@@ -221,9 +221,10 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         sync::list(config).await
     } else if config.args.has_arg("s", "search") {
         search::search(config).await
-    } else if config.args.has_arg("g", "groups") {
-        Ok(exec::pacman(config, &config.args)?.code())
-    } else if config.args.has_arg("p", "print") || config.args.has_arg("p", "print-format") {
+    } else if config.args.has_arg("g", "groups")
+        || config.args.has_arg("p", "print")
+        || config.args.has_arg("p", "print-format")
+    {
         Ok(exec::pacman(config, &config.args)?.code())
     } else {
         let target = std::mem::take(&mut config.targets);
@@ -327,23 +328,21 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                         let installed = if local_pkg.version() != pkg.version() {
                             format!(" [installed: {}]", local_pkg.version())
                         } else {
-                            format!(" [installed]")
+                            " [installed]".to_string()
                         };
                         print!("{}", installedc.paint(installed));
                     }
                     println!();
                 }
             }
+        } else if config.quiet {
+            println!("{}", repo.name);
         } else {
-            if config.quiet {
-                println!("{}", repo.name);
-            } else {
-                println!(
-                    "{} {}",
-                    repo.name,
-                    repo.servers[0].trim_start_matches("file://")
-                );
-            }
+            println!(
+                "{} {}",
+                repo.name,
+                repo.servers[0].trim_start_matches("file://")
+            );
         }
     }
 

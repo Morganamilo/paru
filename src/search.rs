@@ -1,4 +1,4 @@
-use crate::config::{Config, SortMode, Mode};
+use crate::config::{Config, Mode, SortMode};
 use crate::fmt::{color_repo, print_indent};
 use crate::info;
 use crate::install::install;
@@ -110,7 +110,9 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
 
     match config.sort_by {
         SortBy::Votes => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
-        SortBy::Popularity => matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap()),
+        SortBy::Popularity => {
+            matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap())
+        }
         SortBy::Id => matches.sort_by_key(|p| p.id),
         SortBy::Name => matches.sort_by(|a, b| a.name.cmp(&b.name)),
         SortBy::Base => matches.sort_by(|a, b| a.package_base.cmp(&b.package_base)),
@@ -279,7 +281,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };
@@ -294,7 +296,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                 }
                 AnyPkg::AurPkg(pkg) => {
                     let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{}{} ", "", c.number_menu.paint(n));
+                    print!("{} ", c.number_menu.paint(n));
                     print_pkg(config, pkg, false)
                 }
             };

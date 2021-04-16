@@ -1,4 +1,4 @@
-use crate::config::{Config, Mode, LocalRepos};
+use crate::config::{Config, LocalRepos, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::repo;
@@ -75,6 +75,7 @@ fn get_version_diff(config: &Config, old: &str, new: &str) -> (String, String) {
     )
 }
 
+#[allow(clippy::clippy::too_many_arguments)]
 fn print_upgrade(
     config: &Config,
     n: usize,
@@ -153,11 +154,11 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
     }
 }
 
-pub async fn aur_upgrades<'a>(
-    config: &Config,
-    resolver: &mut Resolver<'a, '_>,
+pub async fn aur_upgrades<'res, 'conf>(
+    config: &'conf Config,
+    resolver: &mut Resolver<'res, '_>,
     print: bool,
-) -> Result<(AurUpdates<'a>, Vec<String>)> {
+) -> Result<(AurUpdates<'res>, Vec<String>)> {
     try_join!(
         get_aur_only_upgrades(config, resolver, print),
         get_devel_upgrades(config, print)
