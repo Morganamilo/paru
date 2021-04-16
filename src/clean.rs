@@ -6,6 +6,7 @@ use crate::util::ask;
 
 use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
 
+use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::process::Command;
 
@@ -96,10 +97,10 @@ fn clean_aur(
     Ok(())
 }
 
-fn make_writeable(file: &Path) -> Result<()> {
+fn fix_perms(file: &Path) -> Result<()> {
     let pkg = file.join("pkg");
     let mut perms = pkg.metadata()?.permissions();
-    perms.set_readonly(false);
+    perms.set_mode(0o755);
     set_permissions(pkg, perms)?;
     Ok(())
 }
@@ -120,7 +121,7 @@ fn clean_aur_pkg(
         return Ok(());
     }
 
-    let _ = make_writeable(&file.path());
+    let _ = fix_perms(&file.path());
 
     if remove_all {
         remove_dir_all(file.path())
