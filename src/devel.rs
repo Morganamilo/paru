@@ -3,6 +3,7 @@ use crate::download::{self, cache_info_with_warnings, Bases};
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
+use crate::exec::Status;
 
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
@@ -207,6 +208,7 @@ async fn ls_remote(
         .arg(branch.unwrap_or("HEAD"));
 
     let output = command.output().await?;
+    Status(output.status.code().unwrap_or(1)).success()?;
 
     let sha = String::from_utf8_lossy(&output.stdout)
         .split('\t')
