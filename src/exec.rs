@@ -62,7 +62,7 @@ fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
 }
 
 fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    Command::new(sudo).args(flags).status().with_context(|| {
+    let ret = Command::new(sudo).args(flags).status().with_context(|| {
         let flags = flags
             .iter()
             .map(|s| s.as_ref().to_string_lossy().into_owned())
@@ -70,6 +70,7 @@ fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
             .join(" ");
         format!("failed to run: {} {}", sudo, flags)
     })?;
+    Status(ret.code().unwrap_or(1)).success()?;
     Ok(())
 }
 
