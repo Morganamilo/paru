@@ -678,8 +678,17 @@ impl Config {
         alpm.set_ignoregroups(self.ignore_group.iter())?;
 
         alpm.set_logfile(&*self.pacman.log_file)?;
-        alpm.set_arch(&*self.pacman.architecture);
+
+        #[cfg(not(feature = "git"))]
+        if let Some(arch) = self.pacman.architecture.get(0) {
+            alpm.set_arch(arch.as_str());
+        }
+
+        #[cfg(feature = "git")]
+        alpm.set_architectures(self.pacman.architecture.iter())?;
+
         alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
+
         alpm.set_use_syslog(self.pacman.use_syslog);
 
         self.alpm = Alpm::new(alpm);

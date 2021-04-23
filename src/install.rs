@@ -102,7 +102,12 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let mut cache = Cache::new();
     let c = config.color;
 
+    #[cfg(not(feature = "git"))]
     let arch = config.alpm.arch();
+    #[cfg(feature = "git")]
+    // assume arch[0] is CARCH
+    let arch = config.alpm.architectures().first().context("no architecture")?;
+
     let dir = std::env::current_dir()?;
 
     // makepkg sources the PKGBUILD to generate the srcinfo
@@ -745,11 +750,17 @@ fn review<'a>(
 
     config.fetch.mark_seen(&pkgs)?;
 
+    #[cfg(not(feature = "git"))]
+    let arch = config.alpm.arch();
+    #[cfg(feature = "git")]
+    let arch = config.alpm.architectures().first().context("no architecture")?;
+
+
     let incompatible = srcinfos
         .values()
         .flat_map(|s| &s.pkgs)
         .filter(|p| {
-            !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == config.alpm.arch())
+            !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch)
         })
         .collect::<Vec<_>>();
 
@@ -854,13 +865,19 @@ fn check_actions(
     let dups = actions.duplicate_targets();
     ensure!(dups.is_empty(), "duplicate packages: {}", dups.join(" "));
 
+    #[cfg(not(feature = "git"))]
+    let arch = config.alpm.arch();
+    #[cfg(feature = "git")]
+    // assume arch[0] is CARCH
+    let arch = config.alpm.architectures().first().context("no architecture")?;
+
     if !actions.missing.is_empty() {
         if let Some(srcinfo) = srcinfo {
             let provides = srcinfo
                 .pkgs
                 .iter()
                 .flat_map(|p| &p.provides)
-                .filter(|v| v.supports(config.alpm.arch()))
+                .filter(|v| v.supports(arch))
                 .flat_map(|v| &v.vec);
             let names = srcinfo.pkgs.iter().map(|p| &p.pkgname);
 

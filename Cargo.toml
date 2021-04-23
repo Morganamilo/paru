@@ -14,12 +14,12 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
-alpm = "1.1.9"
+alpm = "1.1.10"
 alpm-utils = "0.6.2"
 aur-depends = "0.14.3"
 aur-fetch = "0.9.1"
 cini = "0.1.1"
-pacmanconf = "0.2.0"
+pacmanconf = "1.0.0"
 raur = "5.0.0"
 srcinfo = "1.0.0"
 
