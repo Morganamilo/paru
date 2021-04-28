@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
-use crate::config::{Config,Mode};
+use crate::config::{Config, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
-use crate::util::split_repo_aur_pkgs;
 use crate::exec;
+use crate::util::split_repo_aur_pkgs;
 
 use anyhow::Result;
 use futures::try_join;

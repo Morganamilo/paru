@@ -251,11 +251,11 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             default_repo
         };
 
-            let path = repo::file(&r).unwrap();
-            let name = r.name().to_string();
-            drop(repo);
-            repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
-            repo::refresh(config, &[name])?;
+        let path = repo::file(&r).unwrap();
+        let name = r.name().to_string();
+        drop(repo);
+        repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
+        repo::refresh(config, &[name])?;
     }
 
     if config.install {
@@ -1182,12 +1182,15 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
         }
     }
 
-    let repo_server = default_repo.map(|r| (r.name().to_string(), repo::file(&r).unwrap().to_string()));
+    let repo_server =
+        default_repo.map(|r| (r.name().to_string(), repo::file(&r).unwrap().to_string()));
     drop(repo);
 
     for base in bi.build.iter_mut() {
         failed.push(base.clone());
-        let repo_server = repo_server.as_ref().map(|rs| (rs.0.as_str(), rs.1.as_str()));
+        let repo_server = repo_server
+            .as_ref()
+            .map(|rs| (rs.0.as_str(), rs.1.as_str()));
 
         let err = build_install_pkgbuild(
             config,
@@ -1399,7 +1402,8 @@ fn build_install_pkgbuild<'a>(
         let pkgs = pkgdest.values().collect::<Vec<_>>();
         if let Some(repo) = aur_repos.get(base.package_base()) {
             let repo = config
-                .alpm.syncdbs()
+                .alpm
+                .syncdbs()
                 .iter()
                 .find(|db| db.name() == *repo)
                 .unwrap();
