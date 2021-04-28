@@ -7,6 +7,7 @@ use std::fs::read_link;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use alpm::{AlpmListMut, Db};
 use anyhow::{Context, Result};
 
 pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
@@ -91,53 +92,48 @@ pub fn init<P: AsRef<Path>>(config: &Config, path: P, name: &str) -> Result<()> 
     add(config, path, name, false, pkgs)
 }
 
-pub fn configured_local_repos(config: &Config) -> Vec<&str> {
-    config
-        .pacman
-        .repos
-        .iter()
-        .filter(|r| is_configured_local_repo(config, r))
-        .map(|r| r.name.as_str())
-        .collect()
-}
-
-pub fn is_configured_local_repo(config: &Config, repo: &pacmanconf::Repository) -> bool {
+pub fn is_configured_local_db(config: &Config, db: &Db) -> bool {
     match config.repos {
         LocalRepos::None => false,
-        LocalRepos::Default => is_local(repo),
-        LocalRepos::Repo(ref r) => r.iter().any(|r| *r == repo.name),
+        LocalRepos::Default => is_local_db(db),
+        LocalRepos::Repo(ref r) => is_local_db(db) && r.iter().any(|r| *r == db.name()),
     }
 }
 
-pub fn file(repo: &pacmanconf::Repository) -> Option<&str> {
-    repo.servers
+pub fn file<'a>(repo: &Db<'a>) -> Option<&'a str> {
+    repo.servers()
         .first()
         .map(|s| s.trim_start_matches("file://"))
 }
 
-pub fn all_files(config: &Config) -> Vec<&str> {
+pub fn all_files(config: &Config) -> Vec<String> {
     config
-        .pacman
-        .repos
+        .alpm
+        .syncdbs()
         .iter()
-        .filter(|r| is_configured_local_repo(config, r))
-        .flat_map(|r| files(r))
+        .flat_map(|db| db.servers())
+        .filter(|f| f.starts_with("file://"))
+        .map(|s| s.trim_start_matches("file://").to_string())
         .collect()
-}
-
-pub fn files(repo: &pacmanconf::Repository) -> Vec<&str> {
-    repo.servers
-        .iter()
-        .map(|s| s.trim_start_matches("file://"))
-        .collect()
-}
-
-pub fn is_local(repo: &pacmanconf::Repository) -> bool {
-    !repo.servers.is_empty() && repo.servers.iter().all(|s| s.starts_with("file://"))
 }
 
 pub fn is_local_db(db: &alpm::Db) -> bool {
     !db.servers().is_empty() && db.servers().iter().all(|s| s.starts_with("file://"))
+}
+
+pub fn local_dbs(config: &Config) -> AlpmListMut<Db> {
+    let mut dbs = config.alpm.syncdbs().to_list();
+    dbs.retain(|db| is_configured_local_db(config, db));
+    dbs
+}
+
+pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
+    let dbs = config.alpm.syncdbs();
+    let mut aur = dbs.to_list();
+    let mut repo = dbs.to_list();
+    aur.retain(|db| is_configured_local_db(config, db));
+    repo.retain(|db| !is_configured_local_db(config, db));
+    (repo, aur)
 }
 
 pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32> {

@@ -1,11 +1,10 @@
 use std::collections::HashSet;
 
-use crate::config::{Config, LocalRepos, Mode};
+use crate::config::{Config,Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::util::split_repo_aur_pkgs;
-use crate::{exec, repo};
+use crate::exec;
 
-use alpm_utils::DbListExt;
 use anyhow::Result;
 use futures::try_join;
 use raur::{Cache, Raur};
@@ -27,29 +26,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         config.targets.iter().map(|s| s.as_str()).collect()
     };
 
-    let (mut repo, mut aur);
-
-    if config.repos != LocalRepos::None {
-        let aur_repos = repo::configured_local_repos(config);
-        aur = Vec::new();
-        repo = Vec::new();
-
-        for pkg in targets {
-            if let Ok(p) = config.alpm.syncdbs().pkg(pkg) {
-                if let Some(db) = p.db() {
-                    if aur_repos.iter().any(|repo| repo == &db.name()) {
-                        aur.push(pkg);
-                    } else {
-                        repo.push(pkg);
-                    }
-                }
-            }
-        }
-    } else {
-        let (r, a) = split_repo_aur_pkgs(config, &targets);
-        repo = r;
-        aur = a;
-    }
+    let (repo, aur) = split_repo_aur_pkgs(config, &targets);
 
     let mut repo_ret = 1;
     let mut aur_ret = 1;

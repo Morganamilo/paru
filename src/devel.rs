@@ -1,9 +1,9 @@
 use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::exec::Status;
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
-use crate::exec::Status;
 
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
@@ -269,13 +269,8 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
         }
 
         if config.repos != LocalRepos::None {
-            for repo in repo::configured_local_repos(config) {
-                let db = config
-                    .alpm
-                    .syncdbs()
-                    .iter()
-                    .find(|db| db.name() == repo)
-                    .unwrap();
+            let (_, dbs) = repo::repo_aur_dbs(config);
+            for db in dbs {
                 if db.pkg(pkg.as_str()).is_ok() {
                     futures.push(pkg_has_update(config, pkg, &repos.repos));
                     continue 'outer;

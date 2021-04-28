@@ -1,4 +1,5 @@
-use crate::config::{Config, Mode, NO_CONFIRM};
+use crate::config::{Config, LocalRepos, Mode, NO_CONFIRM};
+use crate::repo;
 
 use std::cell::Cell;
 use std::collections::HashMap;
@@ -18,21 +19,6 @@ pub struct NumberMenu<'a> {
 
 pub fn pkg_base_or_name<'a>(pkg: &Package<'a>) -> &'a str {
     pkg.base().unwrap_or_else(|| pkg.name())
-}
-
-pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {
-    let mut local = Vec::new();
-    let mut aur = Vec::new();
-
-    for pkg in pkgs {
-        if config.alpm.syncdbs().pkg(pkg.as_ref()).is_ok() {
-            local.push(pkg.clone());
-        } else {
-            aur.push(pkg.clone());
-        }
-    }
-
-    (local, aur)
 }
 
 pub fn split_repo_aur_targets<'a, T: AsTarg>(
@@ -324,4 +310,20 @@ pub fn get_provider(max: usize) -> usize {
 
         return num - 1;
     }
+}
+
+pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -> (Vec<S>, Vec<S>) {
+    let mut aur = Vec::new();
+    let mut repo = Vec::new();
+    let (repo_dbs, aur_dbs) = repo::repo_aur_dbs(config);
+
+    for pkg in pkgs {
+        if repo_dbs.pkg(pkg.as_ref()).is_ok() {
+            repo.push(pkg.clone());
+        } else if config.repos == LocalRepos::None || aur_dbs.pkg(pkg.as_ref()).is_ok() {
+            aur.push(pkg.clone());
+        }
+    }
+
+    (repo, aur)
 }

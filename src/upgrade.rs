@@ -125,9 +125,9 @@ async fn get_aur_only_upgrades<'a, 'b>(
         let updates = match config.repos {
             LocalRepos::None => resolver.aur_updates().await?,
             _ => {
-                resolver
-                    .local_aur_updates(&repo::configured_local_repos(config))
-                    .await?
+                let dbs = repo::local_dbs(config);
+                let dbs = dbs.iter().map(|db| db.name()).collect::<Vec<_>>();
+                resolver.local_aur_updates(&dbs).await?
             }
         };
 

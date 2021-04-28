@@ -596,7 +596,7 @@ impl Config {
         self.need_root = self.need_root();
 
         if self.repos != LocalRepos::None {
-            let repos = repo::configured_local_repos(self);
+            let repos = repo::repo_aur_dbs(self).1;
 
             if repos.is_empty() {
                 bail!(
@@ -611,8 +611,8 @@ impl Config {
             }
 
             for repo in repos {
-                if !self.pacman.repos.iter().any(|r| r.name == repo) {
-                    bail!("can not find local repo '{}' in pacman.conf", repo);
+                if !self.pacman.repos.iter().any(|r| r.name == repo.name()) {
+                    bail!("can not find local repo '{}' in pacman.conf", repo.name());
                 }
             }
         }

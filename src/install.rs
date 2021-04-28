@@ -8,10 +8,9 @@ use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
 use crate::keys::check_pgp_keys;
 use crate::print_error;
-use crate::repo;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
-use crate::{args, exec, news};
+use crate::{args, exec, news, repo};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -30,7 +29,6 @@ use anyhow::{bail, ensure, Context, Result};
 use args::Args;
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
 use nix::sys::signal::{signal, SigHandler, Signal};
-use pacmanconf::Repository;
 use raur::Cache;
 use srcinfo::Srcinfo;
 
@@ -106,7 +104,11 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let arch = config.alpm.arch();
     #[cfg(feature = "git")]
     // assume arch[0] is CARCH
-    let arch = config.alpm.architectures().first().context("no architecture")?;
+    let arch = config
+        .alpm
+        .architectures()
+        .first()
+        .context("no architecture")?;
 
     let dir = std::env::current_dir()?;
 
@@ -171,22 +173,13 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     let chroot = chroot(config);
 
-    let repo = repo::configured_local_repos(config);
-    let repo = repo.get(0).map(|repo| {
-        config
-            .pacman
-            .repos
-            .iter()
-            .find(|r| r.name == *repo)
-            .unwrap()
-    });
+    let (_, repo) = repo::repo_aur_dbs(config);
+    let default_repo = repo.first();
 
-    if let Some(repo) = repo {
-        let file = repo::file(repo).unwrap();
-        repo::init(config, file, &repo.name)?;
+    if let Some(repo) = default_repo {
+        let file = repo::file(&repo).unwrap();
+        repo::init(config, file, &repo.name())?;
     }
-
-    let repo = repo.cloned();
 
     if config.chroot {
         if !chroot.exists() {
@@ -246,28 +239,23 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     pkgdest.retain(|_, v| Path::new(v).exists());
 
     let db = config.alpm.syncdbs();
-    if let Some(ref repo) = repo {
+    if let Some(default_repo) = default_repo {
         let pkgs = pkgdest.values().collect::<Vec<_>>();
-        if let Some(repo) = db
+        let r = if let Some(repo) = db
             .pkg(srcinfo.base.pkgbase.as_str())
             .ok()
             .and_then(|pkg| pkg.db())
         {
-            let repo = config
-                .pacman
-                .repos
-                .iter()
-                .find(|db| db.name == repo.name())
-                .unwrap();
-            let path = repo::file(repo).unwrap();
-            let name = repo.name.clone();
+            repo
+        } else {
+            default_repo
+        };
+
+            let path = repo::file(&r).unwrap();
+            let name = r.name().to_string();
+            drop(repo);
             repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
             repo::refresh(config, &[name])?;
-        } else {
-            let path = repo::file(&repo).unwrap();
-            repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
-            repo::refresh(config, &[repo.name.clone()])?;
-        }
     }
 
     if config.install {
@@ -753,15 +741,16 @@ fn review<'a>(
     #[cfg(not(feature = "git"))]
     let arch = config.alpm.arch();
     #[cfg(feature = "git")]
-    let arch = config.alpm.architectures().first().context("no architecture")?;
-
+    let arch = config
+        .alpm
+        .architectures()
+        .first()
+        .context("no architecture")?;
 
     let incompatible = srcinfos
         .values()
         .flat_map(|s| &s.pkgs)
-        .filter(|p| {
-            !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch)
-        })
+        .filter(|p| !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch))
         .collect::<Vec<_>>();
 
     if !incompatible.is_empty() {
@@ -869,7 +858,11 @@ fn check_actions(
     let arch = config.alpm.arch();
     #[cfg(feature = "git")]
     // assume arch[0] is CARCH
-    let arch = config.alpm.architectures().first().context("no architecture")?;
+    let arch = config
+        .alpm
+        .architectures()
+        .first()
+        .context("no architecture")?;
 
     if !actions.missing.is_empty() {
         if let Some(srcinfo) = srcinfo {
@@ -1150,10 +1143,7 @@ fn chroot(config: &Config) -> Chroot {
             .as_deref()
             .unwrap_or("/etc/makepkg.conf")
             .to_string(),
-        ro: repo::all_files(config)
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
+        ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
     }
 }
@@ -1177,22 +1167,12 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
         (DevelInfo::default(), DevelInfo::default())
     };
 
-    let repo = repo::configured_local_repos(config);
-    let repo = repo.get(0).map(|repo| {
-        config
-            .pacman
-            .repos
-            .iter()
-            .find(|r| r.name == *repo)
-            .unwrap()
-    });
-
-    if let Some(repo) = repo {
-        let file = repo::file(repo).unwrap();
-        repo::init(config, file, &repo.name)?;
+    let (_, repo) = repo::repo_aur_dbs(config);
+    let default_repo = repo.first();
+    if let Some(repo) = default_repo {
+        let file = repo::file(&repo).unwrap();
+        repo::init(config, file, &repo.name())?;
     }
-
-    let repo = repo.cloned();
 
     if config.chroot {
         if !chroot.exists() {
@@ -1202,8 +1182,12 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
         }
     }
 
+    let repo_server = default_repo.map(|r| (r.name().to_string(), repo::file(&r).unwrap().to_string()));
+    drop(repo);
+
     for base in bi.build.iter_mut() {
         failed.push(base.clone());
+        let repo_server = repo_server.as_ref().map(|rs| (rs.0.as_str(), rs.1.as_str()));
 
         let err = build_install_pkgbuild(
             config,
@@ -1217,7 +1201,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
             &mut conflict,
             &mut devel_info,
             &mut new_devel_info,
-            repo.as_ref(),
+            repo_server,
         );
 
         if err.is_ok() {
@@ -1298,7 +1282,7 @@ fn build_install_pkgbuild<'a>(
     conflict: &mut bool,
     devel_info: &mut DevelInfo,
     new_devel_info: &mut DevelInfo,
-    repo: Option<&Repository>,
+    repo: Option<(&str, &str)>,
 ) -> Result<()> {
     let c = config.color;
     let mut debug_paths = Vec::new();
@@ -1415,19 +1399,18 @@ fn build_install_pkgbuild<'a>(
         let pkgs = pkgdest.values().collect::<Vec<_>>();
         if let Some(repo) = aur_repos.get(base.package_base()) {
             let repo = config
-                .pacman
-                .repos
+                .alpm.syncdbs()
                 .iter()
-                .find(|db| db.name == *repo)
+                .find(|db| db.name() == *repo)
                 .unwrap();
-            let path = repo::file(repo).unwrap();
-            let name = repo.name.clone();
+            let path = repo::file(&repo).unwrap();
+            let name = repo.name().to_string();
             repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
             repo::refresh(config, &[name])?;
         } else {
-            let path = repo::file(&repo).unwrap();
-            repo::add(config, path, &repo.name, config.move_pkgs, &pkgs)?;
-            repo::refresh(config, &[repo.name.clone()])?;
+            let path = repo.1;
+            repo::add(config, path, repo.0, config.move_pkgs, &pkgs)?;
+            repo::refresh(config, &[repo.0])?;
         }
         if let Some(info) = new_devel_info.info.remove(base.package_base()) {
             devel_info
@@ -1694,22 +1677,8 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") {
-        let repos = repo::configured_local_repos(config);
-        let mut pkgs = Vec::new();
-        let pkgs = if !repos.is_empty() {
-            pkgs.clear();
-
-            for db in config.alpm.syncdbs() {
-                if repos.contains(&db.name()) {
-                    pkgs.extend(db.pkgs().iter());
-                }
-            }
-            pkgs
-        } else {
-            let mut pkgs = config.alpm.localdb().pkgs().iter().collect::<Vec<_>>();
-            pkgs.retain(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err());
-            pkgs
-        };
+        let (_, repo) = repo::repo_aur_dbs(config);
+        let pkgs = repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();
 
         warnings.missing = pkgs
             .iter()
@@ -1784,20 +1753,16 @@ fn needs_build(
         let c = config.color;
 
         if config.repos != LocalRepos::None {
-            let dbs = config.alpm.syncdbs();
-            let repos = repo::configured_local_repos(config);
+            let (_, repos) = repo::repo_aur_dbs(config);
 
             for pkg in &base.pkgs {
-                for repo in &repos {
-                    let repo = dbs.iter().find(|db| db.name() == *repo).unwrap();
-                    if let Ok(pkg) = repo.pkg(pkg.pkg.name.as_str()) {
-                        if pkg.version() != version {
-                            return true;
-                        }
-                    } else {
-                        return true;
-                    }
+                match repos.pkg(pkg.pkg.name.as_str()) {
+                    Ok(pkg) if pkg.version() == version => continue,
+                    _ => (),
                 }
+
+                all_installed = false;
+                break;
             }
         } else {
             for pkg in &base.pkgs {
@@ -1810,16 +1775,16 @@ fn needs_build(
                 all_installed = false;
                 break;
             }
+        }
 
-            if all_installed {
-                println!(
-                    "{} {}-{} is up to date -- skipping",
-                    c.warning.paint("::"),
-                    base.package_base(),
-                    base.pkgs[0].pkg.version
-                );
-                return false;
-            }
+        if all_installed {
+            println!(
+                "{} {}-{} is up to date -- skipping",
+                c.warning.paint("::"),
+                base.package_base(),
+                base.pkgs[0].pkg.version
+            );
+            return false;
         }
     }
 

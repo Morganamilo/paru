@@ -240,34 +240,26 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
     let version = config.color.sl_version;
     let installedc = config.color.sl_installed;
 
+    let (_, repos) = repo::repo_aur_dbs(config);
+    let repos = repos
+        .into_iter()
+        .map(|r| r.name().to_string())
+        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(r))
+        .collect::<Vec<_>>();
+
     if config.update {
-        let repos = config
-            .pacman
-            .repos
-            .iter()
-            .filter(|r| repo::is_configured_local_repo(config, r))
-            .filter(|r| {
-                config.delete || config.targets.is_empty() || config.targets.contains(&r.name)
-            })
-            .map(|r| r.name.clone())
-            .collect::<Vec<_>>();
         repo::refresh(config, &repos)?;
     }
 
-    let dbs = config.alpm.syncdbs();
-
-    let repos = config
-        .pacman
-        .repos
-        .iter()
-        .filter(|r| repo::is_configured_local_repo(config, r))
-        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(&r.name));
+    let (_, mut repos) = repo::repo_aur_dbs(config);
+    repos.retain(|r| {
+        config.delete || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
+    });
 
     if config.delete {
         let mut remove = HashMap::<&str, Vec<&str>>::new();
         let mut rmfiles = Vec::new();
-        for repo in repos.clone() {
-            let repo = dbs.iter().find(|r| r.name() == repo.name).unwrap();
+        for repo in &repos {
             for pkg in repo.pkgs() {
                 if config.targets.iter().any(|p| p == pkg.name()) {
                     remove.entry(repo.name()).or_default().push(pkg.name());
@@ -275,10 +267,14 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             }
         }
 
-        for repo in repos.clone() {
-            if let Some(pkgs) = remove.get(repo.name.as_str()) {
-                let path = repo.servers[0].trim_start_matches("file://");
-                repo::remove(config, path, &repo.name, pkgs)?;
+        for repo in &repos {
+            if let Some(pkgs) = remove.get(&repo.name()) {
+                let path = repo
+                    .servers()
+                    .first()
+                    .unwrap()
+                    .trim_start_matches("file://");
+                repo::remove(config, path, &repo.name(), pkgs)?;
 
                 let files = read_dir(path)?;
 
@@ -303,15 +299,22 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             exec::command(&config.sudo_bin, ".", &args)?.success()?;
         }
 
-        let repos = repos.clone().map(|r| r.name.clone()).collect::<Vec<_>>();
+        let repos = repos
+            .into_iter()
+            .map(|r| r.name().to_string())
+            .collect::<Vec<_>>();
         repo::refresh(config, &repos)?;
 
         return Ok(0);
     }
 
+    let (_, mut repos) = repo::repo_aur_dbs(config);
+    repos.retain(|r| {
+        config.delete || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
+    });
+
     for repo in repos {
         if config.list {
-            let repo = dbs.iter().find(|r| r.name() == repo.name).unwrap();
             for pkg in repo.pkgs() {
                 if config.quiet {
                     println!("{}", pkg.name());
@@ -336,12 +339,15 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                 }
             }
         } else if config.quiet {
-            println!("{}", repo.name);
+            println!("{}", repo.name());
         } else {
             println!(
                 "{} {}",
-                repo.name,
-                repo.servers[0].trim_start_matches("file://")
+                repo.name(),
+                repo.servers()
+                    .first()
+                    .unwrap()
+                    .trim_start_matches("file://")
             );
         }
     }
@@ -362,10 +368,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
             .as_deref()
             .unwrap_or("/etc/makepkg.conf")
             .to_string(),
-        ro: repo::all_files(config)
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
+        ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
     };
 

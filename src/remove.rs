@@ -20,15 +20,9 @@ pub fn remove(config: &mut Config) -> Result<i32> {
         .collect::<Vec<_>>();
 
     let mut db_map: HashMap<String, Vec<String>> = HashMap::new();
-    let dbs = config.alpm.syncdbs();
-    let local_repos = repo::configured_local_repos(config);
-    let local_dbs = local_repos
-        .iter()
-        .filter_map(|r| dbs.iter().find(|db| db.name() == *r))
-        .collect::<Vec<_>>();
-
+    let (_, local_repos) = repo::repo_aur_dbs(config);
     for pkg in &config.targets {
-        for db in &local_dbs {
+        for db in &local_repos {
             if let Ok(pkg) = db.pkg(pkg.as_str()) {
                 db_map
                     .entry(db.name().to_string())
@@ -62,11 +56,13 @@ pub fn remove(config: &mut Config) -> Result<i32> {
 
     if config.local {
         for (db, pkgs) in &db_map {
-            let db = local_dbs.iter().find(|d| d.name() == *db).unwrap();
+            let db = local_repos.iter().find(|d| d.name() == *db).unwrap();
             let name = db.name();
             let path = db.servers().first().unwrap().trim_start_matches("file://");
             let _ = repo::remove(config, path, name, &pkgs);
         }
+
+        drop(local_repos);
         repo::refresh(
             config,
             &db_map.keys().map(|s| s.as_str()).collect::<Vec<_>>(),
