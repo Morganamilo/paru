@@ -114,8 +114,15 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
     let ignore = &config.ignore;
 
-    let aur = split_repo_aur_pkgs(config, &pkgs).1;
+    let mut aur = split_repo_aur_pkgs(config, &pkgs).1;
+    let mut devel_info = load_devel_info(config)?.unwrap_or_default();
 
+    aur.retain(|pkg| {
+        let pkg = db.pkg(*pkg).unwrap();
+        let pkg = pkg.base().unwrap_or_else(|| pkg.name());
+
+        !devel_info.info.contains_key(pkg)
+    });
     println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
     let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
     warnings.all(config.color, config.cols);
@@ -173,7 +180,12 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         bold.paint("Looking for devel repos...")
     );
 
-    let devel_info = fetch_devel_info(config, &bases, &srcinfos).await?;
+    let new_devel_info = fetch_devel_info(config, &bases, &srcinfos).await?;
+
+    for (k, v) in new_devel_info.info {
+        devel_info.info.entry(k).or_insert(v);
+    }
+
     save_devel_info(config, &devel_info).context("failed to save devel info")?;
     Ok(())
 }
