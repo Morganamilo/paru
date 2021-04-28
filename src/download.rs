@@ -293,9 +293,8 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
             .await?
     } else {
         let total = download.len().to_string();
-        let truncate = cols - (80 - (total.len() * 2)).min(cols);
         let template = format!(
-            " ({{pos:>{}}}/{{len}}) {{prefix:!}} [{{wide_bar}}]",
+            " ({{pos:>{}}}/{{len}}) {{prefix:45!}} [{{wide_bar}}]",
             total.len()
         );
         let pb = ProgressBar::new(download.len() as u64);
@@ -304,10 +303,6 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                 .template(&template)
                 .progress_chars("-> "),
         );
-
-        let mut prefix = format!("{:<100}", "");
-        prefix.truncate(truncate);
-        pb.set_prefix(&prefix);
 
         let fetched = config
             .fetch
@@ -319,9 +314,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                     .unwrap();
 
                 pb.inc(1);
-                let mut prefix = format!("{}{:<100}", base, "");
-                prefix.truncate(truncate);
-                pb.set_prefix(&prefix);
+                pb.set_prefix(&base.to_string());
             })
             .await?;
 
