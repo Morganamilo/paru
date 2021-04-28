@@ -580,8 +580,11 @@ impl Config {
             "failed to initialize noconfirm"
         );
 
+        let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+
         let client = reqwest::Client::builder()
             .tcp_keepalive(Duration::new(15, 0))
+            .user_agent(format!("paru/{}", ver))
             .build()?;
         self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
 
