@@ -4,7 +4,7 @@ use crate::fmt::print_indent;
 use std::str::Chars;
 
 use ansi_term::Style;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use htmlescape::decode_html;
 use rss::Channel;
 
@@ -33,6 +33,9 @@ pub async fn news(config: &Config) -> Result<i32> {
     let client = config.raur.client();
 
     let resp = client.get(url.clone()).send().await?;
+    if !resp.status().is_success() {
+        bail!("{}: {}", url, resp.status());
+    }
     let bytes = resp.bytes().await?;
     let channel = Channel::read_from(bytes.as_ref())?;
     let c = config.color;
