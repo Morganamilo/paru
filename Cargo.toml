@@ -48,7 +48,7 @@ url = "2.2.1"
 env_logger = "0.8.3"
 
 [profile.release]
-lto = true
+codegen-units = 1
 
 [features]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
