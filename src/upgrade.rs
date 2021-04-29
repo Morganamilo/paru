@@ -285,6 +285,8 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
+
+    let (_, dbs) = repo::repo_aur_dbs(config);
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
         let remote = dbs
             .pkg(pkg.local.name())
@@ -309,6 +311,11 @@ pub async fn get_upgrades<'a, 'b>(
             .map(|p| p.db().unwrap().name())
             .map(|p| format!("{}-devel", p));
         let remote = remote.as_deref().unwrap_or("devel");
+        let current = dbs
+            .pkg(pkg.as_str())
+            .or_else(|_| db.pkg(pkg.as_str()))
+            .unwrap();
+        let ver = current.version();
         print_upgrade(
             config,
             n + 1,
@@ -316,7 +323,7 @@ pub async fn get_upgrades<'a, 'b>(
             pkg,
             remote,
             db_pkg_max,
-            db.pkg(pkg.as_str()).unwrap().version(),
+            ver,
             old_max,
             "latest-commit",
         );
