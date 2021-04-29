@@ -49,6 +49,7 @@ env_logger = "0.8.3"
 
 [profile.release]
 codegen-units = 1
+lto = true
 
 [features]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
