@@ -314,13 +314,8 @@ pub async fn filter_devel_updates(
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
     let db = config.alpm.localdb();
 
-    for pkg in config
-        .alpm
-        .syncdbs()
-        .iter()
-        .filter(|d| repo::is_local_db(d))
-        .flat_map(|d| d.pkgs())
-    {
+    let (_, dbs) = repo::repo_aur_dbs(config);
+    for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
         let name = pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
@@ -446,13 +441,8 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    for pkg in config
-        .alpm
-        .syncdbs()
-        .iter()
-        .filter(|d| repo::is_local_db(d))
-        .flat_map(|d| d.pkgs())
-    {
+    let (_, dbs) = repo::repo_aur_dbs(config);
+    for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
         let name = pkg_base_or_name(&pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }

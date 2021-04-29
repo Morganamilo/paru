@@ -37,8 +37,7 @@ pub fn remove(config: &mut Config) -> Result<i32> {
         return Ok(ret);
     }
 
-    let mut dbs = config.alpm.syncdbs().to_list();
-    dbs.retain(|d| repo::is_local_db(d));
+    let (_, dbs) = repo::repo_aur_dbs(config);
 
     for target in bases {
         if !config.local && dbs.pkg(target).is_ok() {

@@ -125,7 +125,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
         let updates = match config.repos {
             LocalRepos::None => resolver.aur_updates().await?,
             _ => {
-                let dbs = repo::local_dbs(config);
+                let (_, dbs) = repo::repo_aur_dbs(config);
                 let dbs = dbs.iter().map(|db| db.name()).collect::<Vec<_>>();
                 resolver.local_aur_updates(&dbs).await?
             }
@@ -284,7 +284,6 @@ pub async fn get_upgrades<'a, 'b>(
             pkg.version(),
         );
     }
-
 
     let (_, dbs) = repo::repo_aur_dbs(config);
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {

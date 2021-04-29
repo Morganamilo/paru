@@ -92,7 +92,7 @@ pub fn init<P: AsRef<Path>>(config: &Config, path: P, name: &str) -> Result<()> 
     add(config, path, name, false, pkgs)
 }
 
-pub fn is_configured_local_db(config: &Config, db: &Db) -> bool {
+fn is_configured_local_db(config: &Config, db: &Db) -> bool {
     match config.repos {
         LocalRepos::None => false,
         LocalRepos::Default => is_local_db(db),
@@ -117,14 +117,8 @@ pub fn all_files(config: &Config) -> Vec<String> {
         .collect()
 }
 
-pub fn is_local_db(db: &alpm::Db) -> bool {
+fn is_local_db(db: &alpm::Db) -> bool {
     !db.servers().is_empty() && db.servers().iter().all(|s| s.starts_with("file://"))
-}
-
-pub fn local_dbs(config: &Config) -> AlpmListMut<Db> {
-    let mut dbs = config.alpm.syncdbs().to_list();
-    dbs.retain(|db| is_configured_local_db(config, db));
-    dbs
 }
 
 pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
