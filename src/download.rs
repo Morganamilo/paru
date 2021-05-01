@@ -314,7 +314,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                     .unwrap();
 
                 pb.inc(1);
-                pb.set_prefix(&base.to_string());
+                pb.set_prefix(base.to_string());
             })
             .await?;
 
