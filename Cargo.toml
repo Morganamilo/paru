@@ -20,7 +20,7 @@ aur-depends = "0.14.3"
 aur-fetch = "0.9.1"
 cini = "0.1.1"
 pacmanconf = "1.0.0"
-raur = "5.0.0"
+raur = "5.0.1"
 srcinfo = "1.0.0"
 
 
