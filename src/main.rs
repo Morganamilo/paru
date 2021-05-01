@@ -380,7 +380,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         let mut args = vec!["pacman", "-S"];
         args.extend(config.targets.iter().map(|s| s.as_str()));
         chroot.run(&args)?;
-    } else {
+    } else if !config.update || !config.targets.is_empty() {
         chroot.run(&config.targets)?;
     }
     Ok(0)
