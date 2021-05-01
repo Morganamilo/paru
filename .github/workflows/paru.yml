@@ -1,0 +1,52 @@
+name: Paru
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - name: Install Packages
+        run: pacman -Syu rust clang gcc libarchive pkgconf  --noconfirm --needed
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Format
+        run: cargo fmt -- --check
+
+      - name: Test
+        run: cargo test --features generate
+
+  test-git:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - name: Install Packages
+        run: pacman -Syu rust curl clang git base-devel libarchive meson asciidoc doxygen fakechroot pkgconf  --noconfirm  --needed
+
+      - name: Install Pacman-git
+        run: |
+          git clone https://aur.archlinux.org/pacman-git
+          chown -R nobody pacman-git
+          cd pacman-git
+          sudo -u nobody makepkg --nocheck
+          sudo -u nobody makepkg --packagelist > list
+          yes | pacman -U $(cat list)
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Format
+        run: cargo fmt -- --check
+
+      - name: Test
+        run: cargo test --features generate,git
