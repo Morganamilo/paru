@@ -170,7 +170,7 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
-        .spawn()
+        .status()
         .with_context(|| {
             format!(
                 "failed to run: {} {}",
@@ -180,8 +180,7 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
                     .collect::<Vec<_>>()
                     .join(" ")
             )
-        })?
-        .wait()?;
+        })?;
 
     Ok(Status(ret.code().unwrap_or(1)))
 }

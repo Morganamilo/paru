@@ -100,6 +100,8 @@ _pacman_opts_common=(
 	'--nobatchinstall[Build and install each AUR package one by one]'
 	'--chroot[Build packages in a chroot]'
 	"--nochroot[Don't build packages in a chroot]"
+	'--sign[Sign packages with gpg]'
+	"--nosign[Don't sign packages with gpg]"
 	'--localrepo[Build packages in a local repo]'
 
 	'--skipreview[Skip the review process]'

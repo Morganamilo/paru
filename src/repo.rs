@@ -2,7 +2,7 @@ use crate::config::{Config, LocalRepos};
 use crate::exec;
 
 use std::env::current_exe;
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::fs::read_link;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -42,14 +42,23 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     if !pkgs.is_empty() {
         let cmd = if mv {
-            OsStr::new("mv")
+            OsString::from("mv")
         } else {
-            OsStr::new("cp")
+            OsString::from("cp")
         };
 
-        let mut args = vec![cmd, OsStr::new("-f")];
-        args.extend(pkgs.iter().map(OsStr::new));
-        args.push(path.as_os_str());
+        let mut args = vec![cmd, OsString::from("-f")];
+
+        for pkg in pkgs {
+            let mut sig = pkg.as_ref().to_os_string();
+            sig.push(".sig");
+            if Path::new(&sig).exists() {
+                args.push(sig);
+            }
+        }
+
+        args.extend(pkgs.iter().map(OsString::from));
+        args.push(path.as_os_str().to_os_string());
         exec::command(sudo, ".", &args)?.success()?;
     }
 

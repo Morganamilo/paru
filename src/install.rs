@@ -2,7 +2,7 @@ use crate::args::Arg;
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, LocalRepos, Mode, Op, YesNoAll, YesNoAsk};
+use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAll, YesNoAsk};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{color_repo, print_indent};
@@ -208,7 +208,8 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     println!("parsing pkg list...");
     let (mut pkgdest, _) = parse_package_list(config, &dir)?;
 
-    if !pkgdest.values().all(|p| Path::new(p).exists()) {
+    let build = !pkgdest.values().all(|p| Path::new(p).exists());
+    if build {
         // actual build
         if config.chroot {
             chroot
@@ -237,6 +238,9 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     }
 
     pkgdest.retain(|_, v| Path::new(v).exists());
+
+    let paths = pkgdest.values().map(|s| s.as_str()).collect::<Vec<_>>();
+    sign_pkg(config, &paths, build)?;
 
     let db = config.alpm.syncdbs();
     if let Some(default_repo) = default_repo {
@@ -1272,6 +1276,43 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     }
 }
 
+fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
+    if config.sign != Sign::No {
+        let mut args = vec!["--detach-sign", "--no-armor", "--batch"];
+
+        let c = config.color;
+        println!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint("Signing packages...")
+        );
+
+        if let Sign::Key(ref k) = config.sign {
+            args.push("-u");
+            args.push(k.as_str());
+        }
+
+        for path in paths {
+            let sig = format!("{}.sig", path);
+            if Path::new(&sig).exists() {
+                if delete_sig {
+                    std::fs::remove_file(&sig)?;
+                } else {
+                    continue;
+                }
+            }
+            let mut args = args.clone();
+
+            args.push("--output");
+            args.push(&sig);
+            args.push(path);
+            exec::command("gpg", ".", &args)?.success()?;
+        }
+    }
+
+    Ok(())
+}
+
 #[allow(clippy::clippy::too_many_arguments)]
 fn build_install_pkgbuild<'a>(
     config: &mut Config,
@@ -1288,7 +1329,7 @@ fn build_install_pkgbuild<'a>(
     repo: Option<(&str, &str)>,
 ) -> Result<()> {
     let c = config.color;
-    let mut debug_paths = Vec::new();
+    let mut debug_paths = HashMap::new();
     let dir = config.build_dir.join(base.package_base());
 
     let mut satisfied = false;
@@ -1353,7 +1394,7 @@ fn build_install_pkgbuild<'a>(
                     let mut raur_pkg = (*pkg.pkg).clone();
                     raur_pkg.name = debug_pkg;
                     pkg.pkg = raur_pkg.into();
-                    debug_paths.push((pkg.pkg.name.clone(), dest));
+                    debug_paths.insert(pkg.pkg.name.clone(), dest.clone());
                     debug.push(pkg);
                 }
             }
@@ -1362,7 +1403,8 @@ fn build_install_pkgbuild<'a>(
         base.pkgs.extend(debug);
     }
 
-    if needs_build(config, base, &pkgdest, &version) {
+    let needs_build = needs_build(config, base, &pkgdest, &version);
+    if needs_build {
         // actual build
         if config.chroot {
             chroot
@@ -1390,13 +1432,22 @@ fn build_install_pkgbuild<'a>(
         )
     }
 
-    for (pkg, path) in debug_paths {
+    for (pkg, path) in &debug_paths {
         if !Path::new(path).exists() {
-            base.pkgs.retain(|p| p.pkg.name != pkg);
+            base.pkgs.retain(|p| p.pkg.name != *pkg);
         } else {
             println!("adding {} to the install list", pkg);
         }
     }
+
+    let paths = base
+        .pkgs
+        .iter()
+        .filter_map(|p| pkgdest.get(&p.pkg.name))
+        .chain(debug_paths.values())
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>();
+    sign_pkg(config, &paths, needs_build)?;
 
     if let Some(ref repo) = repo {
         let pkgs = pkgdest.values().collect::<Vec<_>>();

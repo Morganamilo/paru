@@ -231,6 +231,8 @@ complete -c $progname -n "not $noopt" -l sudoloop -d 'Loop sudo calls in the bac
 complete -c $progname -n "not $noopt" -l nosudoloop -d 'Do not loop sudo calls in the background' -f
 complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' -f
 complete -c $progname -n "not $noopt" -l nochroot -d "Don't build packages in a chroot" -f
+complete -c $progname -n "not $noopt" -l sign -d 'Sign packages with gpg' -f
+complete -c $progname -n "not $noopt" -l nosign -d "Don't sign packages with gpg" -f
 complete -c $progname -n "not $noopt" -l localrepo -d 'Build packages in a local repo' -f
 complete -c $progname -n "not $noopt" -l skipreview -d 'Skip the review process' -f
 complete -c $progname -n "not $noopt" -l review -d "Don't skip the review process" -f
