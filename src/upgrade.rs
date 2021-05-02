@@ -170,7 +170,7 @@ pub async fn get_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b>,
 ) -> Result<Upgrades> {
     let (aur_upgrades, devel_upgrades) = aur_upgrades(config, resolver, true).await?;
-    let dbs = config.alpm.syncdbs();
+    let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
 
     for pkg in aur_upgrades.ignored {
         eprintln!(
@@ -238,7 +238,7 @@ pub async fn get_upgrades<'a, 'b>(
         .map(|u| u.name().len() + u.db().unwrap().name().len())
         .chain(aur_upgrades.iter().map(|u| {
             u.local.name().len()
-                + dbs
+                + syncdbs
                     .pkg(u.local.name())
                     .ok()
                     .and_then(|pkg| pkg.db())
@@ -247,7 +247,7 @@ pub async fn get_upgrades<'a, 'b>(
         }))
         .chain(devel_upgrades.iter().map(|u| {
             u.len()
-                + dbs
+                + aurdbs
                     .pkg(u.as_str())
                     .ok()
                     .and_then(|pkg| pkg.db())
@@ -285,9 +285,8 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    let (_, dbs) = repo::repo_aur_dbs(config);
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
-        let remote = dbs
+        let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| p.db().unwrap().name())
             .unwrap_or("aur");
@@ -305,12 +304,12 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
-        let remote = dbs
+        let remote = aurdbs
             .pkg(pkg.as_str())
             .map(|p| p.db().unwrap().name())
             .map(|p| format!("{}-devel", p));
         let remote = remote.as_deref().unwrap_or("devel");
-        let current = dbs
+        let current = aurdbs
             .pkg(pkg.as_str())
             .or_else(|_| db.pkg(pkg.as_str()))
             .unwrap();
@@ -334,7 +333,7 @@ pub async fn get_upgrades<'a, 'b>(
 
     for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
         let n = n + devel_upgrades.len() + aur_upgrades.len();
-        let remote = dbs.pkg(pkg.name()).unwrap();
+        let remote = syncdbs.pkg(pkg.name()).unwrap();
         let db = remote.db().unwrap();
         if !number_menu.contains(n + 1, db.name()) || input.is_empty() {
             repo_keep.push(pkg.name().to_string());
@@ -344,7 +343,7 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
-        let remote = dbs
+        let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| p.db().unwrap().name())
             .unwrap_or("aur");
@@ -357,7 +356,7 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
-        let remote = dbs
+        let remote = aurdbs
             .pkg(pkg.as_str())
             .map(|p| p.db().unwrap().name())
             .map(|p| format!("{}-devel", p));
