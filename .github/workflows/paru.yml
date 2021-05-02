@@ -23,7 +23,7 @@ jobs:
         run: cargo fmt -- --check
 
       - name: Test
-        run: cargo test --features generate
+        run: cargo test --locked --features generate
 
   test-git:
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         run: cargo fmt -- --check
 
       - name: Test
-        run: cargo test --features generate,git
+        run: cargo test --locked --features generate,git
