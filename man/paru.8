@@ -466,14 +466,14 @@ useful for doas where looping is done differently.
 Do not loop sudo calls in the background.
 
 .TP
-.B localrepo [= Repos...]
+.B \-\-localrepo [= Repos...]
 Use a local repo to build and upgrade AUR packages.
 
 Paru will act on packages in the enabled repos instead of foreign packages.
 The repo must already be declared in pacman.conf but does not have to already exist on disk.
 
 Optionally a list of repos to use can be passed. By default paru will consider all
-local repos, building new packages into the fist listed repo and upgrading the packages
+local repos, building new packages into the first listed repo and upgrading the packages
 in other enabled repos.
 
 .TP
