@@ -1,9 +1,9 @@
 use crate::config::{version, Config};
+use crate::download::cache_info_with_warnings;
 use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
 use alpm_utils::DbListExt;
-use raur::Raur;
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -12,25 +12,22 @@ use anyhow::Result;
 use indicatif::HumanBytes;
 
 struct Info<'a> {
-    installed_packages: usize,
-    foreign_packages: usize,
+    total_packages: usize,
+    repo_packages: usize,
+    aur_packages: usize,
     explicit_packages: usize,
     total_size: i64,
     max_packages: Vec<(i64, &'a str)>,
-    orphaned: Vec<String>,
-    outdated: Vec<String>,
 }
 
 async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> {
     let db = config.alpm.localdb();
     let sync_db = config.alpm.syncdbs();
 
-    let installed_packages = db.pkgs().len();
+    let total_packages = db.pkgs().len();
     let mut foreign_packages = Vec::new();
     let mut explicit_packages = 0;
     let mut total_size = 0;
-    let mut orphaned = Vec::new();
-    let mut outdated = Vec::new();
 
     let mut max_packages = BinaryHeap::with_capacity(max_n + 1);
 
@@ -48,19 +45,7 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         total_size += pkg.isize();
     }
 
-    let (_, aur_packages) = repo_aur_pkgs(config)
-        .iter()
-        .map(|pkg| pkg.name())
-        .collect::<Vec<_>>();
-    let aur_info = config.raur.info(&aur_packages).await?;
-    for pkg in aur_info.into_iter() {
-        if pkg.maintainer.is_none() {
-            orphaned.push(pkg.name.clone());
-        }
-        if pkg.out_of_date.is_some() {
-            outdated.push(pkg.name.clone());
-        }
-    }
+    let (repo, aur) = repo_aur_pkgs(config);
 
     let max_packages = max_packages
         .into_sorted_vec()
@@ -69,13 +54,12 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         .collect();
 
     Ok(Info {
-        installed_packages,
-        foreign_packages: foreign_packages.len(),
+        total_packages,
+        repo_packages: repo.len(),
+        aur_packages: aur.len(),
         explicit_packages,
         total_size,
         max_packages,
-        orphaned,
-        outdated,
     })
 }
 
@@ -89,20 +73,23 @@ fn print_line_separator(config: &Config) {
     );
 }
 
-pub async fn stats(config: &Config) -> Result<i32> {
+pub async fn stats(config: &mut Config) -> Result<i32> {
     let c = config.color;
     let info = collect_info(config, 10).await?;
-
     version();
     print_line_separator(config);
 
     println!(
         "Total installed packages: {}",
-        c.stats_value.paint(info.installed_packages.to_string())
+        c.stats_value.paint(info.total_packages.to_string())
     );
     println!(
-        "Total foreign installed packages: {}",
-        c.stats_value.paint(info.foreign_packages.to_string())
+        "Aur packages: {}",
+        c.stats_value.paint(info.aur_packages.to_string())
+    );
+    println!(
+        "Repo packages: {}",
+        c.stats_value.paint(info.repo_packages.to_string())
     );
     println!(
         "Explicitly installed packages: {}",
@@ -127,17 +114,22 @@ pub async fn stats(config: &Config) -> Result<i32> {
 
     print_line_separator(config);
 
-    print!("{}", c.bold.paint("Orphaned AUR Packages:"));
-    for orphan in info.orphaned {
-        print!(" {}", c.stats_value.paint(orphan));
-    }
-    println!();
+    let aur_packages = repo_aur_pkgs(config)
+        .1
+        .iter()
+        .map(|pkg| pkg.name())
+        .map(|s| s.to_owned())
+        .collect::<Vec<_>>();
 
-    print!("{}", c.bold.paint("Flagged Out Of Date AUR Packages:"));
-    for outdated in info.outdated {
-        print!(" {}", c.stats_value.paint(outdated));
-    }
-    println!();
+    let warnings = cache_info_with_warnings(
+        &config.raur,
+        &mut config.cache,
+        &aur_packages,
+        &config.ignore,
+    )
+    .await?;
+
+    warnings.all(config.color, config.cols);
 
     Ok(0)
 }

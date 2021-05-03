@@ -156,7 +156,7 @@ async fn handle_query(config: &mut Config) -> Result<i32> {
     }
 }
 
-async fn handle_show(config: &Config) -> Result<i32> {
+async fn handle_show(config: &mut Config) -> Result<i32> {
     if config.news > 0 {
         news::news(config).await
     } else if config.complete {
