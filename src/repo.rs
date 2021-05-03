@@ -37,8 +37,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         sudo,
         ".",
         &[OsStr::new("mkdir"), OsStr::new("-p"), path.as_os_str()],
-    )?
-    .success()?;
+    )?;
 
     if !pkgs.is_empty() {
         let cmd = if mv {
@@ -59,7 +58,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
         args.extend(pkgs.iter().map(OsString::from));
         args.push(path.as_os_str().to_os_string());
-        exec::command(sudo, ".", &args)?.success()?;
+        exec::command(sudo, ".", &args)?;
     }
 
     let mut args = vec![OsStr::new("repo-add"), OsStr::new("-R"), file.as_os_str()];
@@ -69,7 +68,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         .collect::<Vec<_>>();
 
     args.extend(pkgs.iter().map(|p| p.as_os_str()));
-    exec::command(sudo, ".", &args)?.success()?;
+    exec::command(sudo, ".", &args)?;
 
     Ok(())
 }
@@ -91,7 +90,7 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     let mut args = vec![OsStr::new("repo-remove"), file.as_os_str()];
     args.extend(pkgs.iter().map(|p| p.as_ref()));
-    exec::command(&config.sudo_bin, ".", &args)?.success()?;
+    exec::command(&config.sudo_bin, ".", &args)?;
 
     Ok(())
 }

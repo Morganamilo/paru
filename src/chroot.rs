@@ -41,7 +41,7 @@ impl Chroot {
             OsStr::new("-dm755"),
             self.path.as_os_str(),
         ];
-        exec::command(&config.sudo_bin, ".", args)?.success()?;
+        exec::command(&config.sudo_bin, ".", args)?;
 
         let tmp = pacman_conf(&self.pacman_conf)?;
         let dir = self.path.join("root");
@@ -54,7 +54,7 @@ impl Chroot {
             dir.as_os_str(),
         ];
         args.extend(pkgs.iter().map(|p| p.as_ref()));
-        exec::command("mkarchroot", ".", &args)?.success()?;
+        exec::command("mkarchroot", ".", &args)?;
         Ok(())
     }
 
@@ -81,7 +81,7 @@ impl Chroot {
         }
 
         a.extend(args.iter().map(|p| p.as_ref()));
-        exec::command("arch-nspawn", ".", &a)?.success()?;
+        exec::command("arch-nspawn", ".", &a)?;
         Ok(())
     }
 
@@ -113,7 +113,7 @@ impl Chroot {
             args.push(OsStr::new(flag));
         }
 
-        exec::command("makechrootpkg", pkgbuild, &args)?.success()?;
+        exec::command("makechrootpkg", pkgbuild, &args)?;
         Ok(())
     }
 }

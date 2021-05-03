@@ -1211,8 +1211,11 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
             repo_server,
         );
 
-        if err.is_ok() {
-            failed.pop().unwrap();
+        match err {
+            Ok(_) => {
+                failed.pop().unwrap();
+            }
+            Err(e) => print_error(config.color.error, e),
         }
     }
 
@@ -1306,7 +1309,7 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
             args.push("--output");
             args.push(&sig);
             args.push(path);
-            exec::command("gpg", ".", &args)?.success()?;
+            exec::command("gpg", ".", &args)?;
         }
     }
 

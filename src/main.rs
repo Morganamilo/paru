@@ -296,7 +296,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         if !rmfiles.is_empty() {
             let mut args = vec![OsStr::new("rm")];
             args.extend(rmfiles.iter().map(|f| f.as_os_str()));
-            exec::command(&config.sudo_bin, ".", &args)?.success()?;
+            exec::command(&config.sudo_bin, ".", &args)?;
         }
 
         let repos = repos
