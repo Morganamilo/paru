@@ -1,5 +1,31 @@
 # Changelog
 
+## Paru v1.6.0 (2021-5-3)
+
+### Fixed
+
+- Fix -Sc failing when pkg/ is not writable #324
+- Fix not checking return of `git ls-remote` cd2049a
+- Fix progress bar display 97b2d0b
+- Fix upgrademenu crashing on non installed packages de26909
+- Don't drop to a shell after -Cu b951d73
+- Fix -Sc doc f83cbd3
+
+### Added
+
+- Paru now sets the user agent for aur requests 841ebb5
+- support latest pacman-git 2cbe4ed
+
+### Removed
+
+- Removed pacman6-alpha support -- use pacman or pacman-git instead
+
+### Changed
+
+- Cancel sudo loop after sudo fails acbcfc1
+- --gendb: don't update already existing entries 49eb22
+- Better error message when AUR does not return 400 #351
+
 ## Paru v1.5.1 (2021-4-13)
 
 ### Fixed
