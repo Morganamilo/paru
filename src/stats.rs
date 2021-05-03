@@ -1,4 +1,5 @@
 use crate::config::{version, Config};
+use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
 use alpm_utils::DbListExt;
@@ -47,7 +48,11 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         total_size += pkg.isize();
     }
 
-    let aur_info = config.raur.info(&foreign_packages).await?;
+    let aur_packages = repo_aur_pkgs(config)
+        .iter()
+        .map(|pkg| pkg.name())
+        .collect::<Vec<_>>();
+    let aur_info = config.raur.info(&aur_packages).await?;
     for pkg in aur_info.into_iter() {
         if pkg.maintainer.is_none() {
             orphaned.push(pkg.name.clone());
