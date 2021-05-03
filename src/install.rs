@@ -9,7 +9,7 @@ use crate::fmt::{color_repo, print_indent};
 use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
-use crate::util::{ask, get_provider, split_repo_aur_targets, NumberMenu};
+use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu};
 use crate::{args, exec, news, repo};
 
 use std::collections::hash_map::Entry;
@@ -1681,14 +1681,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") {
-        let pkgs = if config.repos != LocalRepos::None {
-            let (_, repo) = repo::repo_aur_dbs(config);
-            repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>()
-        } else {
-            let mut pkgs = config.alpm.localdb().pkgs().iter().collect::<Vec<_>>();
-            pkgs.retain(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err());
-            pkgs
-        };
+        let pkgs = repo_aur_pkgs(&config);
 
         warnings.missing = pkgs
             .iter()
