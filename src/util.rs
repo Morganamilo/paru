@@ -328,13 +328,15 @@ pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -
     (repo, aur)
 }
 
-pub fn repo_aur_pkgs(config: &Config) -> Vec<alpm::Package<'_>> {
+pub fn repo_aur_pkgs(config: &Config) -> (Vec<alpm::Package<'_>>, Vec<alpm::Package<'_>>) {
     if config.repos != LocalRepos::None {
-        let (_, repo) = repo::repo_aur_dbs(config);
-        repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>()
+        let (repo, aur) = repo::repo_aur_dbs(config);
+        let repo = repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();
+        let aur = aur.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();
+        (repo, aur)
     } else {
         let mut pkgs = config.alpm.localdb().pkgs().iter().collect::<Vec<_>>();
         pkgs.retain(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err());
-        pkgs
+        (Vec::new(), pkgs)
     }
 }

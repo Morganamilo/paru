@@ -48,7 +48,7 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         total_size += pkg.isize();
     }
 
-    let aur_packages = repo_aur_pkgs(config)
+    let (_, aur_packages) = repo_aur_pkgs(config)
         .iter()
         .map(|pkg| pkg.name())
         .collect::<Vec<_>>();

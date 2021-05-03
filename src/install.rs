@@ -1681,7 +1681,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") {
-        let pkgs = repo_aur_pkgs(&config);
+        let (_, pkgs) = repo_aur_pkgs(&config);
 
         warnings.missing = pkgs
             .iter()
