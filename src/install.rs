@@ -87,13 +87,19 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn copy_overwrite<'a>(config: &'a Config, args: &mut Args<&'a str>) {
+pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
     config
         .args
         .args
         .iter()
         .filter(|a| a.key == "overwrite")
         .for_each(|a| args.push(&a.key, a.value.as_deref()));
+
+    config
+        .assume_installed
+        .iter()
+        .for_each(|a| args.push("assume-installed", Some(a.as_str())));
+
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
@@ -260,7 +266,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if config.install {
         let mut args = config.pacman_globals();
-        copy_overwrite(config, &mut args);
+        copy_sync_args(config, &mut args);
 
         if config.chroot {
             args.op("sync");
@@ -1090,7 +1096,7 @@ fn do_install(
         let mut args = config.pacman_globals();
         let ask;
         args.op("upgrade");
-        copy_overwrite(config, &mut args);
+        copy_sync_args(config, &mut args);
 
         for _ in 0..args.count("d", "nodeps") {
             args.arg("d");
@@ -1229,7 +1235,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
 
             let mut args = config.pacman_globals();
             args.op("sync");
-            copy_overwrite(config, &mut args);
+            copy_sync_args(config, &mut args);
             if config.args.has_arg("asexplicit", "asexplicit") {
                 args.arg("asexplicit");
             } else if config.args.has_arg("asdeps", "asdeps") {

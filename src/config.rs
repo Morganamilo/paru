@@ -13,7 +13,7 @@ use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use alpm::{set_questioncb, Question, SigLevel, Usage};
+use alpm::{set_questioncb, Depend, Question, SigLevel, Usage};
 #[cfg(feature = "git")]
 use alpm::{DownloadEvent, DownloadResult};
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
@@ -435,6 +435,7 @@ pub struct Config {
 
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
+    pub assume_installed: Vec<String>,
 }
 
 impl Ini for Config {
@@ -620,6 +621,11 @@ impl Config {
             }
         }
         self.no_warn = self.no_warn_builder.build()?;
+
+        if !self.assume_installed.is_empty() {
+            self.mflags.push("-d".to_string());
+        }
+
         Ok(())
     }
 
@@ -689,6 +695,12 @@ impl Config {
 
         #[cfg(feature = "git")]
         alpm.set_architectures(self.pacman.architecture.iter())?;
+
+        let assume = self
+            .assume_installed
+            .iter()
+            .map(|d| Depend::new(d.as_str()));
+        alpm.set_assume_installed(assume)?;
 
         alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
 
