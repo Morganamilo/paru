@@ -335,8 +335,12 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<alpm::Package<'_>>, Vec<alpm::Pack
         let aur = aur.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();
         (repo, aur)
     } else {
-        let mut pkgs = config.alpm.localdb().pkgs().iter().collect::<Vec<_>>();
-        pkgs.retain(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_err());
-        (Vec::new(), pkgs)
+        let (repo, aur) = config
+            .alpm
+            .localdb()
+            .pkgs()
+            .iter()
+            .partition(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_ok());
+        (repo, aur)
     }
 }
