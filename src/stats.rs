@@ -12,8 +12,6 @@ use indicatif::HumanBytes;
 
 struct Info<'a> {
     total_packages: usize,
-    repo_packages: usize,
-    aur_packages: usize,
     explicit_packages: usize,
     total_size: i64,
     max_packages: Vec<(i64, &'a str)>,
@@ -21,11 +19,10 @@ struct Info<'a> {
 
 async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> {
     let db = config.alpm.localdb();
-
     let total_packages = db.pkgs().len();
+
     let mut explicit_packages = 0;
     let mut total_size = 0;
-
     let mut max_packages = BinaryHeap::with_capacity(max_n + 1);
 
     for pkg in db.pkgs() {
@@ -39,8 +36,6 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         total_size += pkg.isize();
     }
 
-    let (repo, aur) = repo_aur_pkgs(config);
-
     let max_packages = max_packages
         .into_sorted_vec()
         .into_iter()
@@ -49,8 +44,6 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
 
     Ok(Info {
         total_packages,
-        repo_packages: repo.len(),
-        aur_packages: aur.len(),
         explicit_packages,
         total_size,
         max_packages,
@@ -67,9 +60,20 @@ fn print_line_separator(config: &Config) {
     );
 }
 
-pub async fn stats(config: &mut Config) -> Result<i32> {
+pub async fn stats(config: &Config) -> Result<i32> {
+    let mut cache = raur::Cache::new();
     let c = config.color;
     let info = collect_info(config, 10).await?;
+    let (repo, possible_aur) = repo_aur_pkgs(config);
+    let aur_packages = possible_aur
+        .iter()
+        .map(|pkg| pkg.name())
+        .map(|s| s.to_owned())
+        .collect::<Vec<_>>();
+
+    let warnings =
+        cache_info_with_warnings(&config.raur, &mut cache, &aur_packages, &config.ignore).await?;
+
     version();
     print_line_separator(config);
 
@@ -79,11 +83,11 @@ pub async fn stats(config: &mut Config) -> Result<i32> {
     );
     println!(
         "Aur packages: {}",
-        c.stats_value.paint(info.aur_packages.to_string())
+        c.stats_value.paint(warnings.pkgs.len().to_string())
     );
     println!(
         "Repo packages: {}",
-        c.stats_value.paint(info.repo_packages.to_string())
+        c.stats_value.paint(repo.len().to_string())
     );
     println!(
         "Explicitly installed packages: {}",
@@ -107,22 +111,6 @@ pub async fn stats(config: &mut Config) -> Result<i32> {
     }
 
     print_line_separator(config);
-
-    let aur_packages = repo_aur_pkgs(config)
-        .1
-        .iter()
-        .map(|pkg| pkg.name())
-        .map(|s| s.to_owned())
-        .collect::<Vec<_>>();
-
-    let warnings = cache_info_with_warnings(
-        &config.raur,
-        &mut config.cache,
-        &aur_packages,
-        &config.ignore,
-    )
-    .await?;
-
     warnings.all(config.color, config.cols);
 
     Ok(0)
