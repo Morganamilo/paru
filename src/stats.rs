@@ -3,7 +3,6 @@ use crate::download::cache_info_with_warnings;
 use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
-use alpm_utils::DbListExt;
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -22,10 +21,8 @@ struct Info<'a> {
 
 async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> {
     let db = config.alpm.localdb();
-    let sync_db = config.alpm.syncdbs();
 
     let total_packages = db.pkgs().len();
-    let mut foreign_packages = Vec::new();
     let mut explicit_packages = 0;
     let mut total_size = 0;
 
@@ -35,9 +32,6 @@ async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> 
         max_packages.push(Reverse((pkg.isize(), pkg.name())));
         if max_packages.len() > 10 {
             max_packages.pop();
-        }
-        if let Err(alpm::Error::PkgNotFound) = sync_db.pkg(pkg.name()) {
-            foreign_packages.push(pkg.name());
         }
         if pkg.reason() == PackageReason::Explicit {
             explicit_packages += 1;
