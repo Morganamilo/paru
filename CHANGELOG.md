@@ -1,5 +1,11 @@
 # Changelog
 
+## Paru v1.6.1 (2021-5-4)
+
+### Fixed
+
+- Fix out of date packages not being shown dca010e
+
 ## Paru v1.6.0 (2021-5-3)
 
 ### Fixed
