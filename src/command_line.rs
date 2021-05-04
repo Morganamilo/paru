@@ -195,6 +195,7 @@ impl Config {
             Arg::Long("sortby") => self.sort_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
+            Arg::Long("stats") | Arg::Short('s') => self.stats = true,
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
             }

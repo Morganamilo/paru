@@ -18,6 +18,7 @@ mod query;
 mod remove;
 mod repo;
 mod search;
+mod stats;
 mod sync;
 mod upgrade;
 mod util;
@@ -160,6 +161,8 @@ async fn handle_show(config: &Config) -> Result<i32> {
         news::news(config).await
     } else if config.complete {
         Ok(completion::print(config, None).await)
+    } else if config.stats {
+        stats::stats(config).await
     } else {
         Ok(0)
     }

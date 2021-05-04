@@ -165,6 +165,7 @@ complete -c $progname -n "$paruspecific" -l gendb -d 'Generate development packa
 
 # Show options
 complete -c $progname -n "$show" -s w -l news -d 'Print arch news' -f
+complete -c $progname -n "$show" -s s -l stats -d 'Display system package statistics' -f
 
 # Getpkgbuild options
 complete -c $progname -n "$getpkgbuild" -s p -l print -d 'Print PKGBUILD instead of downloading' -f
