@@ -51,6 +51,8 @@ struct BuildInfo {
     bases: Bases,
     conflicts: HashSet<String>,
     remove_make: Vec<String>,
+    failed: Vec<aur_depends::Base>,
+    conflict: bool,
 }
 
 impl BuildInfo {
@@ -85,6 +87,10 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
     args.targets(targets.iter().map(|i| i.as_str()));
     exec::pacman(config, &args)?.success()?;
     Ok(())
+}
+
+fn upgrade_later(config: &Config) -> bool {
+    config.chroot && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
 }
 
 pub fn copy_overwrite<'a>(config: &'a Config, args: &mut Args<&'a str>) {
@@ -163,6 +169,11 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     if !build_info.build.is_empty() {
         if build_info.err.is_ok() {
             let err = build_install_pkgbuilds(config, &mut build_info).await;
+            build_info.err = err;
+        }
+
+        if build_info.err.is_ok() && config.chroot {
+            let err = chroot_install(config, &build_info, &[]);
             build_info.err = err;
         }
 
@@ -298,7 +309,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             Err(err) => eprintln!("{} could not get news: {}", c.error.paint("error:"), err),
         }
 
-        if ret != 1 && !ask(config, "Continue with install?", true) {
+        if ret != 1 && !ask(config, "Proceed with installation?", true) {
             return Ok(1);
         }
     }
@@ -323,9 +334,10 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             if config.args.has_arg("y", "refresh") {
                 early_refresh(config)?;
             }
-        } else if config.args.has_arg("y", "refresh")
+        } else if (config.args.has_arg("y", "refresh")
             || config.args.has_arg("u", "sysupgrade")
-            || !repo_targets.is_empty()
+            || !repo_targets.is_empty())
+            && !config.chroot
         {
             let targets = repo_targets.iter().map(|t| t.to_string()).collect();
             repo_targets.clear();
@@ -369,7 +381,10 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     targets.extend(upgrades.repo_keep.iter().map(Targ::from));
 
     // No aur stuff, let's just use pacman
-    if aur_targets.is_empty() && upgrades.aur_keep.is_empty() && config.combined_upgrade {
+    if config.mode == Mode::Repo || (aur_targets.is_empty()
+        && upgrades.aur_keep.is_empty()
+        && (!config.args.has_arg("y", "refresh") || config.combined_upgrade))
+    {
         print_warnings(config, &cache, None);
         let mut args = config.pacman_args();
         let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -380,7 +395,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         return Ok(code);
     }
 
-    if targets.is_empty() {
+    if targets_str.is_empty() && !upgrade_later(config) {
         print_warnings(config, &cache, None);
         if !done_something {
             println!(" there is nothing to do");
@@ -395,6 +410,13 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     );
 
     let actions = resolver.resolve_targets(&targets).await?;
+    let repo_targs = actions
+        .install
+        .iter()
+        .filter(|p| p.target)
+        .map(|p| p.pkg.name().to_string())
+        .collect::<Vec<_>>();
+
     let mut build_info =
         prepare_build(config, upgrades.aur_repos, &mut cache, actions, None).await?;
 
@@ -402,12 +424,18 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         return Ok(ret);
     }
 
-    if build_info.status == Status::NothingToDo {
+    if build_info.status == Status::NothingToDo && !upgrade_later(config) {
+        println!(" there is nothing to do");
         return Ok(0);
     }
 
-    if build_info.err.is_ok() {
+    if !build_info.build.is_empty() && build_info.err.is_ok() {
         let err = build_install_pkgbuilds(config, &mut build_info).await;
+        build_info.err = err;
+    }
+
+    if build_info.err.is_ok() && config.chroot {
+        let err = chroot_install(config, &build_info, &repo_targs);
         build_info.err = err;
     }
 
@@ -431,9 +459,6 @@ async fn prepare_build(
     print_warnings(config, &cache, Some(&actions));
 
     if actions.build.is_empty() && actions.install.is_empty() {
-        //if config.args.has_arg("u", "sysupgrade") || !aur_targets.is_empty() {
-        println!(" there is nothing to do");
-        //}
         return Ok(BuildInfo::nothing_to_do());
     }
 
@@ -451,12 +476,16 @@ async fn prepare_build(
         false
     };
 
-    if !config.skip_review {
+    if !config.skip_review && !actions.build.is_empty() {
         if !ask(config, "Proceed to review?", true) {
             return Ok(BuildInfo::stop());
         }
-    } else if !ask(config, "Proceed with install?", true) {
+    } else if !ask(config, "Proceed with installation?", true) {
         return Ok(BuildInfo::stop());
+    }
+
+    if actions.build.is_empty() {
+        return Ok(BuildInfo::default());
     }
 
     let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
@@ -474,9 +503,7 @@ async fn prepare_build(
     let err = if !config.chroot {
         repo_install(config, &actions.install)
     } else {
-        let mut install = actions.install.to_vec();
-        install.retain(|pkg| pkg.target);
-        repo_install(config, &install)
+        Ok(0)
     };
 
     update_aur_list(config);
@@ -520,6 +547,8 @@ async fn prepare_build(
         bases,
         conflicts,
         remove_make,
+        failed: Vec::new(),
+        conflict: false,
     })
 }
 
@@ -545,6 +574,20 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
                 ret = 1;
             }
         }
+    }
+
+    if !bi.failed.is_empty() {
+        let b = config.color.bold;
+        let e = config.color.error;
+        let len = ":: packages not in the AUR: ".len();
+        let failed = bi.failed.iter().map(|f| f.to_string());
+        print!(
+            "{} {}",
+            e.paint("::"),
+            b.paint("Packages failed to build: ")
+        );
+        print_indent(Style::new(), len, 4, config.cols, "  ", failed);
+        ret = 1;
     }
 
     ret
@@ -1152,8 +1195,6 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     let mut deps = Vec::new();
     let mut exp = Vec::new();
     let mut install_queue = Vec::new();
-    let mut conflict = false;
-    let mut failed = Vec::new();
 
     let chroot = chroot(config);
 
@@ -1187,7 +1228,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     drop(repo);
 
     for base in bi.build.iter_mut() {
-        failed.push(base.clone());
+        bi.failed.push(base.clone());
         let repo_server = repo_server
             .as_ref()
             .map(|rs| (rs.0.as_str(), rs.1.as_str()));
@@ -1201,75 +1242,29 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
             &mut deps,
             &mut exp,
             &mut install_queue,
-            &mut conflict,
+            &mut bi.conflict,
             &mut devel_info,
             &mut new_devel_info,
             repo_server,
         );
 
         if err.is_ok() {
-            failed.pop().unwrap();
+            bi.failed.pop().unwrap();
         }
     }
 
-    if config.chroot {
-        if !config.args.has_arg("w", "downloadonly") {
-            let mut targets = bi
-                .build
-                .iter()
-                .filter(|b| !failed.iter().any(|f| b.package_base() == f.package_base()))
-                .flat_map(|b| &b.pkgs)
-                .filter(|p| p.target)
-                .map(|p| p.pkg.name.as_str())
-                .collect::<Vec<_>>();
-
-            if config.args.has_arg("u", "sysupgrade") {
-                targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
-            }
-
-            let mut args = config.pacman_globals();
-            args.op("sync");
-            copy_overwrite(config, &mut args);
-            if config.args.has_arg("asexplicit", "asexplicit") {
-                args.arg("asexplicit");
-            } else if config.args.has_arg("asdeps", "asdeps") {
-                args.arg("asdeps");
-            }
-            args.targets = targets;
-            if !conflict {
-                args.arg("noconfirm");
-            }
-
-            if !args.targets.is_empty() {
-                exec::pacman(config, &args)?.success()?;
-            }
-        }
-    } else {
+    if !config.chroot {
         do_install(
             config,
             &mut deps,
             &mut exp,
             &mut install_queue,
-            conflict,
+            bi.conflict,
             &mut devel_info,
         )?;
     }
 
-    if !failed.is_empty() {
-        let b = config.color.bold;
-        let e = config.color.error;
-        let len = ":: packages not in the AUR: ".len();
-        let failed = failed.iter().map(|f| f.to_string());
-        print!(
-            "{} {}",
-            e.paint("::"),
-            b.paint("Packages failed to build: ")
-        );
-        print_indent(Style::new(), len, 4, config.cols, "  ", failed);
-        Ok(1)
-    } else {
-        Ok(0)
-    }
+    Ok(0)
 }
 
 #[allow(clippy::clippy::too_many_arguments)]
@@ -1466,6 +1461,60 @@ fn build_install_pkgbuild<'a>(
     }
 
     Ok(())
+}
+
+fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Result<i32> {
+    if config.chroot {
+        if !config.args.has_arg("w", "downloadonly") {
+            let mut targets = bi
+                .build
+                .iter()
+                .filter(|b| {
+                    !bi.failed
+                        .iter()
+                        .any(|f| b.package_base() == f.package_base())
+                })
+                .flat_map(|b| &b.pkgs)
+                .filter(|p| p.target)
+                .map(|p| p.pkg.name.as_str())
+                .collect::<Vec<_>>();
+
+            if config.args.has_arg("u", "sysupgrade") {
+                targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
+            }
+
+            targets.extend(repo_targs.iter().map(|s| s.as_str()));
+
+            let mut args = config.pacman_globals();
+            args.op("sync");
+            copy_overwrite(config, &mut args);
+            if config.args.has_arg("asexplicit", "asexplicit") {
+                args.arg("asexplicit");
+            } else if config.args.has_arg("asdeps", "asdeps") {
+                args.arg("asdeps");
+            }
+            for _ in 0..config.args.count("y", "refresh") {
+                args.arg("y");
+            }
+            for _ in 0..config.args.count("u", "susupgrade") {
+                args.arg("u");
+            }
+            args.targets = targets;
+
+            if !bi.conflict {
+                args.arg("noconfirm");
+            }
+
+            if !args.targets.is_empty()
+                || config.args.has_arg("u", "sysupgrade")
+                || config.args.has_arg("y", "refresh")
+            {
+                exec::pacman(config, &args)?.success()?;
+            }
+        }
+    }
+
+    Ok(0)
 }
 
 fn asdeps(config: &Config, pkgs: &[&str]) -> Result<()> {
