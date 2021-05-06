@@ -426,6 +426,7 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
 ) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
     let mut local = Vec::new();
     let mut aur = Vec::new();
+    let db = config.alpm.syncdbs();
 
     for targ in targets {
         let targ = targ.as_targ();
@@ -442,19 +443,15 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
             } else {
                 aur.push(targ);
             }
-        } else if config
-            .alpm
-            .syncdbs()
-            .find_target_satisfier(targ.pkg)
-            .is_some()
-            || config
-                .alpm
-                .syncdbs()
-                .iter()
-                .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
-                .any(|db| db.group(targ.pkg).is_ok())
-        {
-            local.push(targ);
+        } else if let Ok(pkg) = db.pkg(targ.pkg) {
+            if matches!(
+                pkg.db().unwrap().name(),
+                "testing" | "community-testing" | "core" | "extra" | "community" | "multilib"
+            ) {
+                local.push(targ);
+            } else {
+                aur.push(targ);
+            }
         } else {
             aur.push(targ);
         }
