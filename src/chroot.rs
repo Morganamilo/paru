@@ -10,6 +10,7 @@ pub struct Chroot {
     pub path: PathBuf,
     pub pacman_conf: String,
     pub makepkg_conf: String,
+    pub mflags: Vec<String>,
     pub ro: Vec<String>,
     pub rw: Vec<String>,
 }
@@ -110,6 +111,9 @@ impl Chroot {
         args.push(OsStr::new("--"));
 
         for flag in flags {
+            args.push(OsStr::new(flag));
+        }
+        for flag in &self.mflags {
             args.push(OsStr::new(flag));
         }
 

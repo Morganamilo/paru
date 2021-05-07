@@ -371,6 +371,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
             .as_deref()
             .unwrap_or("/etc/makepkg.conf")
             .to_string(),
+            mflags: config.mflags.clone(),
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
     };
