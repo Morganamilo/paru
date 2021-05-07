@@ -238,7 +238,7 @@ pub async fn get_upgrades<'a, 'b>(
         .map(|u| u.name().len() + u.db().unwrap().name().len())
         .chain(aur_upgrades.iter().map(|u| {
             u.local.name().len()
-                + syncdbs
+                + aurdbs
                     .pkg(u.local.name())
                     .ok()
                     .and_then(|pkg| pkg.db())
