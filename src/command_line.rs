@@ -285,6 +285,7 @@ impl Config {
             Arg::Long("ignoregroup") => self
                 .ignore_group
                 .extend(value?.split(',').map(|s| s.to_string())),
+            Arg::Long("assume-installed") => self.assume_installed.push(value?.to_string()),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
             Arg::Long("local") => self.local = true,
@@ -368,7 +369,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("sysroot") => TakesValue::Required,
         Arg::Long("ignore") => TakesValue::Required,
         Arg::Long("ignoregroup") => TakesValue::Required,
-        Arg::Long("assumeinstalled") => TakesValue::Required,
+        Arg::Long("assume-installed") => TakesValue::Required,
         Arg::Long("print-format") => TakesValue::Required,
         Arg::Long("overwrite") => TakesValue::Required,
         _ => TakesValue::No,
