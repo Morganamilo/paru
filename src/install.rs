@@ -99,7 +99,6 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
         .assume_installed
         .iter()
         .for_each(|a| args.push("assume-installed", Some(a.as_str())));
-
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
@@ -1149,7 +1148,7 @@ fn chroot(config: &Config) -> Chroot {
             .as_deref()
             .unwrap_or("/etc/makepkg.conf")
             .to_string(),
-            mflags: config.mflags.clone(),
+        mflags: config.mflags.clone(),
 
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
