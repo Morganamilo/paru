@@ -701,12 +701,9 @@ impl Config {
         #[cfg(feature = "git")]
         alpm.set_architectures(self.pacman.architecture.iter())?;
 
-        let assume = self
-            .assume_installed
-            .iter()
-            .map(|d| Depend::new(d.as_str()));
-        alpm.set_assume_installed(assume)?;
-
+        for dep in &self.assume_installed {
+            alpm.add_assume_installed(&Depend::new(dep.as_str()))?;
+        }
         alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
 
         alpm.set_use_syslog(self.pacman.use_syslog);
