@@ -627,7 +627,7 @@ impl Config {
         }
         self.no_warn = self.no_warn_builder.build()?;
 
-        if !self.assume_installed.is_empty() {
+        if !self.assume_installed.is_empty() && !self.chroot {
             self.mflags.push("-d".to_string());
         }
 
@@ -701,8 +701,10 @@ impl Config {
         #[cfg(feature = "git")]
         alpm.set_architectures(self.pacman.architecture.iter())?;
 
-        for dep in &self.assume_installed {
-            alpm.add_assume_installed(&Depend::new(dep.as_str()))?;
+        if !self.chroot {
+            for dep in &self.assume_installed {
+                alpm.add_assume_installed(&Depend::new(dep.as_str()))?;
+            }
         }
         alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
 
