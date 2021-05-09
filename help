@@ -67,7 +67,8 @@ New options:
     --[no]installdebug     Also install debug packages when a package provides them
     --[no]sudoloop         Loop sudo calls in the background to avoid timeout
     --[no]chroot           Build packages in a chroot
-    --localrepo            Build packages into a local repo 
+    --[no]sign             Sign packages with gpg
+    --localrepo            Build packages into a local repo
     --nocheck              Don't resolve checkdepends or run the check function
     --develsuffixes        Suffixes used to decide if a package is a devel package
     --bottomup             Shows AUR's packages first and then repository's

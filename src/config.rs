@@ -187,6 +187,14 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
 
 type ConfigEnumValues<T> = &'static [(&'static str, T)];
 
+#[derive(Debug, SmartDefault, PartialEq, Eq)]
+pub enum Sign {
+    #[default]
+    No,
+    Yes,
+    Key(String),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
     ChrootCtl,
@@ -381,6 +389,7 @@ pub struct Config {
     pub print: bool,
     pub news_on_upgrade: bool,
     pub comments: bool,
+    pub sign: Sign,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -864,6 +873,12 @@ impl Config {
                 }
             }
             "MovePkgs" => self.move_pkgs = true,
+            "Sign" => {
+                self.sign = match value {
+                    Some(v) => Sign::Key(v.to_string()),
+                    None => Sign::Yes,
+                }
+            }
             _ => ok1 = false,
         }
 

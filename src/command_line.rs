@@ -1,6 +1,6 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
 use crate::config::{
-    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, SortMode, YesNoAll, YesNoAsk,
+    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, Sign, SortMode, YesNoAll, YesNoAsk,
 };
 
 use std::fmt;
@@ -301,6 +301,13 @@ impl Config {
             }
             Arg::Long("nochroot") => self.chroot = false,
             Arg::Long("movepkgs") => self.move_pkgs = true,
+            Arg::Long("sign") => {
+                self.sign = match value {
+                    Ok(k) => Sign::Key(k.to_string()),
+                    Err(_) => Sign::Yes,
+                }
+            }
+            Arg::Long("nosign") => self.sign = Sign::No,
             Arg::Long(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
                 bail!("unknown option --{}", a)
             }
@@ -372,6 +379,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("assume-installed") => TakesValue::Required,
         Arg::Long("print-format") => TakesValue::Required,
         Arg::Long("overwrite") => TakesValue::Required,
+        Arg::Long("sign") => TakesValue::Optional,
         _ => TakesValue::No,
     }
 }

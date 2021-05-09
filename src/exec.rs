@@ -166,11 +166,11 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     cmd: C,
     dir: P,
     args: &[S],
-) -> Result<Status> {
+) -> Result<()> {
     let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
-        .spawn()
+        .status()
         .with_context(|| {
             format!(
                 "failed to run: {} {}",
@@ -180,10 +180,22 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
                     .collect::<Vec<_>>()
                     .join(" ")
             )
-        })?
-        .wait()?;
+        })?;
 
-    Ok(Status(ret.code().unwrap_or(1)))
+    let status = Status(ret.code().unwrap_or(1));
+
+    status.success().with_context(|| {
+        format!(
+            "failed to run: {} {}",
+            cmd.as_ref().to_string_lossy(),
+            args.iter()
+                .map(|a| a.as_ref().to_string_lossy())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )
+    })?;
+
+    Ok(())
 }
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
