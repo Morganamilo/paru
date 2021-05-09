@@ -323,7 +323,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             let mut args = config.pacman_globals();
             args.op("remove");
             args.targets = pkgs.collect();
-            exec::pacman(config, &args)?.success()?;
+            if !args.targets.is_empty() {
+                exec::pacman(config, &args)?.success()?;
+            }
         }
 
         return Ok(0);
