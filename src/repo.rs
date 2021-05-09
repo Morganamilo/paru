@@ -9,6 +9,7 @@ use std::process::Command;
 
 use alpm::{AlpmListMut, Db};
 use anyhow::{Context, Result};
+use nix::unistd::{self, User};
 
 pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     config: &Config,
@@ -31,22 +32,30 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     let path = path.as_ref();
     let file = path.join(&name);
-    let sudo = OsStr::new(&config.sudo_bin);
 
-    exec::command(
-        sudo,
-        ".",
-        &[OsStr::new("mkdir"), OsStr::new("-p"), path.as_os_str()],
-    )?;
+    let user = unistd::getuid();
+    let group = unistd::getgid();
 
-    if !pkgs.is_empty() {
-        let cmd = if mv {
-            OsString::from("mv")
-        } else {
-            OsString::from("cp")
-        };
+    if !path.exists() {
+        exec::command(
+            &config.sudo_bin,
+            ".",
+            &[
+                OsStr::new("install"),
+                OsStr::new("-dm755"),
+                OsStr::new("-o"),
+                user.to_string().as_ref(),
+                OsStr::new("-g"),
+                group.to_string().as_ref(),
+                path.as_os_str(),
+            ],
+        )?;
+    }
 
-        let mut args = vec![cmd, OsString::from("-f")];
+    let err = if !pkgs.is_empty() {
+        let cmd = if mv { "mv" } else { "cp" };
+
+        let mut args = vec![OsString::from("-f")];
 
         for pkg in pkgs {
             let mut sig = pkg.as_ref().to_os_string();
@@ -58,23 +67,40 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
         args.extend(pkgs.iter().map(OsString::from));
         args.push(path.as_os_str().to_os_string());
-        exec::command(sudo, ".", &args)?;
+        exec::command(cmd, ".", &args)
+    } else {
+        Ok(())
+    };
+
+    let err = err.and_then(|_| {
+        let mut args = vec![OsStr::new("-R"), file.as_os_str()];
+        let pkgs = pkgs
+            .iter()
+            .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
+            .collect::<Vec<_>>();
+
+        args.extend(pkgs.iter().map(|p| p.as_os_str()));
+        exec::command("repo-add", ".", &args)
+    });
+
+    let user = User::from_uid(user).unwrap().unwrap();
+
+    if err.is_err() {
+        eprintln!(
+            "Could not add packages to repo:
+    paru now expects local repos to be writable as your user:
+    You should chown/chmod your repos to be writable by you:
+    chown -R {}: {}",
+            user.name,
+            path.display()
+        );
     }
 
-    let mut args = vec![OsStr::new("repo-add"), OsStr::new("-R"), file.as_os_str()];
-    let pkgs = pkgs
-        .iter()
-        .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
-        .collect::<Vec<_>>();
-
-    args.extend(pkgs.iter().map(|p| p.as_os_str()));
-    exec::command(sudo, ".", &args)?;
-
-    Ok(())
+    err
 }
 
 pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
-    config: &Config,
+    _config: &Config,
     path: P,
     name: &str,
     pkgs: &[S],
@@ -88,9 +114,9 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
     let name = read_link(db)?;
     let file = path.join(&name);
 
-    let mut args = vec![OsStr::new("repo-remove"), file.as_os_str()];
+    let mut args = vec![file.as_os_str()];
     args.extend(pkgs.iter().map(|p| p.as_ref()));
-    exec::command(&config.sudo_bin, ".", &args)?;
+    exec::command("repo-remove", ".", &args)?;
 
     Ok(())
 }
@@ -187,54 +213,3 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
 
     Ok(0)
 }
-
-/*pub fn repo(globals: Globals, repo: Repo) -> Result<()> {
-    sudo_reexec();
-
-    let pacman = pacmanconf::Config::from_file(&globals.pacman_conf)?;
-
-    if repo.create {
-        for r in &repo.repos {
-            let path = Path::new(&repo.path).join(r);
-            init(&path, r, repo.quiet)?;
-            println!("created repository {}", path.display());
-
-            if repo.append {
-                if pacman.repos.iter().any(|repo| repo.name == *r) {
-                    eprintln!("error: repo {} already exists in pacman.conf", r);
-                    continue;
-                }
-                println!("appending repo to pacman.conf");
-                append(&globals, &path, r)?;
-            }
-        }
-    } else if repo.add {
-        let main_repo = match repo.repo {
-            Some(ref r) => r.as_str(),
-            None => {
-                let repos = local_repos(&pacman);
-                repos
-                    .first()
-                    .context("no local repos configured")?
-                    .name
-                    .as_str()
-            }
-        };
-
-        let path = Path::new(&repo.path).join(&main_repo);
-        add(&path, &main_repo, repo.quiet, repo.mv, &repo.repos)?;
-
-        if repo.refresh {
-            let mut cmd = globals.sudo_command();
-            cmd.arg("refresh").arg(main_repo);
-            run(cmd)?;
-        }
-    } else {
-        for repo in local_repos(&pacman) {
-            let file = file(&repo).unwrap();
-            println!("[{}] {}", repo.name, file);
-        }
-    }
-    Ok(())
-}
-*/
