@@ -21,7 +21,7 @@ pub fn clean(config: &Config) -> Result<()> {
     }
 
     if config.mode != Mode::Repo {
-        let remove_all = config.delete;
+        let remove_all = config.delete >= 1;
         let clean_method = &config.pacman.clean_method;
         let keep_installed = clean_method.iter().any(|a| a == "KeepInstalled");
         let keep_current = clean_method.iter().any(|a| a == "KeepCurrent");

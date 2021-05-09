@@ -430,16 +430,16 @@ pub struct Config {
     pub pacman_conf: Option<String>,
 
     pub repos: LocalRepos,
-    pub local: bool,
     #[default(Path::new("/var/lib/aurbuild/").join(ARCH))]
     pub chroot_dir: PathBuf,
     pub chroot: bool,
     pub move_pkgs: bool,
     pub install: bool,
+    pub uninstall: bool,
     pub update: bool,
     pub quiet: bool,
     pub list: bool,
-    pub delete: bool,
+    pub delete: u32,
 
     //pacman
     pub db_path: Option<String>,

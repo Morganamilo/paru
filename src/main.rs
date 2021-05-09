@@ -247,7 +247,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
     let repos = repos
         .into_iter()
         .map(|r| r.name().to_string())
-        .filter(|r| config.delete || config.targets.is_empty() || config.targets.contains(r))
+        .filter(|r| config.delete >= 1 || config.targets.is_empty() || config.targets.contains(r))
         .collect::<Vec<_>>();
 
     if config.update {
@@ -256,10 +256,13 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
 
     let (_, mut repos) = repo::repo_aur_dbs(config);
     repos.retain(|r| {
-        config.delete || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
+        config.delete >= 1
+            || config.uninstall
+            || config.targets.is_empty()
+            || config.targets.contains(&r.name().to_string())
     });
 
-    if config.delete {
+    if config.delete >= 1 {
         let mut remove = HashMap::<&str, Vec<&str>>::new();
         let mut rmfiles = Vec::new();
         for repo in &repos {
@@ -308,12 +311,27 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             .collect::<Vec<_>>();
         repo::refresh(config, &repos)?;
 
+        if config.delete >= 2 {
+            config.need_root = true;
+            let db = config.alpm.localdb();
+            let pkgs = config
+                .targets
+                .iter()
+                .map(|p| p.as_str())
+                .filter(|p| db.pkg(*p).is_ok());
+
+            let mut args = config.pacman_globals();
+            args.op("remove");
+            args.targets = pkgs.collect();
+            exec::pacman(config, &args)?.success()?;
+        }
+
         return Ok(0);
     }
 
     let (_, mut repos) = repo::repo_aur_dbs(config);
     repos.retain(|r| {
-        config.delete || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
+        config.delete >= 1 || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
     });
 
     for repo in repos {

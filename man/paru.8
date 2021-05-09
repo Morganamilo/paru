@@ -61,10 +61,6 @@ These operations are extended to support both AUR and repo packages.
 Paru will also remove cached data about devel packages.
 
 .TP
-.B \-R \-\-local
-Paru will also remove the package from the local repo.
-
-.TP
 .B \-Sc
 Paru will also clean cached AUR packages and any untracked files in the
 cache. Cleaning untracked files will wipe any downloaded sources or
@@ -144,6 +140,7 @@ List packages in local repos
 .TP
 .B \-d, \-\-delete
 Remove a package from the local repo.
+Pass this twice to also uninstall the package.
 
 .TP
 .B \-q, \-\-quiet

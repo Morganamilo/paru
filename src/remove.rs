@@ -6,7 +6,6 @@ use crate::{exec, repo};
 
 use std::collections::HashMap;
 
-use alpm_utils::DbListExt;
 use anyhow::Result;
 
 pub fn remove(config: &mut Config) -> Result<i32> {
@@ -40,9 +39,6 @@ pub fn remove(config: &mut Config) -> Result<i32> {
     let (_, dbs) = repo::repo_aur_dbs(config);
 
     for target in bases {
-        if !config.local && dbs.pkg(target).is_ok() {
-            continue;
-        }
         devel_info.info.remove(target);
     }
 
@@ -51,21 +47,6 @@ pub fn remove(config: &mut Config) -> Result<i32> {
     if let Err(err) = save_devel_info(config, &devel_info) {
         print_error(config.color.error, err);
         ret = 1;
-    }
-
-    if config.local {
-        for (db, pkgs) in &db_map {
-            let db = local_repos.iter().find(|d| d.name() == *db).unwrap();
-            let name = db.name();
-            let path = db.servers().first().unwrap().trim_start_matches("file://");
-            let _ = repo::remove(config, path, name, &pkgs);
-        }
-
-        drop(local_repos);
-        repo::refresh(
-            config,
-            &db_map.keys().map(|s| s.as_str()).collect::<Vec<_>>(),
-        )?;
     }
 
     Ok(ret)

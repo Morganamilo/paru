@@ -252,7 +252,7 @@ impl Config {
             Arg::Long("update") | Arg::Short('u') => self.update = true,
             Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
             Arg::Long("list") | Arg::Short('l') => self.list = true,
-            Arg::Long("delete") | Arg::Short('d') => self.delete = true,
+            Arg::Long("delete") | Arg::Short('d') => self.delete += 1,
 
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
@@ -288,7 +288,6 @@ impl Config {
             Arg::Long("assume-installed") => self.assume_installed.push(value?.to_string()),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
-            Arg::Long("local") => self.local = true,
             Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("chroot") => {
                 self.chroot = true;
