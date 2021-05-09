@@ -1,4 +1,4 @@
-use crate::config::{Config, LocalRepos};
+use crate::config::{Config, LocalRepos, Sign};
 use crate::exec;
 
 use std::env::current_exe;
@@ -79,6 +79,14 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
             .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
             .collect::<Vec<_>>();
 
+        if config.sign_db != Sign::No {
+            args.push("-s".as_ref());
+            if let Sign::Key(ref k) = config.sign_db {
+                args.push("-k".as_ref());
+                args.push(k.as_ref());
+            }
+        }
+
         args.extend(pkgs.iter().map(|p| p.as_os_str()));
         exec::command("repo-add", ".", &args)
     });
@@ -100,7 +108,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 }
 
 pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
-    _config: &Config,
+    config: &Config,
     path: P,
     name: &str,
     pkgs: &[S],
@@ -115,6 +123,15 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
     let file = path.join(&name);
 
     let mut args = vec![file.as_os_str()];
+
+    if config.sign_db != Sign::No {
+        args.push("-s".as_ref());
+        if let Sign::Key(ref k) = config.sign_db {
+            args.push("-k".as_ref());
+            args.push(k.as_ref());
+        }
+    }
+
     args.extend(pkgs.iter().map(|p| p.as_ref()));
     exec::command("repo-remove", ".", &args)?;
 

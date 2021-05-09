@@ -307,7 +307,14 @@ impl Config {
                     Err(_) => Sign::Yes,
                 }
             }
+            Arg::Long("signdb") => {
+                self.sign_db = match value {
+                    Ok(k) => Sign::Key(k.to_string()),
+                    Err(_) => Sign::Yes,
+                }
+            }
             Arg::Long("nosign") => self.sign = Sign::No,
+            Arg::Long("nosigndb") => self.sign_db = Sign::No,
             Arg::Long(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
                 bail!("unknown option --{}", a)
             }
@@ -380,6 +387,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("print-format") => TakesValue::Required,
         Arg::Long("overwrite") => TakesValue::Required,
         Arg::Long("sign") => TakesValue::Optional,
+        Arg::Long("signdb") => TakesValue::Optional,
         _ => TakesValue::No,
     }
 }

@@ -390,6 +390,7 @@ pub struct Config {
     pub news_on_upgrade: bool,
     pub comments: bool,
     pub sign: Sign,
+    pub sign_db: Sign,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -879,6 +880,13 @@ impl Config {
                     None => Sign::Yes,
                 }
             }
+            "SignDb" => {
+                self.sign_db = match value {
+                    Some(v) => Sign::Key(v.to_string()),
+                    None => Sign::Yes,
+                }
+            }
+
             _ => ok1 = false,
         }
 

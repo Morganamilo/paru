@@ -68,6 +68,7 @@ New options:
     --[no]sudoloop         Loop sudo calls in the background to avoid timeout
     --[no]chroot           Build packages in a chroot
     --[no]sign             Sign packages with gpg
+    --[no]signdb           Sign databases with gpg
     --localrepo            Build packages into a local repo
     --nocheck              Don't resolve checkdepends or run the check function
     --develsuffixes        Suffixes used to decide if a package is a devel package

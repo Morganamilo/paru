@@ -102,6 +102,8 @@ _pacman_opts_common=(
 	"--nochroot[Don't build packages in a chroot]"
 	'--sign[Sign packages with gpg]'
 	"--nosign[Don't sign packages with gpg]"
+	'--signdb[Sign databases with gpg]'
+	"--nosigndb[Don't sign databases with gpg]"
 	'--localrepo[Build packages in a local repo]'
 
 	'--skipreview[Skip the review process]'
