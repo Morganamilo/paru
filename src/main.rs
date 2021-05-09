@@ -331,7 +331,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
 
     let (_, mut repos) = repo::repo_aur_dbs(config);
     repos.retain(|r| {
-        config.delete >= 1 || config.targets.is_empty() || config.targets.contains(&r.name().to_string())
+        config.delete >= 1
+            || config.targets.is_empty()
+            || config.targets.contains(&r.name().to_string())
     });
 
     for repo in repos {
