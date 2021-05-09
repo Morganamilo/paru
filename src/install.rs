@@ -390,9 +390,10 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     targets.extend(upgrades.repo_keep.iter().map(Targ::from));
 
     // No aur stuff, let's just use pacman
-    if config.mode == Mode::Repo || (aur_targets.is_empty()
-        && upgrades.aur_keep.is_empty()
-        && (!config.args.has_arg("y", "refresh") || config.combined_upgrade))
+    if config.mode == Mode::Repo
+        || (aur_targets.is_empty()
+            && upgrades.aur_keep.is_empty()
+            && (!config.args.has_arg("y", "refresh") || config.combined_upgrade))
     {
         print_warnings(config, &cache, None);
         let mut args = config.pacman_args();
