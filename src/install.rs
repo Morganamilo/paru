@@ -307,6 +307,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let mut cache = Cache::new();
+    let flags = flags(config);
     let c = config.color;
 
     if !config.sudo_loop.is_empty() {
@@ -363,7 +364,6 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
-    let flags = flags(config);
     let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
