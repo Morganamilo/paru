@@ -90,7 +90,9 @@ fn early_pacman(config: &Config, targets: Vec<String>) -> Result<()> {
 }
 
 fn upgrade_later(config: &Config) -> bool {
-    config.chroot && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
+    config.mode != Mode::Aur
+        && config.chroot
+        && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
 }
 
 pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
@@ -346,7 +348,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         } else if (config.args.has_arg("y", "refresh")
             || config.args.has_arg("u", "sysupgrade")
             || !repo_targets.is_empty())
-            && !config.chroot
+            && (!config.chroot || config.mode == Mode::Repo)
         {
             let targets = repo_targets.iter().map(|t| t.to_string()).collect();
             repo_targets.clear();
@@ -393,7 +395,8 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     if config.mode == Mode::Repo
         || (aur_targets.is_empty()
             && upgrades.aur_keep.is_empty()
-            && (!config.args.has_arg("y", "refresh") || config.combined_upgrade))
+            && !config.args.has_arg("y", "refresh")
+            && config.combined_upgrade)
     {
         print_warnings(config, &cache, None);
         let mut args = config.pacman_args();
@@ -405,7 +408,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         return Ok(code);
     }
 
-    if targets_str.is_empty() && !upgrade_later(config) {
+    if targets.is_empty() && !upgrade_later(config) {
         print_warnings(config, &cache, None);
         if !done_something {
             println!(" there is nothing to do");
@@ -1555,15 +1558,18 @@ fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Res
             } else if config.args.has_arg("asdeps", "asdeps") {
                 args.arg("asdeps");
             }
-            for _ in 0..config.args.count("y", "refresh") {
-                args.arg("y");
-            }
-            for _ in 0..config.args.count("u", "susupgrade") {
-                args.arg("u");
+
+            if config.mode != Mode::Aur {
+                for _ in 0..config.args.count("y", "refresh") {
+                    args.arg("y");
+                }
+                for _ in 0..config.args.count("u", "susupgrade") {
+                    args.arg("u");
+                }
             }
             args.targets = targets;
 
-            if !bi.conflict {
+            if !bi.conflict && !bi.build.is_empty() {
                 args.arg("noconfirm");
             }
 
