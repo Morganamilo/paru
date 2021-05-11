@@ -398,6 +398,10 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         rw: config.pacman.cache_dir.clone(),
     };
 
+    if !chroot.exists() {
+        chroot.create(config, &["base-devel"])?;
+    }
+
     if config.update {
         chroot.update()?;
     }
