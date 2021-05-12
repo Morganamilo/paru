@@ -1567,9 +1567,15 @@ fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Res
                     args.arg("u");
                 }
             }
+
             args.targets = targets;
 
-            if !bi.conflict && !bi.build.is_empty() {
+            if !bi.conflict
+                && !bi.build.is_empty()
+                && (!config.args.has_arg("u", "sysupgrade")
+                    || config.combined_upgrade
+                    || config.mode == Mode::Aur)
+            {
                 args.arg("noconfirm");
             }
 
