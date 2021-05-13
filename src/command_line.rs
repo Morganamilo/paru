@@ -299,7 +299,6 @@ impl Config {
                 }
             }
             Arg::Long("nochroot") => self.chroot = false,
-            Arg::Long("movepkgs") => self.move_pkgs = true,
             Arg::Long("sign") => {
                 self.sign = match value {
                     Ok(k) => Sign::Key(k.to_string()),

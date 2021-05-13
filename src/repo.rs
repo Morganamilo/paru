@@ -2,7 +2,7 @@ use crate::config::{Config, LocalRepos, Sign};
 use crate::exec;
 
 use std::env::current_exe;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::fs::read_link;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -15,7 +15,6 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     config: &Config,
     path: P,
     name: &str,
-    mv: bool,
     pkgs: &[S],
 ) -> Result<()> {
     let db = path.as_ref().join(format!("{}.db", name));
@@ -52,44 +51,22 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         )?;
     }
 
-    let err = if !pkgs.is_empty() {
-        let cmd = if mv { "mv" } else { "cp" };
+    let mut args = vec![OsStr::new("-R"), file.as_os_str()];
+    let pkgs = pkgs
+        .iter()
+        .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
+        .collect::<Vec<_>>();
 
-        let mut args = vec![OsString::from("-f")];
-
-        for pkg in pkgs {
-            let mut sig = pkg.as_ref().to_os_string();
-            sig.push(".sig");
-            if Path::new(&sig).exists() {
-                args.push(sig);
-            }
+    if config.sign_db != Sign::No {
+        args.push("-s".as_ref());
+        if let Sign::Key(ref k) = config.sign_db {
+            args.push("-k".as_ref());
+            args.push(k.as_ref());
         }
+    }
 
-        args.extend(pkgs.iter().map(OsString::from));
-        args.push(path.as_os_str().to_os_string());
-        exec::command(cmd, ".", &args)
-    } else {
-        Ok(())
-    };
-
-    let err = err.and_then(|_| {
-        let mut args = vec![OsStr::new("-R"), file.as_os_str()];
-        let pkgs = pkgs
-            .iter()
-            .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
-            .collect::<Vec<_>>();
-
-        if config.sign_db != Sign::No {
-            args.push("-s".as_ref());
-            if let Sign::Key(ref k) = config.sign_db {
-                args.push("-k".as_ref());
-                args.push(k.as_ref());
-            }
-        }
-
-        args.extend(pkgs.iter().map(|p| p.as_os_str()));
-        exec::command("repo-add", ".", &args)
-    });
+    args.extend(pkgs.iter().map(|p| p.as_os_str()));
+    let err = exec::command("repo-add", ".", &args);
 
     let user = User::from_uid(user).unwrap().unwrap();
 
@@ -140,7 +117,7 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
 
 pub fn init<P: AsRef<Path>>(config: &Config, path: P, name: &str) -> Result<()> {
     let pkgs: &[&str] = &[];
-    add(config, path, name, false, pkgs)
+    add(config, path, name, pkgs)
 }
 
 fn is_configured_local_db(config: &Config, db: &Db) -> bool {

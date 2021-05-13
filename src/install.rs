@@ -197,6 +197,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     if let Some(repo) = default_repo {
         let file = repo::file(&repo).unwrap();
         repo::init(config, file, &repo.name())?;
+        std::env::set_var("PKGDEST", file);
     }
 
     if config.chroot {
@@ -276,7 +277,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         let path = repo::file(&r).unwrap();
         let name = r.name().to_string();
         drop(repo);
-        repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
+        repo::add(config, path, &name, &pkgs)?;
         repo::refresh(config, &[name])?;
     }
 
@@ -1228,6 +1229,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     if let Some(repo) = default_repo {
         let file = repo::file(&repo).unwrap();
         repo::init(config, file, &repo.name())?;
+        std::env::set_var("PKGDEST", file);
     }
 
     if config.chroot {
@@ -1469,11 +1471,11 @@ fn build_install_pkgbuild<'a>(
                 .unwrap();
             let path = repo::file(&repo).unwrap();
             let name = repo.name().to_string();
-            repo::add(config, path, &name, config.move_pkgs, &pkgs)?;
+            repo::add(config, path, &name, &pkgs)?;
             repo::refresh(config, &[name])?;
         } else {
             let path = repo.1;
-            repo::add(config, path, repo.0, config.move_pkgs, &pkgs)?;
+            repo::add(config, path, repo.0, &pkgs)?;
             repo::refresh(config, &[repo.0])?;
         }
         if let Some(info) = new_devel_info.info.remove(base.package_base()) {

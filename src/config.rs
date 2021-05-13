@@ -433,7 +433,6 @@ pub struct Config {
     #[default(Path::new("/var/lib/aurbuild/").join(ARCH))]
     pub chroot_dir: PathBuf,
     pub chroot: bool,
-    pub move_pkgs: bool,
     pub install: bool,
     pub uninstall: bool,
     pub update: bool,
@@ -673,7 +672,10 @@ impl Config {
         alpm::set_dlcb!(alpm, download);
 
         for repo in &self.pacman.repos {
-            let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
+            let db = alpm.register_syncdb_mut(
+                &*repo.name,
+                SigLevel::DATABASE_OPTIONAL | SigLevel::DATABASE,
+            )?;
             db.set_servers(repo.servers.iter())?;
 
             let mut usage = Usage::NONE;
@@ -702,6 +704,7 @@ impl Config {
         alpm.set_ignoregroups(self.ignore_group.iter())?;
 
         alpm.set_logfile(&*self.pacman.log_file)?;
+        alpm.set_gpgdir(&*self.pacman.gpg_dir)?;
 
         #[cfg(not(feature = "git"))]
         if let Some(arch) = self.pacman.architecture.get(0) {
@@ -873,7 +876,6 @@ impl Config {
                     self.chroot_dir = p.into();
                 }
             }
-            "MovePkgs" => self.move_pkgs = true,
             "Sign" => {
                 self.sign = match value {
                     Some(v) => Sign::Key(v.to_string()),

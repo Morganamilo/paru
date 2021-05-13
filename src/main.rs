@@ -331,6 +331,10 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         return Ok(0);
     }
 
+    if config.update {
+        return Ok(0);
+    }
+
     let (_, mut repos) = repo::repo_aur_dbs(config);
     repos.retain(|r| {
         config.delete >= 1
