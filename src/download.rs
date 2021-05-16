@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
 use std::io::Write;
 use std::iter::FromIterator;
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
@@ -192,6 +193,8 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 
 fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     let db = config.alpm.syncdbs();
+    let c = config.color;
+    let mut r = 0;
 
     let cd = std::env::current_dir().context("could not get current directory")?;
     let asp = &config.asp_bin;
@@ -239,6 +242,15 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
         );
 
         if cd.contains(pkg) {
+            if !Path::new(pkg).join("PKGBUILD").exists() {
+                println!(
+                    "{} {} does not contain PKGBUILD: skipping",
+                    c.warning.paint("::"),
+                    pkg
+                );
+                r = 1;
+                continue;
+            }
             std::fs::remove_dir_all(pkg)?;
         }
 
@@ -255,7 +267,10 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
         );
     }
 
-    Ok(!missing.is_empty() as i32)
+    if !missing.is_empty() {
+        r = 1;
+    }
+    Ok(r)
 }
 
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
