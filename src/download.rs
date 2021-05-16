@@ -225,13 +225,28 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
     for (n, pkg) in ok.into_iter().enumerate() {
         print_download(config, n + 1, pkgs.len(), pkg);
-        let action = if cd.contains(pkg) { "update" } else { "export" };
 
         let ret = Command::new(asp)
-            .arg(action)
+            .arg("update")
             .arg(pkg)
             .output()
-            .with_context(|| format!("failed to run: {} {} {}", asp, action, pkg))?;
+            .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
+
+        ensure!(
+            ret.status.success(),
+            "{}",
+            String::from_utf8_lossy(&ret.stderr).trim()
+        );
+
+        if cd.contains(pkg) {
+            std::fs::remove_dir_all(pkg)?;
+        }
+
+        let ret = Command::new(asp)
+            .arg("export")
+            .arg(pkg)
+            .output()
+            .with_context(|| format!("failed to run: {} export {}", asp, pkg))?;
 
         ensure!(
             ret.status.success(),
