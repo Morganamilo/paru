@@ -28,6 +28,9 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
+    let cb = config.alpm.question_cb();
+    config.alpm.set_question_cb(alpm::QuestionCb::none());
+
     for targ in targets {
         let targ = targ.as_targ();
         if config.mode == Mode::Aur {
@@ -58,6 +61,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         }
     }
 
+    config.alpm.set_question_cb(cb);
     (local, aur)
 }
 
