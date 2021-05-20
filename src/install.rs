@@ -400,9 +400,16 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
         args.targets = targets.iter().map(|s| s.as_str()).collect();
         args.remove("y").remove("refresh");
+        if !config.combined_upgrade {
+            args.remove("u").remove("sysupgrade");
+        }
 
-        let code = exec::pacman(config, &args)?.code();
-        return Ok(code);
+        if !args.targets.is_empty() || args.has_arg("u", "sysupgrade") {
+            let code = exec::pacman(config, &args)?.code();
+            return Ok(code);
+        }
+
+        return Ok(0);
     }
 
     if targets.is_empty() && !upgrade_later(config) {
