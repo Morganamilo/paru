@@ -482,11 +482,11 @@ impl Config {
         let cols = term_size::dimensions_stdout().map(|v| v.0);
 
         let mut config = Self {
-            devel_path,
             cols,
-            cache_dir,
             color,
             build_dir,
+            cache_dir,
+            devel_path,
             ..Self::default()
         };
 

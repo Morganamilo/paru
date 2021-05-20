@@ -75,7 +75,7 @@ fn get_version_diff(config: &Config, old: &str, new: &str) -> (String, String) {
     )
 }
 
-#[allow(clippy::clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 fn print_upgrade(
     config: &Config,
     n: usize,

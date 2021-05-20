@@ -17,7 +17,7 @@ struct Info<'a> {
     max_packages: Vec<(i64, &'a str)>,
 }
 
-async fn collect_info<'a>(config: &'a Config, max_n: usize) -> Result<Info<'a>> {
+async fn collect_info(config: &Config, max_n: usize) -> Result<Info<'_>> {
     let db = config.alpm.localdb();
     let total_packages = db.pkgs().len();
 

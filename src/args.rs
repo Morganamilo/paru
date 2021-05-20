@@ -126,10 +126,7 @@ impl<S: AsRef<str>> Display for Arg<S> {
 
 impl<S: AsRef<str>> Arg<S> {
     pub fn as_str(&self) -> Arg<&str> {
-        let value = match self.value {
-            Some(ref v) => Some(v.as_ref()),
-            None => None,
-        };
+        let value = self.value.as_ref().map(|v| v.as_ref());
         Arg {
             key: self.key.as_ref(),
             value,

@@ -751,7 +751,6 @@ fn review<'a>(
                                         )
                                     })?;
                                 let _ = stdin.write_all(&output.stdout);
-                                let _ = stdin.write_all(b"\n\n");
                             } else {
                                 let mut pkgbbuild = OpenOptions::new()
                                     .read(true)
@@ -768,8 +767,8 @@ fn review<'a>(
                                         write!(stdin, "binary file: {}", file.path().display())
                                     }
                                 };
-                                let _ = stdin.write_all(b"\n\n");
                             }
+                            let _ = stdin.write_all(b"\n\n");
                         }
                     }
                 }
@@ -1314,7 +1313,7 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
     Ok(())
 }
 
-#[allow(clippy::clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 fn build_install_pkgbuild<'a>(
     config: &mut Config,
     aur_repos: &HashMap<String, String>,
@@ -1344,16 +1343,14 @@ fn build_install_pkgbuild<'a>(
                 .chain(&pkg.pkg.make_depends)
                 .chain(&pkg.pkg.check_depends);
 
-            satisfied = deps
-                .find(|dep| {
-                    config
-                        .alpm
-                        .localdb()
-                        .pkgs()
-                        .find_satisfier(dep.as_str())
-                        .is_none()
-                })
-                .is_none();
+            satisfied = deps.all(|dep| {
+                config
+                    .alpm
+                    .localdb()
+                    .pkgs()
+                    .find_satisfier(dep.as_str())
+                    .is_some()
+            })
         }
     }
 
@@ -1521,62 +1518,64 @@ fn build_install_pkgbuild<'a>(
 }
 
 fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Result<i32> {
-    if config.chroot {
-        if !config.args.has_arg("w", "downloadonly") {
-            let mut targets = bi
-                .build
-                .iter()
-                .filter(|b| {
-                    !bi.failed
-                        .iter()
-                        .any(|f| b.package_base() == f.package_base())
-                })
-                .flat_map(|b| &b.pkgs)
-                .filter(|p| p.target)
-                .map(|p| p.pkg.name.as_str())
-                .collect::<Vec<_>>();
+    if !config.chroot {
+        return Ok(0);
+    }
 
-            if config.args.has_arg("u", "sysupgrade") {
-                targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
+    if !config.args.has_arg("w", "downloadonly") {
+        let mut targets = bi
+            .build
+            .iter()
+            .filter(|b| {
+                !bi.failed
+                    .iter()
+                    .any(|f| b.package_base() == f.package_base())
+            })
+            .flat_map(|b| &b.pkgs)
+            .filter(|p| p.target)
+            .map(|p| p.pkg.name.as_str())
+            .collect::<Vec<_>>();
+
+        if config.args.has_arg("u", "sysupgrade") {
+            targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
+        }
+
+        targets.extend(repo_targs.iter().map(|s| s.as_str()));
+
+        let mut args = config.pacman_globals();
+        args.op("sync");
+        copy_sync_args(config, &mut args);
+        if config.args.has_arg("asexplicit", "asexplicit") {
+            args.arg("asexplicit");
+        } else if config.args.has_arg("asdeps", "asdeps") {
+            args.arg("asdeps");
+        }
+
+        if config.mode != Mode::Aur {
+            for _ in 0..config.args.count("y", "refresh") {
+                args.arg("y");
             }
-
-            targets.extend(repo_targs.iter().map(|s| s.as_str()));
-
-            let mut args = config.pacman_globals();
-            args.op("sync");
-            copy_sync_args(config, &mut args);
-            if config.args.has_arg("asexplicit", "asexplicit") {
-                args.arg("asexplicit");
-            } else if config.args.has_arg("asdeps", "asdeps") {
-                args.arg("asdeps");
+            for _ in 0..config.args.count("u", "susupgrade") {
+                args.arg("u");
             }
+        }
 
-            if config.mode != Mode::Aur {
-                for _ in 0..config.args.count("y", "refresh") {
-                    args.arg("y");
-                }
-                for _ in 0..config.args.count("u", "susupgrade") {
-                    args.arg("u");
-                }
-            }
+        args.targets = targets;
 
-            args.targets = targets;
+        if !bi.conflict
+            && !bi.build.is_empty()
+            && (!config.args.has_arg("u", "sysupgrade")
+                || config.combined_upgrade
+                || config.mode == Mode::Aur)
+        {
+            args.arg("noconfirm");
+        }
 
-            if !bi.conflict
-                && !bi.build.is_empty()
-                && (!config.args.has_arg("u", "sysupgrade")
-                    || config.combined_upgrade
-                    || config.mode == Mode::Aur)
-            {
-                args.arg("noconfirm");
-            }
-
-            if !args.targets.is_empty()
-                || config.args.has_arg("u", "sysupgrade")
-                || config.args.has_arg("y", "refresh")
-            {
-                exec::pacman(config, &args)?.success()?;
-            }
+        if !args.targets.is_empty()
+            || config.args.has_arg("u", "sysupgrade")
+            || config.args.has_arg("y", "refresh")
+        {
+            exec::pacman(config, &args)?.success()?;
         }
     }
 
