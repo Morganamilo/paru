@@ -1,4 +1,4 @@
-use crate::config::{Config, LocalRepos, Mode, NO_CONFIRM};
+use crate::config::{Config, LocalRepos, Mode};
 use crate::repo;
 
 use std::cell::Cell;
@@ -28,8 +28,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
-    let cb = config.alpm.question_cb();
-    config.alpm.set_question_cb(alpm::QuestionCb::none());
+    let cb = config.alpm.take_raw_question_cb();
 
     for targ in targets {
         let targ = targ.as_targ();
@@ -61,7 +60,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         }
     }
 
-    config.alpm.set_question_cb(cb);
+    config.alpm.set_raw_question_cb(cb);
     (local, aur)
 }
 
@@ -280,7 +279,7 @@ impl<'a> NumberMenu<'a> {
     }
 }
 
-pub fn get_provider(max: usize) -> usize {
+pub fn get_provider(max: usize, no_confirm: bool) -> usize {
     let mut input = String::new();
 
     loop {
@@ -288,7 +287,7 @@ pub fn get_provider(max: usize) -> usize {
         let _ = stdout().lock().flush();
         input.clear();
 
-        if !NO_CONFIRM.get().unwrap() {
+        if !no_confirm {
             let stdin = stdin();
             let mut stdin = stdin.lock();
             let _ = stdin.read_line(&mut input);

@@ -151,8 +151,8 @@ fn is_local_db(db: &alpm::Db) -> bool {
 
 pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
     let dbs = config.alpm.syncdbs();
-    let mut aur = dbs.to_list();
-    let mut repo = dbs.to_list();
+    let mut aur = dbs.to_list_mut();
+    let mut repo = dbs.to_list_mut();
     aur.retain(|db| is_configured_local_db(config, db));
     repo.retain(|db| !is_configured_local_db(config, db));
     (repo, aur)
@@ -180,7 +180,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
         return Ok(status.code().unwrap_or(1));
     }
 
-    let mut dbs = config.alpm.syncdbs_mut().to_list();
+    let mut dbs = config.alpm.syncdbs_mut().to_list_mut();
     dbs.retain(|db| is_local_db(db));
 
     if !repos.is_empty() {
@@ -194,13 +194,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     );
 
     if !dbs.is_empty() {
-        #[cfg(feature = "git")]
         dbs.update(false)?;
-        #[cfg(not(feature = "git"))]
-        for mut db in &dbs {
-            println!("  syncing {}.db...", db.name());
-            db.update(false)?;
-        }
     } else {
         println!("  nothing to do");
     }

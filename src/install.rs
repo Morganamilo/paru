@@ -113,9 +113,6 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let mut cache = Cache::new();
     let c = config.color;
 
-    #[cfg(not(feature = "git"))]
-    let arch = config.alpm.arch();
-    #[cfg(feature = "git")]
     // assume arch[0] is CARCH
     let arch = config
         .alpm
@@ -794,9 +791,6 @@ fn review<'a>(
 
     config.fetch.mark_seen(&pkgs)?;
 
-    #[cfg(not(feature = "git"))]
-    let arch = config.alpm.arch();
-    #[cfg(feature = "git")]
     let arch = config
         .alpm
         .architectures()
@@ -910,9 +904,6 @@ fn check_actions(
     let dups = actions.duplicate_targets();
     ensure!(dups.is_empty(), "duplicate packages: {}", dups.join(" "));
 
-    #[cfg(not(feature = "git"))]
-    let arch = config.alpm.arch();
-    #[cfg(feature = "git")]
     // assume arch[0] is CARCH
     let arch = config
         .alpm
@@ -1779,7 +1770,7 @@ fn resolver<'a, 'b>(
                 print!("{}) {}  ", n + 1, pkg);
             }
 
-            get_provider(pkgs.len())
+            get_provider(pkgs.len(), no_confirm)
         });
     }
 

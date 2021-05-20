@@ -19,9 +19,9 @@ dependencies = [
 
 [[package]]
 name = "alpm"
-version = "1.1.14"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50b8cd36581cd365947f6faa0274cad9ae11464ecc8de94f92b66ee979b6b8cf"
+checksum = "83e9c8f7aa474b95567a6895a8995efe81c685e899d500bc7475d8f159fa0d21"
 dependencies = [
  "alpm-sys",
  "bitflags",
@@ -29,18 +29,18 @@ dependencies = [
 
 [[package]]
 name = "alpm-sys"
-version = "1.1.9"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9f4f5f19990f1c5fb4d57f29251001db4b03d81bdf648f0a81c65083e47f8b4"
+checksum = "6bc975d7c0bc845e5206599b1df8a35141d0215384cf654edc449ed5bc0a2a36"
 dependencies = [
  "bindgen",
 ]
 
 [[package]]
 name = "alpm-utils"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1140b0a184059c01fd572de02675e22303d76e1384c62df16260f1e4c1421aa"
+checksum = "294c65454ef44b62a9aa009de9a80c46790106f964ce905fb33191a847f9260b"
 dependencies = [
  "alpm",
 ]
@@ -97,9 +97,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.15.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d19c06eeef75aabf1009d6f547137b5fce83af5c6ec1c2fb9386cd1a84f01ed1"
+checksum = "25937e64f5441091e517f8fce42056751c3c13f0483b38c9c16355858e147a62"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -1056,7 +1056,6 @@ dependencies = [
  "indicatif",
  "kuchiki",
  "nix",
- "once_cell",
  "pacmanconf",
  "raur",
  "reqwest",
@@ -1201,9 +1200,9 @@ checksum = "bc881b2c22681370c6a780e47af9840ef841837bc98118431d4e1868bd0c1086"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.26"
+version = "1.0.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a152013215dca273577e18d2bf00fa862b89b24169fb78c4c95aeb07992c9cec"
+checksum = "f0d8caf72986c1a598726adc988bb5984792ef84f5ee5aa50209145ee8077038"
 dependencies = [
  "unicode-xid",
 ]

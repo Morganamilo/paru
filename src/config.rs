@@ -13,9 +13,9 @@ use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use alpm::{set_questioncb, Depend, Question, SigLevel, Usage};
-#[cfg(feature = "git")]
-use alpm::{DownloadEvent, DownloadResult};
+use alpm::{
+    AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, Question, SigLevel, Usage,
+};
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
@@ -23,12 +23,8 @@ use atty::Stream::Stdout;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use nix::unistd::dup2;
-use once_cell::sync::OnceCell;
 use std::os::unix::io::AsRawFd;
 use url::Url;
-
-static COLORS: OnceCell<Colors> = OnceCell::new();
-pub static NO_CONFIRM: OnceCell<bool> = OnceCell::new();
 
 #[derive(Debug, Default)]
 pub struct Alpm {
@@ -586,15 +582,6 @@ impl Config {
             self.color = Colors::from("auto");
         }
 
-        ensure!(
-            COLORS.set(self.color).is_ok(),
-            "failed to initialize colors"
-        );
-        ensure!(
-            NO_CONFIRM.set(self.no_confirm).is_ok(),
-            "failed to initialize noconfirm"
-        );
-
         let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
 
         let client = reqwest::Client::builder()
@@ -666,10 +653,8 @@ impl Config {
                 )
             })?;
 
-        set_questioncb!(alpm, question);
-
-        #[cfg(feature = "git")]
-        alpm::set_dlcb!(alpm, download);
+        alpm.set_question_cb((self.no_confirm, self.color), question);
+        alpm.set_dl_cb((), download);
 
         for repo in &self.pacman.repos {
             let db = alpm.register_syncdb_mut(
@@ -697,21 +682,12 @@ impl Config {
             db.set_usage(usage)?;
         }
 
-        #[cfg(feature = "git")]
-        alpm.set_parallel_downloads(1);
-
         alpm.set_ignorepkgs(self.ignore.iter())?;
         alpm.set_ignoregroups(self.ignore_group.iter())?;
 
         alpm.set_logfile(&*self.pacman.log_file)?;
         alpm.set_gpgdir(&*self.pacman.gpg_dir)?;
 
-        #[cfg(not(feature = "git"))]
-        if let Some(arch) = self.pacman.architecture.get(0) {
-            alpm.set_arch(arch.as_str());
-        }
-
-        #[cfg(feature = "git")]
         alpm.set_architectures(self.pacman.architecture.iter())?;
 
         if !self.chroot {
@@ -956,11 +932,12 @@ fn reopen_stdin() -> Result<()> {
     Ok(())
 }
 
-fn question(question: &mut Question) {
-    let c = COLORS.get().unwrap();
+fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
+    let no_confirm = data.0;
+    let c = data.1;
 
-    match question {
-        Question::SelectProvider(question) => {
+    match question.question() {
+        Question::SelectProvider(mut question) => {
             let providers = question.providers();
             let len = providers.len();
 
@@ -988,19 +965,18 @@ fn question(question: &mut Question) {
                 print!("{}) {}  ", n + 1, pkg.name());
             }
 
-            let index = get_provider(len);
+            let index = get_provider(len, no_confirm);
             question.set_index(index as i32);
         }
-        Question::InstallIgnorepkg(question) => {
+        Question::InstallIgnorepkg(mut question) => {
             question.set_install(true);
         }
         _ => (),
     }
 }
 
-#[cfg(feature = "git")]
-fn download(filename: &str, event: DownloadEvent) {
-    match event {
+fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
+    match event.event() {
         DownloadEvent::Init(_) => println!("  syncing {}...", filename),
         DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {
             println!("  failed to sync {}", filename);
