@@ -1,6 +1,5 @@
 use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
-use crate::exec::Status;
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -15,7 +14,7 @@ use std::iter::FromIterator;
 
 use alpm_utils::DbListExt;
 use anyhow::{bail, Context, Result};
-use futures::future::{join_all, select_ok, try_join_all, FutureExt};
+use futures::future::{join_all, select_ok, FutureExt};
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
@@ -220,7 +219,9 @@ async fn ls_remote(
         .arg(branch.unwrap_or("HEAD"));
 
     let output = command.output().await?;
-    Status(output.status.code().unwrap_or(1)).success()?;
+    if !output.status.success() {
+        bail!("{}", String::from_utf8_lossy(&output.stderr));
+    }
 
     let sha = String::from_utf8_lossy(&output.stdout)
         .split('\t')
@@ -400,20 +401,28 @@ pub async fn fetch_devel_info(
         }
     }
 
-    let commits = try_join_all(futures).await?;
+    let commits = join_all(futures).await;
     for ((remote, pkgbase, branch), commit) in parsed.into_iter().zip(commits) {
-        let url_info = RepoInfo {
-            url: remote,
-            branch: branch.map(|s| s.to_string()),
-            commit,
-        };
+        match commit {
+            Err(e) => print_error(
+                config.color.error,
+                e.context(format!("failed to lookup: {}", pkgbase)),
+            ),
+            Ok(commit) => {
+                let url_info = RepoInfo {
+                    url: remote,
+                    branch: branch.map(|s| s.to_string()),
+                    commit,
+                };
 
-        devel_info
-            .info
-            .entry(pkgbase)
-            .or_default()
-            .repos
-            .insert(url_info);
+                devel_info
+                    .info
+                    .entry(pkgbase)
+                    .or_default()
+                    .repos
+                    .insert(url_info);
+            }
+        }
     }
 
     Ok(devel_info)
