@@ -10,7 +10,7 @@ use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu};
-use crate::{args, exec, news, repo};
+use crate::{args, exec, news, repo, RaurHandle};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -107,6 +107,10 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
         .assume_installed
         .iter()
         .for_each(|a| args.push("assume-installed", Some(a.as_str())));
+
+    if config.args.has_arg("dbonly", "dbonly") {
+        args.arg("dbonly");
+    }
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
@@ -1693,10 +1697,10 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
 fn resolver<'a, 'b>(
     config: &Config,
     alpm: &'a Alpm,
-    raur: &'b raur::Handle,
+    raur: &'b RaurHandle,
     cache: &'b mut Cache,
     flags: Flags,
-) -> Resolver<'a, 'b> {
+) -> Resolver<'a, 'b, RaurHandle> {
     let devel_suffixes = config.devel_suffixes.clone();
     let c = config.color;
     let no_confirm = config.no_confirm;

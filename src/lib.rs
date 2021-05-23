@@ -23,6 +23,14 @@ mod sync;
 mod upgrade;
 mod util;
 
+#[cfg(feature = "mock")]
+mod mock;
+
+#[cfg(not(feature = "mock"))]
+type RaurHandle = raur::Handle;
+#[cfg(feature = "mock")]
+type RaurHandle = crate::mock::Mock;
+
 #[macro_use]
 extern crate smart_default;
 
@@ -123,6 +131,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
     } else {
         config.parse_args(args)?;
     }
+
     handle_cmd(config).await
 }
 

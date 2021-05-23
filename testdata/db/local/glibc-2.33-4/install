@@ -1,0 +1,5 @@
+post_upgrade() {
+  locale-gen
+
+  ldconfig -r .
+}

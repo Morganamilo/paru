@@ -46,6 +46,7 @@ tokio = { version = "1.6.1", features = ["process", "macros", "rt-multi-thread"]
 url = "2.2.2"
 env_logger = "0.8.3"
 log = "0.4.14"
+async-trait = { version = "0.1.50", optional = true }
 
 [profile.release]
 codegen-units = 1
@@ -55,3 +56,4 @@ lto = true
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
 backtrace = []
 generate = ["alpm/generate"]
+mock = ["async-trait"]

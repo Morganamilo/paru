@@ -1,8 +1,8 @@
 use crate::config::{Config, LocalRepos, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
-use crate::repo;
 use crate::util::{input, NumberMenu};
+use crate::{repo, RaurHandle};
 
 use std::collections::HashMap;
 
@@ -109,7 +109,7 @@ fn print_upgrade(
 
 async fn get_aur_only_upgrades<'a, 'b>(
     config: &Config,
-    resolver: &mut Resolver<'a, 'b>,
+    resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
 ) -> Result<AurUpdates<'a>> {
     if config.mode != Mode::Repo {
@@ -156,7 +156,7 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
 
 pub async fn aur_upgrades<'res, 'conf>(
     config: &'conf Config,
-    resolver: &mut Resolver<'res, '_>,
+    resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
 ) -> Result<(AurUpdates<'res>, Vec<String>)> {
     try_join!(
@@ -167,7 +167,7 @@ pub async fn aur_upgrades<'res, 'conf>(
 
 pub async fn get_upgrades<'a, 'b>(
     config: &Config,
-    resolver: &mut Resolver<'a, 'b>,
+    resolver: &mut Resolver<'a, 'b, RaurHandle>,
 ) -> Result<Upgrades> {
     let (aur_upgrades, devel_upgrades) = aur_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);

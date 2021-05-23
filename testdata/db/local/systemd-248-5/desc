@@ -1,0 +1,99 @@
+%NAME%
+systemd
+
+%VERSION%
+248-5
+
+%BASE%
+systemd
+
+%DESC%
+system and service manager
+
+%URL%
+https://www.github.com/systemd/systemd
+
+%ARCH%
+x86_64
+
+%BUILDDATE%
+1618569146
+
+%INSTALLDATE%
+1621785543
+
+%PACKAGER%
+Christian Hesse <arch@eworm.de>
+
+%SIZE%
+26248418
+
+%REASON%
+1
+
+%LICENSE%
+GPL2
+LGPL2.1
+
+%VALIDATION%
+pgp
+
+%REPLACES%
+nss-myhostname
+systemd-tools
+udev
+
+%DEPENDS%
+acl
+libacl.so=1-64
+bash
+cryptsetup
+libcryptsetup.so=12-64
+dbus
+iptables
+kbd
+kmod
+libkmod.so=2-64
+hwids
+libcap
+libcap.so=2-64
+libgcrypt
+libxcrypt
+libcrypt.so=2-64
+systemd-libs
+libidn2
+lz4
+pam
+libelf
+libseccomp
+libseccomp.so=2-64
+util-linux
+libblkid.so=1-64
+libmount.so=1-64
+xz
+pcre2
+audit
+libaudit.so=1-64
+libp11-kit
+libp11-kit.so=0-64
+openssl
+
+%OPTDEPENDS%
+libmicrohttpd: remote journald capabilities
+quota-tools: kernel-level quota management
+systemd-sysvcompat: symlink package to provide sysvinit binaries
+polkit: allow administration as unprivileged user
+curl: machinectl pull-tar and pull-raw
+libfido2: unlocking LUKS2 volumes with FIDO2 token
+tpm2-tss: unlocking LUKS2 volumes with TPM2
+
+%CONFLICTS%
+nss-myhostname
+systemd-tools
+udev
+
+%PROVIDES%
+nss-myhostname
+systemd-tools=248
+udev=248
+

@@ -1,0 +1,10 @@
+pkgname=auracle-git
+_pkgname=auracle
+pkgver=r366.8739929
+pkgrel=1
+arch=('x86_64' 'i686')
+depends=('pacman' 'libcurl.so' 'libsystemd.so')
+makedepends=('meson' 'git' 'perl' 'systemd')
+checkdepends=('gtest' 'gmock')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
