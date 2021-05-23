@@ -115,6 +115,7 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let mut cache = Cache::new();
+    let mut ret = 0;
     let c = config.color;
 
     // assume arch[0] is CARCH
@@ -185,7 +186,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             build_info.err = err;
         }
 
-        build_cleanup(config, &build_info);
+        ret = build_cleanup(config, &build_info)?;
     }
 
     build_info.err?;
@@ -304,7 +305,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         return Ok(code);
     }
 
-    Ok(0)
+    Ok(ret)
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
@@ -459,8 +460,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         build_info.err = err;
     }
 
-    build_cleanup(config, &build_info);
-    build_info.err
+    let ret = build_cleanup(config, &build_info)?;
+    build_info.err?;
+    Ok(ret)
 }
 
 async fn prepare_build(
@@ -572,7 +574,7 @@ async fn prepare_build(
     })
 }
 
-fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
+fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
     let mut ret = 0;
 
     if !bi.remove_make.is_empty() {
@@ -597,20 +599,11 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
     }
 
     if !bi.failed.is_empty() {
-        let b = config.color.bold;
-        let e = config.color.error;
-        let len = ":: packages not in the AUR: ".len();
-        let failed = bi.failed.iter().map(|f| f.to_string());
-        print!(
-            "{} {}",
-            e.paint("::"),
-            b.paint("Packages failed to build: ")
-        );
-        print_indent(Style::new(), len, 4, config.cols, "  ", failed);
-        ret = 1;
+        let failed = bi.failed.iter().map(|f| f.to_string()).collect::<Vec<_>>();
+        bail!("packages failed to buid: {}", failed.join("  "));
     }
 
-    ret
+    Ok(ret)
 }
 
 async fn download_pkgbuilds<'a>(
