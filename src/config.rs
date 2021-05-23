@@ -525,7 +525,8 @@ impl Config {
         self.globals.as_str()
     }
 
-    pub fn parse_args<S: AsRef<str>, I: Iterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+    pub fn parse_args<S: AsRef<str>, I: IntoIterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+        let iter = iter.into_iter();
         let mut iter = iter.peekable();
         let mut op_count = 0;
         let mut end_of_ops = false;
