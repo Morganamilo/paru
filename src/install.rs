@@ -111,6 +111,10 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
     if config.args.has_arg("dbonly", "dbonly") {
         args.arg("dbonly");
     }
+
+    for _ in 0..config.args.count("d", "nodeps") {
+        args.arg("d");
+    }
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {

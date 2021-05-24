@@ -1,0 +1,52 @@
+%NAME%
+polybar
+
+%VERSION%
+1.0.0-1
+
+%BASE%
+polybar
+
+%DESC%
+A fast and easy-to-use status bar
+
+%URL%
+
+
+%ARCH%
+x86_64
+
+%BUILDDATE%
+1621851049
+
+%INSTALLDATE%
+1621851264
+
+%PACKAGER%
+Unknown Packager
+
+%VALIDATION%
+none
+
+%DEPENDS%
+cairo
+xcb-util-image
+xcb-util-wm
+xcb-util-xrm
+xcb-util-cursor
+alsa-lib
+libpulse
+libmpdclient
+libnl
+jsoncpp
+curl
+
+%OPTDEPENDS%
+i3-wm: i3 module support
+ttf-unifont: Font used in example config
+siji-git: Font used in example config
+xorg-fonts-misc: Font used in example config
+
+%CONFLICTS%
+polybar-git
+

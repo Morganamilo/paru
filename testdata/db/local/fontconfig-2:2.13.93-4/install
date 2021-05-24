@@ -1,0 +1,26 @@
+post_upgrade() {
+  if (( $(vercmp $2 2:2.13.93-1) < 0 )); then
+    echo "Creating fontconfig configuration..."
+    find usr/share/fontconfig/conf.default -mindepth 1 |
+      /usr/share/libalpm/scripts/40-fontconfig-config /etc/fonts/conf.d
+
+    (( $(vercmp $2 0) > 0 )) && cat <<END
+
+>>> If you have configured NoExtract to prevent symlinks in /etc/fonts/conf.d/
+    from being restored, these symlinks have been recreated one last time. You
+    can now delete the symlinks and remove the paths from NoExtract and they
+    will not be created again.
+
+END
+  fi
+
+  # a full forced directory scan is required here
+  echo "Rebuilding fontconfig cache..."
+  /usr/bin/fc-cache -rs
+}
+
+post_install() {
+  post_upgrade $1 0
+}
+
+# vim:set sw=2 et:

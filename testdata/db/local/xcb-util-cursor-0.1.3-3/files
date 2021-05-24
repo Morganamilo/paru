@@ -1,0 +1,16 @@
+%FILES%
+usr/
+usr/include/
+usr/include/xcb/
+usr/include/xcb/xcb_cursor.h
+usr/lib/
+usr/lib/libxcb-cursor.so
+usr/lib/libxcb-cursor.so.0
+usr/lib/libxcb-cursor.so.0.0.0
+usr/lib/pkgconfig/
+usr/lib/pkgconfig/xcb-cursor.pc
+usr/share/
+usr/share/licenses/
+usr/share/licenses/xcb-util-cursor/
+usr/share/licenses/xcb-util-cursor/LICENSE
+

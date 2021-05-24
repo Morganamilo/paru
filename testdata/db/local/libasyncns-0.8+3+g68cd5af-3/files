@@ -1,0 +1,17 @@
+%FILES%
+usr/
+usr/include/
+usr/include/asyncns.h
+usr/lib/
+usr/lib/libasyncns.so
+usr/lib/libasyncns.so.0
+usr/lib/libasyncns.so.0.3.1
+usr/lib/pkgconfig/
+usr/lib/pkgconfig/libasyncns.pc
+usr/share/
+usr/share/doc/
+usr/share/doc/libasyncns/
+usr/share/doc/libasyncns/README
+usr/share/doc/libasyncns/README.html
+usr/share/doc/libasyncns/style.css
+
