@@ -100,7 +100,7 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
         .args
         .args
         .iter()
-        .filter(|a| a.key == "overwrite")
+        .filter(|a| matches!(&*a.key, "overwrite" | "ignore"))
         .for_each(|a| args.push(&a.key, a.value.as_deref()));
 
     config
@@ -372,7 +372,6 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
                 value: Some(pkg.to_string()),
             };
 
-            config.globals.args.push(arg.clone());
             config.args.args.push(arg);
         }
         done_something = false;
