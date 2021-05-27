@@ -657,10 +657,7 @@ impl Config {
         alpm.set_dl_cb((), download);
 
         for repo in &self.pacman.repos {
-            let db = alpm.register_syncdb_mut(
-                &*repo.name,
-                SigLevel::DATABASE_OPTIONAL | SigLevel::DATABASE,
-            )?;
+            let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
             db.set_servers(repo.servers.iter())?;
 
             let mut usage = Usage::NONE;
