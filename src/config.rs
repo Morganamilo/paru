@@ -14,7 +14,8 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use alpm::{
-    AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, Question, SigLevel, Usage,
+    AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, LogLevel, Question,
+    SigLevel, Usage,
 };
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
@@ -655,6 +656,7 @@ impl Config {
 
         alpm.set_question_cb((self.no_confirm, self.color), question);
         alpm.set_dl_cb((), download);
+        alpm.set_log_cb(self.color, log);
 
         for repo in &self.pacman.repos {
             let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
@@ -978,6 +980,19 @@ fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
         DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {
             println!("  failed to sync {}", filename);
         }
+        _ => (),
+    }
+}
+
+fn log(level: LogLevel, msg: &str, color: &mut Colors) {
+    let err = color.error;
+    let warn = color.warning;
+    let debug = std::env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0";
+
+    match level {
+        LogLevel::WARNING => eprint!("{} {}", warn.paint("::"), msg),
+        LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
+        LogLevel::DEBUG if debug => eprint!("debug: {}", msg),
         _ => (),
     }
 }
