@@ -695,10 +695,6 @@ impl Config {
         let sig = Self::parse_sig_level(SigLevel::NONE, &self.pacman.sig_level);
         alpm.set_default_siglevel(sig)?;
 
-        for repo in &self.pacman.repos {
-            Self::register_db(&mut alpm, repo)?;
-        }
-
         alpm.set_ignorepkgs(self.ignore.iter())?;
         alpm.set_ignoregroups(self.ignore_group.iter())?;
 
@@ -715,6 +711,10 @@ impl Config {
         alpm.set_noupgrades(self.pacman.no_upgrade.iter())?;
 
         alpm.set_use_syslog(self.pacman.use_syslog);
+
+        for repo in &self.pacman.repos {
+            Self::register_db(&mut alpm, repo)?;
+        }
 
         self.alpm = Alpm::new(alpm);
         Ok(())
@@ -1035,7 +1035,7 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
     match level {
         LogLevel::WARNING => eprint!("{} {}", warn.paint("::"), msg),
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
-        LogLevel::DEBUG if debug => eprint!("debug: {}", msg),
+        LogLevel::DEBUG if debug => eprint!("debug:pubring.gpg {}", msg),
         _ => (),
     }
 }
