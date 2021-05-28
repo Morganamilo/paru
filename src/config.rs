@@ -645,6 +645,40 @@ impl Config {
         Ok(())
     }
 
+    pub fn parse_sig_level(mut sig: SigLevel, levels: &[String]) -> SigLevel {
+        for level in levels {
+            match level.as_str() {
+                "PackageNever" => sig.remove(SigLevel::PACKAGE),
+                "PackageOptional" => sig.insert(SigLevel::PACKAGE | SigLevel::PACKAGE_OPTIONAL),
+                "PackageRequired" => {
+                    sig.insert(SigLevel::PACKAGE);
+                    sig.remove(SigLevel::PACKAGE_OPTIONAL);
+                }
+                "PackageTrustOnly" => {
+                    sig.remove(SigLevel::PACKAGE_MARGINAL_OK | SigLevel::PACKAGE_UNKNOWN_OK)
+                }
+                "PackageTrustAll" => {
+                    sig.insert(SigLevel::PACKAGE_MARGINAL_OK | SigLevel::PACKAGE_UNKNOWN_OK)
+                }
+                "DatabaseNever" => sig.remove(SigLevel::DATABASE),
+                "DatabaseOptional" => sig.insert(SigLevel::DATABASE | SigLevel::DATABASE_OPTIONAL),
+                "DatabaseRequired" => {
+                    sig.insert(SigLevel::DATABASE);
+                    sig.remove(SigLevel::DATABASE_OPTIONAL);
+                }
+                "DatabaseTrustOnly" => {
+                    sig.remove(SigLevel::DATABASE_MARGINAL_OK | SigLevel::DATABASE_UNKNOWN_OK)
+                }
+                "DatabaseTrustAll" => {
+                    sig.insert(SigLevel::DATABASE_MARGINAL_OK | SigLevel::DATABASE_UNKNOWN_OK)
+                }
+                _ => {}
+            }
+        }
+
+        sig
+    }
+
     pub fn init_alpm(&mut self) -> Result<()> {
         let mut alpm = alpm::Alpm::new(&*self.pacman.root_dir, &*self.pacman.db_path)
             .with_context(|| {
@@ -658,27 +692,11 @@ impl Config {
         alpm.set_dl_cb((), download);
         alpm.set_log_cb(self.color, log);
 
+        let sig = Self::parse_sig_level(SigLevel::NONE, &self.pacman.sig_level);
+        alpm.set_default_siglevel(sig)?;
+
         for repo in &self.pacman.repos {
-            let db = alpm.register_syncdb_mut(&*repo.name, SigLevel::NONE)?;
-            db.set_servers(repo.servers.iter())?;
-
-            let mut usage = Usage::NONE;
-
-            for v in &repo.usage {
-                match v.as_str() {
-                    "Sync" => usage |= Usage::SYNC,
-                    "Search" => usage |= Usage::SEARCH,
-                    "Install" => usage |= Usage::INSTALL,
-                    "Upgrade" => usage |= Usage::UPGRADE,
-                    _ => {}
-                }
-
-                if usage == Usage::NONE {
-                    usage = Usage::ALL
-                }
-            }
-
-            db.set_usage(usage)?;
+            Self::register_db(&mut alpm, repo)?;
         }
 
         alpm.set_ignorepkgs(self.ignore.iter())?;
@@ -699,6 +717,31 @@ impl Config {
         alpm.set_use_syslog(self.pacman.use_syslog);
 
         self.alpm = Alpm::new(alpm);
+        Ok(())
+    }
+
+    fn register_db(alpm: &mut alpm::Alpm, repo: &pacmanconf::Repository) -> Result<()> {
+        let sig = Self::parse_sig_level(alpm.default_siglevel(), &repo.sig_level);
+        let db = alpm.register_syncdb_mut(&*repo.name, sig)?;
+        db.set_servers(repo.servers.iter())?;
+
+        let mut usage = Usage::NONE;
+
+        for v in &repo.usage {
+            match v.as_str() {
+                "Sync" => usage |= Usage::SYNC,
+                "Search" => usage |= Usage::SEARCH,
+                "Install" => usage |= Usage::INSTALL,
+                "Upgrade" => usage |= Usage::UPGRADE,
+                _ => {}
+            }
+
+            if usage == Usage::NONE {
+                usage = Usage::ALL
+            }
+        }
+
+        db.set_usage(usage)?;
         Ok(())
     }
 
