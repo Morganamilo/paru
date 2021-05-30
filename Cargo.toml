@@ -15,8 +15,8 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 [dependencies]
 alpm = "2.0.0"
-alpm-utils = "0.7.0"
-aur-depends = "0.16.0"
+alpm-utils = "1.0.0"
+aur-depends = "0.17.0"
 aur-fetch = "0.9.1"
 cini = "0.1.1"
 pacmanconf = "1.0.0"

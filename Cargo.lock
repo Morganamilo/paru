@@ -38,11 +38,12 @@ dependencies = [
 
 [[package]]
 name = "alpm-utils"
-version = "0.7.0"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "294c65454ef44b62a9aa009de9a80c46790106f964ce905fb33191a847f9260b"
+checksum = "531aba3d8589b369de6954db9fb7dae276d937e73f280fe902584f5fb108c876"
 dependencies = [
  "alpm",
+ "pacmanconf",
 ]
 
 [[package]]
@@ -97,9 +98,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "0.16.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25937e64f5441091e517f8fce42056751c3c13f0483b38c9c16355858e147a62"
+checksum = "2db8b24c7684eb105a3c910b5e231bd5c974371a2fe78fcbe62cc47fd6480d4c"
 dependencies = [
  "alpm",
  "alpm-utils",
