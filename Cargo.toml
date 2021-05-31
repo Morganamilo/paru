@@ -32,7 +32,7 @@ dirs = "3.0.2"
 futures = "0.3.15"
 globset = "0.4.6"
 htmlescape = "0.3.1"
-indicatif = "0.16.0"
+indicatif = "0.16.2"
 kuchiki = "0.8.1"
 nix = "0.20.0"
 reqwest = { version = "0.11.3", features = ["gzip"] }
@@ -42,7 +42,7 @@ serde_json = "1.0.64"
 smart-default = "0.6.0"
 tempfile = "3.2.0"
 term_size = "0.3.2"
-tokio = { version = "1.6.0", features = ["process", "macros", "rt-multi-thread"] }
+tokio = { version = "1.6.1", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.2"
 env_logger = "0.8.3"
 
