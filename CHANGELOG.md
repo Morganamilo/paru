@@ -11,6 +11,7 @@
 - Handle query part in devel urls bc5f545
 - Fix exiting if devel pkg can not be checked 7463ae3
 - Fix skipping repo packages with upgrademenu ba35318
+- Fix crash in upgrade menu cc98ec6
 
 ### Added
 
@@ -40,7 +41,6 @@
 
 - Fix out of date packages not being shown dca010e
 - Fix typo in man page #359
-- Fix crash in upgrade menu cc98ec6
 
 ## Paru v1.6.0 (2021-5-3)
 
