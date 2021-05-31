@@ -1,11 +1,46 @@
 # Changelog
 
+## Paru v1.7.0 (2021-5-31)
+
+### Fixed
+
+- Correctly decide if a pkg is aur or repo with -G 911ae21
+- Fix provider menu showing during -Y 5c9b390
+- Fix -G not updating already downloaded packages f5d5145
+- Fix provider menu sometimes showing twice for targets da91f84
+- Handle query part in devel urls bc5f545
+- Fix exiting if devel pkg can not be checked 7463ae3
+- Fix skipping repo packages with upgrademenu ba35318
+
+### Added
+
+- Add signing option d0ca8dd 74c7120
+- Add -P --stats #240
+- Support --assume-installed e6c6460
+- Add -Ldd c525fab
+- libalpm 13 support 062b0db
+
+### Removed
+
+- Remove -R --local c525fab
+- Remove MovePkgs 69b5fb0
+- libalpm \<13 support 062b0db
+
+### Changed
+
+- Better error messages when calling commands 257f73a
+- Install repo packages with aur pkgs when using chroot 06a0f1f
+- Pass mflags to makechrootpkg 7bce35d
+- Expect local repos to be user writable 4d224b8
+- -C will create the chroot if it does not exist 5b6730f
+
 ## Paru v1.6.1 (2021-5-4)
 
 ### Fixed
 
 - Fix out of date packages not being shown dca010e
 - Fix typo in man page #359
+- Fix crash in upgrade menu cc98ec6
 
 ## Paru v1.6.0 (2021-5-3)
 
