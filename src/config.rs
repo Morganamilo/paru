@@ -959,7 +959,7 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
     match level {
         LogLevel::WARNING => eprint!("{} {}", warn.paint("::"), msg),
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
-        LogLevel::DEBUG if debug => eprint!("debug:pubring.gpg {}", msg),
+        LogLevel::DEBUG if debug => eprint!("debug: {}", msg),
         _ => (),
     }
 }
