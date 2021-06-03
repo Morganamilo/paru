@@ -21,6 +21,21 @@ async fn pacaur() {
 }
 
 #[tokio::test]
+async fn pacaur_ignore() {
+    let (tmp, ret) = run(&["-S", "pacaur", "--ignore=pacaur"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+
+    let pacaur = db.pkg("pacaur").unwrap();
+    let auracle = db.pkg("auracle-git").unwrap();
+
+    assert_eq!(pacaur.reason(), PackageReason::Explicit);
+    assert_eq!(auracle.reason(), PackageReason::Depend);
+}
+
+#[tokio::test]
 async fn pacaur_as_deps() {
     let (tmp, ret) = run_combined(&["-S", "pacaur", "--asdeps"]).await.unwrap();
     assert_eq!(ret, 0);
@@ -120,4 +135,13 @@ async fn no_exist_r() {
 async fn no_exist_a() {
     let (_, ret) = run_combined(&["-Sa", "pacman"]).await.unwrap();
     assert_eq!(ret, 1);
+}
+
+#[tokio::test]
+async fn repo_ignore() {
+    let (tmp, ret) = run(&["-S", "i3-wm", "--ignore=i3-wm"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    let db = alpm.localdb();
+    db.pkg("i3-wm").unwrap();
 }
