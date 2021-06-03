@@ -1,5 +1,11 @@
 # Changelog
 
+## Paru v1.7.1 (2021-6-3)
+
+### Fixed
+
+- Fix panic in provider menu 73ecc7
+
 ## Paru v1.7.0 (2021-5-31)
 
 ### Fixed
