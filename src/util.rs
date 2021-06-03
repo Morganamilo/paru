@@ -8,6 +8,7 @@ use std::ops::Range;
 
 use alpm::{Package, PackageReason};
 use alpm_utils::{AsTarg, DbListExt, Targ};
+use anyhow::Result;
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {
@@ -22,13 +23,18 @@ pub fn pkg_base_or_name<'a>(pkg: &Package<'a>) -> &'a str {
 }
 
 pub fn split_repo_aur_targets<'a, T: AsTarg>(
-    config: &Config,
+    config: &mut Config,
     targets: &'a [T],
-) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
+) -> Result<(Vec<Targ<'a>>, Vec<Targ<'a>>)> {
     let mut local = Vec::new();
     let mut aur = Vec::new();
 
     let cb = config.alpm.take_raw_question_cb();
+    let empty: [&str; 0] = [];
+    config.alpm.set_ignorepkgs(empty.iter())?;
+    config.alpm.set_ignoregroups(empty.iter())?;
+
+    let dbs = config.alpm.syncdbs();
 
     for targ in targets {
         let targ = targ.as_targ();
@@ -42,14 +48,9 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
             } else {
                 local.push(targ);
             }
-        } else if config
-            .alpm
-            .syncdbs()
-            .find_target_satisfier(targ.pkg)
-            .is_some()
-            || config
-                .alpm
-                .syncdbs()
+        } else if dbs.pkg(targ.pkg).is_ok()
+            || dbs.find_target_satisfier(targ.pkg).is_some()
+            || dbs
                 .iter()
                 .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
                 .any(|db| db.group(targ.pkg).is_ok())
@@ -61,7 +62,14 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
     }
 
     config.alpm.set_raw_question_cb(cb);
-    (local, aur)
+    config
+        .alpm
+        .set_ignorepkgs(config.pacman.ignore_pkg.iter())?;
+    config
+        .alpm
+        .set_ignorepkgs(config.pacman.ignore_pkg.iter())?;
+
+    Ok((local, aur))
 }
 
 pub fn ask(config: &Config, question: &str, default: bool) -> bool {

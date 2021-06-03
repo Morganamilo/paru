@@ -14,7 +14,7 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
     let targets = targets.iter().map(Targ::from).collect::<Vec<_>>();
 
-    let (repo, aur) = split_repo_aur_targets(conf, &targets);
+    let (repo, aur) = split_repo_aur_targets(conf, &targets)?;
     let mut ret = 0;
 
     let aur = if !aur.is_empty() {

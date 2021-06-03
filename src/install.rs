@@ -329,7 +329,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     config.args.targets = config.targets.clone();
 
     let targets = args::parse_targets(&targets_str);
-    let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets);
+    let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets)?;
     let mut done_something = false;
 
     if targets_str.is_empty()
