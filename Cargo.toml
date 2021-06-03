@@ -14,7 +14,7 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
-alpm = "2.0.2"
+alpm = "2.0.3"
 alpm-utils = "1.0.0"
 aur-depends = "0.17.0"
 aur-fetch = "0.9.1"
@@ -34,7 +34,7 @@ globset = "0.4.6"
 htmlescape = "0.3.1"
 indicatif = "0.16.2"
 kuchiki = "0.8.1"
-nix = "0.20.0"
+nix = "0.21.0"
 reqwest = { version = "0.11.3", features = ["gzip"] }
 rss = { version = "1.10.0", default-features = false }
 serde = { version = "1.0.126", features = ["derive"] }
