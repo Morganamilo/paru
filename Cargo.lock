@@ -1064,6 +1064,7 @@ dependencies = [
  "htmlescape",
  "indicatif",
  "kuchiki",
+ "log",
  "nix",
  "pacmanconf",
  "raur",

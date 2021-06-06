@@ -1,7 +1,7 @@
 use crate::args::Args;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
-use crate::repo;
+use crate::{debug_enabled, repo};
 
 use crate::util::get_provider;
 
@@ -954,12 +954,11 @@ fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
 fn log(level: LogLevel, msg: &str, color: &mut Colors) {
     let err = color.error;
     let warn = color.warning;
-    let debug = std::env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0";
 
     match level {
         LogLevel::WARNING => eprint!("{} {}", warn.paint("::"), msg),
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
-        LogLevel::DEBUG if debug => eprint!("debug: {}", msg),
+        LogLevel::DEBUG if debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
     }
 }

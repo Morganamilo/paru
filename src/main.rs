@@ -34,6 +34,7 @@ use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
+use std::io::Write;
 use std::process::Command;
 
 use ansi_term::Style;
@@ -41,6 +42,10 @@ use anyhow::{bail, Error, Result};
 use cini::Ini;
 
 use nix::sys::signal::{signal, SigHandler, Signal};
+
+fn debug_enabled() -> bool {
+    std::env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0"
+}
 
 fn print_error(color: Style, err: Error) {
     #[cfg(feature = "backtrace")]
@@ -72,7 +77,21 @@ fn print_error(color: Style, err: Error) {
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
+    if debug_enabled() {
+        env_logger::Builder::new()
+            .filter_level(log::LevelFilter::Debug)
+            .format(|buf, record| {
+                writeln!(
+                    buf,
+                    "{}: <{}> {}",
+                    record.level().to_string().to_lowercase(),
+                    record.module_path().unwrap_or("unkown"),
+                    record.args()
+                )
+            })
+            .format_timestamp(None)
+            .init();
+    }
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
 
     let i = main2().await;
@@ -80,7 +99,6 @@ async fn main() {
 }
 
 async fn main2() -> i32 {
-    //env_logger::init();
     let mut config = match Config::new() {
         Ok(config) => config,
         Err(err) => {

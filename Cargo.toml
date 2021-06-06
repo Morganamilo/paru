@@ -45,6 +45,7 @@ term_size = "0.3.2"
 tokio = { version = "1.6.1", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.2"
 env_logger = "0.8.3"
+log = "0.4.14"
 
 [profile.release]
 codegen-units = 1
