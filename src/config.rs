@@ -662,8 +662,13 @@ impl Config {
             }
         }
 
-        alpm.set_ignorepkgs(self.ignore.iter())?;
-        alpm.set_ignoregroups(self.ignore_group.iter())?;
+        for pkg in &self.ignore {
+            alpm.add_ignorepkg(pkg.as_str())?;
+        }
+
+        for group in &self.ignore_group {
+            alpm.add_ignoregroup(group.as_str())?;
+        }
 
         self.alpm = Alpm::new(alpm);
         Ok(())
