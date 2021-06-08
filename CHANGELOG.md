@@ -1,5 +1,16 @@
 # Changelog
 
+## Paru v1.7.2 (2021-6-8)
+
+### Fixed
+
+- Fix compilation on 32 bit 9a211ed
+- Fix -S'ing ignored packages b6ac4f3
+
+### Changed
+
+- Include #AurOnly in the example config 8f1d6d9
+
 ## Paru v1.7.1 (2021-6-3)
 
 ### Fixed
