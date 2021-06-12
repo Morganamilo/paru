@@ -11,7 +11,6 @@ use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
 use std::path::{Path, PathBuf};
-use std::time::Duration;
 
 use alpm::{
     AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, LogLevel, Question,
@@ -324,7 +323,11 @@ pub struct Config {
 
     #[default(Op::Yay)]
     pub op: Op,
+
+    #[cfg(not(feature = "mock"))]
     pub raur: raur::Handle,
+    #[cfg(feature = "mock")]
+    pub raur: crate::mock::Mock,
     #[default(aur_fetch::Handle::with_cache_dir(""))]
     pub fetch: aur_fetch::Handle,
     pub cache: raur::Cache,
@@ -525,7 +528,8 @@ impl Config {
         self.globals.as_str()
     }
 
-    pub fn parse_args<S: AsRef<str>, I: Iterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+    pub fn parse_args<S: AsRef<str>, I: IntoIterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+        let iter = iter.into_iter();
         let mut iter = iter.peekable();
         let mut op_count = 0;
         let mut end_of_ops = false;
@@ -582,13 +586,23 @@ impl Config {
             self.color = Colors::from("auto");
         }
 
-        let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+        #[cfg(not(feature = "mock"))]
+        {
+            use std::time::Duration;
 
-        let client = reqwest::Client::builder()
-            .tcp_keepalive(Duration::new(15, 0))
-            .user_agent(format!("paru/{}", ver))
-            .build()?;
-        self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
+            let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+            let client = reqwest::Client::builder()
+                .tcp_keepalive(Duration::new(15, 0))
+                .user_agent(format!("paru/{}", ver))
+                .build()?;
+
+            self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
+        }
+
+        #[cfg(feature = "mock")]
+        {
+            self.raur = crate::mock::Mock::new()?;
+        }
 
         self.fetch = aur_fetch::Handle {
             git: self.git_bin.clone().into(),
@@ -662,8 +676,13 @@ impl Config {
             }
         }
 
-        alpm.set_ignorepkgs(self.ignore.iter())?;
-        alpm.set_ignoregroups(self.ignore_group.iter())?;
+        for pkg in &self.ignore {
+            alpm.add_ignorepkg(pkg.as_str())?;
+        }
+
+        for group in &self.ignore_group {
+            alpm.add_ignoregroup(group.as_str())?;
+        }
 
         self.alpm = Alpm::new(alpm);
         Ok(())

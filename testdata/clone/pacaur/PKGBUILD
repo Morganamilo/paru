@@ -1,0 +1,7 @@
+pkgname='pacaur'
+pkgver=4.8.6
+pkgrel=1
+arch=('any')
+depends=('auracle-git' 'expac' 'sudo' 'git' 'jq')
+makedepends=('perl' 'git')
+

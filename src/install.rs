@@ -10,7 +10,7 @@ use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
 use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu};
-use crate::{args, exec, news, repo};
+use crate::{args, exec, news, repo, RaurHandle};
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -107,10 +107,19 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
         .assume_installed
         .iter()
         .for_each(|a| args.push("assume-installed", Some(a.as_str())));
+
+    if config.args.has_arg("dbonly", "dbonly") {
+        args.arg("dbonly");
+    }
+
+    for _ in 0..config.args.count("d", "nodeps") {
+        args.arg("d");
+    }
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let mut cache = Cache::new();
+    let mut ret = 0;
     let c = config.color;
 
     // assume arch[0] is CARCH
@@ -181,7 +190,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             build_info.err = err;
         }
 
-        build_cleanup(config, &build_info);
+        ret = build_cleanup(config, &build_info)?;
     }
 
     build_info.err?;
@@ -300,7 +309,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         return Ok(code);
     }
 
-    Ok(0)
+    Ok(ret)
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
@@ -455,8 +464,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         build_info.err = err;
     }
 
-    build_cleanup(config, &build_info);
-    build_info.err
+    let ret = build_cleanup(config, &build_info)?;
+    build_info.err?;
+    Ok(ret)
 }
 
 async fn prepare_build(
@@ -568,7 +578,7 @@ async fn prepare_build(
     })
 }
 
-fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
+fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
     let mut ret = 0;
 
     if !bi.remove_make.is_empty() {
@@ -593,20 +603,11 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> i32 {
     }
 
     if !bi.failed.is_empty() {
-        let b = config.color.bold;
-        let e = config.color.error;
-        let len = ":: packages not in the AUR: ".len();
-        let failed = bi.failed.iter().map(|f| f.to_string());
-        print!(
-            "{} {}",
-            e.paint("::"),
-            b.paint("Packages failed to build: ")
-        );
-        print_indent(Style::new(), len, 4, config.cols, "  ", failed);
-        ret = 1;
+        let failed = bi.failed.iter().map(|f| f.to_string()).collect::<Vec<_>>();
+        bail!("packages failed to buid: {}", failed.join("  "));
     }
 
-    ret
+    Ok(ret)
 }
 
 async fn download_pkgbuilds<'a>(
@@ -1693,10 +1694,10 @@ fn flags(config: &mut Config) -> aur_depends::Flags {
 fn resolver<'a, 'b>(
     config: &Config,
     alpm: &'a Alpm,
-    raur: &'b raur::Handle,
+    raur: &'b RaurHandle,
     cache: &'b mut Cache,
     flags: Flags,
-) -> Resolver<'a, 'b> {
+) -> Resolver<'a, 'b, RaurHandle> {
     let devel_suffixes = config.devel_suffixes.clone();
     let c = config.color;
     let no_confirm = config.no_confirm;

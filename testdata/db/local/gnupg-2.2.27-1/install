@@ -1,0 +1,31 @@
+_global_units() {
+	_units=(dirmngr.socket gpg-agent.socket gpg-agent-{browser,extra,ssh}.socket)
+	_dir=/etc/systemd/user/sockets.target.wants
+
+	case $1 in
+		enable)
+			mkdir -p $_dir
+			for _u in "${_units[@]}"; do
+				ln -sf /usr/lib/systemd/user/$_u $_dir/$_u
+			done
+			;;
+		disable)
+			for _u in "${_units[@]}"; do
+				rm -f $_dir/$_u
+			done
+			rmdir -p --ignore-fail-on-non-empty $_dir
+			;;
+	esac
+}
+
+post_install() {
+	# See FS#42798 and FS#47371
+	dirmngr </dev/null &>/dev/null
+
+	# Let systemd supervise daemons by default
+	_global_units enable
+}
+
+pre_remove() {
+	_global_units disable
+}

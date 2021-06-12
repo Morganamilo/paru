@@ -1,0 +1,24 @@
+pkgbase = auracle-git
+	pkgdesc = A flexible client for the AUR
+	pkgver = r316.dfbd170
+	pkgrel = 1
+	url = https://github.com/falconindy/auracle.git
+	arch = x86_64
+	arch = i686
+	license = MIT
+	checkdepends = gtest
+	checkdepends = gmock
+	makedepends = meson
+	makedepends = git
+	makedepends = perl
+	makedepends = systemd
+	depends = pacman
+	depends = libcurl.so
+	depends = libsystemd.so
+	provides = auracle
+	conflicts = auracle
+	source = git+https://github.com/falconindy/auracle.git
+	sha256sums = SKIP
+
+pkgname = auracle-git
+

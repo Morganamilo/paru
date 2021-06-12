@@ -1,0 +1,22 @@
+setcaps() {
+  _setcap() {
+    if filecap "$1" "$2"; then
+      chmod -s "$1"
+    fi
+  }
+
+  # shadow ships these as setuid, but if we can apply file caps, use those instead.
+  # 'filecap' insists on absolute paths
+  _setcap /usr/bin/newuidmap setuid
+  _setcap /usr/bin/newgidmap setgid
+}
+
+post_install() {
+  setcaps
+}
+
+post_upgrade() {
+  setcaps
+}
+
+# vim:set ts=2 sw=2 et:

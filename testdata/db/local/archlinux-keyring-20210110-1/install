@@ -1,0 +1,20 @@
+post_upgrade() {
+	if usr/bin/pacman-key -l >/dev/null 2>&1; then
+		usr/bin/pacman-key --populate archlinux
+
+		# Re-enable key of alad
+		# See https://bugs.archlinux.org/task/35478
+		printf 'enable\nquit\n' | LANG=C \
+			gpg --homedir /etc/pacman.d/gnupg \
+			--no-permission-warning --command-fd 0 \
+			--quiet --batch --edit-key \
+			DBE7D3DD8C81D58D0A13D0E76BC26A17B9B7018A \
+			2>/dev/null
+	fi
+}
+
+post_install() {
+	if [ -x usr/bin/pacman-key ]; then
+		post_upgrade
+	fi
+}

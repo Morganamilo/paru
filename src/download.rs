@@ -1,5 +1,6 @@
 use crate::config::{Colors, Config, Mode, SortMode, YesNoAll};
 use crate::fmt::print_indent;
+use crate::RaurHandle;
 
 use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
@@ -114,7 +115,7 @@ impl<'a> Warnings<'a> {
 }
 
 pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
-    raur: &raur::Handle,
+    raur: &RaurHandle,
     cache: &'a mut raur::Cache,
     pkgs: &'a [S],
     ignore: &[String],

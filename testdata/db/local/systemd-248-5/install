@@ -1,0 +1,109 @@
+#!/bin/bash
+
+sd_booted() {
+  [[ -d run/systemd/system && ! -L run/systemd/system ]]
+}
+
+add_journal_acls() {
+  # ignore errors, since the filesystem might not support ACLs
+  setfacl -Rnm g:wheel:rx,d:g:wheel:rx,g:adm:rx,d:g:adm:rx var/log/journal/ 2>/dev/null
+  :
+}
+
+post_common() {
+  systemd-sysusers
+  journalctl --update-catalog
+}
+
+_216_2_changes() {
+  echo ':: Coredumps are handled by systemd by default. Collection behavior can be'
+  echo '   tuned in /etc/systemd/coredump.conf.'
+}
+
+_219_2_changes() {
+  if mkdir -m2755 var/log/journal/remote 2>/dev/null; then
+    chgrp systemd-journal-remote var/log/journal/remote
+  fi
+}
+
+_219_4_changes() {
+  if ! systemctl is-enabled -q remote-fs.target; then
+    systemctl enable -q remote-fs.target
+  fi
+}
+
+_230_1_changes() {
+  echo ':: systemd-bootchart is no longer included with systemd'
+}
+
+_232_8_changes() {
+  # paper over possible effects of CVE-2016-10156
+  local stamps=(/var/lib/systemd/timers/*.timer)
+
+  if [[ -f ${stamps[0]} ]]; then
+    chmod 0644 "${stamps[@]}"
+  fi
+}
+
+_233_75_3_changes() {
+  # upstream installs services to /etc, which we remove
+  # to keep bus activation we re-enable systemd-resolved
+  if systemctl is-enabled -q systemd-resolved.service; then
+    systemctl reenable systemd-resolved.service 2>/dev/null
+  fi
+}
+
+_242_0_2_changes() {
+  if [[ -L var/lib/systemd/timesync ]]; then
+    rm var/lib/systemd/timesync
+    if [[ -d var/lib/private/systemd/timesync ]]; then
+      mv var/lib/{private/,}systemd/timesync
+    fi
+  fi
+}
+
+post_install() {
+  systemd-machine-id-setup
+
+  post_common "$@"
+
+  add_journal_acls
+
+  # enable some services by default, but don't track them
+  systemctl enable getty@tty1.service remote-fs.target
+
+  echo ":: Append 'init=/usr/lib/systemd/systemd' to your kernel command line in your"
+  echo "   bootloader to replace sysvinit with systemd, or install systemd-sysvcompat"
+
+  # group 'systemd-journal-remote' is created by systemd-sysusers
+  mkdir -m2755 var/log/journal/remote
+  chgrp systemd-journal-remote var/log/journal/remote
+}
+
+post_upgrade() {
+  post_common "$@"
+
+  # don't reexec if the old version is 231-1 or 231-2.
+  # https://github.com/systemd/systemd/commit/bd64d82c1c
+  if [[ $1 != 231-[12] ]] && sd_booted; then
+    systemctl --system daemon-reexec
+  fi
+
+  local v upgrades=(
+    216-2
+    219-2
+    219-4
+    230-1
+    232-8
+    233.75-3
+    242.0-2
+  )
+
+  for v in "${upgrades[@]}"; do
+    if [[ $(vercmp "$v" "$2") -eq 1 ]]; then
+      "_${v//[.-]/_}_changes"
+    fi
+  done
+}
+
+# vim:set ts=2 sw=2 et:

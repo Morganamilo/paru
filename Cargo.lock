@@ -1052,6 +1052,7 @@ dependencies = [
  "alpm-utils",
  "ansi_term",
  "anyhow",
+ "async-trait",
  "atty",
  "aur-depends",
  "aur-fetch",

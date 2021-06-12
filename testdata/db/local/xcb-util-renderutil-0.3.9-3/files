@@ -1,0 +1,16 @@
+%FILES%
+usr/
+usr/include/
+usr/include/xcb/
+usr/include/xcb/xcb_renderutil.h
+usr/lib/
+usr/lib/libxcb-render-util.so
+usr/lib/libxcb-render-util.so.0
+usr/lib/libxcb-render-util.so.0.0.0
+usr/lib/pkgconfig/
+usr/lib/pkgconfig/xcb-renderutil.pc
+usr/share/
+usr/share/licenses/
+usr/share/licenses/xcb-util-renderutil/
+usr/share/licenses/xcb-util-renderutil/LICENSE
+

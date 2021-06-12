@@ -1,0 +1,52 @@
+%NAME%
+iproute2
+
+%VERSION%
+5.12.0-1
+
+%BASE%
+iproute2
+
+%DESC%
+IP Routing Utilities
+
+%URL%
+https://git.kernel.org/pub/scm/network/iproute2/iproute2.git
+
+%ARCH%
+x86_64
+
+%BUILDDATE%
+1619555823
+
+%INSTALLDATE%
+1621785543
+
+%PACKAGER%
+Christian Hesse <arch@eworm.de>
+
+%SIZE%
+3256821
+
+%REASON%
+1
+
+%LICENSE%
+GPL2
+
+%VALIDATION%
+pgp
+
+%DEPENDS%
+glibc
+iptables
+libelf
+
+%OPTDEPENDS%
+db: userspace arp daemon
+libcap: tipc
+linux-atm: ATM support
+
+%PROVIDES%
+iproute
+
