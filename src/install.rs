@@ -1455,7 +1455,6 @@ fn build_install_pkgbuild<'a>(
     sign_pkg(config, &paths, needs_build)?;
 
     if let Some(ref repo) = repo {
-        let pkgs = pkgdest.values().collect::<Vec<_>>();
         if let Some(repo) = aur_repos.get(base.package_base()) {
             let repo = config
                 .alpm
@@ -1465,11 +1464,11 @@ fn build_install_pkgbuild<'a>(
                 .unwrap();
             let path = repo::file(&repo).unwrap();
             let name = repo.name().to_string();
-            repo::add(config, path, &name, &pkgs)?;
+            repo::add(config, path, &name, &paths)?;
             repo::refresh(config, &[name])?;
         } else {
             let path = repo.1;
-            repo::add(config, path, repo.0, &pkgs)?;
+            repo::add(config, path, repo.0, &paths)?;
             repo::refresh(config, &[repo.0])?;
         }
         if let Some(info) = new_devel_info.info.remove(base.package_base()) {
