@@ -64,7 +64,6 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
     Ok(ret)
 }
 
-
 async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec<raur::Package>> {
     let by = config.search_by;
     let mut pkgs = Ok(Vec::new());
@@ -73,7 +72,7 @@ async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec
     for (i, target) in targets.iter().enumerate() {
         index = i;
         pkgs = config.raur.search_by(target, by).await;
-        if !matches!(pkgs,  Err(raur::Error::Aur(_))) {
+        if !matches!(pkgs, Err(raur::Error::Aur(_))) {
             break;
         }
     }
@@ -107,18 +106,14 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
                 .as_ref()
                 .map(|s| s.to_lowercase())
                 .unwrap_or_default();
-            targets.iter().all(|t| {
-                name.contains(t) | description.contains(t)
-            })
+            targets
+                .iter()
+                .all(|t| name.contains(t) | description.contains(t))
         });
     } else if by == SearchBy::Name {
         let pkgs = search_target(config, &mut targets).await?;
         matches.extend(pkgs);
-        matches.retain(|p| {
-            targets
-                .iter()
-                .all(|t| p.name.to_lowercase().contains(t))
-        });
+        matches.retain(|p| targets.iter().all(|t| p.name.to_lowercase().contains(t)));
     } else {
         for target in targets {
             let pkgs = config.raur.search_by(target, by).await?;
