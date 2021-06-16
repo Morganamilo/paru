@@ -64,19 +64,41 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
     Ok(ret)
 }
 
+
+async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec<raur::Package>> {
+    let by = config.search_by;
+    let mut pkgs = Ok(Vec::new());
+    let mut index = 0;
+
+    for (i, target) in targets.iter().enumerate() {
+        index = i;
+        pkgs = config.raur.search_by(target, by).await;
+        if !matches!(pkgs,  Err(raur::Error::Aur(_))) {
+            break;
+        }
+    }
+
+    if pkgs.is_ok() {
+        targets.remove(index);
+    }
+
+    Ok(pkgs?)
+}
+
 async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
     if targets.is_empty() || config.mode == Mode::Repo {
         return Ok(Vec::new());
     }
+
+    let mut targets = targets.iter().map(|t| t.to_lowercase()).collect::<Vec<_>>();
+    targets.sort_by_key(|t| t.len());
 
     let mut matches = Vec::new();
 
     let by = config.search_by;
 
     if by == SearchBy::NameDesc {
-        let target = targets.iter().max_by_key(|t| t.len()).unwrap();
-        let target = target.to_lowercase();
-        let pkgs = config.raur.search_by(target, by).await?;
+        let pkgs = search_target(config, &mut targets).await?;
         matches.extend(pkgs);
         matches.retain(|p| {
             let name = p.name.to_lowercase();
@@ -86,23 +108,19 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
                 .map(|s| s.to_lowercase())
                 .unwrap_or_default();
             targets.iter().all(|t| {
-                let t = t.to_lowercase();
-                name.contains(&t) | description.contains(&t)
+                name.contains(t) | description.contains(t)
             })
         });
     } else if by == SearchBy::Name {
-        let target = targets.iter().max_by_key(|t| t.len()).unwrap();
-        let target = target.to_lowercase();
-        let pkgs = config.raur.search_by(target, by).await?;
+        let pkgs = search_target(config, &mut targets).await?;
         matches.extend(pkgs);
         matches.retain(|p| {
             targets
                 .iter()
-                .all(|t| p.name.to_lowercase().contains(&t.to_lowercase()))
+                .all(|t| p.name.to_lowercase().contains(t))
         });
     } else {
         for target in targets {
-            let target = target.to_lowercase();
             let pkgs = config.raur.search_by(target, by).await?;
             matches.extend(pkgs);
         }
