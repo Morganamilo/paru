@@ -143,7 +143,6 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let deps = srcinfo
         .pkgs
         .iter()
-        .chain(Some(&srcinfo.pkg))
         .flat_map(|pkg| pkg.depends.iter().filter(|d| d.supports(arch)))
         .flat_map(|av| &av.vec)
         .collect::<Vec<_>>();
