@@ -517,12 +517,50 @@ async fn prepare_build(
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if !config.skip_review {
-        let ret = review(config, &actions, &srcinfos, &bases)?;
+        let ret = review(config, &actions)?;
         if ret != 0 {
             let mut bi = BuildInfo::stop();
             bi.status = Status::Stop(ret);
             return Ok(bi);
         }
+    }
+
+    let arch = config
+        .alpm
+        .architectures()
+        .first()
+        .context("no architecture")?;
+
+    let incompatible = srcinfos
+        .values()
+        .flat_map(|s| &s.pkgs)
+        .filter(|p| !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch))
+        .collect::<Vec<_>>();
+
+    if !incompatible.is_empty() {
+        let c = config.color;
+        println!(
+            "{} {}",
+            c.error.paint("::"),
+            c.bold
+                .paint("The following packages are not compatible with your architecture:")
+        );
+        print!("    ");
+        print_indent(
+            Style::new(),
+            0,
+            4,
+            config.cols,
+            "  ",
+            incompatible.iter().map(|i| i.pkgname.as_str()),
+        );
+        if !ask(config, "Would you like to try build them anyway?", true) {
+            return Ok(BuildInfo::stop());
+        }
+    }
+
+    if config.pgp_fetch {
+        check_pgp_keys(config, &bases, &srcinfos)?;
     }
 
     let err = if !config.chroot {
@@ -648,8 +686,6 @@ async fn download_pkgbuilds<'a>(
 fn review<'a>(
     config: &Config,
     actions: &Actions<'a>,
-    srcinfos: &HashMap<String, Srcinfo>,
-    bases: &Bases,
 ) -> Result<i32> {
     let c = config.color;
     let pkgs = actions
@@ -795,45 +831,6 @@ fn review<'a>(
     }
 
     config.fetch.mark_seen(&pkgs)?;
-
-    let arch = config
-        .alpm
-        .architectures()
-        .first()
-        .context("no architecture")?;
-
-    let incompatible = srcinfos
-        .values()
-        .flat_map(|s| &s.pkgs)
-        .filter(|p| !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch))
-        .collect::<Vec<_>>();
-
-    if !incompatible.is_empty() {
-        let c = config.color;
-        println!(
-            "{} {}",
-            c.error.paint("::"),
-            c.bold
-                .paint("The following packages are not compatible with your architecture:")
-        );
-        print!("    ");
-        print_indent(
-            Style::new(),
-            0,
-            4,
-            config.cols,
-            "  ",
-            incompatible.iter().map(|i| i.pkgname.as_str()),
-        );
-        if !ask(config, "Would you like to try build them anyway?", true) {
-            return Ok(1);
-        }
-    }
-
-    if config.pgp_fetch {
-        check_pgp_keys(config, &bases, &srcinfos)?;
-    }
-
     Ok(0)
 }
 
