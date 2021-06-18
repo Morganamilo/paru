@@ -683,10 +683,7 @@ async fn download_pkgbuilds<'a>(
     Ok(srcinfos)
 }
 
-fn review<'a>(
-    config: &Config,
-    actions: &Actions<'a>,
-) -> Result<i32> {
+fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
     let c = config.color;
     let pkgs = actions
         .build
