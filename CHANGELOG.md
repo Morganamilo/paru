@@ -1,5 +1,19 @@
 # Changelog
 
+## Paru v1.7.3 (2021-6-24)
+
+### Fixed
+
+- Fix -U trying to resolve already satisfied deps 012db72
+- Don't pass deps twice during -U afe0a1f
+- Fix -dd not being passed to pacman
+
+### Changed
+
+- Move arch prompt and pgp import out of review 3d3eccf
+- Retry aur search when one targ fails 4020507
+- Only add packages to be installed to local repos 23f0a8c
+
 ## Paru v1.7.2 (2021-6-8)
 
 ### Fixed
