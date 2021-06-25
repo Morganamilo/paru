@@ -6,7 +6,7 @@
 
 - Fix -U trying to resolve already satisfied deps 012db72
 - Don't pass deps twice during -U afe0a1f
-- Fix -dd not being passed to pacman
+- Fix -dd not being passed to pacman 5a496c4
 
 ### Changed
 
