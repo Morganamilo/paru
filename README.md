@@ -57,6 +57,10 @@ makepkg -si
 
 `paru -Ui` -- Build and install a PKGBUILD in the current directory.
 
+## IRC
+
+Paru now has an IRC. #paru on Libera Chat. Feel free to join for discussion and help with paru.
+
 ## Debugging
 
 Paru is not an official tool. If paru can't build a package, you should first check if makepkg can successfully build the package. If it can't, then you should report the issue to the maintainer. Otherwise, it is likely an issue with paru and should be reported here.
