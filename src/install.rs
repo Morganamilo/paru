@@ -1695,7 +1695,8 @@ fn resolver<'a, 'b>(
     let no_confirm = config.no_confirm;
 
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
-        .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
+        .custom_aur_namespace(Some(config.aur_namespace().to_string()))
+        .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();
@@ -1772,7 +1773,6 @@ fn resolver<'a, 'b>(
         });
     }
 
-    resolver.custom_aur_namespace(config.aur_namespace().to_string());
     resolver
 }
 
