@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2021-06-27 15:04+0000\n"
+"POT-Creation-Date: 2021-06-27 16:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -130,11 +130,11 @@ msgstr ""
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:947 src/install.rs:1793
+#: src/config.rs:947 src/install.rs:1795
 msgid "There are {} providers available for {}:"
 msgstr ""
 
-#: src/config.rs:961 src/info.rs:59 src/info.rs:98 src/install.rs:1753 src/install.rs:1798
+#: src/config.rs:961 src/info.rs:59 src/info.rs:98 src/install.rs:1755 src/install.rs:1800
 msgid "Repository"
 msgstr ""
 
@@ -202,7 +202,7 @@ msgstr ""
 msgid "{} {} "
 msgstr ""
 
-#: src/download.rs:250 src/download.rs:275 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:743 src/install.rs:805 src/install.rs:843 src/keys.rs:70
+#: src/download.rs:250 src/download.rs:275 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:743 src/install.rs:806 src/install.rs:844 src/keys.rs:70
 msgid "failed to run:"
 msgstr ""
 
@@ -330,7 +330,7 @@ msgstr ""
 msgid "Optional Deps"
 msgstr ""
 
-#: src/install.rs:131 src/install.rs:544 src/install.rs:942
+#: src/install.rs:131 src/install.rs:544 src/install.rs:943
 msgid "no architecture"
 msgstr ""
 
@@ -358,7 +358,7 @@ msgstr ""
 msgid "parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:258 src/install.rs:1461
+#: src/install.rs:258 src/install.rs:1462
 msgid "{} {}-{} is up to date -- skipping build"
 msgstr ""
 
@@ -370,7 +370,7 @@ msgstr ""
 msgid "error:"
 msgstr ""
 
-#: src/install.rs:338 src/install.rs:520 src/install.rs:715 src/install.rs:846
+#: src/install.rs:338 src/install.rs:520 src/install.rs:715 src/install.rs:847
 msgid "Proceed with installation?"
 msgstr ""
 
@@ -420,122 +420,122 @@ msgid "{} is a directory\n"
 ""
 msgstr ""
 
-#: src/install.rs:816
+#: src/install.rs:817
 msgid "failed to open: {}"
 msgstr ""
 
-#: src/install.rs:828
+#: src/install.rs:829
 msgid "binary file: {}"
 msgstr ""
 
-#: src/install.rs:850
+#: src/install.rs:851
 msgid " nothing new to review"
 msgstr ""
 
-#: src/install.rs:869
+#: src/install.rs:870
 msgid "failed to execute file manager: {}"
 msgstr ""
 
-#: src/install.rs:872
+#: src/install.rs:873
 msgid "file manager did not execute successfully"
 msgstr ""
 
-#: src/install.rs:934
+#: src/install.rs:935
 msgid "duplicate packages: {}"
 msgstr ""
 
-#: src/install.rs:973
+#: src/install.rs:974
 msgid "could not find all required packages:"
 msgstr ""
 
-#: src/install.rs:980
+#: src/install.rs:981
 msgid "\n"
 "    {} (wanted by: {})"
 msgstr ""
 
-#: src/install.rs:994 src/install.rs:1933
+#: src/install.rs:995 src/install.rs:1934
 msgid "{} {}-{} is up to date -- skipping"
 msgstr ""
 
-#: src/install.rs:1013
+#: src/install.rs:1014
 msgid "Calculating conflicts..."
 msgstr ""
 
-#: src/install.rs:1019
+#: src/install.rs:1020
 msgid "Calculating inner conflicts..."
 msgstr ""
 
-#: src/install.rs:1031
+#: src/install.rs:1032
 msgid "Inner conflicts found:"
 msgstr ""
 
-#: src/install.rs:1053
+#: src/install.rs:1054
 msgid "Conflicts found:"
 msgstr ""
 
-#: src/install.rs:1076
+#: src/install.rs:1077
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr ""
 
-#: src/install.rs:1080
+#: src/install.rs:1081
 msgid "can not install conflicting packages with --noconfirm"
 msgstr ""
 
-#: src/install.rs:1119
+#: src/install.rs:1120
 msgid "Repo"
 msgstr ""
 
-#: src/install.rs:1126
+#: src/install.rs:1127
 msgid "Repo Make"
 msgstr ""
 
-#: src/install.rs:1140
+#: src/install.rs:1141
 msgid "Aur Make"
 msgstr ""
 
-#: src/install.rs:1242
+#: src/install.rs:1243
 msgid "fetching devel info..."
 msgstr ""
 
-#: src/install.rs:1322
+#: src/install.rs:1323
 msgid "Signing packages..."
 msgstr ""
 
-#: src/install.rs:1400 src/install.rs:1405
+#: src/install.rs:1401 src/install.rs:1406
 msgid "failed to download sources for '{}'"
 msgstr ""
 
-#: src/install.rs:1410 src/install.rs:1449 src/install.rs:1457
+#: src/install.rs:1411 src/install.rs:1450 src/install.rs:1458
 msgid "failed to build '{}'"
 msgstr ""
 
-#: src/install.rs:1413
+#: src/install.rs:1414
 msgid "{}: parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:1472
+#: src/install.rs:1473
 msgid "adding {} to the install list"
 msgstr ""
 
-#: src/install.rs:1531
+#: src/install.rs:1532
 msgid "could not find package '{}' in package list for '{}'"
 msgstr ""
 
-#: src/install.rs:1669
+#: src/install.rs:1670
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:1741
+#: src/install.rs:1743
 msgid "There are {} members in group"
 msgstr ""
 
-#: src/install.rs:1766
+#: src/install.rs:1768
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "
 msgstr ""
 
-#: src/install.rs:1954
+#: src/install.rs:1955
 msgid "{} {}-{} is up to date -- skipping install"
 msgstr ""
 
