@@ -21,6 +21,10 @@ cd paru
 makepkg -si
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## General Tips
 
 - **Man pages**: For documentation on paru's options and config file see `paru(8)` and `paru.conf(5)` respectively.
