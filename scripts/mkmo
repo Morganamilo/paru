@@ -1,11 +1,13 @@
 #!/bin/sh
 set -e
 
-install -d locale
+if [ -z "$1" ]; then
+	echo "usage mkmo <dir>"
+	exit 1
+fi
 
 for po in po/*.po; do
-	mo=${po%.po}.mo
 	lang=$(basename ${po%.po})
-	msgfmt "$po" -o "$mo"
-	install -Dm644 "$mo" "locale/$lang/LC_MESSAGES/paru.mo"
+	install -dm755 "$1/$lang/LC_MESSAGES/"
+	msgfmt "$po" -o "$1/$lang/LC_MESSAGES/paru.mo"
 done
