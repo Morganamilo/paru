@@ -6,6 +6,5 @@ COPY ../ .
 
 RUN pacman -Sy --noconfirm archlinux-keyring
 RUN pacman -Su --noconfirm rust
-RUN ls -la
-RUN ./dist
+RUN ./scripts/dist
 
