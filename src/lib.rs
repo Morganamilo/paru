@@ -44,15 +44,24 @@ use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
 use std::process::Command;
+use std::env;
 
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
-
+use tr::tr_init;
 use nix::sys::signal::{signal, SigHandler, Signal};
 
+#[macro_export]
+macro_rules! printtr {
+    ($($tail:tt)* ) => {{
+        println!("{}", ::tr::tr!($($tail)*));
+    }};
+}
+
+
 fn debug_enabled() -> bool {
-    std::env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0"
+    env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0"
 }
 
 fn print_error(color: Style, err: Error) {
@@ -84,6 +93,7 @@ fn print_error(color: Style, err: Error) {
 }
 
 pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
+    tr_init!(env::var("LOCALE_DIR").as_deref().unwrap_or("/usr/share/locale/"));
     if debug_enabled() {
         env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)
