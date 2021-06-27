@@ -8,6 +8,7 @@ use crate::util::split_repo_aur_pkgs;
 use anyhow::Result;
 use futures::try_join;
 use raur::{Cache, Raur};
+use tr::tr;
 
 pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut cache = HashSet::new();
@@ -44,7 +45,10 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         for &pkg in &aur {
             if db.pkg(pkg).is_err() {
-                eprintln!("{} package '{}' was not found", error.paint("error:"), pkg);
+                eprintln!(
+                    "{}",
+                    tr!("{} package '{}' was not found", error.paint("error:"), pkg)
+                );
             }
         }
 
@@ -97,7 +101,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                             upgrade.paint(version)
                         );
                         if config.alpm.localdb().pkg(target).unwrap().should_ignore() {
-                            print!(" [ignored]");
+                            print!("{}", tr!(" [ignored]"));
                         }
                         println!();
                     }

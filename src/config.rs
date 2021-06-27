@@ -1,9 +1,8 @@
 use crate::args::Args;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
-use crate::{debug_enabled, repo};
-
 use crate::util::get_provider;
+use crate::{debug_enabled, printtr, repo};
 
 use std::env::consts::ARCH;
 use std::env::var;
@@ -23,6 +22,7 @@ use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use nix::unistd::dup2;
 use std::os::unix::io::AsRawFd;
+use tr::tr;
 use url::Url;
 
 #[derive(Debug, Default)]
@@ -170,12 +170,12 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
                 .map(|v| v.0)
                 .collect::<Vec<&str>>()
                 .join("|");
-            bail!(
+            bail!(tr!(
                 "invalid value '{}' for key '{}', expected: {}",
                 value,
                 key,
                 okvalues
-            )
+            ))
         }
     }
 }
@@ -470,10 +470,11 @@ impl Ini for Config {
 
 impl Config {
     pub fn new() -> Result<Self> {
-        let cache = dirs::cache_dir().ok_or_else(|| anyhow!("failed to find cache directory"))?;
+        let cache =
+            dirs::cache_dir().ok_or_else(|| anyhow!(tr!("failed to find cache directory")))?;
         let cache = cache.join("paru");
         let config =
-            dirs::config_dir().ok_or_else(|| anyhow!("failed to find config directory"))?;
+            dirs::config_dir().ok_or_else(|| anyhow!(tr!("failed to find config directory")))?;
         let config = config.join("paru");
 
         let build_dir = cache.join("clone");
@@ -497,8 +498,7 @@ impl Config {
             let path = PathBuf::from(conf);
             ensure!(
                 path.exists(),
-                "config file '{}' does not exist",
-                path.display()
+                tr!("config file '{}' does not exist", path.display())
             );
             config.config_path = Some(path);
         } else if config_path.exists() {
@@ -545,7 +545,10 @@ impl Config {
                 iter.next();
             }
 
-            ensure!(op_count <= 1, "only one operation may be used at a time");
+            ensure!(
+                op_count <= 1,
+                tr!("only one operation may be used at a time")
+            );
         }
 
         if let Some((i, _)) = self.targets.iter().enumerate().find(|t| t.1 == "-") {
@@ -631,7 +634,10 @@ impl Config {
 
             for repo in repos {
                 if !self.pacman.repos.iter().any(|r| r.name == repo.name()) {
-                    bail!("can not find local repo '{}' in pacman.conf", repo.name());
+                    bail!(tr!(
+                        "can not find local repo '{}' in pacman.conf",
+                        repo.name()
+                    ));
                 }
             }
         }
@@ -660,9 +666,10 @@ impl Config {
 
     pub fn init_alpm(&mut self) -> Result<()> {
         let mut alpm = alpm_utils::alpm_with_conf(&self.pacman).with_context(|| {
-            format!(
+            tr!(
                 "failed to initialize alpm: root={} dbpath={}",
-                self.pacman.root_dir, self.pacman.db_path
+                self.pacman.root_dir,
+                self.pacman.db_path
             )
         })?;
 
@@ -730,7 +737,7 @@ impl Config {
         if key == "Include" {
             let value = match value {
                 Some(value) => value,
-                None => bail!("value can not be empty for value '{}'", key),
+                None => bail!(tr!("value can not be empty for value '{}'", key)),
             };
 
             let ini = std::fs::read_to_string(value)?;
@@ -746,20 +753,20 @@ impl Config {
 
         let section = match &self.section {
             Some(section) => section.as_str(),
-            None => bail!("key '{}' does not belong to a section", key),
+            None => bail!(tr!("key '{}' does not belong to a section", key)),
         };
 
         match section {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
-            _ => bail!("unknown section '{}', section"),
+            _ => bail!(tr!("unknown section '{}', section")),
         }
     }
 
     fn parse_bin(&mut self, key: &str, value: Option<&str>) -> Result<()> {
         let value = value
             .map(|s| s.to_string())
-            .ok_or_else(|| anyhow!("key can not be empty"))?;
+            .ok_or_else(|| anyhow!(tr!("key can not be empty")))?;
 
         let split = value.split_whitespace().map(|s| s.to_string());
 
@@ -779,7 +786,10 @@ impl Config {
             "SudoFlags" => self.sudo_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
-            _ => eprintln!("error: unknown option '{}' in section [bin]", key),
+            _ => eprintln!(
+                "{}",
+                tr!("error: unknown option '{}' in section [bin]", key)
+            ),
         };
 
         Ok(())
@@ -811,12 +821,12 @@ impl Config {
             "UseAsk" => self.use_ask = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
             "DevelSuffixes" => {
-                let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
+                let value = value.ok_or_else(|| anyhow!(tr!("key can not be empty")))?;
                 let split = value.split_whitespace().map(|s| s.to_string());
                 self.devel_suffixes.extend(split);
             }
             "NoWarn" => {
-                let value = value.ok_or_else(|| anyhow!("key can not be empty"))?;
+                let value = value.ok_or_else(|| anyhow!(tr!("key can not be empty")))?;
                 let split = value.split_whitespace().map(|s| s.to_string());
                 for word in split {
                     self.no_warn_builder.add(Glob::new(&word)?);
@@ -860,7 +870,7 @@ impl Config {
         let has_value = value.is_some();
         let value = value
             .map(|s| s.to_string())
-            .ok_or_else(|| anyhow!("value can not be empty for value '{}'", key));
+            .ok_or_else(|| anyhow!(tr!("value can not be empty for value '{}'", key)));
 
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
@@ -876,9 +886,15 @@ impl Config {
         };
 
         if !(ok1 || ok2) {
-            eprintln!("error: unknown option '{}' in section [options]", key)
+            eprintln!(
+                "{}",
+                tr!("error: unknown option '{}' in section [options]", key)
+            )
         } else {
-            ensure!(ok1 || has_value, "option '{}' does not take a value", key);
+            ensure!(
+                ok1 || has_value,
+                tr!("option '{}' does not take a value", key)
+            );
         }
         Ok(())
     }
@@ -927,7 +943,7 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
             let len = providers.len();
 
             println!();
-            let prompt = format!(
+            let prompt = tr!(
                 "There are {} providers available for {}:",
                 len,
                 question.depend()
@@ -942,7 +958,7 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
                     println!(
                         "\n{} {} {}:",
                         c.action.paint("::"),
-                        c.bold.paint("Repository"),
+                        c.bold.paint(tr!("Repository")),
                         color_repo(c.enabled, pkg_db.name())
                     );
                     print!("    ");
@@ -964,7 +980,7 @@ fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
     match event.event() {
         DownloadEvent::Init(_) => println!("  syncing {}...", filename),
         DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {
-            println!("  failed to sync {}", filename);
+            printtr!("  failed to sync {}", filename);
         }
         _ => (),
     }

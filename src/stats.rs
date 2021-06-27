@@ -1,7 +1,7 @@
 use crate::config::{version, Config};
 use crate::download::cache_info_with_warnings;
-use crate::util::repo_aur_pkgs;
 use crate::printtr;
+use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
 

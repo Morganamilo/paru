@@ -19,6 +19,7 @@ use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
+use tr::tr;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct _PkgInfo {
@@ -122,7 +123,11 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 
         !devel_info.info.contains_key(pkg)
     });
-    println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
+    println!(
+        "{} {}",
+        action.paint("::"),
+        bold.paint(tr!("Querying AUR...)"))
+    );
     let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
     warnings.all(config.color, config.cols);
 
@@ -134,7 +139,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             let srcinfo = Srcinfo::parse_file(path)
-                .with_context(|| format!("failed to parse srcinfo for '{}'", base));
+                .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
             match srcinfo {
                 Ok(srcinfo) => {
@@ -158,7 +163,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         if path.exists() {
             if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
                 let srcinfo = Srcinfo::parse_file(path)
-                    .with_context(|| format!("failed to parse srcinfo for '{}'", base));
+                    .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
                 match srcinfo {
                     Ok(srcinfo) => {
@@ -176,7 +181,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     println!(
         "{} {}",
         action.paint("::"),
-        bold.paint("Looking for devel repos...")
+        bold.paint(tr!("Looking for devel repos..."))
     );
 
     let new_devel_info = fetch_devel_info(config, &bases, &srcinfos).await?;
@@ -185,7 +190,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         devel_info.info.entry(k).or_insert(v);
     }
 
-    save_devel_info(config, &devel_info).context("failed to save devel info")?;
+    save_devel_info(config, &devel_info).context(tr!("failed to save devel info"))?;
     Ok(())
 }
 
@@ -374,7 +379,7 @@ async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
         return Ok(());
     }
 
-    bail!("package does not have an update")
+    bail!(tr!("package does not have an update"))
 }
 
 pub async fn fetch_devel_info(
@@ -409,7 +414,7 @@ pub async fn fetch_devel_info(
         match commit {
             Err(e) => print_error(
                 config.color.error,
-                e.context(format!("failed to lookup: {}", pkgbase)),
+                e.context(tr!("failed to lookup: {}", pkgbase)),
             ),
             Ok(commit) => {
                 let url_info = RepoInfo {
@@ -437,7 +442,7 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
         _ => return Ok(None),
     };
     let devel_info = serde_json::from_reader(file)
-        .with_context(|| format!("invalid json: {}", config.devel_path.display()))?;
+        .with_context(|| tr!("invalid json: {}", config.devel_path.display()))?;
 
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
     let mut devel_info: DevelInfo = devel_info;

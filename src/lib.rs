@@ -39,18 +39,18 @@ use crate::config::{Config, Op};
 use crate::query::print_upgrade_list;
 
 use std::collections::HashMap;
+use std::env;
 use std::error::Error as StdError;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
 use std::process::Command;
-use std::env;
 
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
-use tr::tr_init;
 use nix::sys::signal::{signal, SigHandler, Signal};
+use tr::{tr, tr_init};
 
 #[macro_export]
 macro_rules! printtr {
@@ -58,7 +58,6 @@ macro_rules! printtr {
         println!("{}", ::tr::tr!($($tail)*));
     }};
 }
-
 
 fn debug_enabled() -> bool {
     env::var("PARU_DEBUG").as_deref().unwrap_or("0") != "0"
@@ -82,7 +81,7 @@ fn print_error(color: Style, err: Error) {
         return;
     }
 
-    eprint!("{} ", color.paint("error:"));
+    eprint!("{} ", color.paint(tr!("error:")));
     while let Some(link) = iter.next() {
         eprint!("{}", link);
         if iter.peek().is_some() {
@@ -93,7 +92,9 @@ fn print_error(color: Style, err: Error) {
 }
 
 pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
-    tr_init!(env::var("LOCALE_DIR").as_deref().unwrap_or("/usr/share/locale/"));
+    tr_init!(env::var("LOCALE_DIR")
+        .as_deref()
+        .unwrap_or("/usr/share/locale/"));
     if debug_enabled() {
         env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)
@@ -102,7 +103,7 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
                     buf,
                     "{}: <{}> {}",
                     record.level().to_string().to_lowercase(),
-                    record.module_path().unwrap_or("unkown"),
+                    record.module_path().unwrap_or("unknown"),
                     record.args()
                 )
             })
@@ -149,7 +150,7 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
     if (config.op == Op::ChrootCtl || config.chroot)
         && Command::new("arch-nspawn").arg("-h").output().is_err()
     {
-        bail!("can not use chroot builds: devtools is not installed");
+        bail!(tr!("can not use chroot builds: devtools is not installed"));
     }
 
     let ret = match config.op {
@@ -223,7 +224,7 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
             args.op = "remove";
             Ok(exec::pacman(config, &args)?.code())
         } else {
-            println!(" there is nothing to do");
+            printtr!(" there is nothing to do");
             Ok(0)
         }
     } else if !config.targets.is_empty() {
@@ -389,9 +390,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
 
                     if let Ok(local_pkg) = local_pkg {
                         let installed = if local_pkg.version() != pkg.version() {
-                            format!(" [installed: {}]", local_pkg.version())
+                            tr!(" [installed: {}]", local_pkg.version())
                         } else {
-                            " [installed]".to_string()
+                            tr!(" [installed]")
                         };
                         print!("{}", installedc.paint(installed));
                     }

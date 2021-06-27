@@ -9,6 +9,7 @@ use std::ops::Range;
 use alpm::{Package, PackageReason};
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
+use tr::tr;
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {
@@ -75,7 +76,11 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
 pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let action = config.color.action;
     let bold = config.color.bold;
-    let yn = if default { "[Y/n]:" } else { "[y/N]:" };
+    let yn = if default {
+        tr!("[Y/n]:")
+    } else {
+        tr!("[y/N]:")
+    };
     print!(
         "{} {} {} ",
         action.paint("::"),
@@ -93,9 +98,9 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let input = input.to_lowercase();
     let input = input.trim();
 
-    if input == "y" || input == "yes" {
+    if input == tr!("y") || input == tr!("yes") {
         true
-    } else if input == "n" || input == "no" {
+    } else if input == tr!("n") || input == tr!("no") {
         false
     } else {
         default
@@ -291,7 +296,7 @@ pub fn get_provider(max: usize, no_confirm: bool) -> usize {
     let mut input = String::new();
 
     loop {
-        print!("\nEnter a number (default=1): ");
+        print!("\n{}", tr!("Enter a number (default=1): "));
         let _ = stdout().lock().flush();
         input.clear();
 
@@ -308,14 +313,17 @@ pub fn get_provider(max: usize, no_confirm: bool) -> usize {
 
         let num = match num.parse::<usize>() {
             Err(_) => {
-                eprintln!("invalid number: {}", num);
+                eprintln!("{}", tr!("invalid number: {}", num));
                 continue;
             }
             Ok(num) => num,
         };
 
         if num < 1 || num > max {
-            eprintln!("invalid value: {} is not between 1 and {}", num, max);
+            eprintln!(
+                "{}",
+                tr!("invalid value: {} is not between 1 and {}", num, max)
+            );
             continue;
         }
 

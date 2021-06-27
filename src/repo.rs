@@ -1,5 +1,6 @@
 use crate::config::{Config, LocalRepos, Sign};
 use crate::exec;
+use crate::printtr;
 
 use std::env::current_exe;
 use std::ffi::OsStr;
@@ -10,6 +11,7 @@ use std::process::Command;
 use alpm::{AlpmListMut, Db};
 use anyhow::{Context, Result};
 use nix::unistd::{self, User};
+use tr::tr;
 
 pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     config: &Config,
@@ -159,7 +161,7 @@ pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
 }
 
 pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32> {
-    let exe = current_exe().context("failed to get current exe")?;
+    let exe = current_exe().context(tr!("failed to get current exe"))?;
     let c = config.color;
     if !nix::unistd::getuid().is_root() {
         let mut cmd = Command::new(&config.sudo_bin);
@@ -190,13 +192,13 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     println!(
         "{} {}",
         c.action.paint("::"),
-        c.bold.paint("syncing local databases...")
+        c.bold.paint(tr!("syncing local databases..."))
     );
 
     if !dbs.is_empty() {
         dbs.update(false)?;
     } else {
-        println!("  nothing to do");
+        printtr!("  nothing to do");
     }
 
     Ok(0)

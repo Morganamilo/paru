@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::download::Bases;
+use crate::printtr;
 use crate::util::ask;
 
 use std::collections::{HashMap, HashSet};
@@ -8,6 +9,7 @@ use std::process::Command;
 use anyhow::{Context, Result};
 use aur_depends::Base;
 use srcinfo::Srcinfo;
+use tr::tr;
 
 pub fn check_pgp_keys(
     config: &Config,
@@ -42,11 +44,11 @@ pub fn check_pgp_keys(
         println!(
             "{} {}",
             c.action.paint("::"),
-            c.bold.paint("keys need to be imported:")
+            c.bold.paint(tr!("keys need to be imported:)"))
         );
         for (key, base) in &import {
             let base = base.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-            println!("     {} wanted by: {}", c.bold.paint(*key), base.join("  "));
+            printtr!("     {} wanted by: {}", c.bold.paint(*key), base.join("  "));
         }
         if ask(config, "import?", true) {
             import_keys(config, &import)?;
@@ -64,7 +66,8 @@ fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()
         .status()
         .with_context(|| {
             format!(
-                "failed to run {} {} --recv-keys {}",
+                "{} {} {} --recv-keys {}",
+                tr!("failed to run:"),
                 config.gpg_bin,
                 config.gpg_flags.join(" "),
                 import.keys().cloned().collect::<Vec<_>>().join(" ")

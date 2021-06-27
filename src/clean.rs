@@ -2,6 +2,7 @@ use crate::config::{Config, Mode};
 
 use crate::exec;
 use crate::print_error;
+use crate::printtr;
 use crate::util::ask;
 
 use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
@@ -12,8 +13,8 @@ use std::process::Command;
 
 use alpm_utils::DbListExt;
 use anyhow::{bail, Context, Result};
-
 use srcinfo::Srcinfo;
+use tr::tr;
 
 pub fn clean(config: &Config) -> Result<()> {
     if config.mode != Mode::Aur {
@@ -27,25 +28,25 @@ pub fn clean(config: &Config) -> Result<()> {
         let keep_current = clean_method.iter().any(|a| a == "KeepCurrent");
 
         let question = if remove_all {
-            "Do you want to remove ALL AUR packages from cache?"
+            tr!("Do you want to remove ALL AUR packages from cache?")
         } else {
-            "Do you want to remove all other AUR packages from cache?"
+            tr!("Do you want to remove all other AUR packages from cache?")
         };
 
         if config.mode == Mode::Any {
             println!();
         }
 
-        println!("Clone Directory: {}", config.fetch.clone_dir.display());
+        printtr!("Clone Directory: {}", config.fetch.clone_dir.display());
 
-        if ask(config, question, !remove_all) {
+        if ask(config, &question, !remove_all) {
             clean_aur(config, keep_installed, keep_current, remove_all)?;
         }
 
-        println!("\nDiff Directory: {}", config.fetch.diff_dir.display());
+        printtr!("\nDiff Directory: {}", config.fetch.diff_dir.display());
 
-        let question = "Do you want to remove all saved diffs?";
-        if ask(config, question, true) {
+        let question = tr!("Do you want to remove all saved diffs?");
+        if ask(config, &question, true) {
             clean_diff(config)?;
         }
     }
@@ -58,8 +59,12 @@ fn clean_diff(config: &Config) -> Result<()> {
         return Ok(());
     }
 
-    let diffs = read_dir(&config.fetch.diff_dir)
-        .with_context(|| format!("can't open diff dir: {}", config.fetch.diff_dir.display()))?;
+    let diffs = read_dir(&config.fetch.diff_dir).with_context(|| {
+        tr!(
+            "can't open diff dir: {}",
+            config.fetch.diff_dir.display().to_string()
+        )
+    })?;
 
     for diff in diffs {
         let diff = diff?;
@@ -67,7 +72,7 @@ fn clean_diff(config: &Config) -> Result<()> {
         if !diff.file_type()?.is_dir() && diff.path().extension().map(|s| s == "diff") == Some(true)
         {
             remove_file(diff.path())
-                .with_context(|| format!("could not remove '{}'", diff.path().display()))?;
+                .with_context(|| tr!("could not remove '{}'", diff.path().display().to_string()))?;
         }
     }
 
@@ -85,7 +90,7 @@ fn clean_aur(
     }
 
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
-        .with_context(|| format!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
+        .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
     for file in cached_pkgs {
         if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current) {
@@ -125,7 +130,7 @@ fn clean_aur_pkg(
 
     if remove_all {
         remove_dir_all(file.path())
-            .with_context(|| format!("could not remove '{}'", file.path().display()))?;
+            .with_context(|| tr!("could not remove '{}'", file.path().display().to_string()))?;
         return Ok(());
     }
 

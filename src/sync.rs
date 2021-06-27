@@ -5,6 +5,7 @@ use std::io::Write;
 
 use anyhow::{ensure, Context, Result};
 use raur::Raur;
+use tr::tr;
 
 pub async fn filter(config: &Config) -> Result<i32> {
     let mut cache = raur::Cache::new();
@@ -84,7 +85,9 @@ pub async fn list_aur(config: &Config) -> Result<()> {
             .write_to(&mut stdout);
 
         if db.pkg(line).is_ok() {
-            let _ = installed.paint(&b" [installed]"[..]).write_to(&mut stdout);
+            let _ = installed
+                .paint(tr!(" [installed]").as_bytes())
+                .write_to(&mut stdout);
         }
 
         let _ = stdout.write_all(&[b'\n']);

@@ -9,6 +9,7 @@ use std::thread;
 use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
+use tr::tr;
 
 #[derive(Debug, Clone)]
 pub struct PacmanError {
@@ -68,7 +69,7 @@ fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
             .map(|s| s.as_ref().to_string_lossy().into_owned())
             .collect::<Vec<_>>()
             .join(" ");
-        format!("failed to run: {} {}", sudo, flags)
+        format!("{} {} {}", tr!("failed to run:"), sudo, flags)
     })?;
     Status(ret.code().unwrap_or(1)).success()?;
     Ok(())
@@ -81,7 +82,8 @@ fn wait_for_lock(config: &Config) {
         println!(
             "{} {}",
             c.error.paint("::"),
-            c.bold.paint("Pacman is currently in use, please wait...")
+            c.bold
+                .paint(tr!("Pacman is currently in use, please wait..."))
         );
 
         std::thread::sleep(Duration::from_secs(3));
@@ -107,14 +109,20 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
         let mut sudo_command = config.sudo_flags.clone();
         sudo_command.insert(0, config.sudo_bin.clone());
         error_msg = format!(
-            "failed to run: {} {} {}",
+            "{} {} {} {}",
+            tr!("failed to run:"),
             sudo_command.join(" "),
             args.bin,
             args.args().join(" ")
         );
     } else {
         command = Command::new(args.bin.as_ref());
-        error_msg = format!("failed to run: {} {}", args.bin, args.args().join(" "));
+        error_msg = format!(
+            "{} {} {}",
+            tr!("failed to run:"),
+            args.bin,
+            args.args().join(" ")
+        );
     }
 
     let ret = command
@@ -137,7 +145,7 @@ pub fn pacman_output<S: AsRef<str> + Display>(config: &Config, args: &Args<S>) -
     let output = command
         .args(args.args())
         .output()
-        .with_context(|| format!("failed to run pacman '{}'", args.bin))?;
+        .with_context(|| format!("{} pacman {}", tr!("failed to run:"), args.bin))?;
     Ok(output)
 }
 
@@ -149,7 +157,8 @@ pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Resu
         .status()
         .with_context(|| {
             format!(
-                "failed to run: {} {} {}",
+                "{} {} {} {}",
+                tr!("failed to run:"),
                 config.makepkg_bin,
                 config.mflags.join(" "),
                 args.iter()
@@ -173,7 +182,8 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
         .status()
         .with_context(|| {
             format!(
-                "failed to run: {} {}",
+                "{} {} {}",
+                tr!("failed to run:"),
                 cmd.as_ref().to_string_lossy(),
                 args.iter()
                     .map(|a| a.as_ref().to_string_lossy())
@@ -186,7 +196,8 @@ pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
 
     status.success().with_context(|| {
         format!(
-            "failed to run: {} {}",
+            "{} {} {}",
+            tr!("failed to run:"),
             cmd.as_ref().to_string_lossy(),
             args.iter()
                 .map(|a| a.as_ref().to_string_lossy())
@@ -206,7 +217,8 @@ pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) 
         .output()
         .with_context(|| {
             format!(
-                "failed to run: {} {} {}",
+                "{} {} {} {}",
+                tr!("failed to run:"),
                 config.makepkg_bin,
                 config.mflags.join(" "),
                 args.iter()
@@ -218,7 +230,8 @@ pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) 
 
     if !ret.status.success() {
         bail!(
-            "failed to run: {} {} --verifysource -Ccf: {}",
+            "{} {} {} --verifysource -Ccf: {}",
+            tr!("failed to run:"),
             config.makepkg_bin,
             config.mflags.join(" "),
             String::from_utf8_lossy(&ret.stderr)

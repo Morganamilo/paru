@@ -1,5 +1,6 @@
 use crate::config::{Colors, Config, Mode, SortMode, YesNoAll};
 use crate::fmt::print_indent;
+use crate::printtr;
 use crate::RaurHandle;
 
 use std::collections::{HashMap, HashSet};
@@ -19,6 +20,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use kuchiki::traits::*;
 use raur::{ArcPackage as Package, Raur};
 use srcinfo::Srcinfo;
+use tr::tr;
 use url::Url;
 
 #[derive(Debug, Clone, Default)]
@@ -78,9 +80,9 @@ impl<'a> Warnings<'a> {
         if !self.missing.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let len = ":: packages not in the AUR: ".len();
-            print!("{} {}", e.paint("::"), b.paint("Packages not in the AUR: "));
-            print_indent(Style::new(), len, 4, cols, "  ", &self.missing);
+            let msg = tr!("packages not in the AUR: ");
+            print!("{} {}", e.paint("::"), b.paint(&msg));
+            print_indent(Style::new(), msg.len() + 3, 4, cols, "  ", &self.missing);
         }
         self
     }
@@ -89,9 +91,9 @@ impl<'a> Warnings<'a> {
         if !self.ood.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let len = ":: marked out of date: ".len();
-            print!("{} {}", e.paint("::"), b.paint("Marked out of date: "));
-            print_indent(Style::new(), len, 4, cols, "  ", &self.ood);
+            let msg = tr!("marked out of date: ");
+            print!("{} {}", e.paint("::"), b.paint(&msg));
+            print_indent(Style::new(), msg.len() + 3, 4, cols, "  ", &self.ood);
         }
         self
     }
@@ -100,9 +102,9 @@ impl<'a> Warnings<'a> {
         if !self.orphans.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let len = ":: orphans: ".len();
-            print!("{} {}", e.paint("::"), b.paint("Orphans: "));
-            print_indent(Style::new(), len, 4, cols, "  ", &self.orphans);
+            let msg = tr!("orphans: ");
+            print!("{} {}", e.paint("::"), b.paint(&msg));
+            print_indent(Style::new(), msg.len() + 3, 4, cols, "  ", &self.orphans);
         }
         self
     }
@@ -171,7 +173,11 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
         let action = config.color.action;
         let bold = config.color.bold;
-        println!("{} {}", action.paint("::"), bold.paint("Querying AUR..."));
+        println!(
+            "{} {}",
+            action.paint("::"),
+            bold.paint(tr!("Querying AUR..."))
+        );
         let warnings =
             cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore).await?;
         if !warnings.missing.is_empty() {
@@ -197,11 +203,11 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     let c = config.color;
     let mut r = 0;
 
-    let cd = std::env::current_dir().context("could not get current directory")?;
+    let cd = std::env::current_dir().context(tr!("could not get current directory"))?;
     let asp = &config.asp_bin;
 
     if Command::new(asp).output().is_err() {
-        bail!("can not get repo packages: asp is not installed");
+        bail!(tr!("can not get repo packages: asp is not installed"));
     }
 
     let cd = read_dir(cd)?
@@ -222,9 +228,16 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     }
 
     if !missing.is_empty() {
-        let len = ":: Missing ABS packages ".len();
-        print!("{} Missing ABS packages ", config.color.error.paint("::"));
-        print_indent(config.color.base, len, 3, config.cols, "  ", &missing);
+        let msg = tr!("Missing ABS packages ");
+        print!("{}", tr!("{} {} ", msg, config.color.error.paint("::")));
+        print_indent(
+            config.color.base,
+            msg.len() + 3,
+            3,
+            config.cols,
+            "  ",
+            &missing,
+        );
     }
 
     for (n, pkg) in ok.into_iter().enumerate() {
@@ -234,7 +247,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
             .arg("update")
             .arg(pkg)
             .output()
-            .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
+            .with_context(|| format!("{} {} upadate {}", tr!("failed to run:"), asp, pkg))?;
 
         ensure!(
             ret.status.success(),
@@ -244,7 +257,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
         if cd.contains(pkg) {
             if !Path::new(pkg).join("PKGBUILD").exists() {
-                println!(
+                printtr!(
                     "{} {} does not contain PKGBUILD: skipping",
                     c.warning.paint("::"),
                     pkg
@@ -259,7 +272,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
             .arg("export")
             .arg(pkg)
             .output()
-            .with_context(|| format!("failed to run: {} export {}", asp, pkg))?;
+            .with_context(|| format!("{} {} export {}", tr!("failed to run:"), asp, pkg))?;
 
         ensure!(
             ret.status.success(),
@@ -276,7 +289,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     let total = total.to_string();
-    println!(
+    printtr!(
         " ({:>padding$}/{}) downloading: {}",
         n,
         total,
@@ -301,11 +314,11 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     println!(
         "\n{} {}",
         action.paint("::"),
-        bold.paint("Downloading PKGBUILDs...")
+        bold.paint(tr!("Downloading PKGBUILDs..."))
     );
 
     if bases.bases.is_empty() {
-        println!(" PKGBUILDs up to date");
+        printtr!(" PKGBUILDs up to date");
         return Ok(());
     }
 
@@ -502,7 +515,10 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let asp = &config.asp_bin;
 
         if Command::new(asp).output().is_err() {
-            eprintln!("{} is not installed: can not get repo packages", asp);
+            eprintln!(
+                "{}",
+                tr!("{} is not installed: can not get repo packages", asp)
+            );
             return Ok(1);
         }
 
@@ -511,7 +527,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 .arg("update")
                 .arg(&pkg.pkg)
                 .output()
-                .with_context(|| format!("failed to run: {} update {}", asp, pkg))?;
+                .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
 
             ensure!(
                 ret.status.success(),
@@ -524,7 +540,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                     .arg("show")
                     .arg(&pkg.pkg)
                     .output()
-                    .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+                    .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 
                 ensure!(
                     output.status.success(),
@@ -538,9 +554,12 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                     .arg("show")
                     .arg(&pkg.pkg)
                     .status()
-                    .with_context(|| format!("failed to run: {} show {}", asp, pkg))?;
+                    .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 
-                ensure!(ret.success(), "asp returned {}", ret.code().unwrap_or(1));
+                ensure!(
+                    ret.success(),
+                    tr!("asp returned {}", ret.code().unwrap_or(1))
+                );
             }
             let _ = stdout.write_all(b"\n");
         }

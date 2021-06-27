@@ -9,6 +9,7 @@ use ansi_term::Style;
 use anyhow::Error;
 use raur::ArcPackage as Package;
 use term_size::dimensions_stdout;
+use tr::tr;
 
 pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
@@ -24,9 +25,12 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
             cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore).await?;
         for pkg in &warnings.missing {
             eprintln!(
-                "{} package '{}' was not found",
-                color.error.paint("error:"),
-                pkg,
+                "{}",
+                tr!(
+                    "{} package '{}' was not found",
+                    color.error.paint("error:"),
+                    pkg,
+                )
             );
         }
         ret = !warnings.missing.is_empty() as i32;
@@ -50,47 +54,84 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     Ok(ret)
 }
 
+fn longest() -> usize {
+    [
+        tr!("Repository"),
+        tr!("Name"),
+        tr!("Version"),
+        tr!("Description"),
+        tr!("Groups"),
+        tr!("Licenses"),
+        tr!("Provides"),
+        tr!("Depends On"),
+        tr!("Make Deps"),
+        tr!("Check Deps"),
+        tr!("Conflicts With"),
+        tr!("Maintainer"),
+        tr!("Votes"),
+        tr!("Popularity"),
+        tr!("First Submitted"),
+        tr!("Last Modified"),
+        tr!("Out Of Date"),
+        tr!("ID"),
+        tr!("Package Base ID"),
+        tr!("Keywords"),
+        tr!("Snapshot URL"),
+        "URL".to_string(),
+        "AUR URL".to_string(),
+    ]
+    .iter()
+    .map(|s| s.len())
+    .max()
+    .unwrap()
+}
+
 pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Result<(), Error> {
+    let len = longest() + 3;
     let color = conf.color;
     let cols = dimensions_stdout().map(|x| x.0);
-    let print = |k: &str, v: &str| print(color, 18, cols, k, v);
-    let print_list = |k: &str, v: &[_]| print_list(color, 18, cols, k, v);
+    let print = |k: &str, v: &str| print(color, len, cols, k, v);
+    let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
+    let no = tr!("No");
 
     for pkg in pkgs {
-        print("Repository", "aur");
-        print("Name", &pkg.name);
-        print("Version", &pkg.version);
-        print("Description", opt(&pkg.description));
-        print("URL", opt(&pkg.url));
+        print(&tr!("Repository"), "aur");
+        print(&tr!("Name"), &pkg.name);
+        print(&tr!("Version"), &pkg.version);
+        print(&tr!("Description"), &opt(&pkg.description));
+        print("URL", &opt(&pkg.url));
         print(
             "AUR URL",
             conf.aur_url
                 .join(&format!("packages/{}", pkg.package_base))?
                 .as_str(),
         );
-        print_list("Groups", &pkg.groups);
-        print_list("Licenses", &pkg.license);
-        print_list("Provides", &pkg.provides);
-        print_list("Depends On", &pkg.depends);
-        print_list("Make Deps", &pkg.make_depends);
-        print_list("Check Deps", &pkg.check_depends);
-        print_list("Optional Deps", &pkg.opt_depends);
-        print_list("Conflicts With", &pkg.conflicts);
-        print("Maintainer", opt(&pkg.maintainer));
-        print("Votes", &pkg.num_votes.to_string());
-        print("Popularity", &pkg.popularity.to_string());
-        print("First Submitted", &date(pkg.first_submitted));
-        print("Last Modified", &date(pkg.last_modified));
+        print_list(&tr!("Groups"), &pkg.groups);
+        print_list(&tr!("Licenses"), &pkg.license);
+        print_list(&tr!("Provides"), &pkg.provides);
+        print_list(&tr!("Depends On"), &pkg.depends);
+        print_list(&tr!("Make Deps"), &pkg.make_depends);
+        print_list(&tr!("Check Deps"), &pkg.check_depends);
+        print_list(&tr!("Optional Deps"), &pkg.opt_depends);
+        print_list(&tr!("Conflicts With"), &pkg.conflicts);
+        print(&tr!("Maintainer"), &opt(&pkg.maintainer));
+        print(&tr!("Votes"), &pkg.num_votes.to_string());
+        print(&tr!("Popularity"), &pkg.popularity.to_string());
+        print(&tr!("First Submitted"), &date(pkg.first_submitted));
+        print(&tr!("Last Modified"), &date(pkg.last_modified));
         print(
-            "Out Of Date",
-            pkg.out_of_date.map(date).as_deref().unwrap_or("No"),
+            &tr!("Out Of Date"),
+            pkg.out_of_date.map(date).as_deref().unwrap_or(no.as_str()),
         );
 
         if verbose {
-            print("ID", &pkg.id.to_string());
-            print("Package Base ID", &pkg.package_base_id.to_string());
-            print_list("Keywords", &pkg.keywords);
-            print("Snapshot URL", conf.aur_url.join(&pkg.url_path)?.as_str());
+            print(&tr!("ID"), &pkg.id.to_string());
+            print(&tr!("Package Base ID"), &pkg.package_base_id.to_string());
+            print_list(&tr!("Keywords"), &pkg.keywords);
+            print(
+                &tr!("Snapshot URL"),
+                conf.aur_url.join(&pkg.url_path)?.as_str(),
+            );
         }
 
         println!();
@@ -105,7 +146,7 @@ pub fn print(color: Colors, indent: usize, cols: Option<usize>, k: &str, v: &str
 
 fn print_list(color: Colors, indent: usize, cols: Option<usize>, k: &str, v: &[String]) {
     if v.is_empty() {
-        print(color, indent, cols, k, "None");
+        print(color, indent, cols, k, &tr!("None"));
     } else {
         print_info(color, true, indent, cols, k, v.iter().map(|s| s.as_str()));
     }

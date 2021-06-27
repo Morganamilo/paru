@@ -6,6 +6,7 @@ use crate::config::{
 use std::fmt;
 
 use anyhow::{anyhow, bail, Context, Result};
+use tr::tr;
 use url::Url;
 
 #[derive(Debug, Copy, Clone)]
@@ -123,7 +124,7 @@ impl Config {
         forced: bool,
     ) -> Result<()> {
         match takes_value(arg) {
-            TakesValue::Required if value.is_none() => bail!("option {} expects a value", arg),
+            TakesValue::Required if value.is_none() => bail!(tr!("option {} expects a value", arg)),
             _ => (),
         }
 
@@ -154,7 +155,7 @@ impl Config {
             *op_count += 1;
         };
 
-        let value = value.with_context(|| format!("option {} does not allow a value", arg));
+        let value = value.with_context(|| tr!("option {} does not allow a value", arg));
         let argkey = match arg {
             Arg::Long(n) => n,
             _ => "<impossible_key_of_short_arg>",
@@ -314,16 +315,16 @@ impl Config {
             Arg::Long("nosign") => self.sign = Sign::No,
             Arg::Long("nosigndb") => self.sign_db = Sign::No,
             Arg::Long(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
-                bail!("unknown option --{}", a)
+                bail!(tr!("unknown option --{}", a))
             }
             Arg::Short(a) if !arg.is_pacman_arg() && !arg.is_pacman_global() => {
-                bail!("unknown option -{}", a)
+                bail!(tr!("unknown option -{}", a))
             }
             _ => (),
         }
 
         match takes_value(arg) {
-            TakesValue::No if forced => bail!("option {} does not allow a value", arg),
+            TakesValue::No if forced => bail!(tr!("option {} does not allow a value", arg)),
             _ => (),
         }
 
