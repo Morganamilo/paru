@@ -438,7 +438,7 @@ msgstr "duplikaatti paketti: {}"
 
 #: src/install.rs:975
 msgid "could not find all required packages:"
-msgstr "ei pystyty löytämään kaikkia vaadittuja paketteja"
+msgstr "ei pystytty löytämään kaikkia vaadittuja paketteja"
 
 #: src/install.rs:982
 msgid "\n"
