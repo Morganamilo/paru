@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 14:24+0800\n"
+"PO-Revision-Date: 2021-06-28 14:28+0800\n"
 "Last-Translator: Yufan You <ouuansteve@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -79,7 +79,7 @@ msgstr "未能更新 AUR 缓存"
 
 #: src/config.rs:174
 msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "'{:val}' 不是选项 '{:key}' 的合法值，期望值为: {:exp}"
+msgstr "'{:val}' 不是键 '{:key}' 的合法值，期望值为: {:exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -107,27 +107,27 @@ msgstr "未能初始化 alpm: root={} dbpath={}"
 
 #: src/config.rs:740 src/config.rs:873
 msgid "value can not be empty for key '{}'"
-msgstr "选项 '{}' 的值不能为空"
+msgstr "键 '{}' 的值不能为空"
 
 #: src/config.rs:756
 msgid "key '{}' does not belong to a section"
-msgstr "选项 '{}' 不属于任何一个设置板块"
+msgstr "键 '{}' 不属于任何一个设置节"
 
 #: src/config.rs:762
 msgid "unknown section '{}'"
-msgstr "未知的选项板块 '{}'"
+msgstr "未知的选项节 '{}'"
 
 #: src/config.rs:769 src/config.rs:824 src/config.rs:829
 msgid "key can not be empty"
-msgstr "选项名称不能为空"
+msgstr "键不能为空"
 
 #: src/config.rs:791
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "错误: 选项板块 [bin] 中有未知的选项 '{}'"
+msgstr "错误: 选项节 [bin] 中有未知的选项 '{}'"
 
 #: src/config.rs:891
 msgid "error: unknown option '{}' in section [options]"
-msgstr "错误: 选项板块 [options] 中有未知的选项 '{}'"
+msgstr "错误: 选项节 [options] 中有未知的选项 '{}'"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
@@ -216,7 +216,7 @@ msgstr " ({:total>padding$}/{:total}) 正在下载 {:pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
-msgstr "正在下载 PKGBUILDs..."
+msgstr "正在下载 PKGBUILD..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
@@ -393,7 +393,7 @@ msgstr "在安装后移除生成依赖？"
 
 #: src/install.rs:518
 msgid "Proceed to review?"
-msgstr "继续以审核？"
+msgstr "继续以审阅？"
 
 #: src/install.rs:559
 msgid "The following packages are not compatible with your architecture:"
@@ -404,7 +404,7 @@ msgid "Would you like to try build them anyway?"
 msgstr "你还是想要构建它们吗？"
 
 #: src/install.rs:662
-msgid "packages failed to buid: {}"
+msgid "packages failed to build: {}"
 msgstr "未能构建的软件包: {}"
 
 #: src/install.rs:698
@@ -433,7 +433,7 @@ msgstr "二进制文件: {}"
 
 #: src/install.rs:852
 msgid " nothing new to review"
-msgstr " 没有新东西可供审核"
+msgstr " 没有新东西可供审阅"
 
 #: src/install.rs:871
 msgid "failed to execute file manager: {}"

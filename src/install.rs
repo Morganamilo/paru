@@ -659,7 +659,7 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
 
     if !bi.failed.is_empty() {
         let failed = bi.failed.iter().map(|f| f.to_string()).collect::<Vec<_>>();
-        bail!(tr!("packages failed to buid: {}", failed.join("  ")));
+        bail!(tr!("packages failed to build: {}", failed.join("  ")));
     }
 
     Ok(ret)

@@ -395,7 +395,7 @@ msgid "Would you like to try build them anyway?"
 msgstr ""
 
 #: src/install.rs:662
-msgid "packages failed to buid: {}"
+msgid "packages failed to build: {}"
 msgstr ""
 
 #: src/install.rs:698
