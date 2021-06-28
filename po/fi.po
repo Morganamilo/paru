@@ -408,9 +408,9 @@ msgstr "ei pystytty lukemaan kansiota: {}"
 
 #: src/install.rs:778
 msgid "{} is a directory\n"
-"{} on kansio\n"
+"\n"
 ""
-msgstr ""
+msgstr "{} on kansio\n"
 
 #: src/install.rs:818
 msgid "failed to open: {}"
@@ -443,7 +443,7 @@ msgstr "ei pystytty löytämään kaikkia vaadittuja paketteja"
 #: src/install.rs:982
 msgid "\n"
 "    {:missing} (wanted by: {:stack})"
-msgstr ""
+msgstr "    {:missing} ({:stack} haluaa tämän)"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
@@ -665,7 +665,7 @@ msgstr "e"
 
 #: src/util.rs:103
 msgid "no"
-msgstr "Ei"
+msgstr "ei"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
