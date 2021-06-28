@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 13:32-0300\n"
+"PO-Revision-Date: 2021-06-28 13:35-0300\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -156,7 +156,7 @@ msgstr "erro ao analisar srcinfo para '{}'"
 
 #: src/devel.rs:184
 msgid "Looking for devel repos..."
-msgstr "Procurando por repos devel..."
+msgstr "Procurando por repositórios devel..."
 
 #: src/devel.rs:193
 msgid "failed to save devel info"
@@ -192,7 +192,7 @@ msgstr "não foi possível obter o diretório atual"
 
 #: src/download.rs:210
 msgid "can not get repo packages: asp is not installed"
-msgstr "não foi possível obter pacotes dos repos: asp não está instalado"
+msgstr "não foi possível obter pacotes dos repositórios: asp não está instalado"
 
 #: src/download.rs:231
 msgid "Missing ABS packages "
@@ -224,7 +224,7 @@ msgstr " PKGBUILDs atualizadas"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
-msgstr "{} não está instalado: impossível obter pacotes dos repos"
+msgstr "{} não está instalado: impossível obter pacotes dos repositórios"
 
 #: src/download.rs:561
 msgid "asp returned {}"
@@ -623,7 +623,7 @@ msgstr "Pacotes AUR: {}"
 
 #: src/stats.rs:91
 msgid "Repo packages: {}"
-msgstr "Pacotes nos Repos: {}"
+msgstr "Pacotes dos Repositórios: {}"
 
 #: src/stats.rs:95
 msgid "Explicitly installed packages: {}"
