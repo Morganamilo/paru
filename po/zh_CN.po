@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 12:18+0800\n"
+"PO-Revision-Date: 2021-06-28 13:54+0800\n"
 "Last-Translator: Yufan You <ouuansteve@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -168,7 +168,7 @@ msgstr "软件包没有更新"
 
 #: src/devel.rs:417
 msgid "failed to lookup: {}"
-msgstr ""
+msgstr "未能成功查找: {}"
 
 #: src/devel.rs:445
 msgid "invalid json: {}"
@@ -308,11 +308,11 @@ msgstr "过时"
 
 #: src/info.rs:73 src/info.rs:125
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: src/info.rs:74 src/info.rs:126
 msgid "Package Base ID"
-msgstr ""
+msgstr "包基础 ID"
 
 #: src/info.rs:75 src/info.rs:127
 msgid "Keywords"
@@ -575,7 +575,7 @@ msgstr " [已忽略]"
 
 #: src/repo.rs:164
 msgid "failed to get current exe"
-msgstr ""
+msgstr "未能成功获取当前可执行文件 (current_exe)"
 
 #: src/repo.rs:195
 msgid "syncing local databases..."
