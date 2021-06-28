@@ -1,8 +1,9 @@
 use ansi_term::Style;
 use chrono::{DateTime, NaiveDateTime};
+use tr::tr;
 
-pub fn opt(opt: &Option<String>) -> &str {
-    opt.as_ref().map(String::as_ref).unwrap_or("None")
+pub fn opt(opt: &Option<String>) -> String {
+    opt.clone().unwrap_or(tr!("None"))
 }
 
 pub fn date(date: i64) -> String {

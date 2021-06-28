@@ -1,2 +1,4 @@
 /target
 paru.tar.*
+po/*.mo
+locale/

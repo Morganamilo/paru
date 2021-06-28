@@ -8,6 +8,7 @@ use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
 use reqwest::get;
+use tr::tr;
 use url::Url;
 
 async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
@@ -23,8 +24,7 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new().write(true).create(true).open(&path);
-    let mut file =
-        file.with_context(|| format!("failed to open cache file '{}'", path.display()))?;
+    let mut file = file.with_context(|| tr!("failed to open cache file '{}'", path.display()))?;
 
     for line in data.split(|&c| c == b'\n').skip(1) {
         if !line.is_empty() {
@@ -62,7 +62,7 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
 async fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
     update_aur_cache(&config.aur_url, &config.cache_dir, timeout)
         .await
-        .context("could not update aur cache")?;
+        .context(tr!("could not update aur cache"))?;
     let path = config.cache_dir.join("packages.aur");
     let file = OpenOptions::new().read(true).open(path)?;
     let file = BufReader::new(file);

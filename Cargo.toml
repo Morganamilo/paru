@@ -47,6 +47,7 @@ url = "2.2.2"
 env_logger = "0.8.4"
 log = "0.4.14"
 async-trait = { version = "0.1.50", optional = true }
+tr = "0.1.6"
 
 [profile.release]
 codegen-units = 1

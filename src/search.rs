@@ -1,15 +1,16 @@
+use crate::config::SortBy;
 use crate::config::{Config, Mode, SortMode};
 use crate::fmt::{color_repo, print_indent};
 use crate::info;
 use crate::install::install;
+use crate::printtr;
 use crate::util::{input, NumberMenu};
 
 use ansi_term::Style;
 use anyhow::{Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
-
-use crate::config::SortBy;
+use tr::tr;
 
 enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
@@ -28,7 +29,7 @@ pub async fn search(config: &Config) -> Result<i32> {
 
     let pkgs = search_aur(config, &targets)
         .await
-        .context("aur search failed")?;
+        .context(tr!("aur search failed"))?;
 
     if config.sort_mode == SortMode::TopDown {
         for pkg in &repo_pkgs {
@@ -154,29 +155,30 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     );
 
     if let Some(date) = pkg.out_of_date {
-        let date = format!("[Out-of-date: {}]", crate::fmt::ymd(date));
+        let date = tr!("[Out-of-date: {}]", crate::fmt::ymd(date));
         print!(" {}", c.ss_ood.paint(date));
     }
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.name) {
         let installed = if repo_pkg.version().as_str() != pkg.version {
-            format!("[Installed: {}]", repo_pkg.version())
+            tr!("[Installed: {}]", repo_pkg.version())
         } else {
-            "[Installed]".to_string()
+            tr!("[Installed]")
         };
 
         print!(" {}", c.ss_installed.paint(installed));
     }
 
     if pkg.maintainer.is_none() {
-        print!(" {}", c.ss_orphaned.paint("[Orphaned]"));
+        print!(" {}", c.ss_orphaned.paint(tr!("[Orphaned]")));
     }
 
+    let none = tr!("None");
     print!("\n    ");
     let desc = pkg
         .description
         .as_deref()
-        .unwrap_or("None")
+        .unwrap_or(&none)
         .split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
@@ -213,9 +215,9 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(pkg.name()) {
         let installed = if repo_pkg.version() != pkg.version() {
-            format!("[Installed: {}]", repo_pkg.version())
+            tr!("[Installed: {}]", repo_pkg.version())
         } else {
-            "[Installed]".to_string()
+            tr!("[Installed]")
         };
 
         print!(" {}", c.ss_installed.paint(installed));
@@ -258,7 +260,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
-        println!("no packages match search");
+        printtr!("no packages match search");
         return Ok(1);
     }
 
@@ -316,10 +318,10 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         }
     }
 
-    let input = input(config, "Packages to install (eg: 1 2 3, 1-3):");
+    let input = input(config, &tr!("Packages to install (eg: 1 2 3, 1-3):"));
 
     if input.trim().is_empty() {
-        println!(" there is nothing to do");
+        printtr!(" there is nothing to do");
         return Ok(1);
     }
 
@@ -355,7 +357,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
     }
 
     if pkgs.is_empty() {
-        println!(" there is nothing to do")
+        printtr!(" there is nothing to do")
     } else {
         config.need_root = true;
         install(config, &pkgs).await?;

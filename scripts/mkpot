@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+xtr\
+	-d paru\
+	--msgid-bugs-address https://github.com/Morganamilo/paru \
+	--package-name=paru\
+	-k printtr tr\
+	-o=po/paru.pot\
+	src/lib.rs

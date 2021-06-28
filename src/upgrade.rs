@@ -10,6 +10,7 @@ use alpm_utils::DbListExt;
 use anyhow::Result;
 use aur_depends::{AurUpdates, Resolver};
 use futures::try_join;
+use tr::tr;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
@@ -118,7 +119,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint("Looking for AUR upgrades")
+                c.bold.paint(tr!("Looking for AUR upgrades"))
             );
         }
 
@@ -144,7 +145,7 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint("Looking for devel upgrades")
+                c.bold.paint(tr!("Looking for devel upgrades"))
             );
         }
 
@@ -174,11 +175,14 @@ pub async fn get_upgrades<'a, 'b>(
 
     for pkg in aur_upgrades.ignored {
         eprintln!(
-            "{} {}: ignoring package upgrade ({} => {})",
-            config.color.warning.paint("warning:"),
-            pkg.local.name(),
-            pkg.local.version(),
-            pkg.remote.version
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
+            tr!(
+                "{:pkg}: ignoring package upgrade ({:old} => {:new})",
+                pkg = pkg.local.name(),
+                old = pkg.local.version(),
+                new = pkg.remote.version
+            )
         );
     }
 
@@ -327,7 +331,7 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    let input = input(config, "Packages to exclude (eg: 1 2 3, 1-3):");
+    let input = input(config, &tr!("Packages to exclude (eg: 1 2 3, 1-3):"));
     let input = input.trim();
     let number_menu = NumberMenu::new(&input);
 

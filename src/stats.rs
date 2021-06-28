@@ -1,5 +1,6 @@
 use crate::config::{version, Config};
 use crate::download::cache_info_with_warnings;
+use crate::printtr;
 use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
@@ -9,6 +10,7 @@ use std::collections::BinaryHeap;
 
 use anyhow::Result;
 use indicatif::HumanBytes;
+use tr::tr;
 
 struct Info<'a> {
     total_packages: usize,
@@ -77,23 +79,23 @@ pub async fn stats(config: &Config) -> Result<i32> {
     version();
     print_line_separator(config);
 
-    println!(
+    printtr!(
         "Total installed packages: {}",
         c.stats_value.paint(info.total_packages.to_string())
     );
-    println!(
+    printtr!(
         "Aur packages: {}",
         c.stats_value.paint(warnings.pkgs.len().to_string())
     );
-    println!(
+    printtr!(
         "Repo packages: {}",
         c.stats_value.paint(repo.len().to_string())
     );
-    println!(
+    printtr!(
         "Explicitly installed packages: {}",
         c.stats_value.paint(info.explicit_packages.to_string())
     );
-    println!(
+    printtr!(
         "Total Size occupied by packages: {}",
         c.stats_value
             .paint(HumanBytes(info.total_size as u64).to_string())
@@ -101,7 +103,7 @@ pub async fn stats(config: &Config) -> Result<i32> {
 
     print_line_separator(config);
 
-    println!("{}", c.bold.paint("Ten biggest packages:"));
+    println!("{}", c.bold.paint(tr!("Ten biggest packages:")));
     for (size, name) in info.max_packages {
         println!(
             "{}: {}",

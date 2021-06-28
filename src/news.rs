@@ -7,6 +7,7 @@ use ansi_term::Style;
 use anyhow::{bail, Result};
 use htmlescape::decode_html;
 use rss::Channel;
+use tr::tr;
 
 enum Tag {
     CodeOpen,
@@ -53,10 +54,11 @@ pub async fn news(config: &Config) -> Result<i32> {
 
                 print!("{} ", c.news_date.paint(date.format("%F").to_string()));
             }
-            Err(_) => print!("No Date "),
+            Err(_) => print!("{}", tr!("No Date ")),
         }
 
-        let title = item.title().unwrap_or("No Title");
+        let no_title = tr!("No Title");
+        let title = item.title().unwrap_or(no_title.as_str());
         println!("{}", c.bold.paint(title));
 
         printed = true;
@@ -64,7 +66,7 @@ pub async fn news(config: &Config) -> Result<i32> {
     }
 
     if !printed {
-        eprintln!("no new news");
+        eprintln!("{}", tr!("no new news"));
         Ok(1)
     } else {
         Ok(0)
