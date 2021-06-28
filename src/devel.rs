@@ -126,7 +126,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     println!(
         "{} {}",
         action.paint("::"),
-        bold.paint(tr!("Querying AUR...)"))
+        bold.paint(tr!("Querying AUR..."))
     );
     let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
     warnings.all(config.color, config.cols);

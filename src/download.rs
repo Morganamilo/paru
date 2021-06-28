@@ -229,7 +229,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
     if !missing.is_empty() {
         let msg = tr!("Missing ABS packages ");
-        print!("{}", tr!("{} {} ", msg, config.color.error.paint("::")));
+        print!("{} {} ", config.color.error.paint("::"), msg);
         print_indent(
             config.color.base,
             msg.len() + 3,
