@@ -131,23 +131,25 @@ fn clean_aur_pkg(
 
     let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
 
-    if keep_installed {
-        let local_db = config.alpm.localdb();
-        for pkg in &srcinfo.pkgs {
-            if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
-                if pkg.version().as_str() == srcinfo.version() {
-                    return Ok(());
+    if config.clean == 1 {
+        if keep_installed {
+            let local_db = config.alpm.localdb();
+            for pkg in &srcinfo.pkgs {
+                if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
+                    if pkg.version().as_str() == srcinfo.version() {
+                        return Ok(());
+                    }
                 }
             }
         }
-    }
 
-    if keep_current {
-        for pkg in &srcinfo.pkgs {
-            let sync_dbs = config.alpm.syncdbs();
-            if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
-                if pkg.version().as_str() == srcinfo.version() {
-                    return Ok(());
+        if keep_current {
+            for pkg in &srcinfo.pkgs {
+                let sync_dbs = config.alpm.syncdbs();
+                if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
+                    if pkg.version().as_str() == srcinfo.version() {
+                        return Ok(());
+                    }
                 }
             }
         }
