@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 14:28+0800\n"
+"PO-Revision-Date: 2021-06-28 17:37+0800\n"
 "Last-Translator: Yufan You <ouuansteve@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -156,11 +156,11 @@ msgstr "未能解析 '{}' 的 srcinfo"
 
 #: src/devel.rs:184
 msgid "Looking for devel repos..."
-msgstr ""
+msgstr "正在搜寻开发版仓库..."
 
 #: src/devel.rs:193
 msgid "failed to save devel info"
-msgstr ""
+msgstr "未能保存开发版信息"
 
 #: src/devel.rs:382
 msgid "package does not have an update"
@@ -501,7 +501,7 @@ msgstr "AUR（生成依赖）"
 
 #: src/install.rs:1240
 msgid "fetching devel info..."
-msgstr ""
+msgstr "正在获取开发版信息..."
 
 #: src/install.rs:1320
 msgid "Signing packages..."
@@ -647,7 +647,7 @@ msgstr "正在查找 AUR 更新"
 
 #: src/upgrade.rs:148
 msgid "Looking for devel upgrades"
-msgstr ""
+msgstr "正在查找开发版更新"
 
 #: src/upgrade.rs:179
 msgid "warning:"
