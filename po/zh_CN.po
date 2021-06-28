@@ -43,7 +43,7 @@ msgstr "你想要移除所有已保存的差异吗？"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
-msgstr "未能打开差异目录: {}"
+msgstr "无法打开差异目录: {}"
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
