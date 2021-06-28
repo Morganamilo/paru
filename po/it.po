@@ -37,11 +37,11 @@ msgstr ""
 
 #: src/clean.rs:48
 msgid "Do you want to remove all saved diffs?"
-msgstr "Vuoi rimuovere tutti i file diff salvati"
+msgstr "Vuoi rimuovere tutti i file diff salvati?"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
-msgstr "non è stato possibile rimuovere la directory dei file diff:"
+msgstr "non è stato possibile rimuovere la directory dei file diff: {}"
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
@@ -49,7 +49,7 @@ msgstr "non è stato possibile rimuovere '{}'"
 
 #: src/clean.rs:93
 msgid "can't open clone dir: {}"
-msgstr "non è stato possibile aprire la directory di scaricamento:"
+msgstr "non è stato possibile aprire la directory di scaricamento: {}"
 
 #: src/command_line.rs:127
 msgid "option {} expects a value"
