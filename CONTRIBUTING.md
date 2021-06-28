@@ -43,6 +43,10 @@ cargo test --features mock -- --test-threads=1
 
 ### New Languages
 
+When translating to a new language try to stick to languages pacman already supports:
+https://gitlab.archlinux.org/pacman/pacman/-/tree/master/src/pacman/po. For example using
+`es` over `es_ES`.
+
 To tranlate paru to a new language, copy the the template .pot file to the locale you
 are translating to.
 
