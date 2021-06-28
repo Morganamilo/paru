@@ -1,0 +1,708 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the paru package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-06-27 16:38+0000\n"
+"PO-Revision-Date: 2021-06-28 10:24+0800\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Yufan You <ouuansteve@gmail.com>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 3.0\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "你想要从缓存中移除所有 AUR 包吗？"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "你想要从缓存中移除所有未安装的 AUR 包吗？"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr "克隆目录: {}"
+
+#: src/clean.rs:46
+msgid ""
+"\n"
+"Diff Directory: {}"
+msgstr ""
+"\n"
+"差异目录: {}"
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "你想要移除所有已保存的差异吗？"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "无法打开差异目录: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "无法移除 '{}'"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "无法打开克隆目录: {}"
+
+#: src/command_line.rs:127
+msgid "option {} expects a value"
+msgstr "需要为选项 {} 提供一个值"
+
+#: src/command_line.rs:158 src/command_line.rs:327
+msgid "option {} does not allow a value"
+msgstr "选项 {} 不接受值"
+
+#: src/command_line.rs:318
+msgid "unknown option --{}"
+msgstr "未知的选项 --{}"
+
+#: src/command_line.rs:321
+msgid "unknown option -{}"
+msgstr "未知的选项 -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "未能打开缓存文件 '{}'"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "未能更新 AUR 缓存"
+
+#: src/config.rs:174
+msgid "invalid value '{}' for key '{}', expected: {}"
+msgstr "'{}' 不是选项 '{}' 的合法值，期望值为: {}"
+
+#: src/config.rs:474
+msgid "failed to find cache directory"
+msgstr "未能找到缓存目录"
+
+#: src/config.rs:477
+msgid "failed to find config directory"
+msgstr "未能找到配置目录"
+
+#: src/config.rs:501
+msgid "config file '{}' does not exist"
+msgstr "配置文件 '{}' 不存在"
+
+#: src/config.rs:550
+msgid "only one operation may be used at a time"
+msgstr "一次只能使用一个操作"
+
+#: src/config.rs:638
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "无法找到 pacman.conf 中的本地仓库 '{}'"
+
+#: src/config.rs:670
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr ""
+
+#: src/config.rs:740 src/config.rs:873
+msgid "value can not be empty for value '{}'"
+msgstr "选项 '{}' 的值不能为空"
+
+#: src/config.rs:756
+msgid "key '{}' does not belong to a section"
+msgstr "选项 '{}' 不属于任何一个设置板块"
+
+#: src/config.rs:762
+msgid "unknown section '{}', section"
+msgstr "未知的选项板块 '{}'"
+
+#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+msgid "key can not be empty"
+msgstr "选项名称不能为空"
+
+#: src/config.rs:791
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "错误: 选项板块 [bin] 中有未知的选项 '{}'"
+
+#: src/config.rs:891
+msgid "error: unknown option '{}' in section [options]"
+msgstr "错误: 选项板块 [options] 中有未知的选项 '{}'"
+
+#: src/config.rs:896
+msgid "option '{}' does not take a value"
+msgstr "选项 '{}' 不接受值"
+
+#: src/config.rs:947 src/install.rs:1795
+msgid "There are {} providers available for {}:"
+msgstr ""
+
+#: src/config.rs:961 src/info.rs:59 src/info.rs:98 src/install.rs:1755
+#: src/install.rs:1800
+msgid "Repository"
+msgstr "软件库"
+
+#: src/config.rs:983
+msgid "  failed to sync {}"
+msgstr "  未能成功同步 {}"
+
+#: src/devel.rs:129
+msgid "Querying AUR...)"
+msgstr ""
+
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:693
+msgid "failed to parse srcinfo for '{}'"
+msgstr "未能成功解析 '{}' 的 srcinfo"
+
+#: src/devel.rs:184
+msgid "Looking for devel repos..."
+msgstr ""
+
+#: src/devel.rs:193
+msgid "failed to save devel info"
+msgstr ""
+
+#: src/devel.rs:382
+msgid "package does not have an update"
+msgstr "软件包没有更新"
+
+#: src/devel.rs:417
+msgid "failed to lookup: {}"
+msgstr ""
+
+#: src/devel.rs:445
+msgid "invalid json: {}"
+msgstr "不合法的 json: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "AUR 中没有的软件包: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "被标记为已过期: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "无人维护: "
+
+#: src/download.rs:179
+msgid "Querying AUR..."
+msgstr "正在查询 AUR..."
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "无法获取当前目录"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "无法获取软件库中的包: 需要安装 asp"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "缺失 ABS 包 "
+
+#: src/download.rs:232
+msgid "{} {} "
+msgstr ""
+
+#: src/download.rs:250 src/download.rs:275 src/download.rs:530
+#: src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113
+#: src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186
+#: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:743
+#: src/install.rs:806 src/install.rs:844 src/keys.rs:70
+msgid "failed to run:"
+msgstr "未能成功运行:"
+
+#: src/download.rs:261
+msgid "{} {} does not contain PKGBUILD: skipping"
+msgstr "{} {} 不包含 PKGBUILD: 正在跳过"
+
+#: src/download.rs:293
+msgid " ({:>padding$}/{}) downloading: {}"
+msgstr " ({:>padding$}/{}) 正在下载: {}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "正在下载 PKGBUILDs..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr "PKGBUILD 都是最新的"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "未安装 {}: 无法获取软件库中的包"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "asp 返回了 {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman 正在使用中，请等待..."
+
+#: src/fmt.rs:6 src/info.rs:149 src/search.rs:176
+msgid "None"
+msgstr "无"
+
+#: src/info.rs:30 src/query.rs:50
+msgid "{} package '{}' was not found"
+msgstr ""
+
+#: src/info.rs:60 src/info.rs:99
+msgid "Name"
+msgstr "名字"
+
+#: src/info.rs:61 src/info.rs:100
+msgid "Version"
+msgstr "版本"
+
+#: src/info.rs:62 src/info.rs:101
+msgid "Description"
+msgstr "描述"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Groups"
+msgstr "组"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Licenses"
+msgstr "许可证"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Provides"
+msgstr "提供"
+
+#: src/info.rs:66 src/info.rs:112
+msgid "Depends On"
+msgstr "依赖于"
+
+#: src/info.rs:67 src/info.rs:113
+msgid "Make Deps"
+msgstr "生成依赖"
+
+#: src/info.rs:68 src/info.rs:114
+msgid "Check Deps"
+msgstr "检查依赖"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Conflicts With"
+msgstr "与它冲突"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "Maintainer"
+msgstr "维护者"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "Votes"
+msgstr "得票"
+
+#: src/info.rs:72 src/info.rs:119
+msgid "Popularity"
+msgstr "受欢迎度"
+
+#: src/info.rs:73 src/info.rs:120
+msgid "First Submitted"
+msgstr "首次提交"
+
+#: src/info.rs:74 src/info.rs:121
+msgid "Last Modified"
+msgstr "最后修改"
+
+#: src/info.rs:75 src/info.rs:123
+msgid "Out Of Date"
+msgstr "过时"
+
+#: src/info.rs:76 src/info.rs:128
+msgid "ID"
+msgstr ""
+
+#: src/info.rs:77 src/info.rs:129
+msgid "Package Base ID"
+msgstr ""
+
+#: src/info.rs:78 src/info.rs:130
+msgid "Keywords"
+msgstr "关键字"
+
+#: src/info.rs:79 src/info.rs:132
+msgid "Snapshot URL"
+msgstr "快照 URL"
+
+#: src/info.rs:95
+msgid "No"
+msgstr "否"
+
+#: src/info.rs:115
+msgid "Optional Deps"
+msgstr "可选依赖"
+
+#: src/install.rs:131 src/install.rs:544 src/install.rs:943
+msgid "no architecture"
+msgstr "无架构"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "无法以 root 身份构建软件包"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "未能成功解析由 makepkg 生成的 srcinfo"
+
+#: src/install.rs:171 src/install.rs:441
+msgid "Resolving dependencies..."
+msgstr "正在解析依赖关系..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "未能成功下载源码"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "未能成功构建"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "正在解析软件包列表..."
+
+#: src/install.rs:258 src/install.rs:1462
+msgid "{} {}-{} is up to date -- skipping build"
+msgstr ""
+
+#: src/install.rs:331
+msgid "{} could not get news: {}"
+msgstr ""
+
+#: src/install.rs:332 src/lib.rs:84
+msgid "error:"
+msgstr "错误:"
+
+#: src/install.rs:338 src/install.rs:520 src/install.rs:715 src/install.rs:847
+msgid "Proceed with installation?"
+msgstr "继续安装？"
+
+#: src/install.rs:355
+msgid "no targets specified (use -h for help)"
+msgstr "没有指定目标 (使用 -h 来获取帮助)"
+
+#: src/install.rs:433 src/install.rs:460 src/search.rs:324 src/search.rs:360
+#: src/lib.rs:227
+msgid " there is nothing to do"
+msgstr "今日无事可做"
+
+#: src/install.rs:487
+msgid "can't install AUR package as root"
+msgstr "无法以 root 身份安装 AUR 包"
+
+#: src/install.rs:506
+msgid "Remove make dependencies after install?"
+msgstr "在安装后移除生成依赖？"
+
+#: src/install.rs:517
+msgid "Proceed to review?"
+msgstr "继续以审核？"
+
+#: src/install.rs:558
+msgid "The following packages are not compatible with your architecture:"
+msgstr "下列软件包与你的系统架构不兼容:"
+
+#: src/install.rs:572
+msgid "Would you like to try build them anyway?"
+msgstr "你还是想要构建它们吗？"
+
+#: src/install.rs:661
+msgid "packages failed to buid: {}"
+msgstr "未能成功构建的软件包: {}"
+
+#: src/install.rs:697
+msgid "could not find .SRINFO for '{}'"
+msgstr "无法找到 '{}' 的 .SRCINFO"
+
+#: src/install.rs:761
+msgid "failed to read dir: {}"
+msgstr "未能成功读取目录: {}"
+
+#: src/install.rs:777
+msgid ""
+"{} is a directory\n"
+"\n"
+msgstr ""
+"{} 是一个目录\n"
+"\n"
+
+#: src/install.rs:817
+msgid "failed to open: {}"
+msgstr "未能成功打开: {}"
+
+#: src/install.rs:829
+msgid "binary file: {}"
+msgstr "二进制文件: {}"
+
+#: src/install.rs:851
+msgid " nothing new to review"
+msgstr "没有新东西可供审核"
+
+#: src/install.rs:870
+msgid "failed to execute file manager: {}"
+msgstr "未能成功运行文件管理器: {}"
+
+#: src/install.rs:873
+msgid "file manager did not execute successfully"
+msgstr "文件管理器未能成功运行"
+
+#: src/install.rs:935
+msgid "duplicate packages: {}"
+msgstr "重复的软件包: {}"
+
+#: src/install.rs:974
+msgid "could not find all required packages:"
+msgstr "无法找到所有需要的软件包:"
+
+#: src/install.rs:981
+msgid ""
+"\n"
+"    {} (wanted by: {})"
+msgstr ""
+
+#: src/install.rs:995 src/install.rs:1934
+msgid "{} {}-{} is up to date -- skipping"
+msgstr ""
+
+#: src/install.rs:1014
+msgid "Calculating conflicts..."
+msgstr "正在查找软件包冲突..."
+
+#: src/install.rs:1020
+msgid "Calculating inner conflicts..."
+msgstr "正在查找内部软件包冲突..."
+
+#: src/install.rs:1032
+msgid "Inner conflicts found:"
+msgstr "发现内部软件包冲突:"
+
+#: src/install.rs:1054
+msgid "Conflicts found:"
+msgstr "发现软件包冲突:"
+
+#: src/install.rs:1077
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "有冲突的软件包需要手动确认"
+
+#: src/install.rs:1081
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "无法通过 --noconfirm 来安装有冲突的软件包"
+
+#: src/install.rs:1120
+msgid "Repo"
+msgstr "软件库"
+
+#: src/install.rs:1127
+msgid "Repo Make"
+msgstr "软件库（生成依赖）"
+
+#: src/install.rs:1141
+msgid "Aur Make"
+msgstr "AUR（生成依赖）"
+
+#: src/install.rs:1243
+msgid "fetching devel info..."
+msgstr ""
+
+#: src/install.rs:1323
+msgid "Signing packages..."
+msgstr "正在为软件包签名..."
+
+#: src/install.rs:1401 src/install.rs:1406
+msgid "failed to download sources for '{}'"
+msgstr "未能成功下载 '{}' 的源码"
+
+#: src/install.rs:1411 src/install.rs:1450 src/install.rs:1458
+msgid "failed to build '{}'"
+msgstr "未能成功构建 '{}'"
+
+#: src/install.rs:1414
+msgid "{}: parsing pkg list..."
+msgstr "{}: 正在解析软件包列表..."
+
+#: src/install.rs:1473
+msgid "adding {} to the install list"
+msgstr "正在将 {} 加入安装列表"
+
+#: src/install.rs:1532
+msgid "could not find package '{}' in package list for '{}'"
+msgstr ""
+
+#: src/install.rs:1670
+msgid "can't find package name in packagelist: {}"
+msgstr "无法在软件包列表中找到软件包的名字: {}"
+
+#: src/install.rs:1743
+msgid "There are {} members in group"
+msgstr "组中有 {} 个成员"
+
+#: src/install.rs:1768
+msgid ""
+"\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr ""
+"\n"
+"\n"
+"输入某个选择 (默认=全部选定): "
+
+#: src/install.rs:1955
+msgid "{} {}-{} is up to date -- skipping install"
+msgstr ""
+
+#: src/keys.rs:47
+msgid "keys need to be imported:)"
+msgstr "需要导入公钥:)"
+
+#: src/keys.rs:51
+msgid "     {} wanted by: {}"
+msgstr ""
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "没有日期 "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "没有标题"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "没有新的新闻"
+
+#: src/query.rs:104
+msgid " [ignored]"
+msgstr "[已忽略]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr ""
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "正在同步本地数据库..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr "  今日无事可做"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "AUR 搜索失败"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[过时的: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[已安装: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[已安装]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[无人维护]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "没有符合搜索条件的软件包"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "需要安装的包 (例如: 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "共安装包: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "AUR 包: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "软件库包: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "单独指定安装的包: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "软件包共占用空间: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "十个最大的包:"
+
+#: src/sync.rs:89 src/lib.rs:395
+msgid " [installed]"
+msgstr " [已安装]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "正在查找 AUR 更新"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr ""
+
+#: src/upgrade.rs:180
+msgid "{} {}: ignoring package upgrade ({} => {})"
+msgstr ""
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "需要排除的包 (例如: 1 2 3, 1-3):"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[Y/n]:"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[y/N]:"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "y"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "yes"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "no"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "输入一个数字 (默认=1):"
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "不合法的数字: {}"
+
+#: src/util.rs:325
+msgid "invalid value: {} is not between 1 and {}"
+msgstr ""
+
+#: src/lib.rs:153
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "无法使用 chroot 构建: 需要安装 devtools"
+
+#: src/lib.rs:393
+msgid " [installed: {}]"
+msgstr " [已安装: {}]"
