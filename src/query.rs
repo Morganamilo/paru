@@ -46,8 +46,9 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         for &pkg in &aur {
             if db.pkg(pkg).is_err() {
                 eprintln!(
-                    "{}",
-                    tr!("{} package '{}' was not found", error.paint("error:"), pkg)
+                    "{} {}",
+                    error.paint(tr!("error:")),
+                    tr!("package '{}' was not found", pkg)
                 );
             }
         }

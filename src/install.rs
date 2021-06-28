@@ -254,11 +254,14 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
             .context(tr!("failed to build"))?;
         }
     } else {
-        printtr!(
-            "{} {}-{} is up to date -- skipping build",
+        println!(
+            "{} {}",
             c.warning.paint("::"),
-            srcinfo.base.pkgbase,
-            srcinfo.base.pkgver,
+            tr!(
+                "{}-{} is up to date -- skipping build",
+                srcinfo.base.pkgbase,
+                srcinfo.base.pkgver,
+            )
         )
     }
 
@@ -326,12 +329,10 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         match news::news(config).await {
             Ok(v) => ret = v,
             Err(err) => eprintln!(
-                "{}",
-                tr!(
-                    "{} could not get news: {}",
-                    c.error.paint(tr!("error:")),
-                    err
-                )
+                "{} {}: {}",
+                c.error.paint(tr!("error:")),
+                tr!("could not get news",),
+                err
             ),
         }
 
@@ -978,9 +979,9 @@ fn check_actions(
             } else {
                 let stack = missing.stack.join(" -> ");
                 err.push_str(&tr!(
-                    "\n    {} (wanted by: {})",
-                    c.error.paint(&missing.dep),
-                    stack
+                    "\n    {:missing} (wanted by: {:stack})",
+                    missing = c.error.paint(&missing.dep),
+                    stack = stack
                 ));
             };
         }
@@ -990,13 +991,9 @@ fn check_actions(
 
     for pkg in &actions.unneeded {
         eprintln!(
-            "{}",
-            tr!(
-                "{} {}-{} is up to date -- skipping",
-                c.warning.paint("::"),
-                pkg.name,
-                pkg.version
-            )
+            "{} {}",
+            c.warning.paint("::"),
+            tr!("{}-{} is up to date -- skipping", pkg.name, pkg.version)
         );
     }
 
@@ -1458,11 +1455,14 @@ fn build_install_pkgbuild<'a>(
             .with_context(|| tr!("failed to build '{}'", base))?;
         }
     } else {
-        printtr!(
-            "{} {}-{} is up to date -- skipping build",
+        println!(
+            "{} {}",
             c.warning.paint("::"),
-            base.package_base(),
-            base.pkgs[0].pkg.version
+            tr!(
+                "{}-{} is up to date -- skipping build",
+                base.package_base(),
+                base.pkgs[0].pkg.version
+            )
         )
     }
 
@@ -1529,9 +1529,9 @@ fn build_install_pkgbuild<'a>(
 
         let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
             tr!(
-                "could not find package '{}' in package list for '{}'",
-                pkg.pkg.name,
-                base
+                "could not find package '{:pkg}' in package list for '{:base}'",
+                pkg = pkg.pkg.name,
+                base = base
             )
         })?;
 
@@ -1792,7 +1792,11 @@ fn resolver<'a, 'b>(
 
     if !config.args.has_arg("u", "sysupgrade") {
         resolver = resolver.provider_callback(move |dep, pkgs| {
-            let prompt = tr!("There are {} providers available for {}:", pkgs.len(), dep);
+            let prompt = tr!(
+                "There are {:n} providers available for {:pkg}:",
+                n = pkgs.len(),
+                pkg = dep
+            );
             println!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
             println!(
                 "{} {} {}:",
@@ -1930,11 +1934,14 @@ fn needs_build(
         }
 
         if all_installed {
-            printtr!(
-                "{} {}-{} is up to date -- skipping",
+            println!(
+                "{} {}",
                 c.warning.paint("::"),
-                base.package_base(),
-                base.pkgs[0].pkg.version
+                tr!(
+                    "{}-{} is up to date -- skipping",
+                    base.package_base(),
+                    base.pkgs[0].pkg.version
+                )
             );
             return false;
         }
@@ -1951,11 +1958,14 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) 
         if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
             if pkg.version().as_str() == version {
                 let c = config.color;
-                printtr!(
-                    "{} {}-{} is up to date -- skipping install",
+                println!(
+                    "{} {}",
                     c.warning.paint("::"),
-                    base.package_base(),
-                    base.pkgs[0].pkg.version
+                    tr!(
+                        "{}-{} is up to date -- skipping install",
+                        base.package_base(),
+                        base.pkgs[0].pkg.version
+                    )
                 );
                 return false;
             }

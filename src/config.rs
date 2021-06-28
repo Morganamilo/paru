@@ -171,10 +171,10 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
                 .collect::<Vec<&str>>()
                 .join("|");
             bail!(tr!(
-                "invalid value '{}' for key '{}', expected: {}",
-                value,
-                key,
-                okvalues
+                "invalid value '{:val}' for key '{:key}', expected: {:exp}",
+                val = value,
+                key = key,
+                exp = okvalues
             ))
         }
     }
@@ -737,7 +737,7 @@ impl Config {
         if key == "Include" {
             let value = match value {
                 Some(value) => value,
-                None => bail!(tr!("value can not be empty for value '{}'", key)),
+                None => bail!(tr!("value can not be empty for key '{}'", key)),
             };
 
             let ini = std::fs::read_to_string(value)?;
@@ -759,7 +759,7 @@ impl Config {
         match section {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
-            _ => bail!(tr!("unknown section '{}', section")),
+            _ => bail!(tr!("unknown section '{}'", section)),
         }
     }
 
@@ -870,7 +870,7 @@ impl Config {
         let has_value = value.is_some();
         let value = value
             .map(|s| s.to_string())
-            .ok_or_else(|| anyhow!(tr!("value can not be empty for value '{}'", key)));
+            .ok_or_else(|| anyhow!(tr!("value can not be empty for key '{}'", key)));
 
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
@@ -944,9 +944,9 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
 
             println!();
             let prompt = tr!(
-                "There are {} providers available for {}:",
-                len,
-                question.depend()
+                "There are {:n} providers available for {:pkg}:",
+                n = len,
+                pkg = question.depend()
             );
             print!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 

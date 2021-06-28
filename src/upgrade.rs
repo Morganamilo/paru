@@ -175,13 +175,13 @@ pub async fn get_upgrades<'a, 'b>(
 
     for pkg in aur_upgrades.ignored {
         eprintln!(
-            "{}",
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
             tr!(
-                "{} {}: ignoring package upgrade ({} => {})",
-                config.color.warning.paint("warning:"),
-                pkg.local.name(),
-                pkg.local.version(),
-                pkg.remote.version
+                "{:pkg}: ignoring package upgrade ({:old} => {:new})",
+                pkg = pkg.local.name(),
+                old = pkg.local.version(),
+                new = pkg.remote.version
             )
         );
     }
