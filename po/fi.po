@@ -31,7 +31,8 @@ msgstr "Kloonaa kansio: {}"
 #: src/clean.rs:46
 msgid "\n"
 "Diff Directory: {}"
-msgstr "Diff kansio: {}"
+msgstr "\n" 
+"Diff kansio: {}"
 
 #: src/clean.rs:48
 msgid "Do you want to remove all saved diffs?"
@@ -75,7 +76,7 @@ msgstr "ei pystytty päivittämään aur välimuistia"
 
 #: src/config.rs:174
 msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "kelpaamaton arvo '{:val}' avaimelle {:key}', odotettiin: {}"
+msgstr "kelpaamaton arvo '{:val}' avaimelle {:key}', odotettiin: {:exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -99,7 +100,7 @@ msgstr "ei pystytty löytämään paikallista pakettivarastoa '{}' tiedostosta p
 
 #: src/config.rs:670
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "ei pystytty alustamaan alpm: root={} dbpaht={}"
+msgstr "ei pystytty alustamaan alpm: root={} dbpath={}"
 
 #: src/config.rs:740 src/config.rs:873
 msgid "value can not be empty for key '{}'"
@@ -139,7 +140,7 @@ msgstr "Pakettivarasto"
 
 #: src/config.rs:983
 msgid "  failed to sync {}"
-msgstr "  epäonnistuttiin synkronoimaan {} "
+msgstr "  epäonnistuttiin synkronoimaan {}"
 
 #: src/devel.rs:129 src/download.rs:179
 msgid "Querying AUR..."
@@ -171,15 +172,15 @@ msgstr "virheellinen json: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr "paketit, jotka eivät ole AURissa:"
+msgstr "paketit, jotka eivät ole AURissa: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
-msgstr "vanhentuneeksi merkatut:"
+msgstr "vanhentuneeksi merkatut: "
 
 #: src/download.rs:105
 msgid "orphans: "
-msgstr "orvot"
+msgstr "orvot: "
 
 
 #: src/download.rs:206
@@ -208,15 +209,15 @@ msgstr "({:total>padding$}/{:total}) ladataan: {:pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
-msgstr "Ladataan PKGBUILDeja"
+msgstr "Ladataan PKGBUILDeja..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr "PKGBUILDit ajantasalla"
+msgstr " PKGBUILDit ovat ajantasalla"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
-msgstr "{} ei ole asennettu: ei voitu hake varasto paketteja"
+msgstr "{} ei ole asennettu: ei voitu hakea varasto paketteja"
 
 #: src/download.rs:561
 msgid "asp returned {}"
@@ -372,7 +373,7 @@ msgstr "yhtään kohdetta ei ole määritelty (-h tulostaa ohjeen)"
 
 #: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360 src/lib.rs:227
 msgid " there is nothing to do"
-msgstr " ei mitään tehtävää"
+msgstr " ei ole mitään tehtävää"
 
 #: src/install.rs:488
 msgid "can't install AUR package as root"
@@ -445,7 +446,8 @@ msgstr "ei pystytty löytämään kaikkia vaadittuja paketteja"
 #: src/install.rs:982
 msgid "\n"
 "    {:missing} (wanted by: {:stack})"
-msgstr "    {:missing} ({:stack} haluaa tämän)"
+msgstr "\n" 
+"    {:missing} ({:stack} haluaa tämän)"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
@@ -457,7 +459,7 @@ msgstr "Lasketaan ristiriitoja..."
 
 #: src/install.rs:1017
 msgid "Calculating inner conflicts..."
-msgstr "Lasketaan sisäisiä ristiriitoja"
+msgstr "Lasketaan sisäisiä ristiriitoja..."
 
 #: src/install.rs:1029
 msgid "Inner conflicts found:"
@@ -527,7 +529,9 @@ msgstr "Ryhmässä on {} jäsentä"
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "
-msgstr "Anna valinta (oletus=kaikki)"
+msgstr "\n"
+"\n" 
+"Anna valinta (oletus=kaikki): "
 
 #: src/install.rs:1965
 msgid "{}-{} is up to date -- skipping install"
@@ -563,7 +567,7 @@ msgstr "ei pystytty hakemaan nykyistä exe:ä"
 
 #: src/repo.rs:195
 msgid "syncing local databases..."
-msgstr "synkronoidaan paikallisia tietokantoja"
+msgstr "synkronoidaan paikallisia tietokantoja..."
 
 #: src/repo.rs:201
 msgid "  nothing to do"
@@ -643,7 +647,7 @@ msgstr "{:pkg}: ohitetaan paketti päivitys ({:old} => {:new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Poissuljettavat paketit (eg: 1 2 3, 1-3):"
+msgstr "Poissuljettavat paketit (esim: 1 2 3, 1-3):"
 
 #: src/util.rs:80
 msgid "[Y/n]:"
@@ -671,7 +675,7 @@ msgstr "ei"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
-msgstr "Anna luku (oletus=1):"
+msgstr "Anna luku (oletus=1): "
 
 #: src/util.rs:316
 msgid "invalid number: {}"
