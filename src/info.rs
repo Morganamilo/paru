@@ -10,6 +10,7 @@ use anyhow::Error;
 use raur::ArcPackage as Package;
 use term_size::dimensions_stdout;
 use tr::tr;
+use unicode_width::UnicodeWidthStr;
 
 pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
@@ -78,7 +79,7 @@ fn longest() -> usize {
         "AUR URL".to_string(),
     ]
     .iter()
-    .map(|s| s.len())
+    .map(|s| s.width())
     .max()
     .unwrap()
 }
@@ -157,9 +158,13 @@ fn print_info<'a>(
     key: &str,
     value: impl IntoIterator<Item = &'a str>,
 ) {
-    let prefix = format!("{:<padding$}: ", key, padding = indent - 2);
+    let mut prefix = key.to_string();
+    for _ in 0..indent - prefix.width() - 2 {
+        prefix.push(' ');
+    }
+    prefix.push_str(": ");
     print!("{}", color.field.paint(&prefix));
 
     let sep = if list { "  " } else { " " };
-    print_indent(Style::new(), prefix.len(), prefix.len(), cols, sep, value)
+    print_indent(Style::new(), indent, indent, cols, sep, value)
 }
