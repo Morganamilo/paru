@@ -41,6 +41,9 @@ cargo test --features mock -- --test-threads=1
 
 ## Translating
 
+See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization
+You probably want to subscribe to this to be nodified when translations need to be updated.
+
 ### New Languages
 
 When translating to a new language try to stick to languages pacman already supports:
