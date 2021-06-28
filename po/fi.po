@@ -51,7 +51,7 @@ msgstr "ei voitu avata kloonattua kansiota: {}"
 
 #: src/command_line.rs:127
 msgid "option {} expects a value"
-		  msgstr "vaihtoehto {} odottaa arvoa"
+msgstr "vaihtoehto {} odottaa arvoa"
 
 #: src/command_line.rs:158 src/command_line.rs:327
 msgid "option {} does not allow a value"
