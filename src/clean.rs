@@ -131,6 +131,8 @@ fn clean_aur_pkg(
 
     let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
 
+    clean_untracked(config, &config.fetch.clone_dir.join(&srcinfo.base.pkgbase))?;
+
     if keep_installed {
         let local_db = config.alpm.localdb();
         for pkg in &srcinfo.pkgs {
@@ -153,7 +155,7 @@ fn clean_aur_pkg(
         }
     }
 
-    clean_untracked(config, &config.fetch.clone_dir.join(srcinfo.base.pkgbase))
+    Ok(())
 }
 
 pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
