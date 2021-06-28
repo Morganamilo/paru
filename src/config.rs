@@ -171,10 +171,10 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
                 .collect::<Vec<&str>>()
                 .join("|");
             bail!(tr!(
-                "invalid value '{}' for key '{}', expected: {}",
-                value,
-                key,
-                okvalues
+                "invalid value '{:val}' for key '{:key}', expected: {:exp}",
+                val = value,
+                key = key,
+                exp = okvalues
             ))
         }
     }
@@ -944,9 +944,9 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
 
             println!();
             let prompt = tr!(
-                "There are {} providers available for {}:",
-                len,
-                question.depend()
+                "There are {:n} providers available for {:pkg}:",
+                n = len,
+                pkg = question.depend()
             );
             print!("{} {}", c.action.paint("::"), c.bold.paint(prompt));
 

@@ -25,12 +25,9 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
             cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore).await?;
         for pkg in &warnings.missing {
             eprintln!(
-                "{}",
-                tr!(
-                    "{} package '{}' was not found",
-                    color.error.paint("error:"),
-                    pkg,
-                )
+                "{} {}",
+                color.error.paint("error:"),
+                tr!("package '{}' was not found", pkg,),
             );
         }
         ret = !warnings.missing.is_empty() as i32;

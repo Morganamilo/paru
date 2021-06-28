@@ -257,9 +257,10 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 
         if cd.contains(pkg) {
             if !Path::new(pkg).join("PKGBUILD").exists() {
-                printtr!(
-                    "{} {} does not contain PKGBUILD: skipping",
+                println!(
+                    "{} {} {}",
                     c.warning.paint("::"),
+                    tr!("does not contain PKGBUILD: skipping"),
                     pkg
                 );
                 r = 1;
@@ -290,12 +291,11 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     let total = total.to_string();
     printtr!(
-        " ({:>padding$}/{}) downloading: {}",
-        n,
-        total,
-        //config.color.action.paint("::"),
-        pkg,
+        " ({:total>padding$}/{:total}) downloading: {:pkg}",
         padding = total.len(),
+        n = n,
+        total = total,
+        pkg = pkg,
     );
 }
 
