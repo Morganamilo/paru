@@ -72,7 +72,7 @@ msgstr "opção desconhecida -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
-msgstr "erro ao abrir ficheiro de cache '{}'"
+msgstr "problema ao abrir ficheiro de cache '{}'"
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
