@@ -54,6 +54,8 @@ cp po/paru.pot po/jp.po
 
 Then fill out the template file with your information and translation.
 
+Alternatively, you can use programs like `poedit` to write the translations.
+
 ### Updating existing translations
 
 To update existing translations against new code you must first update the
