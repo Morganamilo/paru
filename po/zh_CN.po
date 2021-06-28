@@ -43,11 +43,11 @@ msgstr "你想要移除所有已保存的差异吗？"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
-msgstr "无法打开差异目录: {}"
+msgstr "未能打开差异目录: {}"
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
-msgstr "无法移除 '{}'"
+msgstr "未能移除 '{}'"
 
 #: src/clean.rs:93
 msgid "can't open clone dir: {}"
@@ -99,7 +99,7 @@ msgstr "一次只能使用一个操作"
 
 #: src/config.rs:638
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "无法找到 pacman.conf 中的本地仓库 '{}'"
+msgstr "无法在 pacman.conf 中找到本地仓库 '{}'"
 
 #: src/config.rs:670
 msgid "failed to initialize alpm: root={} dbpath={}"
@@ -164,7 +164,7 @@ msgstr "未能保存开发版信息"
 
 #: src/devel.rs:382
 msgid "package does not have an update"
-msgstr "软件包没有更新"
+msgstr "软件包无可用更新"
 
 #: src/devel.rs:417
 msgid "failed to lookup: {}"
@@ -188,7 +188,7 @@ msgstr "无人维护: "
 
 #: src/download.rs:206
 msgid "could not get current directory"
-msgstr "无法获取当前目录"
+msgstr "未能获取当前目录"
 
 #: src/download.rs:210
 msgid "can not get repo packages: asp is not installed"
@@ -220,7 +220,7 @@ msgstr "正在下载 PKGBUILD..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr " PKGBUILD 都是最新的"
+msgstr " PKGBUILDs 已经是最新的"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -304,7 +304,7 @@ msgstr "最后修改"
 
 #: src/info.rs:72 src/info.rs:120
 msgid "Out Of Date"
-msgstr "过时"
+msgstr "过期"
 
 #: src/info.rs:73 src/info.rs:125
 msgid "ID"
@@ -316,7 +316,7 @@ msgstr "包基础 ID"
 
 #: src/info.rs:75 src/info.rs:127
 msgid "Keywords"
-msgstr "关键字"
+msgstr "关键词"
 
 #: src/info.rs:76 src/info.rs:129
 msgid "Snapshot URL"
@@ -360,7 +360,7 @@ msgstr "正在解析软件包列表..."
 
 #: src/install.rs:261 src/install.rs:1462
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} 已是最新 -- 跳过构建"
+msgstr "{}-{} 已是最新的 -- 跳过构建"
 
 #: src/install.rs:333 src/query.rs:50 src/lib.rs:84
 msgid "error:"
@@ -525,7 +525,7 @@ msgstr "正在将 {} 加入安装列表"
 
 #: src/install.rs:1532
 msgid "could not find package '{:pkg}' in package list for '{:base}'"
-msgstr "无法在列表 '{:base}' 中找到软件包 '{:pkg}'"
+msgstr "未能在列表 '{:base}' 中找到软件包 '{:pkg}'"
 
 #: src/install.rs:1670
 msgid "can't find package name in packagelist: {}"
@@ -635,7 +635,7 @@ msgstr "软件包共占用空间: {}"
 
 #: src/stats.rs:106
 msgid "Ten biggest packages:"
-msgstr "十个最大的包:"
+msgstr "最大的十个包:"
 
 #: src/sync.rs:89 src/lib.rs:395
 msgid " [installed]"
