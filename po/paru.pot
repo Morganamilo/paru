@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2021-06-28 03:24+0000\n"
+"POT-Creation-Date: 2021-06-28 21:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgid "could not update aur cache"
 msgstr ""
 
 #: src/config.rs:174
-msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr ""
 
 #: src/config.rs:474
@@ -131,10 +131,10 @@ msgid "option '{}' does not take a value"
 msgstr ""
 
 #: src/config.rs:947 src/install.rs:1796
-msgid "There are {:n} providers available for {:pkg}:"
+msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755 src/install.rs:1804
+#: src/config.rs:961 src/info.rs:57 src/info.rs:96 src/install.rs:1755 src/install.rs:1804
 msgid "Repository"
 msgstr ""
 
@@ -203,7 +203,7 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr ""
 
 #: src/download.rs:294
-msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
 msgstr ""
 
 #: src/download.rs:317
@@ -226,99 +226,99 @@ msgstr ""
 msgid "Pacman is currently in use, please wait..."
 msgstr ""
 
-#: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
+#: src/fmt.rs:6 src/info.rs:147 src/search.rs:176
 msgid "None"
 msgstr ""
 
-#: src/info.rs:30 src/query.rs:51
+#: src/info.rs:31 src/query.rs:51
 msgid "package '{}' was not found"
 msgstr ""
 
-#: src/info.rs:57 src/info.rs:96
+#: src/info.rs:58 src/info.rs:97
 msgid "Name"
 msgstr ""
 
-#: src/info.rs:58 src/info.rs:97
+#: src/info.rs:59 src/info.rs:98
 msgid "Version"
 msgstr ""
 
-#: src/info.rs:59 src/info.rs:98
+#: src/info.rs:60 src/info.rs:99
 msgid "Description"
 msgstr ""
 
-#: src/info.rs:60 src/info.rs:106
+#: src/info.rs:61 src/info.rs:107
 msgid "Groups"
 msgstr ""
 
-#: src/info.rs:61 src/info.rs:107
+#: src/info.rs:62 src/info.rs:108
 msgid "Licenses"
 msgstr ""
 
-#: src/info.rs:62 src/info.rs:108
+#: src/info.rs:63 src/info.rs:109
 msgid "Provides"
 msgstr ""
 
-#: src/info.rs:63 src/info.rs:109
+#: src/info.rs:64 src/info.rs:110
 msgid "Depends On"
 msgstr ""
 
-#: src/info.rs:64 src/info.rs:110
+#: src/info.rs:65 src/info.rs:111
 msgid "Make Deps"
 msgstr ""
 
-#: src/info.rs:65 src/info.rs:111
+#: src/info.rs:66 src/info.rs:112
 msgid "Check Deps"
 msgstr ""
 
-#: src/info.rs:66 src/info.rs:113
+#: src/info.rs:67 src/info.rs:114
 msgid "Conflicts With"
 msgstr ""
 
-#: src/info.rs:67 src/info.rs:114
+#: src/info.rs:68 src/info.rs:115
 msgid "Maintainer"
 msgstr ""
 
-#: src/info.rs:68 src/info.rs:115
+#: src/info.rs:69 src/info.rs:116
 msgid "Votes"
 msgstr ""
 
-#: src/info.rs:69 src/info.rs:116
+#: src/info.rs:70 src/info.rs:117
 msgid "Popularity"
 msgstr ""
 
-#: src/info.rs:70 src/info.rs:117
+#: src/info.rs:71 src/info.rs:118
 msgid "First Submitted"
 msgstr ""
 
-#: src/info.rs:71 src/info.rs:118
+#: src/info.rs:72 src/info.rs:119
 msgid "Last Modified"
 msgstr ""
 
-#: src/info.rs:72 src/info.rs:120
+#: src/info.rs:73 src/info.rs:121
 msgid "Out Of Date"
 msgstr ""
 
-#: src/info.rs:73 src/info.rs:125
+#: src/info.rs:74 src/info.rs:126
 msgid "ID"
 msgstr ""
 
-#: src/info.rs:74 src/info.rs:126
+#: src/info.rs:75 src/info.rs:127
 msgid "Package Base ID"
 msgstr ""
 
-#: src/info.rs:75 src/info.rs:127
+#: src/info.rs:76 src/info.rs:128
 msgid "Keywords"
 msgstr ""
 
-#: src/info.rs:76 src/info.rs:129
+#: src/info.rs:77 src/info.rs:130
 msgid "Snapshot URL"
 msgstr ""
 
-#: src/info.rs:92
+#: src/info.rs:93
 msgid "No"
 msgstr ""
 
-#: src/info.rs:112
+#: src/info.rs:113
 msgid "Optional Deps"
 msgstr ""
 
@@ -442,7 +442,7 @@ msgstr ""
 
 #: src/install.rs:982
 msgid "\n"
-"    {:missing} (wanted by: {:stack})"
+"    {missing} (wanted by: {stack})"
 msgstr ""
 
 #: src/install.rs:996 src/install.rs:1941
@@ -510,7 +510,7 @@ msgid "adding {} to the install list"
 msgstr ""
 
 #: src/install.rs:1532
-msgid "could not find package '{:pkg}' in package list for '{:base}'"
+msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
 
 #: src/install.rs:1670
@@ -536,7 +536,7 @@ msgid "keys need to be imported:)"
 msgstr ""
 
 #: src/keys.rs:52
-msgid "     {:key} wanted by: {:base}"
+msgid "     {key} wanted by: {base}"
 msgstr ""
 
 #: src/news.rs:57
@@ -636,7 +636,7 @@ msgid "warning:"
 msgstr ""
 
 #: src/upgrade.rs:181
-msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
 msgstr ""
 
 #: src/upgrade.rs:334
@@ -676,7 +676,7 @@ msgid "invalid number: {}"
 msgstr ""
 
 #: src/util.rs:326
-msgid "invalid value: {:n} is not between 1 and {:max}"
+msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
 #: src/lib.rs:153

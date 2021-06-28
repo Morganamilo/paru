@@ -979,7 +979,7 @@ fn check_actions(
             } else {
                 let stack = missing.stack.join(" -> ");
                 err.push_str(&tr!(
-                    "\n    {:missing} (wanted by: {:stack})",
+                    "\n    {missing} (wanted by: {stack})",
                     missing = c.error.paint(&missing.dep),
                     stack = stack
                 ));
@@ -1529,7 +1529,7 @@ fn build_install_pkgbuild<'a>(
 
         let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
             tr!(
-                "could not find package '{:pkg}' in package list for '{:base}'",
+                "could not find package '{pkg}' in package list for '{base}'",
                 pkg = pkg.pkg.name,
                 base = base
             )
@@ -1793,7 +1793,7 @@ fn resolver<'a, 'b>(
     if !config.args.has_arg("u", "sysupgrade") {
         resolver = resolver.provider_callback(move |dep, pkgs| {
             let prompt = tr!(
-                "There are {:n} providers available for {:pkg}:",
+                "There are {n} providers available for {pkg}:",
                 n = pkgs.len(),
                 pkg = dep
             );

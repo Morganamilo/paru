@@ -178,7 +178,7 @@ pub async fn get_upgrades<'a, 'b>(
             "{} {}",
             config.color.warning.paint(tr!("warning:")),
             tr!(
-                "{:pkg}: ignoring package upgrade ({:old} => {:new})",
+                "{pkg}: ignoring package upgrade ({old} => {new})",
                 pkg = pkg.local.name(),
                 old = pkg.local.version(),
                 new = pkg.remote.version

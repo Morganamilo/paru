@@ -49,7 +49,7 @@ pub fn check_pgp_keys(
         for (key, base) in &import {
             let base = base.iter().map(|s| s.to_string()).collect::<Vec<_>>();
             printtr!(
-                "     {:key} wanted by: {:base}",
+                "     {key} wanted by: {base}",
                 key = c.bold.paint(*key),
                 base = base.join("  ")
             );

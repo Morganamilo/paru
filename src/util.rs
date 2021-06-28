@@ -323,7 +323,7 @@ pub fn get_provider(max: usize, no_confirm: bool) -> usize {
             eprintln!(
                 "{}",
                 tr!(
-                    "invalid value: {:n} is not between 1 and {:max}",
+                    "invalid value: {n} is not between 1 and {max}",
                     n = num,
                     max = max
                 )
