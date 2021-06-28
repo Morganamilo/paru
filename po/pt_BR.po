@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 14:59-0300\n"
+"PO-Revision-Date: 2021-06-28 15:09-0300\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -43,7 +43,7 @@ msgstr "Você deseja remover todas diffs salvas?"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
-msgstr "não foi possível abrir diretório diff: {}"
+msgstr "não foi possível abrir o diretório diff: {}"
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
@@ -51,15 +51,15 @@ msgstr "não foi possível remover '{}'"
 
 #: src/clean.rs:93
 msgid "can't open clone dir: {}"
-msgstr "não foi possível abrir diretório clone: {}"
+msgstr "não foi possível abrir o diretório clone: {}"
 
 #: src/command_line.rs:127
 msgid "option {} expects a value"
-msgstr "opção {} exige um valor"
+msgstr "a opção {} exige um valor"
 
 #: src/command_line.rs:158 src/command_line.rs:327
 msgid "option {} does not allow a value"
-msgstr "opção {} não aceita um valor"
+msgstr "a opção {} não aceita um valor"
 
 #: src/command_line.rs:318
 msgid "unknown option --{}"
@@ -131,7 +131,7 @@ msgstr "erro: opção desconhecida '{}' na secção [options]"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
-msgstr "opção '{}' não aceita valores"
+msgstr "a opção '{}' não aceita valores"
 
 #: src/config.rs:947 src/install.rs:1796
 msgid "There are {:n} providers available for {:pkg}:"
@@ -368,7 +368,7 @@ msgstr "erro:"
 
 #: src/install.rs:334
 msgid "could not get news"
-msgstr "impossível obter notícias"
+msgstr "não foi possível obter notícias"
 
 #: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
 msgid "Proceed with installation?"
@@ -381,7 +381,7 @@ msgstr "nenhum alvo especificado (use -h para ajuda)"
 #: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:227
 msgid " there is nothing to do"
-msgstr " Nada a fazer"
+msgstr " Nada para fazer"
 
 #: src/install.rs:488
 msgid "can't install AUR package as root"
@@ -445,7 +445,7 @@ msgstr "gerenciador de arquivos não foi executado com sucesso"
 
 #: src/install.rs:936
 msgid "duplicate packages: {}"
-msgstr "pacotes duplicados: []"
+msgstr "pacotes duplicados: {}"
 
 #: src/install.rs:975
 msgid "could not find all required packages:"
