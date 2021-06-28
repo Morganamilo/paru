@@ -446,7 +446,7 @@ msgstr "o gestor de ficheiros não foi executado com sucesso"
 
 #: src/install.rs:936
 msgid "duplicate packages: {}"
-msgstr "pacotes duplicados: []"
+msgstr "pacotes duplicados: {}"
 
 #: src/install.rs:975
 msgid "could not find all required packages:"
