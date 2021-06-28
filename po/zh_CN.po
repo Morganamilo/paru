@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-27 16:38+0000\n"
-"PO-Revision-Date: 2021-06-28 10:24+0800\n"
+"PO-Revision-Date: 2021-06-28 10:33+0800\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -176,7 +176,7 @@ msgstr "不合法的 json: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr "AUR 中没有的软件包: "
+msgstr "不在 AUR 中的软件包: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
@@ -228,7 +228,7 @@ msgstr "正在下载 PKGBUILDs..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr "PKGBUILD 都是最新的"
+msgstr " PKGBUILD 都是最新的"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -389,7 +389,7 @@ msgstr "没有指定目标 (使用 -h 来获取帮助)"
 #: src/install.rs:433 src/install.rs:460 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:227
 msgid " there is nothing to do"
-msgstr "今日无事可做"
+msgstr " 今日无事可做"
 
 #: src/install.rs:487
 msgid "can't install AUR package as root"
@@ -441,7 +441,7 @@ msgstr "二进制文件: {}"
 
 #: src/install.rs:851
 msgid " nothing new to review"
-msgstr "没有新东西可供审核"
+msgstr " 没有新东西可供审核"
 
 #: src/install.rs:870
 msgid "failed to execute file manager: {}"
@@ -577,7 +577,7 @@ msgstr "没有新的新闻"
 
 #: src/query.rs:104
 msgid " [ignored]"
-msgstr "[已忽略]"
+msgstr " [已忽略]"
 
 #: src/repo.rs:164
 msgid "failed to get current exe"
@@ -593,7 +593,7 @@ msgstr "  今日无事可做"
 
 #: src/search.rs:32
 msgid "aur search failed"
-msgstr "AUR 搜索失败"
+msgstr "aur 搜索失败"
 
 #: src/search.rs:158
 msgid "[Out-of-date: {}]"
@@ -689,7 +689,7 @@ msgstr "no"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
-msgstr "输入一个数字 (默认=1):"
+msgstr "输入一个数字 (默认=1): "
 
 #: src/util.rs:316
 msgid "invalid number: {}"
