@@ -411,6 +411,8 @@ msgid "{} is a directory\n"
 "\n"
 ""
 msgstr "{} on kansio\n"
+"\n"
+""
 
 #: src/install.rs:818
 msgid "failed to open: {}"
