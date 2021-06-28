@@ -79,7 +79,7 @@ msgstr "AUR-Cache konnte nicht geupdated werden"
 
 #: src/config.rs:174
 msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "Ungültiger Wert ‚{:val} für Schlüssel ‚{:key}, erwartet: {:exp}"
+msgstr "Ungültiger Wert ‚{:val}' für Schlüssel ‚{:key}', erwartet: {:exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -91,7 +91,7 @@ msgstr "Konfigurations-Verzeichnis konnte nicht gefunden werden"
 
 #: src/config.rs:501
 msgid "config file '{}' does not exist"
-msgstr "Konfigurations-Date ‚{}‘ existiert nicht"
+msgstr "Konfigurations-Datei ‚{}‘ existiert nicht"
 
 #: src/config.rs:550
 msgid "only one operation may be used at a time"
@@ -208,19 +208,19 @@ msgstr "Ausführung fehlgeschlagen:"
 
 #: src/download.rs:263
 msgid "does not contain PKGBUILD: skipping"
-msgstr "PKGBUILD nicht enthalten: überspringen"
+msgstr "PKGBUILD nicht enthalten: Überspringe"
 
 #: src/download.rs:294
 msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
-msgstr " ({:total>padding$}/{:total}) Lädt herunter {:pkg}"
+msgstr " ({:total>padding$}/{:total}) Lädt herunter: {:pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
-msgstr "Lädt PKGBUILDS herunter…"
+msgstr "Lädt PKGBUILDs herunter…"
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr "PKGBUILDS sind aktuell"
+msgstr "PKGBUILDs sind aktuell"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -236,7 +236,7 @@ msgstr "Pacman wird gerade ausgeführt, bitte warten…"
 
 #: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
 msgid "None"
-msgstr "Nichts"
+msgstr "Keine"
 
 #: src/info.rs:30 src/query.rs:51
 msgid "package '{}' was not found"
@@ -433,7 +433,7 @@ msgstr "Binärdatei: {}"
 
 #: src/install.rs:852
 msgid " nothing new to review"
-msgstr "Nichts Neues zum überprüfen"
+msgstr "Nichts Neues zu überprüfen"
 
 #: src/install.rs:871
 msgid "failed to execute file manager: {}"
@@ -567,7 +567,7 @@ msgstr "Kein Titel"
 
 #: src/news.rs:69
 msgid "no new news"
-msgstr "Keine neuen Nachrichten"
+msgstr "Keine neuen Neuigkeiten"
 
 #: src/query.rs:105
 msgid " [ignored]"
@@ -659,7 +659,7 @@ msgstr "{:pkg}: Ignoriere Paket-Upgrade ({:old} => {:new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Zu exkulpierende Pakete (z.B: 1 2 3, 1-3):"
+msgstr "Zu exkludierende Pakete (z.B: 1 2 3, 1-3):"
 
 #: src/util.rs:80
 msgid "[Y/n]:"
@@ -687,15 +687,15 @@ msgstr "nein"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
-msgstr "Geben Sie eine Nummer ein (default=1):"
+msgstr "Geben Sie eine Zahl ein (default=1):"
 
 #: src/util.rs:316
 msgid "invalid number: {}"
-msgstr "Ungültige Nummer: {}"
+msgstr "Ungültige Zahl: {}"
 
 #: src/util.rs:326
 msgid "invalid value: {:n} is not between 1 and {:max}"
-msgstr "Ungültige Nummer: {:n} ist nicht zwischen 1 und {:max}"
+msgstr "Ungültige Zahl: {:n} ist nicht zwischen 1 und {:max}"
 
 #: src/lib.rs:153
 msgid "can not use chroot builds: devtools is not installed"
