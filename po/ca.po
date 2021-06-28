@@ -1,0 +1,711 @@
+# Paru Catalan translation
+# Copyright (C) 2021
+# This file is distributed under the same license as the paru package.
+# Ícar Nin Solana <icar.nin@protonmail.com>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-06-28 03:24+0000\n"
+"PO-Revision-Date: 2021-06-28 20:07+0200\n"
+"Last-Translator: Ícar N. S. <icar.nin@protonmail.com>\n"
+"Language-Team: \n"
+"Language: ca\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "Voleu eliminar tots els paquets de l'AUR de la memòria cau?"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "Voleu eliminar tots els altres paquets de l'AUR de la memòria cau?"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr "Clonar el directori: {}"
+
+#: src/clean.rs:46
+msgid ""
+"\n"
+"Diff Directory: {}"
+msgstr ""
+"\n"
+"Directori diff: {}"
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "Voleu eliminar totes les diferències (diff) desades?"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "no es pot obrir el directori de diferències: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "no s'ha pogut eliminar «{}»"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "no es pot obrir el directori de clonar: {}"
+
+#: src/command_line.rs:127
+msgid "option {} expects a value"
+msgstr "l'opció {} espera un valor"
+
+#: src/command_line.rs:158 src/command_line.rs:327
+msgid "option {} does not allow a value"
+msgstr "l'opció {} no permet un valor"
+
+#: src/command_line.rs:318
+msgid "unknown option --{}"
+msgstr "opció desconeguda --{}"
+
+#: src/command_line.rs:321
+msgid "unknown option -{}"
+msgstr "opció desconeguda -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "no s'ha pogut obrir el fitxer de la memòria cau «{}»"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "no s'ha pogut actualitzar la memòria cau de l'AUR"
+
+#: src/config.rs:174
+msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
+msgstr "valor '{:val}' no vàlid per a la clau '{:key}', s'esperava: {:exp}"
+
+#: src/config.rs:474
+msgid "failed to find cache directory"
+msgstr "no s'ha pogut trobar el directori de la memòria cau"
+
+#: src/config.rs:477
+msgid "failed to find config directory"
+msgstr "no s'ha pogut trobar el directori de configuració"
+
+#: src/config.rs:501
+msgid "config file '{}' does not exist"
+msgstr "el fitxer de configuració '{}' no existeix"
+
+#: src/config.rs:550
+msgid "only one operation may be used at a time"
+msgstr "només es pot utilitzar una operació alhora"
+
+#: src/config.rs:638
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "no es pot trobar el dipòsit local '{}' al pacman.conf"
+
+#: src/config.rs:670
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "no s'ha pogut inicialitzar l'alpm: arrel={} dbpath={}"
+
+#: src/config.rs:740 src/config.rs:873
+msgid "value can not be empty for key '{}'"
+msgstr "el valor no pot estar buit per a la clau '{}'"
+
+#: src/config.rs:756
+msgid "key '{}' does not belong to a section"
+msgstr "la clau '{}' no pertany a una secció"
+
+#: src/config.rs:762
+msgid "unknown section '{}'"
+msgstr "secció desconeguda '{}'"
+
+#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+msgid "key can not be empty"
+msgstr "la clau no pot estar buida"
+
+#: src/config.rs:791
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "error: opció desconeguda '{}' a la secció [bin]"
+
+#: src/config.rs:891
+msgid "error: unknown option '{}' in section [options]"
+msgstr "error: opció desconeguda '{}' a la secció [opcions]"
+
+#: src/config.rs:896
+msgid "option '{}' does not take a value"
+msgstr "l'opció '{}' no pren cap valor"
+
+#: src/config.rs:947 src/install.rs:1796
+msgid "There are {:n} providers available for {:pkg}:"
+msgstr "Hi ha {:n} proveïdors disponibles per a {:pkg}:"
+
+#: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755
+#: src/install.rs:1804
+msgid "Repository"
+msgstr "Repositori"
+
+#: src/config.rs:983
+msgid "  failed to sync {}"
+msgstr " no s'ha pogut sincronitzar {}"
+
+#: src/devel.rs:129 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "S'està consultant l'AUR..."
+
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
+msgid "failed to parse srcinfo for '{}'"
+msgstr "no s'ha pogut analitzar «srcinfo» per a «{}»"
+
+#: src/devel.rs:184
+msgid "Looking for devel repos..."
+msgstr "Buscant repositoris de desenvolupament..."
+
+#: src/devel.rs:193
+msgid "failed to save devel info"
+msgstr "no s'ha pogut desar la informació de desenvolupament"
+
+#: src/devel.rs:382
+msgid "package does not have an update"
+msgstr "el paquet no té cap actualització"
+
+#: src/devel.rs:417
+msgid "failed to lookup: {}"
+msgstr "no s'ha pogut cercar: {}"
+
+#: src/devel.rs:445
+msgid "invalid json: {}"
+msgstr "json no vàlid: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "paquets no a l'AUR: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "marcat com a no actualitzat: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "orfes: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "no s'ha pogut obtenir el directori actual"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "no es poden obtenir els paquets de dipòsit: «asp» no està instal·lat"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "Paquets ABS que manquen "
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530
+#: src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113
+#: src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186
+#: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744
+#: src/install.rs:807 src/install.rs:845 src/keys.rs:74
+msgid "failed to run:"
+msgstr "no s'ha pogut executar:"
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "no conté PKGBUILD: s'ometrà"
+
+#: src/download.rs:294
+msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
+msgstr " ({:total>padding$}/{:total}) descarregant: {:pkg}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "S'estan baixant els PKGBUILDs..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr " PKGBUILDs al dia"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "{} no està instal·lat: no es poden obtenir els paquets de repositoris"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "«asp» ha retornat {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Actualment, Pacman està en ús, espereu..."
+
+#: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
+msgid "None"
+msgstr "Cap"
+
+#: src/info.rs:30 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "no s'ha trobat el paquet '{}'"
+
+#: src/info.rs:57 src/info.rs:96
+msgid "Name"
+msgstr "Nom"
+
+#: src/info.rs:58 src/info.rs:97
+msgid "Version"
+msgstr "Versió"
+
+#: src/info.rs:59 src/info.rs:98
+msgid "Description"
+msgstr "Descripció"
+
+#: src/info.rs:60 src/info.rs:106
+msgid "Groups"
+msgstr "Grups"
+
+#: src/info.rs:61 src/info.rs:107
+msgid "Licenses"
+msgstr "Llicències"
+
+#: src/info.rs:62 src/info.rs:108
+msgid "Provides"
+msgstr "Proporciona"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Depends On"
+msgstr "Depèn de"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Make Deps"
+msgstr "Dependències de construcció"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Check Deps"
+msgstr "Comprova les dependències"
+
+#: src/info.rs:66 src/info.rs:113
+msgid "Conflicts With"
+msgstr "Conflictes amb"
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Maintainer"
+msgstr "Mantenidor"
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Votes"
+msgstr "Vots"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Popularity"
+msgstr "Popularitat"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "First Submitted"
+msgstr "Primera vegada enviat"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "Last Modified"
+msgstr "Última modificació"
+
+#: src/info.rs:72 src/info.rs:120
+msgid "Out Of Date"
+msgstr "No actualitzat"
+
+#: src/info.rs:73 src/info.rs:125
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:74 src/info.rs:126
+msgid "Package Base ID"
+msgstr "ID de la base del paquet"
+
+#: src/info.rs:75 src/info.rs:127
+msgid "Keywords"
+msgstr "Paraules clau"
+
+#: src/info.rs:76 src/info.rs:129
+msgid "Snapshot URL"
+msgstr "URL de la instantània"
+
+#: src/info.rs:92
+msgid "No"
+msgstr "No"
+
+#: src/info.rs:112
+msgid "Optional Deps"
+msgstr "Dependències opcionals"
+
+#: src/install.rs:131 src/install.rs:545 src/install.rs:944
+msgid "no architecture"
+msgstr "sense arquitectura"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "no es pot construir el paquet com a root"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "no s'ha pogut analitzar la «srcinfo» generada per makepkg"
+
+#: src/install.rs:171 src/install.rs:442
+msgid "Resolving dependencies..."
+msgstr "S'estan resolent les dependències..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "no s'han pogut baixar les fonts"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "no s'ha pogut construir"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "s'està analitzant la llista de paquets..."
+
+#: src/install.rs:261 src/install.rs:1462
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} està actualitzat -- s'omet la construcció"
+
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:84
+msgid "error:"
+msgstr "error:"
+
+#: src/install.rs:334
+msgid "could not get news"
+msgstr "no s'han pogut obtenir notícies"
+
+#: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
+msgid "Proceed with installation?"
+msgstr "Voleu continuar amb la instal·lació?"
+
+#: src/install.rs:356
+msgid "no targets specified (use -h for help)"
+msgstr "no s'ha especificat cap objectiu (useu -h per ajuda)"
+
+#: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
+#: src/lib.rs:227
+msgid " there is nothing to do"
+msgstr " No hi ha res a fer"
+
+#: src/install.rs:488
+msgid "can't install AUR package as root"
+msgstr "no es pot instal·lar el paquet de l'AUR com a root"
+
+#: src/install.rs:507
+msgid "Remove make dependencies after install?"
+msgstr ""
+"Voleu suprimir les dependències de construcció després de la instal·lació?"
+
+#: src/install.rs:518
+msgid "Proceed to review?"
+msgstr "Voleu continuar a la revisió?"
+
+#: src/install.rs:559
+msgid "The following packages are not compatible with your architecture:"
+msgstr "Els següents paquets no són compatibles amb la vostra arquitectura:"
+
+#: src/install.rs:573
+msgid "Would you like to try build them anyway?"
+msgstr "Voleu provar de construir-los de totes maneres?"
+
+#: src/install.rs:662
+msgid "packages failed to build: {}"
+msgstr "no s'han pogut construir els paquets: {}"
+
+#: src/install.rs:698
+msgid "could not find .SRINFO for '{}'"
+msgstr "no s'ha pogut trobar .SRINFO per a '{}'"
+
+#: src/install.rs:762
+msgid "failed to read dir: {}"
+msgstr "no s'ha pogut llegir el directori: {}"
+
+#: src/install.rs:778
+msgid ""
+"{} is a directory\n"
+"\n"
+msgstr ""
+"{} és un directori\n"
+"\n"
+
+#: src/install.rs:818
+msgid "failed to open: {}"
+msgstr "no s'ha pogut obrir: {}"
+
+#: src/install.rs:830
+msgid "binary file: {}"
+msgstr "fitxer binari: {}"
+
+#: src/install.rs:852
+msgid " nothing new to review"
+msgstr " no hi ha res nou per revisar"
+
+#: src/install.rs:871
+msgid "failed to execute file manager: {}"
+msgstr "no s'ha pogut executar el gestor de fitxers: {}"
+
+#: src/install.rs:874
+msgid "file manager did not execute successfully"
+msgstr "el gestor de fitxers no s'ha executat correctament"
+
+#: src/install.rs:936
+msgid "duplicate packages: {}"
+msgstr "paquets duplicats: {}"
+
+#: src/install.rs:975
+msgid "could not find all required packages:"
+msgstr "no s'han pogut trobar tots els paquets necessaris:"
+
+#: src/install.rs:982
+msgid ""
+"\n"
+"    {:missing} (wanted by: {:stack})"
+msgstr ""
+"\n"
+"    {:missing} (desitjat per: {:stack})"
+
+#: src/install.rs:996 src/install.rs:1941
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} està actualitzat -- s'està ometent"
+
+#: src/install.rs:1011
+msgid "Calculating conflicts..."
+msgstr "Calculant conflictes..."
+
+#: src/install.rs:1017
+msgid "Calculating inner conflicts..."
+msgstr "Calculant conflictes interns..."
+
+#: src/install.rs:1029
+msgid "Inner conflicts found:"
+msgstr "Conflictes interns trobats:"
+
+#: src/install.rs:1051
+msgid "Conflicts found:"
+msgstr "Conflictes trobats:"
+
+#: src/install.rs:1074
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "Els paquets en conflicte s'hauran de confirmar manualment"
+
+#: src/install.rs:1078
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "no es poden instal·lar paquets en conflicte amb --noconfirm"
+
+#: src/install.rs:1117
+msgid "Repo"
+msgstr "Repo"
+
+#: src/install.rs:1124
+msgid "Repo Make"
+msgstr "Construcció del repositori"
+
+#: src/install.rs:1138
+msgid "Aur Make"
+msgstr "Construcció de l'AUR"
+
+#: src/install.rs:1240
+msgid "fetching devel info..."
+msgstr "s'està recuperant la informació de desenvolupament..."
+
+#: src/install.rs:1320
+msgid "Signing packages..."
+msgstr "Signant els paquets..."
+
+#: src/install.rs:1398 src/install.rs:1403
+msgid "failed to download sources for '{}'"
+msgstr "no s'han pogut baixar les fonts per a «{}»"
+
+#: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
+msgid "failed to build '{}'"
+msgstr "no s'ha pogut construir «{}»"
+
+#: src/install.rs:1411
+msgid "{}: parsing pkg list..."
+msgstr "{}: s'està analitzant la llista de paquets..."
+
+#: src/install.rs:1473
+msgid "adding {} to the install list"
+msgstr "s'està afegint {} a la llista d'instal·lació"
+
+#: src/install.rs:1532
+msgid "could not find package '{:pkg}' in package list for '{:base}'"
+msgstr ""
+"no s'ha pogut trobar el paquet '{:pkg}' a la llista de paquets per a '{:"
+"base}'"
+
+#: src/install.rs:1670
+msgid "can't find package name in packagelist: {}"
+msgstr "no es pot trobar el nom del paquet a la llista de paquets: {}"
+
+#: src/install.rs:1743
+msgid "There are {} members in group"
+msgstr "Hi ha {} membres al grup"
+
+#: src/install.rs:1768
+msgid ""
+"\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr ""
+"\n"
+"\n"
+"Introduïu una selecció (per defecte=tot): "
+
+#: src/install.rs:1965
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} està actualitzat -- s'està ometent la instal·lació"
+
+#: src/keys.rs:47
+msgid "keys need to be imported:)"
+msgstr "cal importar les claus:)"
+
+#: src/keys.rs:52
+msgid "     {:key} wanted by: {:base}"
+msgstr "    {:key} buscat per: {:base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "Sense data "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "Sense títol"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "no hi ha notícies noves"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [ignorat]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr "no s'ha pogut obtenir l'exe actual"
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "s'estan sincronitzant les bases de dades locals..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr " res a fer"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "ha fallat la cerca de l'AUR"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[No actualitzat: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[Instal·lat: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[Instal·lat]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[Orfe]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "no hi ha cap paquet que coincideixi amb la cerca"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "Paquets a instal·lar (p. ex.: 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "Total de paquets instal·lats: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "Paquets de l'AUR: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "Paquets de dipòsits: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "Paquets instal·lats explícitament: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "Mida total ocupada pels paquets: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "Deu paquets més grans:"
+
+#: src/sync.rs:89 src/lib.rs:395
+msgid " [installed]"
+msgstr " [instal·lat]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "Buscant actualitzacions a l'AUR"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "Buscant actualitzacions de desenvolupament"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "avís:"
+
+#: src/upgrade.rs:181
+msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
+msgstr "{:pkg}: s'ignora l'actualització del paquet ({:old} => {:new})"
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "Paquets a excloure (p. ex.: 1 2 3, 1-3):"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[S/n]:"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[s/N]:"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "s"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "sí"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "no"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "Introduïu un nombre (per defecte=1): "
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "número no vàlid: {}"
+
+#: src/util.rs:326
+msgid "invalid value: {:n} is not between 1 and {:max}"
+msgstr "valor no vàlid: {:n} no és entre 1 i {:max}"
+
+#: src/lib.rs:153
+msgid "can not use chroot builds: devtools is not installed"
+msgstr ""
+"no es poden utilitzar les construccions chroot: devtools no està instal·lat"
+
+#: src/lib.rs:393
+msgid " [installed: {}]"
+msgstr " [instal·lat: {}]"
