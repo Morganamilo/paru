@@ -220,7 +220,7 @@ msgstr "正在下载 PKGBUILD..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr " PKGBUILDs 已经是最新的"
+msgstr " PKGBUILD 都已经是最新的"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
