@@ -1,8 +1,9 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# Juliano Marcelino (ojmarcelino), 2021.
-#
+# Pedro Liberatti <ferrahwolfeh@protonmail.com>, 2021.
+# Morgana Milo <morganamilo@archlinux.org>, 2021.
+# Juliano Marcelino <github@jmarcelino.com.br>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
@@ -13,17 +14,17 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Pedro Liberatti <ferrahwolfeh@protonmail.com>\n"
+"Last-Translator: Juliano Marcelino (ojmarcelino)\n"
 "Language-Team: \n"
 "X-Generator: Poedit 3.0\n"
 
 #: src/clean.rs:31
 msgid "Do you want to remove ALL AUR packages from cache?"
-msgstr "Você deseja remover TODOS pacotes AUR do cache?"
+msgstr "Você quer remover TODOS pacotes AUR do cache?"
 
 #: src/clean.rs:33
 msgid "Do you want to remove all other AUR packages from cache?"
-msgstr "Você deseja remover os outros pacotes AUR do cache?"
+msgstr "Você quer remover os outros pacotes AUR do cache?"
 
 #: src/clean.rs:40
 msgid "Clone Directory: {}"
@@ -111,23 +112,23 @@ msgstr "valor para a chave '{}' não pode ser vazio"
 
 #: src/config.rs:756
 msgid "key '{}' does not belong to a section"
-msgstr "chave '{}' não pertence a secção"
+msgstr "chave '{}' não pertence a seção"
 
 #: src/config.rs:762
 msgid "unknown section '{}'"
-msgstr "secção '{}' desconhecida"
+msgstr "seção '{}' desconhecida"
 
 #: src/config.rs:769 src/config.rs:824 src/config.rs:829
 msgid "key can not be empty"
-msgstr "a chave não pode conter um valor vazio"
+msgstr "a chave não pode estar vazia"
 
 #: src/config.rs:791
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "erro: opção desconhecida '{}' na secção [bin]"
+msgstr "erro: opção desconhecida '{}' na seção [bin]"
 
 #: src/config.rs:891
 msgid "error: unknown option '{}' in section [options]"
-msgstr "erro: opção desconhecida '{}' na secção [options]"
+msgstr "erro: opção desconhecida '{}' na seção [opções]"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
@@ -264,7 +265,7 @@ msgstr "Licenças"
 
 #: src/info.rs:62 src/info.rs:108
 msgid "Provides"
-msgstr "Providencia"
+msgstr "Provê"
 
 #: src/info.rs:63 src/info.rs:109
 msgid "Depends On"
@@ -272,7 +273,7 @@ msgstr "Depende de"
 
 #: src/info.rs:64 src/info.rs:110
 msgid "Make Deps"
-msgstr "Depend. de compilação"
+msgstr "Dependências de compilação"
 
 #: src/info.rs:65 src/info.rs:111
 msgid "Check Deps"
@@ -381,7 +382,7 @@ msgstr "nenhum alvo especificado (use -h para ajuda)"
 #: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:227
 msgid " there is nothing to do"
-msgstr " não há nada a fazer"
+msgstr " Nada para fazer"
 
 #: src/install.rs:488
 msgid "can't install AUR package as root"
@@ -627,7 +628,7 @@ msgstr "Pacotes dos Repositórios: {}"
 
 #: src/stats.rs:95
 msgid "Explicitly installed packages: {}"
-msgstr "Pacotes instalados explicitamente: {}"
+msgstr "Pacotes explicitamente instalados: {}"
 
 #: src/stats.rs:99
 msgid "Total Size occupied by packages: {}"
