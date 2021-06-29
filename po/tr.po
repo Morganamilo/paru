@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-29 08:42+0300\n"
+"PO-Revision-Date: 2021-06-29 11:37+0300\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -268,15 +268,15 @@ msgstr "Sağladıkları"
 
 #: src/info.rs:63 src/info.rs:109
 msgid "Depends On"
-msgstr "Bağlılıkları"
+msgstr "Gereksinimleri"
 
 #: src/info.rs:64 src/info.rs:110
 msgid "Make Deps"
-msgstr "Make Bağlılıkları"
+msgstr "Make Gereksinimleri"
 
 #: src/info.rs:65 src/info.rs:111
 msgid "Check Deps"
-msgstr "Check Deps"
+msgstr "Gereksinimleri Kontrol Et"
 
 #: src/info.rs:66 src/info.rs:113
 msgid "Conflicts With"
