@@ -220,7 +220,7 @@ msgstr "正在下载 PKGBUILD..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr " PKGBUILD 都已是最新"
+msgstr " PKGBUILD 都已经是最新的"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -360,7 +360,7 @@ msgstr "正在解析软件包列表..."
 
 #: src/install.rs:261 src/install.rs:1462
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} 已是最新的 -- 跳过构建"
+msgstr "{}-{} 已经是最新的 -- 跳过构建"
 
 #: src/install.rs:333 src/query.rs:50 src/lib.rs:84
 msgid "error:"
