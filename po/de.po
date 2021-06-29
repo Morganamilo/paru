@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-29 10:26+0200\n"
+"PO-Revision-Date: 2021-06-29 10:42+0200\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -180,7 +180,7 @@ msgstr " Pakete nicht im AUR:"
 
 #: src/download.rs:94
 msgid "marked out of date: "
-msgstr " als veraltet markiert:"
+msgstr "als veraltet markiert: "
 
 #: src/download.rs:105
 msgid "orphans: "
@@ -583,7 +583,7 @@ msgstr "synchronisiere lokale Datenbanken…"
 
 #: src/repo.rs:201
 msgid "  nothing to do"
-msgstr " nichts zu tun"
+msgstr "  nichts zu tun"
 
 #: src/search.rs:32
 msgid "aur search failed"
