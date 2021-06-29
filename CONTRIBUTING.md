@@ -66,7 +66,7 @@ Alternatively, you can use programs like `poedit` to write the translations.
 ### Updating existing translations
 
 To update existing translations against new code you must first update the
-template file then upate the .po files.
+template file then update the .po files.
 
 Updating the template requires [xtr](https://github.com/woboq/tr) to be installed.
 
