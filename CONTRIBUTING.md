@@ -33,7 +33,7 @@ feature. Then running with **LD_LIBRARY_PATH** pointed at the custom libalpm.so.
 
 ## Testing
 
-Paur's test suite can be run by running:
+Paru's test suite can be run by running:
 
 ```
 cargo test --features mock -- --test-threads=1
@@ -41,7 +41,7 @@ cargo test --features mock -- --test-threads=1
 
 ## Translating
 
-See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization
+See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization.
 You probably want to subscribe to this to be nodified when translations need to be updated.
 
 ### New Languages
@@ -50,7 +50,7 @@ When translating to a new language try to stick to languages pacman already supp
 https://gitlab.archlinux.org/pacman/pacman/-/tree/master/src/pacman/po. For example using
 `es` over `es_ES`.
 
-To tranlate paru to a new language, copy the the template .pot file to the locale you
+To translate paru to a new language, copy the the template .pot file to the locale you
 are translating to.
 
 For example, to translate paru to Japanese you would do:
