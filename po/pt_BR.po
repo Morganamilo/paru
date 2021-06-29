@@ -2,6 +2,7 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# João Vitor S. Anjos <jvanjos@protonmail.com>, 2021
 #
 msgid ""
 msgstr ""
