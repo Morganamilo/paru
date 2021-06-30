@@ -2,7 +2,17 @@ name: Paru
 
 on:
   push:
+    paths:
+      - 'src/*.rs'
+      - 'testdata/**'
+      - 'tests/**'
+      - 'Cargo.*'
   pull_request:
+    paths:
+      - 'src/*.rs'
+      - 'testdata/**'
+      - 'tests/**'
+      - 'Cargo.*'
 
 env:
   CARGO_TERM_COLOR: always
