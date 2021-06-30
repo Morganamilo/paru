@@ -1,0 +1,25 @@
+name: Build Translations
+
+on:
+  push:
+    paths:
+      - 'po/*.po'
+  pull_request:
+    paths:
+      - 'po/*.po'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install gettext
+        run: sudo apt-get install gettext
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build translations
+        run: ./scripts/mkmo locale
