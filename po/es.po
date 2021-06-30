@@ -78,8 +78,8 @@ msgid "could not update aur cache"
 msgstr "no se pudo actualizar la caché del aur"
 
 #: src/config.rs:174
-msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "valor inválido '{:val}' para clave '{:key}', se esperaba: {:exp}"
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "valor inválido '{val}' para clave '{key}', se esperaba: {exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -134,8 +134,8 @@ msgid "option '{}' does not take a value"
 msgstr "opción {} no admite un valor"
 
 #: src/config.rs:947 src/install.rs:1796
-msgid "There are {:n} providers available for {:pkg}:"
-msgstr "Hay {:n} proveedores disponibles para {:pkg}"
+msgid "There are {n} providers available for {pkg}:"
+msgstr "Hay {n} proveedores disponibles para {pkg}"
 
 #: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755
 #: src/install.rs:1804
@@ -211,8 +211,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "no contiene PKGBUILD: saltando"
 
 #: src/download.rs:294
-msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
-msgstr " {:total>padding$}/{:total}) descargando: {:pkg}"
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
+msgstr " {total>padding$}/{total}) descargando: {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
@@ -454,10 +454,10 @@ msgstr "no se pudieron encontrar todos los paquetes necesarios:"
 #: src/install.rs:982
 msgid ""
 "\n"
-"    {:missing} (wanted by: {:stack})"
+"    {missing} (wanted by: {stack})"
 msgstr ""
 "\n"
-"    {:missing} (requerido por {:stack})"
+"    {missing} (requerido por {stack})"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
@@ -524,8 +524,8 @@ msgid "adding {} to the install list"
 msgstr "añadiendo {} a la lista de instalación"
 
 #: src/install.rs:1532
-msgid "could not find package '{:pkg}' in package list for '{:base}'"
-msgstr "no se pudo encontrar paquete '{:pkg}' en lista de instalación para '{:base}'"
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "no se pudo encontrar paquete '{pkg}' en lista de instalación para '{base}'"
 
 #: src/install.rs:1670
 msgid "can't find package name in packagelist: {}"
@@ -554,8 +554,8 @@ msgid "keys need to be imported:)"
 msgstr "se necesitan importar claves :)"
 
 #: src/keys.rs:52
-msgid "     {:key} wanted by: {:base}"
-msgstr "     {:key} requerido por: {:base}"
+msgid "     {key} wanted by: {base}"
+msgstr "     {key} requerido por: {base}"
 
 #: src/news.rs:57
 msgid "No Date "
@@ -654,8 +654,8 @@ msgid "warning:"
 msgstr "advertencia:"
 
 #: src/upgrade.rs:181
-msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
-msgstr "{:pkg}:ignorando actualización ({:old} => {:new})"
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}:ignorando actualización ({old} => {new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
@@ -694,8 +694,8 @@ msgid "invalid number: {}"
 msgstr "número inválido: {}"
 
 #: src/util.rs:326
-msgid "invalid value: {:n} is not between 1 and {:max}"
-msgstr "valor inválido: {:n} no esta entre 1 y {:max}"
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "valor inválido: {n} no esta entre 1 y {max}"
 
 #: src/lib.rs:153
 msgid "can not use chroot builds: devtools is not installed"

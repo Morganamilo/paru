@@ -79,8 +79,8 @@ msgid "could not update aur cache"
 msgstr "no s'ha pogut actualitzar la memòria cau de l'AUR"
 
 #: src/config.rs:174
-msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "valor '{:val}' no vàlid per a la clau '{:key}', s'esperava: {:exp}"
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "valor '{val}' no vàlid per a la clau '{key}', s'esperava: {exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -135,8 +135,8 @@ msgid "option '{}' does not take a value"
 msgstr "l'opció '{}' no pren cap valor"
 
 #: src/config.rs:947 src/install.rs:1796
-msgid "There are {:n} providers available for {:pkg}:"
-msgstr "Hi ha {:n} proveïdors disponibles per a {:pkg}:"
+msgid "There are {n} providers available for {pkg}:"
+msgstr "Hi ha {n} proveïdors disponibles per a {pkg}:"
 
 #: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755
 #: src/install.rs:1804
@@ -212,8 +212,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "no conté PKGBUILD: s'ometrà"
 
 #: src/download.rs:294
-msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
-msgstr " ({:total>padding$}/{:total}) descarregant: {:pkg}"
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
+msgstr " ({total>padding$}/{total}) descarregant: {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
@@ -456,10 +456,10 @@ msgstr "no s'han pogut trobar tots els paquets necessaris:"
 #: src/install.rs:982
 msgid ""
 "\n"
-"    {:missing} (wanted by: {:stack})"
+"    {missing} (wanted by: {stack})"
 msgstr ""
 "\n"
-"    {:missing} (desitjat per: {:stack})"
+"    {missing} (desitjat per: {stack})"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
@@ -526,9 +526,9 @@ msgid "adding {} to the install list"
 msgstr "s'està afegint {} a la llista d'instal·lació"
 
 #: src/install.rs:1532
-msgid "could not find package '{:pkg}' in package list for '{:base}'"
+msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
-"no s'ha pogut trobar el paquet '{:pkg}' a la llista de paquets per a '{:"
+"no s'ha pogut trobar el paquet '{pkg}' a la llista de paquets per a '{"
 "base}'"
 
 #: src/install.rs:1670
@@ -558,8 +558,8 @@ msgid "keys need to be imported:)"
 msgstr "cal importar les claus:)"
 
 #: src/keys.rs:52
-msgid "     {:key} wanted by: {:base}"
-msgstr "    {:key} buscat per: {:base}"
+msgid "     {key} wanted by: {base}"
+msgstr "    {key} buscat per: {base}"
 
 #: src/news.rs:57
 msgid "No Date "
@@ -658,8 +658,8 @@ msgid "warning:"
 msgstr "avís:"
 
 #: src/upgrade.rs:181
-msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
-msgstr "{:pkg}: s'ignora l'actualització del paquet ({:old} => {:new})"
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: s'ignora l'actualització del paquet ({old} => {new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
@@ -698,8 +698,8 @@ msgid "invalid number: {}"
 msgstr "número no vàlid: {}"
 
 #: src/util.rs:326
-msgid "invalid value: {:n} is not between 1 and {:max}"
-msgstr "valor no vàlid: {:n} no és entre 1 i {:max}"
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "valor no vàlid: {n} no és entre 1 i {max}"
 
 #: src/lib.rs:153
 msgid "can not use chroot builds: devtools is not installed"

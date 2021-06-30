@@ -75,8 +75,8 @@ msgid "could not update aur cache"
 msgstr "ei pystytty päivittämään aur välimuistia"
 
 #: src/config.rs:174
-msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "kelpaamaton arvo '{:val}' avaimelle {:key}', odotettiin: {:exp}"
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "kelpaamaton arvo '{val}' avaimelle {key}', odotettiin: {exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -131,8 +131,8 @@ msgid "option '{}' does not take a value"
 msgstr "vaihtoehto '{}' ei ota arvoa"
 
 #: src/config.rs:947 src/install.rs:1796
-msgid "There are {:n} providers available for {:pkg}:"
-msgstr "On olemassa {:n} tarjoajaa paketille {:pkg}"
+msgid "There are {n} providers available for {pkg}:"
+msgstr "On olemassa {n} tarjoajaa paketille {pkg}"
 
 #: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755 src/install.rs:1804
 msgid "Repository"
@@ -204,8 +204,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "ei sisällä PKGBUILDia: ohitetaan"
 
 #: src/download.rs:294
-msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
-msgstr "({:total>padding$}/{:total}) ladataan: {:pkg}"
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
+msgstr "({total>padding$}/{total}) ladataan: {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
@@ -445,9 +445,9 @@ msgstr "ei pystytty löytämään kaikkia vaadittuja paketteja"
 
 #: src/install.rs:982
 msgid "\n"
-"    {:missing} (wanted by: {:stack})"
+"    {missing} (wanted by: {stack})"
 msgstr "\n" 
-"    {:missing} ({:stack} haluaa tämän)"
+"    {missing} ({stack} haluaa tämän)"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
@@ -514,8 +514,8 @@ msgid "adding {} to the install list"
 msgstr "lisätään {} asennuslistaan"
 
 #: src/install.rs:1532
-msgid "could not find package '{:pkg}' in package list for '{:base}'"
-msgstr "ei löydetty pakettia '{:pkg}' pakettilistassa '{:base}'"
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "ei löydetty pakettia '{pkg}' pakettilistassa '{base}'"
 
 #: src/install.rs:1670
 msgid "can't find package name in packagelist: {}"
@@ -542,8 +542,8 @@ msgid "keys need to be imported:)"
 msgstr "avaimet on asennettava:)"
 
 #: src/keys.rs:52
-msgid "     {:key} wanted by: {:base}"
-msgstr "     {:base} haluaa {:key}"
+msgid "     {key} wanted by: {base}"
+msgstr "     {base} haluaa {key}"
 
 #: src/news.rs:57
 msgid "No Date "
@@ -642,8 +642,8 @@ msgid "warning:"
 msgstr "varoitus:"
 
 #: src/upgrade.rs:181
-msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
-msgstr "{:pkg}: ohitetaan paketti päivitys ({:old} => {:new})"
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: ohitetaan paketti päivitys ({old} => {new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
@@ -682,8 +682,8 @@ msgid "invalid number: {}"
 msgstr "virheellinen luku: {}"
 
 #: src/util.rs:326
-msgid "invalid value: {:n} is not between 1 and {:max}"
-msgstr "virheellinen arvo: {:n} ei ole 1 ja {:max} välillä"
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "virheellinen arvo: {n} ei ole 1 ja {max} välillä"
 
 #: src/lib.rs:153
 msgid "can not use chroot builds: devtools is not installed"
