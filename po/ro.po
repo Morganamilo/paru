@@ -1,0 +1,703 @@
+# Paru Romanian translation
+# Copyright (C) 2021
+# This file is distributed under the same license as the paru package.
+# Adrian Costin <adriancostin6@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-06-30 21:32+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Adrian Costin <adriancostin6@gmail.com>\n"
+"Language-Team: \n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "Doriți să stergeți din cache TOATE PACHETELE care provin din AUR?"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "Doriți să stergeți din cache toate celelalte pachete AUR?"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr "Clone Directory: {}"
+
+#: src/clean.rs:46
+msgid ""
+"\n"
+"Diff Directory: {}"
+msgstr ""
+"\n"
+"Diff Directory: {}"
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "Doriți să eliminați toate diff-urile salvate?"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "nu se poate deschide directorul diff: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "nu se poate elimina '{}'"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "nu se poate deschide directorul clone: {}"
+
+#: src/command_line.rs:127
+msgid "option {} expects a value"
+msgstr "opțiunea {} așteaptă o valoare"
+
+#: src/command_line.rs:158 src/command_line.rs:327
+msgid "option {} does not allow a value"
+msgstr "opțiunea {} nu permite alocarea unei valori"
+
+#: src/command_line.rs:318
+msgid "unknown option --{}"
+msgstr "opțiune necunoscută --{}"
+
+#: src/command_line.rs:321
+msgid "unknown option -{}"
+msgstr "opțiune necunoscută -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "nu s-a putut deschide fișierul cache '{}'"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "nu s-a putut actualiza cache-ul aur"
+
+#: src/config.rs:174
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr ""
+"valoare incorectă '{val}' pentru cheia '{key}', valoare așteptată: {exp}"
+
+#: src/config.rs:474
+msgid "failed to find cache directory"
+msgstr "nu s-a găsit directorul cache"
+
+#: src/config.rs:477
+msgid "failed to find config directory"
+msgstr "nu s-a găsit directorul config"
+
+#: src/config.rs:501
+msgid "config file '{}' does not exist"
+msgstr "fișierul de configurare '{}' nu există"
+
+#: src/config.rs:550
+msgid "only one operation may be used at a time"
+msgstr "se poate folosi doar o singură operațiune la un anumit moment"
+
+#: src/config.rs:638
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "nu s-a putut găsi repo-ul local '{}' în pacman.conf"
+
+#: src/config.rs:670
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "nu s-a putut inițializa alpm: root={} dbpath{}"
+
+#: src/config.rs:740 src/config.rs:873
+msgid "value can not be empty for key '{}'"
+msgstr "valoarea cheii '{}' nu poate sa fie empty"
+
+#: src/config.rs:756
+msgid "key '{}' does not belong to a section"
+msgstr "cheia '{}' nu aparține unei secțiuni"
+
+#: src/config.rs:762
+msgid "unknown section '{}'"
+msgstr "secțiune necunoscută '{}'"
+
+#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+msgid "key can not be empty"
+msgstr "cheia nu poate să fie empty"
+
+#: src/config.rs:791
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "eroare: opțiune necunoscută '{}' în secțiunea [bin]"
+
+#: src/config.rs:891
+msgid "error: unknown option '{}' in section [options]"
+msgstr "erorare: opțiune necunoscută '{}' în secțiunea [options]"
+
+#: src/config.rs:896
+msgid "option '{}' does not take a value"
+msgstr "opțiunea '{}' nu necesită(primește) o valoare"
+
+#: src/config.rs:947 src/install.rs:1796
+msgid "There are {n} providers available for {pkg}:"
+msgstr "Există {n} provideri disponibili pentru {pkg}:"
+
+#: src/config.rs:961 src/info.rs:57 src/info.rs:96 src/install.rs:1755
+#: src/install.rs:1804
+msgid "Repository"
+msgstr "Repository"
+
+#: src/config.rs:983
+msgid "  failed to sync {}"
+msgstr " nu s-a putut sincroniza {}"
+
+#: src/devel.rs:129 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "Se interoghează AUR..."
+
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
+msgid "failed to parse srcinfo for '{}'"
+msgstr "nu s-a putut procesa srcinfo pentru '{}'"
+
+#: src/devel.rs:184
+msgid "Looking for devel repos..."
+msgstr "Se caută devel repos..."
+
+#: src/devel.rs:193
+msgid "failed to save devel info"
+msgstr "nu s-au putut salva devel info"
+
+#: src/devel.rs:382
+msgid "package does not have an update"
+msgstr "pachetul nu are un update disponibil"
+
+#: src/devel.rs:417
+msgid "failed to lookup: {}"
+msgstr "nu s-a putut efectua căutarea: {}"
+
+#: src/devel.rs:445
+msgid "invalid json: {}"
+msgstr "json invalid: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "pachetele nu se găsesc în AUR: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "marcat ca expirat: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "orphans: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "nu s-a putut obține directorul curent"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "nu s-au putut obține pachetele din repo: asp nu este instalat"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "Lipsă pachete ABS "
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530
+#: src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113
+#: src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186
+#: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744
+#: src/install.rs:807 src/install.rs:845 src/keys.rs:74
+msgid "failed to run:"
+msgstr "nu s-a putut rula:"
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "nu conține PKGBUILD: se sare peste"
+
+#: src/download.rs:294
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
+msgstr " ({total>padding$}/{total}) se descarcă: {pkg}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "Se descarcă PKBUILDs..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr "PKGBUILDs sunt actualizate la cea mai recentă versiune"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "{} nu este instalat: nu se pot obține pachetele din repo"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "asp returnează {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman este ocupat momentan, vă rugăm să așteptați..."
+
+#: src/fmt.rs:6 src/info.rs:147 src/search.rs:176
+msgid "None"
+msgstr "Nimic"
+
+#: src/info.rs:31 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "pachetul '{}' nu a fost găsit"
+
+#: src/info.rs:58 src/info.rs:97
+msgid "Name"
+msgstr "Nume"
+
+#: src/info.rs:59 src/info.rs:98
+msgid "Version"
+msgstr "Versiune"
+
+#: src/info.rs:60 src/info.rs:99
+msgid "Description"
+msgstr "Descriere"
+
+#: src/info.rs:61 src/info.rs:107
+msgid "Groups"
+msgstr "Grupuri"
+
+#: src/info.rs:62 src/info.rs:108
+msgid "Licenses"
+msgstr "Licențe"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Provides"
+msgstr "Oferă"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Depends On"
+msgstr "Depinde De"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Make Deps"
+msgstr "Dependințe Make"
+
+#: src/info.rs:66 src/info.rs:112
+msgid "Check Deps"
+msgstr "Verificare dependințe"
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Conflicts With"
+msgstr "În Conflict Cu"
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Maintainer"
+msgstr "Responsabil"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Votes"
+msgstr "Voturi"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "Popularity"
+msgstr "Popularitate"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "First Submitted"
+msgstr "Prima Încărcare"
+
+#: src/info.rs:72 src/info.rs:119
+msgid "Last Modified"
+msgstr "Ultima Modificare"
+
+#: src/info.rs:73 src/info.rs:121
+msgid "Out Of Date"
+msgstr "Expirat"
+
+#: src/info.rs:74 src/info.rs:126
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:75 src/info.rs:127
+msgid "Package Base ID"
+msgstr "ID-ul de bază al pachetului"
+
+#: src/info.rs:76 src/info.rs:128
+msgid "Keywords"
+msgstr "Cuvinte cheie"
+
+#: src/info.rs:77 src/info.rs:130
+msgid "Snapshot URL"
+msgstr "Snapshot URL"
+
+#: src/info.rs:93
+msgid "No"
+msgstr "Nu"
+
+#: src/info.rs:113
+msgid "Optional Deps"
+msgstr "Dependințe Opționale"
+
+#: src/install.rs:131 src/install.rs:545 src/install.rs:944
+msgid "no architecture"
+msgstr "nicio arhitectură"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "nu se poate compila pachetul ca root"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "nu s-a putut procesa srcinfo generat de makepkg"
+
+#: src/install.rs:171 src/install.rs:442
+msgid "Resolving dependencies..."
+msgstr "Se rezolva dependințele..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "nu s-au putut descărca sursele"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "nu s-a putut compila"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "se procesează lista pkg..."
+
+#: src/install.rs:261 src/install.rs:1462
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} este actualizat la ultima versiune -- se sare peste compilare"
+
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:84
+msgid "error:"
+msgstr "eroare:"
+
+#: src/install.rs:334
+msgid "could not get news"
+msgstr "nu s-au putut obține noutăți"
+
+#: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
+msgid "Proceed with installation?"
+msgstr "Continuă cu instalarea?"
+
+#: src/install.rs:356
+msgid "no targets specified (use -h for help)"
+msgstr "niciun target specificat (folosește -h pentru ajutor)"
+
+#: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
+#: src/lib.rs:227
+msgid " there is nothing to do"
+msgstr " nu este nimic de făcut"
+
+#: src/install.rs:488
+msgid "can't install AUR package as root"
+msgstr "nu se poate instala pachetul AUR ca root"
+
+#: src/install.rs:507
+msgid "Remove make dependencies after install?"
+msgstr "Elimina dependințele make după instalare?"
+
+#: src/install.rs:518
+msgid "Proceed to review?"
+msgstr "Continuă cu verificarea pachetului?"
+
+#: src/install.rs:559
+msgid "The following packages are not compatible with your architecture:"
+msgstr "Următoarele pachete nu sunt compatibile cu arhitectura ta:"
+
+#: src/install.rs:573
+msgid "Would you like to try build them anyway?"
+msgstr "Dorești să încerci să le compilezi oricum?"
+
+#: src/install.rs:662
+msgid "packages failed to build: {}"
+msgstr "pachetele nu au putut fi compilate: {}"
+
+#: src/install.rs:698
+msgid "could not find .SRINFO for '{}'"
+msgstr "nu s-a putut găsi .SRCINFO pentru '{}'"
+
+#: src/install.rs:762
+msgid "failed to read dir: {}"
+msgstr "nu s-a putut citi directorul: {}"
+
+#: src/install.rs:778
+msgid ""
+"{} is a directory\n"
+"\n"
+msgstr "{} este un director\n"
+
+#: src/install.rs:818
+msgid "failed to open: {}"
+msgstr "nu s-a putut deschide {}"
+
+#: src/install.rs:830
+msgid "binary file: {}"
+msgstr "fișier binar: {}"
+
+#: src/install.rs:852
+msgid " nothing new to review"
+msgstr " nimic de verificat"
+
+#: src/install.rs:871
+msgid "failed to execute file manager: {}"
+msgstr "nu s-a putut executa un file manager: {}"
+
+#: src/install.rs:874
+msgid "file manager did not execute successfully"
+msgstr "file manager nu a fost executat cu succes"
+
+#: src/install.rs:936
+msgid "duplicate packages: {}"
+msgstr "pachete duplicate: {}"
+
+#: src/install.rs:975
+msgid "could not find all required packages:"
+msgstr "nu s-au putut găsi toate pachetele necesare:"
+
+#: src/install.rs:982
+msgid ""
+"\n"
+"    {missing} (wanted by: {stack})"
+msgstr ""
+"\n"
+"{missing} (dorit de: {stack})"
+
+#: src/install.rs:996 src/install.rs:1941
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} este actualizat la ultima versiune -- se sare peste"
+
+#: src/install.rs:1011
+msgid "Calculating conflicts..."
+msgstr "Calcularea conflictelor..."
+
+#: src/install.rs:1017
+msgid "Calculating inner conflicts..."
+msgstr "Calcularea conflictelor interioare..."
+
+#: src/install.rs:1029
+msgid "Inner conflicts found:"
+msgstr "Conflicte interioare depistate:"
+
+#: src/install.rs:1051
+msgid "Conflicts found:"
+msgstr "Conflicte depistate:"
+
+#: src/install.rs:1074
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "Pachetele care intră în conflict vor trebui confirmate manual"
+
+#: src/install.rs:1078
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "nu s-au putut instala pachetele care intră în conflict cu --noconfirm"
+
+#: src/install.rs:1117
+msgid "Repo"
+msgstr "Repo"
+
+#: src/install.rs:1124
+msgid "Repo Make"
+msgstr "Repo Make"
+
+#: src/install.rs:1138
+msgid "Aur Make"
+msgstr "Aur Make"
+
+#: src/install.rs:1240
+msgid "fetching devel info..."
+msgstr "se obțin devel info..."
+
+#: src/install.rs:1320
+msgid "Signing packages..."
+msgstr "Se semnează pachetele..."
+
+#: src/install.rs:1398 src/install.rs:1403
+msgid "failed to download sources for '{}'"
+msgstr "nu s-au putut descărca sursele"
+
+#: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
+msgid "failed to build '{}'"
+msgstr "nu s-a putut compila '{}'"
+
+#: src/install.rs:1411
+msgid "{}: parsing pkg list..."
+msgstr "{}: procesare lista pkg..."
+
+#: src/install.rs:1473
+msgid "adding {} to the install list"
+msgstr "se adaugă {} la lista de instalare"
+
+#: src/install.rs:1532
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "nu s-a putut găsi pachetul '{pkg}' in lista de pachete '{base}'"
+
+#: src/install.rs:1670
+msgid "can't find package name in packagelist: {}"
+msgstr "nu s-a putut găsi numele pachetului in packagelist: {}"
+
+#: src/install.rs:1743
+msgid "There are {} members in group"
+msgstr "Există {} membrii în grup"
+
+#: src/install.rs:1768
+msgid ""
+"\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr ""
+"\n"
+"\n"
+"Introdu pachetele selectate (default=toate): "
+
+#: src/install.rs:1965
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} este actualizat la ultima versiune -- se sare peste instalare"
+
+#: src/keys.rs:47
+msgid "keys need to be imported:)"
+msgstr "cheile trebuie importate:)"
+
+#: src/keys.rs:52
+msgid "     {key} wanted by: {base}"
+msgstr "     {key} dorită de: {base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "Nicio Dată"
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "Niciun Titlu"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "nicio știre nouă"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [ignorat]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr "nu s-a putut obține current exe"
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "se sincronizează baza de date locală..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr " nimic de făcut"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "căutarea aur a eșuat"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[Expirat: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[Instalat: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[Instalat]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[Orphaned]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "niciun pachet nu se potrivește cu căutarea"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "Pachetele care vor fi instalate (eg: 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "Toate pachetele instalate: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "Pachete Aur: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "Pachete Repo: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "Pachete instalate explicit: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "Spațiul Total ocupat de pachete: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "Cele mai mari zece pachete:"
+
+#: src/sync.rs:89 src/lib.rs:395
+msgid " [installed]"
+msgstr " [instalate]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "Se caută upgrade-uri AUR"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "Se caută upgrade-uri devel"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "avertizare:"
+
+#: src/upgrade.rs:181
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: se ignora upgrade-ul pachetului ({old} => {new})"
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "Pachetele care vor fi excluse (eg: 1 2 3, 1-3):"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[Y/n]"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[y/N]"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "y"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "yes"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "no"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "Introdu un număr (default=1):"
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "număr invalid: {}"
+
+#: src/util.rs:326
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "valoare invalidă: {n} nu este între 1 și {max}"
+
+#: src/lib.rs:153
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "nu se pot folosi build-uri chroot: devtools nu este instalat"
+
+#: src/lib.rs:393
+msgid " [installed: {}]"
+msgstr " [instalat: {}]"
