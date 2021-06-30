@@ -1,29 +1,31 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# Pedro Liberatti <ferrahwolfeh@protonmail.com>, 2021.
+# Morgana Milo <morganamilo@archlinux.org>, 2021.
+# Juliano Marcelino <github@jmarcelino.com.br>, 2021.
+# João Vitor S. Anjos <jvanjos@protonmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 17:46-0300\n"
+"PO-Revision-Date: 2021-06-29 19:54-0300\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Pedro Liberatti <ferrahwolfeh@protonmail.com>\n"
+"Last-Translator: Juliano Marcelino (ojmarcelino)\n"
 "Language-Team: \n"
 "X-Generator: Poedit 3.0\n"
 
 #: src/clean.rs:31
 msgid "Do you want to remove ALL AUR packages from cache?"
-msgstr "Você deseja remover TODOS pacotes AUR do cache?"
+msgstr "Deseja remover TODOS pacotes AUR do cache?"
 
 #: src/clean.rs:33
 msgid "Do you want to remove all other AUR packages from cache?"
-msgstr "Você deseja remover os outros pacotes AUR do cache?"
+msgstr "Deseja remover os outros pacotes AUR do cache?"
 
 #: src/clean.rs:40
 msgid "Clone Directory: {}"
@@ -35,15 +37,15 @@ msgid ""
 "Diff Directory: {}"
 msgstr ""
 "\n"
-"Diretório Diff: {}"
+"Diretório divergente: {}"
 
 #: src/clean.rs:48
 msgid "Do you want to remove all saved diffs?"
-msgstr "Você deseja remover todas diffs salvas?"
+msgstr "Deseja remover todas as divergências salvas?"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
-msgstr "não foi possível abrir o diretório diff: {}"
+msgstr "não foi possível abrir o diretório das divergências: {}"
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
@@ -79,7 +81,7 @@ msgstr "não foi possível atualizar o cache do AUR"
 
 #: src/config.rs:174
 msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
-msgstr "valor inválido '{:val}' para chave '{:key}', é esperado: {:exp}"
+msgstr "valor inválido '{:val}' para chave '{:key}', espera-se: {:exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
@@ -99,7 +101,7 @@ msgstr "apenas uma operação pode ser feita por vez"
 
 #: src/config.rs:638
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "não foi possível encontrar o repo local '{}' no pacman.conf"
+msgstr "não foi possível encontrar o repositório local '{}' no pacman.conf"
 
 #: src/config.rs:670
 msgid "failed to initialize alpm: root={} dbpath={}"
@@ -111,23 +113,23 @@ msgstr "valor para a chave '{}' não pode ser vazio"
 
 #: src/config.rs:756
 msgid "key '{}' does not belong to a section"
-msgstr "chave '{}' não pertence a secção"
+msgstr "chave '{}' não pertence a seção"
 
 #: src/config.rs:762
 msgid "unknown section '{}'"
-msgstr "secção '{}' desconhecida"
+msgstr "seção '{}' desconhecida"
 
 #: src/config.rs:769 src/config.rs:824 src/config.rs:829
 msgid "key can not be empty"
-msgstr "chave não pode ter um valor vazio"
+msgstr "chave não pode estar vazia"
 
 #: src/config.rs:791
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "erro: opção desconhecida '{}' na secção [bin]"
+msgstr "erro: opção desconhecida '{}' na seção [bin]"
 
 #: src/config.rs:891
 msgid "error: unknown option '{}' in section [options]"
-msgstr "erro: opção desconhecida '{}' na secção [options]"
+msgstr "erro: opção desconhecida '{}' na seção [opções]"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
@@ -176,7 +178,7 @@ msgstr "json inválido: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr "pacotes não presentes no AUR: "
+msgstr "pacotes ausentes no AUR: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
@@ -204,7 +206,7 @@ msgstr "Pacotes ABS faltando "
 #: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744
 #: src/install.rs:807 src/install.rs:845 src/keys.rs:74
 msgid "failed to run:"
-msgstr "falha ao rodar:"
+msgstr "falha ao executar:"
 
 #: src/download.rs:263
 msgid "does not contain PKGBUILD: skipping"
@@ -264,7 +266,7 @@ msgstr "Licenças"
 
 #: src/info.rs:62 src/info.rs:108
 msgid "Provides"
-msgstr "Providencia"
+msgstr "Provê"
 
 #: src/info.rs:63 src/info.rs:109
 msgid "Depends On"
@@ -272,7 +274,7 @@ msgstr "Depende de"
 
 #: src/info.rs:64 src/info.rs:110
 msgid "Make Deps"
-msgstr "Depend. de compilação"
+msgstr "Dependências de compilação"
 
 #: src/info.rs:65 src/info.rs:111
 msgid "Check Deps"
@@ -328,7 +330,7 @@ msgstr "Não"
 
 #: src/info.rs:112
 msgid "Optional Deps"
-msgstr "Depend. Opcionais"
+msgstr "Dependências Opcionais"
 
 #: src/install.rs:131 src/install.rs:545 src/install.rs:944
 msgid "no architecture"
@@ -368,7 +370,7 @@ msgstr "erro:"
 
 #: src/install.rs:334
 msgid "could not get news"
-msgstr "não foi possível obter notícias"
+msgstr "não foi possível atualizar"
 
 #: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
 msgid "Proceed with installation?"
@@ -381,7 +383,7 @@ msgstr "nenhum alvo especificado (use -h para ajuda)"
 #: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:227
 msgid " there is nothing to do"
-msgstr " Nada para fazer"
+msgstr " nada para fazer"
 
 #: src/install.rs:488
 msgid "can't install AUR package as root"
@@ -389,7 +391,7 @@ msgstr "não é possível instalar o pacote AUR como root"
 
 #: src/install.rs:507
 msgid "Remove make dependencies after install?"
-msgstr "Remover dependências de compilação após instalar?"
+msgstr "Remover dependências de compilação depois da instalação?"
 
 #: src/install.rs:518
 msgid "Proceed to review?"
@@ -409,7 +411,7 @@ msgstr "os pacotes {} falharam na compilação"
 
 #: src/install.rs:698
 msgid "could not find .SRINFO for '{}'"
-msgstr "não foi possível encontrar um .SRINFO para '{}'"
+msgstr "não foi possível encontrar .SRINFO para '{}'"
 
 #: src/install.rs:762
 msgid "failed to read dir: {}"
@@ -489,11 +491,11 @@ msgstr "não é possível instalar pacotes conflitantes com --noconfirm"
 
 #: src/install.rs:1117
 msgid "Repo"
-msgstr "Repo"
+msgstr "Repositório"
 
 #: src/install.rs:1124
 msgid "Repo Make"
-msgstr "Pacotes Make nos Repos"
+msgstr "Pacotes Make nos repositórios"
 
 #: src/install.rs:1138
 msgid "Aur Make"
@@ -567,7 +569,7 @@ msgstr "Sem Título"
 
 #: src/news.rs:69
 msgid "no new news"
-msgstr "sem notícias novas"
+msgstr "sem novidades"
 
 #: src/query.rs:105
 msgid " [ignored]"
@@ -627,7 +629,7 @@ msgstr "Pacotes dos Repositórios: {}"
 
 #: src/stats.rs:95
 msgid "Explicitly installed packages: {}"
-msgstr "Pacotes instalados explicitamente: {}"
+msgstr "Pacotes explicitamente instalados: {}"
 
 #: src/stats.rs:99
 msgid "Total Size occupied by packages: {}"
