@@ -102,7 +102,7 @@ msgstr "nu s-a putut găsi repo-ul local '{}' în pacman.conf"
 
 #: src/config.rs:670
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "nu s-a putut inițializa alpm: root={} dbpath{}"
+msgstr "nu s-a putut inițializa alpm: root={} dbpath={}"
 
 #: src/config.rs:740 src/config.rs:873
 msgid "value can not be empty for key '{}'"
@@ -143,7 +143,7 @@ msgstr "Repository"
 
 #: src/config.rs:983
 msgid "  failed to sync {}"
-msgstr " nu s-a putut sincroniza {}"
+msgstr "  nu s-a putut sincroniza {}"
 
 #: src/devel.rs:129 src/download.rs:179
 msgid "Querying AUR..."
@@ -219,7 +219,7 @@ msgstr "Se descarcă PKBUILDs..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr "PKGBUILDs sunt actualizate la cea mai recentă versiune"
+msgstr " PKGBUILDs sunt actualizate la cea mai recentă versiune"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -418,7 +418,9 @@ msgstr "nu s-a putut citi directorul: {}"
 msgid ""
 "{} is a directory\n"
 "\n"
-msgstr "{} este un director\n"
+msgstr ""
+"{} este un director\n"
+"\n"
 
 #: src/install.rs:818
 msgid "failed to open: {}"
@@ -580,7 +582,7 @@ msgstr "se sincronizează baza de date locală..."
 
 #: src/repo.rs:201
 msgid "  nothing to do"
-msgstr " nimic de făcut"
+msgstr "  nimic de făcut"
 
 #: src/search.rs:32
 msgid "aur search failed"
@@ -672,7 +674,7 @@ msgstr "y"
 
 #: src/util.rs:101
 msgid "yes"
-msgstr "yes"
+msgstr "da"
 
 #: src/util.rs:103
 msgid "n"
@@ -680,7 +682,7 @@ msgstr "n"
 
 #: src/util.rs:103
 msgid "no"
-msgstr "no"
+msgstr "nu"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
