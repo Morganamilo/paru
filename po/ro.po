@@ -130,7 +130,7 @@ msgstr "erorare: opțiune necunoscută '{}' în secțiunea [options]"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
-msgstr "opțiunea '{}' nu necesită(primește) o valoare"
+msgstr "opțiunea '{}' nu ia o valoare"
 
 #: src/config.rs:947 src/install.rs:1796
 msgid "There are {n} providers available for {pkg}:"
