@@ -456,7 +456,7 @@ msgid ""
 "    {missing} (wanted by: {stack})"
 msgstr ""
 "\n"
-"{missing} (dorit de: {stack})"
+"    {missing} (dorit de: {stack})"
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
