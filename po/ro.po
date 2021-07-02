@@ -183,7 +183,7 @@ msgstr "marcat ca expirat: "
 
 #: src/download.rs:105
 msgid "orphans: "
-msgstr "orphans: "
+msgstr "orfani: "
 
 #: src/download.rs:206
 msgid "could not get current directory"
@@ -195,7 +195,7 @@ msgstr "nu s-au putut obține pachetele din repo: asp nu este instalat"
 
 #: src/download.rs:231
 msgid "Missing ABS packages "
-msgstr "Lipsă pachete ABS "
+msgstr "Lipsesc pachetele ABS "
 
 #: src/download.rs:250 src/download.rs:276 src/download.rs:530
 #: src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113
@@ -432,7 +432,7 @@ msgstr "fișier binar: {}"
 
 #: src/install.rs:852
 msgid " nothing new to review"
-msgstr " nimic de verificat"
+msgstr " nimic nou de verificat"
 
 #: src/install.rs:871
 msgid "failed to execute file manager: {}"
@@ -440,7 +440,7 @@ msgstr "nu s-a putut executa un file manager: {}"
 
 #: src/install.rs:874
 msgid "file manager did not execute successfully"
-msgstr "file manager nu a fost executat cu succes"
+msgstr "file manager-ul nu a fost executat cu succes"
 
 #: src/install.rs:936
 msgid "duplicate packages: {}"
@@ -468,7 +468,7 @@ msgstr "Calcularea conflictelor..."
 
 #: src/install.rs:1017
 msgid "Calculating inner conflicts..."
-msgstr "Calcularea conflictelor interioare..."
+msgstr "Calculare conflicte interioare..."
 
 #: src/install.rs:1029
 msgid "Inner conflicts found:"
@@ -480,11 +480,11 @@ msgstr "Conflicte depistate:"
 
 #: src/install.rs:1074
 msgid "Conflicting packages will have to be confirmed manually"
-msgstr "Pachetele care intră în conflict vor trebui confirmate manual"
+msgstr "Pachetele care sunt în conflict vor trebui confirmate manual"
 
 #: src/install.rs:1078
 msgid "can not install conflicting packages with --noconfirm"
-msgstr "nu s-au putut instala pachetele care intră în conflict cu --noconfirm"
+msgstr "nu s-au putut instala pachetele care sunt în conflict cu --noconfirm"
 
 #: src/install.rs:1117
 msgid "Repo"
@@ -574,7 +574,7 @@ msgstr " [ignorat]"
 
 #: src/repo.rs:164
 msgid "failed to get current exe"
-msgstr "nu s-a putut obține current exe"
+msgstr "nu s-a putut obține exe-ul curent"
 
 #: src/repo.rs:195
 msgid "syncing local databases..."
