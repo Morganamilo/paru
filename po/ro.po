@@ -662,15 +662,15 @@ msgstr "Pachetele care vor fi excluse (eg: 1 2 3, 1-3):"
 
 #: src/util.rs:80
 msgid "[Y/n]:"
-msgstr "[Y/n]"
+msgstr "[D/n]"
 
 #: src/util.rs:82
 msgid "[y/N]:"
-msgstr "[y/N]"
+msgstr "[d/N]"
 
 #: src/util.rs:101
 msgid "y"
-msgstr "y"
+msgstr "d"
 
 #: src/util.rs:101
 msgid "yes"
