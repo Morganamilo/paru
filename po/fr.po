@@ -699,7 +699,7 @@ msgstr "non"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
-msgstr "Entrez un nombre (défaut=1): "
+msgstr "Entrez un nombre (défaut=1) : "
 
 #: src/util.rs:316
 msgid "invalid number: {}"
