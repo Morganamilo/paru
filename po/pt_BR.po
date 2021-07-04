@@ -2,8 +2,8 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # Pedro Liberatti <ferrahwolfeh@protonmail.com>, 2021.
-# Morgana Milo <morganamilo@archlinux.org>, 2021.
-# Juliano Marcelino <github@jmarcelino.com.br>, 2021.
+# Morgan Adamiec <morganamilo@archlinux.org>, 2021.
+# Juliano Marcelino <parui18n@jmarcelino.com.br>, 2021.
 # João Vitor S. Anjos <jvanjos@protonmail.com>, 2021.
 msgid ""
 msgstr ""
