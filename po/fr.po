@@ -1,15 +1,15 @@
-# SOME DESCRIPTIVE TITLE.
+# Paru French translation
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Paragoumba <paragoumba@gmail.com>, 2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-02 13:11+0000\n"
-"PO-Revision-Date: 2021-07-02 15:00+0200\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2021-07-04 22:16+0200\n"
+"Last-Translator: Paragoumba <paragoumba@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -78,7 +78,6 @@ msgid "could not update aur cache"
 msgstr "impossible de mettre à jour le cache de l'AUR"
 
 #: src/config.rs:174
-#, fuzzy
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "valeur '{val}' invalide pour la clé '{key}', attendu : {exp}"
 
@@ -135,7 +134,6 @@ msgid "option '{}' does not take a value"
 msgstr "l'option '{}' n'accepte pas de valeur"
 
 #: src/config.rs:947 src/install.rs:1796
-#, fuzzy
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Il y a {n} fournisseurs disponibles pour {pkg} :"
 
@@ -181,7 +179,6 @@ msgid "packages not in the AUR: "
 msgstr "paquets introuvables dans l'AUR : "
 
 #: src/download.rs:94
-#, fuzzy
 msgid "marked out of date: "
 msgstr "marqués comme pas à jour : "
 
@@ -210,12 +207,10 @@ msgid "failed to run:"
 msgstr "échec du lancement :"
 
 #: src/download.rs:263
-#, fuzzy
 msgid "does not contain PKGBUILD: skipping"
 msgstr "ne contient pas de PKGBUILD : ignorer"
 
 #: src/download.rs:294
-#, fuzzy
 msgid " ({total>padding$}/{total}) downloading: {pkg}"
 msgstr " ({total>padding$}/{total}) téléchargement : {pkg}"
 
@@ -457,7 +452,6 @@ msgid "could not find all required packages:"
 msgstr "certains des paquets requis n'ont pas pu être trouvés :"
 
 #: src/install.rs:982
-#, fuzzy
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -466,7 +460,6 @@ msgstr ""
 "    {missing} (requis par : {stack}}"
 
 #: src/install.rs:996 src/install.rs:1941
-#, fuzzy
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} est à jour -- ignoré"
 
@@ -499,7 +492,6 @@ msgid "Repo"
 msgstr "Dépôt"
 
 #: src/install.rs:1124
-#, fuzzy
 msgid "Repo Make"
 msgstr "Dépôts (compilation)"
 
@@ -532,12 +524,10 @@ msgid "adding {} to the install list"
 msgstr "ajout de {} à la liste des installations"
 
 #: src/install.rs:1532
-#, fuzzy
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr "le paquet '{pkg}' n'a pas été trouvé dans la liste des paquets pour '{base}'"
 
 #: src/install.rs:1670
-#, fuzzy
 msgid "can't find package name in packagelist: {}"
 msgstr "impossible de trouver le nom du paquet dans la liste des paquets : {}"
 
@@ -564,7 +554,6 @@ msgid "keys need to be imported:)"
 msgstr "les clés doivent être importés :)"
 
 #: src/keys.rs:52
-#, fuzzy
 msgid "     {key} wanted by: {base}"
 msgstr "     {key} requis par : {base}"
 
@@ -665,9 +654,8 @@ msgid "warning:"
 msgstr "avertissement :"
 
 #: src/upgrade.rs:181
-#, fuzzy
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
-msgstr "{pkg} : mise à jour du paquet ignorée ({old} => {:new})"
+msgstr "{pkg} : mise à jour du paquet ignorée ({old} => {new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
@@ -706,12 +694,10 @@ msgid "invalid number: {}"
 msgstr "nombre invalid : {}"
 
 #: src/util.rs:326
-#, fuzzy
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "valeur invalide : {n} n'est pas compris entre 1 et {max}"
 
 #: src/lib.rs:153
-#, fuzzy
 msgid "can not use chroot builds: devtools is not installed"
 msgstr "impossible d'utiliser chroot : devtools n'est pas installé"
 
