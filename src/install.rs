@@ -33,7 +33,7 @@ use raur::Cache;
 use srcinfo::Srcinfo;
 use tr::tr;
 
-#[derive(SmartDefault, PartialEq, Eq)]
+#[derive(SmartDefault, PartialEq, Eq, Debug)]
 enum Status {
     #[default]
     Ok,
@@ -41,7 +41,7 @@ enum Status {
     Stop(i32),
 }
 
-#[derive(SmartDefault)]
+#[derive(SmartDefault, Debug)]
 struct BuildInfo {
     #[default(Ok(0))]
     err: Result<i32>,
@@ -523,7 +523,15 @@ async fn prepare_build(
     }
 
     if actions.build.is_empty() {
-        return Ok(BuildInfo::default());
+        let err = if !config.chroot {
+            repo_install(config, &actions.install)
+        } else {
+            Ok(0)
+        };
+
+        let mut bi = BuildInfo::default();
+        bi.err = err;
+        return Ok(bi);
     }
 
     let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
