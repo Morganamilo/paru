@@ -348,6 +348,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let targets = args::parse_targets(&targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets)?;
     let mut done_something = false;
+    let mut ran_pacman = false;
 
     if targets_str.is_empty()
         && !config.args.has_arg("u", "sysupgrade")
@@ -361,19 +362,24 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
             if config.args.has_arg("y", "refresh") {
                 early_refresh(config)?;
             }
-        } else if (config.args.has_arg("y", "refresh")
-            || config.args.has_arg("u", "sysupgrade")
-            || !repo_targets.is_empty())
-            && (!config.chroot || config.mode == Mode::Repo)
+        } else if !config.chroot
+            && ((config.args.has_arg("y", "refresh")
+                || config.args.has_arg("u", "sysupgrade")
+                || !repo_targets.is_empty())
+                || config.mode == Mode::Repo)
         {
             let targets = repo_targets.iter().map(|t| t.to_string()).collect();
             repo_targets.clear();
             done_something = true;
+            ran_pacman = true;
             early_pacman(config, targets)?;
         }
     }
 
-    if targets_str.is_empty() && !config.args.has_arg("u", "sysupgrade") {
+    if targets_str.is_empty()
+        && !config.args.has_arg("u", "sysupgrade")
+        && !config.args.has_arg("y", "refresh")
+    {
         return Ok(0);
     }
 
@@ -406,21 +412,23 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     targets.extend(upgrades.repo_keep.iter().map(Targ::from));
 
     // No aur stuff, let's just use pacman
-    if config.mode == Mode::Repo
-        || (aur_targets.is_empty()
-            && upgrades.aur_keep.is_empty()
-            && (!config.args.has_arg("y", "refresh") || config.combined_upgrade))
+    if config.mode != Mode::Aur
+        && aur_targets.is_empty()
+        && upgrades.aur_keep.is_empty()
+        && !ran_pacman
     {
         print_warnings(config, &cache, None);
         let mut args = config.pacman_args();
         let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
         args.targets = targets.iter().map(|s| s.as_str()).collect();
-        args.remove("y").remove("refresh");
-        if !config.combined_upgrade {
-            args.remove("u").remove("sysupgrade");
-        }
 
-        if !args.targets.is_empty() || args.has_arg("u", "sysupgrade") {
+        if config.combined_upgrade {
+            args.remove("y").remove("refresh");
+        }
+        if !args.targets.is_empty()
+            || args.has_arg("u", "sysupgrade")
+            || args.has_arg("y", "refresh")
+        {
             let code = exec::pacman(config, &args)?.code();
             return Ok(code);
         }
