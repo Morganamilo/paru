@@ -19,9 +19,9 @@ dependencies = [
 
 [[package]]
 name = "alpm"
-version = "2.0.5"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68ee937eb03e5b8cb3388efd2e12df2640ed1d1fbd43073bb48be79a726548e2"
+checksum = "fb56c7e8cb05fcc3d089ae26c14a5f44902877cb23bdc76fffd04e17c4985de0"
 dependencies = [
  "alpm-sys",
  "bitflags",
@@ -29,18 +29,19 @@ dependencies = [
 
 [[package]]
 name = "alpm-sys"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bc975d7c0bc845e5206599b1df8a35141d0215384cf654edc449ed5bc0a2a36"
+checksum = "d8edc7df020c1709861e4022ce953e6b7bfa4c85af150e3d4bbd51c7983f5744"
 dependencies = [
  "bindgen",
+ "pkg-config",
 ]
 
 [[package]]
 name = "alpm-utils"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "531aba3d8589b369de6954db9fb7dae276d937e73f280fe902584f5fb108c876"
+checksum = "10aed1cfb74c2b012d9ea0b1b2d6b4947332b3937fc905dfbd35fc6a4f712c41"
 dependencies = [
  "alpm",
  "pacmanconf",
@@ -632,9 +633,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.9.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
+checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 
 [[package]]
 name = "hermit-abi"
@@ -755,9 +756,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "1.6.2"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "824845a0bf897a9042383849b02c1bc219c2383772efcd5c6f9766fa4b81aef3"
+checksum = "bc633605454125dec4b66843673f01c7df2b89479b32e0ed634e43a91cff62a5"
 dependencies = [
  "autocfg",
  "hashbrown",
@@ -1799,9 +1800,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.7.1"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fb2ed024293bb19f7a5dc54fe83bf86532a44c12a2bb8ba40d64a4509395ca2"
+checksum = "570c2eb13b3ab38208130eccd41be92520388791207fde783bda7c1e8ace28d4"
 dependencies = [
  "autocfg",
  "bytes",
