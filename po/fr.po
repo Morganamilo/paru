@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-02 13:11+0000\n"
-"PO-Revision-Date: 2021-07-04 22:16+0200\n"
+"PO-Revision-Date: 2021-07-06 23:39+0200\n"
 "Last-Translator: Paragoumba <paragoumba@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -461,7 +461,7 @@ msgstr ""
 
 #: src/install.rs:996 src/install.rs:1941
 msgid "{}-{} is up to date -- skipping"
-msgstr "{}-{} est à jour -- ignoré"
+msgstr "{}-{} est à jour -- omission"
 
 #: src/install.rs:1011
 msgid "Calculating conflicts..."
