@@ -2,8 +2,8 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # Paragoumba <paragoumba@gmail.com>, 2021
-# Silejonu <48565914+Silejonu@users.noreply.github.com>, 2021
-# Cedric Brisson <74279086+CedBri@users.noreply.github.com>, 2021
+# Silejonu, 2021
+# Cedric Brisson <cedric@cedricbrisson.ca>, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
