@@ -53,19 +53,19 @@ msgstr "kan inte öppna kloningskatalog: {}"
 
 #: src/command_line.rs:127
 msgid "option {} expects a value"
-msgstr "alternativet {} förväntar sig ett värde"
+msgstr "parametern {} förväntar sig ett värde"
 
 #: src/command_line.rs:158 src/command_line.rs:327
 msgid "option {} does not allow a value"
-msgstr "alternativ {} tillåter inte ett värde"
+msgstr "parametern {} tillåter inte ett värde"
 
 #: src/command_line.rs:318
 msgid "unknown option --{}"
-msgstr "okänt parameter --{}"
+msgstr "okänd parameter --{}"
 
 #: src/command_line.rs:321
 msgid "unknown option -{}"
-msgstr "okänt parameter -{}"
+msgstr "okänd parameter -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
@@ -121,11 +121,11 @@ msgstr "nyckeln får inte vara tom"
 
 #: src/config.rs:791
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "fel: okänt val '{}' i sektion [bin]"
+msgstr "okänt alternativ '{}' i sektion [bin]"
 
 #: src/config.rs:891
 msgid "error: unknown option '{}' in section [options]"
-msgstr "fel: okänt val '{}' i sektion [options]"
+msgstr "okänt alternativ '{}' i sektion [options]"
 
 #: src/config.rs:896
 msgid "option '{}' does not take a value"
