@@ -133,7 +133,7 @@ msgstr "alternativet '{}' tar inget värde"
 
 #: src/config.rs:947 src/install.rs:1796
 msgid "There are {n} providers available for {pkg}:"
-msgstr "Det finns {n} leverantörer tillgängliga för {pkg}"
+msgstr "Det finns {n} leverantörer tillgängliga för {pkg}:"
 
 #: src/config.rs:961 src/info.rs:57 src/info.rs:96 src/install.rs:1755 src/install.rs:1804
 msgid "Repository"
@@ -543,7 +543,7 @@ msgstr "nycklar behövs importeras:)"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"
-msgstr "    {key} eftersökt av: {base}"
+msgstr "     {key} eftersökt av: {base}"
 
 #: src/news.rs:57
 msgid "No Date "
@@ -691,4 +691,4 @@ msgstr "kan inte använda chroot-byggen: devtools är inte installerat"
 
 #: src/lib.rs:393
 msgid " [installed: {}]"
-msgstr " [installerade: {}"
+msgstr " [installerade: {}]"
