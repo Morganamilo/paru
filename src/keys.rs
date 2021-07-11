@@ -1,12 +1,13 @@
 use crate::config::Config;
 use crate::download::Bases;
+use crate::exec;
 use crate::printtr;
 use crate::util::ask;
 
 use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use aur_depends::Base;
 use srcinfo::Srcinfo;
 use tr::tr;
@@ -63,19 +64,12 @@ pub fn check_pgp_keys(
 }
 
 fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()> {
-    Command::new(&config.gpg_bin)
-        .args(&config.gpg_flags)
-        .arg("--recv-keys")
-        .args(import.keys())
-        .status()
-        .with_context(|| {
-            format!(
-                "{} {} {} --recv-keys {}",
-                tr!("failed to run:"),
-                config.gpg_bin,
-                config.gpg_flags.join(" "),
-                import.keys().cloned().collect::<Vec<_>>().join(" ")
-            )
-        })?;
-    Ok(())
+    let mut args = config
+        .gpg_flags
+        .iter()
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>();
+    args.push("--recv-keys");
+    args.extend(import.keys());
+    exec::command(&config.gpg_bin, ".", &args)
 }
