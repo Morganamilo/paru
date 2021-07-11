@@ -664,27 +664,27 @@ msgstr "बाहर करने के लिए पैकेज (उदाह
 
 #: src/util.rs:80
 msgid "[Y/n]:"
-msgstr "[Y/n]:"
+msgstr "[हाँ/न]:"
 
 #: src/util.rs:82
 msgid "[y/N]:"
-msgstr "[y/N]:"
+msgstr "[हाँ/न]:"
 
 #: src/util.rs:101
 msgid "y"
-msgstr "y"
+msgstr "हाँ"
 
 #: src/util.rs:101
 msgid "yes"
-msgstr "yes"
+msgstr "हाँ"
 
 #: src/util.rs:103
 msgid "n"
-msgstr "n"
+msgstr "न"
 
 #: src/util.rs:103
 msgid "no"
-msgstr "no"
+msgstr "नही"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
