@@ -36,7 +36,7 @@ msgid ""
 "Diff Directory: {}"
 msgstr ""
 "\n"
-""डिफ निर्देशिका: {}"
+"डिफ निर्देशिका: {}"
 
 #: src/clean.rs:48
 msgid "Do you want to remove all saved diffs?"
@@ -48,7 +48,7 @@ msgstr "अंतर निर्देशिका नहीं खोल स�
 
 #: src/clean.rs:75 src/clean.rs:133
 msgid "could not remove '{}'"
-msgstr "'{}'हटा नहीं सका"
+msgstr "'{}' हटा नहीं सका"
 
 #: src/clean.rs:93
 msgid "can't open clone dir: {}"
@@ -76,7 +76,7 @@ msgstr "कैशे फ़ाइल खोलने में विफल  '{}
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
-msgstr 'AUR कैश अपडेट नहीं कर सका"
+msgstr "AUR कैश अपडेट नहीं कर सका"
 
 #: src/config.rs:174
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
@@ -88,7 +88,7 @@ msgstr "कैश निर्देशिका खोजने में व�
 
 #: src/config.rs:477
 msgid "failed to find config directory"
-msgstr " कॉन्फ़िग निर्देशिका खोजने में विफल "
+msgstr "कॉन्फ़िग निर्देशिका खोजने में विफल"
 
 #: src/config.rs:501
 msgid "config file '{}' does not exist"
@@ -112,7 +112,7 @@ msgstr "'{}' कुंजी के लिए मान खाली नही�
 
 #: src/config.rs:756
 msgid "key '{}' does not belong to a section"
-msgstr "key '{}' एक खंड से संबंधित नहीं है"
+msgstr "की '{}' एक खंड से संबंधित नहीं है"
 
 #: src/config.rs:762
 msgid "unknown section '{}'"
@@ -145,7 +145,7 @@ msgstr "कोष"
 
 #: src/config.rs:983
 msgid "  failed to sync {}"
-msgstr " सिंक करने में विफल {}"
+msgstr "  सिंक करने में विफल {}"
 
 #: src/devel.rs:129 src/download.rs:179
 msgid "Querying AUR..."
@@ -153,7 +153,7 @@ msgstr "क्वेरी AUR..."
 
 #: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
 msgid "failed to parse srcinfo for '{}'"
-msgstr "'{}'के लिए srcinfo पार्स करने में विफल"
+msgstr "'{}' के लिए srcinfo पार्स करने में विफल"
 
 #: src/devel.rs:184
 msgid "Looking for devel repos..."
@@ -177,7 +177,7 @@ msgstr "अमान्य json: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr "पैकेज AUR . में नहीं हैं: "
+msgstr "पैकेज AUR में नहीं हैं: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
@@ -269,7 +269,7 @@ msgstr "प्रदान"
 
 #: src/info.rs:63 src/info.rs:109
 msgid "Depends On"
-msgstr " निर्भर "
+msgstr "निर्भर"
 
 #: src/info.rs:64 src/info.rs:110
 msgid "Make Deps"
@@ -297,7 +297,7 @@ msgstr "लोकप्रियता"
 
 #: src/info.rs:70 src/info.rs:117
 msgid "First Submitted"
-msgstr "पहले सबमिट "
+msgstr "पहले सबमिट"
 
 #: src/info.rs:71 src/info.rs:118
 msgid "Last Modified"
@@ -317,7 +317,7 @@ msgstr "पैकेज बेस ID"
 
 #: src/info.rs:75 src/info.rs:127
 msgid "Keywords"
-msgstr "Keywords"
+msgstr "खोजशब्द"
 
 #: src/info.rs:76 src/info.rs:129
 msgid "Snapshot URL"
@@ -382,7 +382,7 @@ msgstr "कोई लक्ष्य निर्दिष्ट नहीं (�
 #: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:227
 msgid " there is nothing to do"
-msgstr "यहां करने के लिए कुछ नहीं है"
+msgstr " यहां करने के लिए कुछ नहीं है"
 
 #: src/install.rs:488
 msgid "can't install AUR package as root"
@@ -434,7 +434,7 @@ msgstr "बाइनरी फ़ाइल: {}"
 
 #: src/install.rs:852
 msgid " nothing new to review"
-msgstr "समीक्षा करने के लिए कुछ भी नया नहीं"
+msgstr " समीक्षा करने के लिए कुछ भी नया नहीं"
 
 #: src/install.rs:871
 msgid "failed to execute file manager: {}"
@@ -510,7 +510,7 @@ msgstr "पैकेज पर हस्ताक्षर..."
 
 #: src/install.rs:1398 src/install.rs:1403
 msgid "failed to download sources for '{}'"
-msgstr "'{}'के लिए स्रोत डाउनलोड करने में विफल"
+msgstr "'{}' के लिए स्रोत डाउनलोड करने में विफल"
 
 #: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
 msgid "failed to build '{}'"
@@ -556,7 +556,7 @@ msgstr "keys को आयात करने की आवश्यकता �
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"
-msgstr "    {key} चाहते हैं: {base}"
+msgstr "     {key} चाहते हैं: {base}"
 
 #: src/news.rs:57
 msgid "No Date "
@@ -584,7 +584,7 @@ msgstr "स्थानीय डेटाबेस को सिंक हो �
 
 #: src/repo.rs:201
 msgid "  nothing to do"
-msgstr " कुछ करने को नहीं"
+msgstr "  कुछ करने को नहीं"
 
 #: src/search.rs:32
 msgid "aur search failed"
@@ -596,7 +596,7 @@ msgstr "[अप्रचलित: {}]"
 
 #: src/search.rs:164 src/search.rs:218
 msgid "[Installed: {}]"
-msgstr "[स्थापित]"
+msgstr "[स्थापित: {}]"
 
 #: src/search.rs:166 src/search.rs:220
 msgid "[Installed]"
@@ -608,7 +608,7 @@ msgstr "[अनाथ]"
 
 #: src/search.rs:263
 msgid "no packages match search"
-msgstr " पैकेज खोज से मेल नहीं "
+msgstr "पैकेज खोज से मेल नहीं"
 
 #: src/search.rs:321
 msgid "Packages to install (eg: 1 2 3, 1-3):"
