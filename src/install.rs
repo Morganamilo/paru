@@ -750,7 +750,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                 let mut command = Command::new("sh");
 
                 if std::env::var("LESS").is_err() {
-                    command.env("LESS", "SRX");
+                    command.env("LESS", "SRXF");
                 }
                 let mut command = command
                     .arg("-c")
