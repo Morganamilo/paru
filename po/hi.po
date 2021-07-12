@@ -1,0 +1,707 @@
+# Paru Hindi translation
+# Copyright (C) 2021
+# This file is distributed under the same license as the paru package.
+# Atharva Amritkar <atharvaamritkar@protonmail.com>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-06-28 03:24+0000\n"
+"PO-Revision-Date: 2021-07-03 20:07+0600\n"
+"Last-Translator: Atharva Amritkar <atharvaamritkar@protonmail.com>\n"
+"Language-Team: \n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "क्या आप कैश से सभी AUR पैकेज हटाना चाहते हैं?"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "क्या आप अन्य सभी AUR पैकेज को कैश से हटाना चाहते हैं?"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr "क्लोन निर्देशिका: {}"
+
+#: src/clean.rs:46
+msgid ""
+"\n"
+"Diff Directory: {}"
+msgstr ""
+"\n"
+"डिफ निर्देशिका: {}"
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "क्या आप सभी सहेजे गए अंतर को हटाना चाहते हैं?"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "अंतर निर्देशिका नहीं खोल सकता: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "'{}' हटा नहीं सका"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "क्लोन निर्देशिका नहीं खोल सकता: {}"
+
+#: src/command_line.rs:127
+msgid "option {} expects a value"
+msgstr "विकल्प {} एक मान की अपेक्षा करता है"
+
+#: src/command_line.rs:158 src/command_line.rs:327
+msgid "option {} does not allow a value"
+msgstr "विकल्प {} मान की अनुमति नहीं देता"
+
+#: src/command_line.rs:318
+msgid "unknown option --{}"
+msgstr "अज्ञात विकल्प --{}"
+
+#: src/command_line.rs:321
+msgid "unknown option -{}"
+msgstr "अज्ञात विकल्प -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "कैशे फ़ाइल खोलने में विफल  '{}'"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "AUR कैश अपडेट नहीं कर सका"
+
+#: src/config.rs:174
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "अमान्य मान '{val}','{key}' कुंजी के लिए , अपेक्षित: {exp}"
+
+#: src/config.rs:474
+msgid "failed to find cache directory"
+msgstr "कैश निर्देशिका खोजने में विफल"
+
+#: src/config.rs:477
+msgid "failed to find config directory"
+msgstr "कॉन्फ़िग निर्देशिका खोजने में विफल"
+
+#: src/config.rs:501
+msgid "config file '{}' does not exist"
+msgstr "कॉन्फ़िग फ़ाइल '{}' मौजूद नहीं होना"
+
+#: src/config.rs:550
+msgid "only one operation may be used at a time"
+msgstr "एक समय में केवल एक ही ऑपरेशन का उपयोग किया जा सकता है"
+
+#: src/config.rs:638
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "स्थानीय रेपो नहीं मिल रहा है '{}' pacman.conf में"
+
+#: src/config.rs:670
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "alpm प्रारंभ करने में विफल: root={} dbpath={}"
+
+#: src/config.rs:740 src/config.rs:873
+msgid "value can not be empty for key '{}'"
+msgstr "'{}' कुंजी के लिए मान खाली नहीं हो सकता "
+
+#: src/config.rs:756
+msgid "key '{}' does not belong to a section"
+msgstr "की '{}' एक खंड से संबंधित नहीं है"
+
+#: src/config.rs:762
+msgid "unknown section '{}'"
+msgstr "अज्ञात खंड '{}'"
+
+#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+msgid "key can not be empty"
+msgstr "कुंजी खाली नहीं हो सकती"
+
+#: src/config.rs:791
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "त्रुटि: खंड [bin] में अज्ञात विकल्प '{}'"
+
+#: src/config.rs:891
+msgid "error: unknown option '{}' in section [options]"
+msgstr "त्रुटि: अज्ञात विकल्प '{}' अनुभाग में [options]"
+
+#: src/config.rs:896
+msgid "option '{}' does not take a value"
+msgstr "विकल्प '{}' मूल्य नहीं लेता"
+
+#: src/config.rs:947 src/install.rs:1796
+msgid "There are {n} providers available for {pkg}:"
+msgstr "{pkg} के लिए {n} प्रदाता उपलब्ध हैं:"
+
+#: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755
+#: src/install.rs:1804
+msgid "Repository"
+msgstr "कोष"
+
+#: src/config.rs:983
+msgid "  failed to sync {}"
+msgstr "  सिंक करने में विफल {}"
+
+#: src/devel.rs:129 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "क्वेरी AUR..."
+
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
+msgid "failed to parse srcinfo for '{}'"
+msgstr "'{}' के लिए srcinfo पार्स करने में विफल"
+
+#: src/devel.rs:184
+msgid "Looking for devel repos..."
+msgstr "डेवेल रेपो की तलाश में..."
+
+#: src/devel.rs:193
+msgid "failed to save devel info"
+msgstr "डेवेल जानकारी सहेजने में विफल"
+
+#: src/devel.rs:382
+msgid "package does not have an update"
+msgstr "पैकेज में अपडेट नहीं है"
+
+#: src/devel.rs:417
+msgid "failed to lookup: {}"
+msgstr "देखने में विफल: {}"
+
+#: src/devel.rs:445
+msgid "invalid json: {}"
+msgstr "अमान्य json: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "पैकेज AUR में नहीं हैं: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "पुराना चिह्नित: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "अनाथ: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "वर्तमान निर्देशिका नहीं मिल सका"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "रेपो पैकेज नहीं मिल सकता: asp स्थापित नहीं है"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "अनुपस्थित ABS पैकेज "
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530
+#: src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113
+#: src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186
+#: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744
+#: src/install.rs:807 src/install.rs:845 src/keys.rs:74
+msgid "failed to run:"
+msgstr "चलाने में विफल:"
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "PKGBUILD शामिल नहीं है: छोड़ना"
+
+#: src/download.rs:294
+msgid " ({total>padding$}/{total}) downloading: {pkg}"
+msgstr " ({total>padding$}/{total}) डाउनलोड: {pkg}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "डाउनलोड PKGBUILDs..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr " PKGBUILD अप टू डेट"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "{} स्थापित नहीं है: रेपो पैकेज नहीं मिल सकता"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "asp लौटाया {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman वर्तमान में उपयोग में है, कृपया प्रतीक्षा करें..."
+
+#: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
+msgid "None"
+msgstr "कोई नहीं"
+
+#: src/info.rs:30 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "पैकेज '{}' नहीं मिला"
+
+#: src/info.rs:57 src/info.rs:96
+msgid "Name"
+msgstr "नाम"
+
+#: src/info.rs:58 src/info.rs:97
+msgid "Version"
+msgstr "संस्करण"
+
+#: src/info.rs:59 src/info.rs:98
+msgid "Description"
+msgstr "विवरण"
+
+#: src/info.rs:60 src/info.rs:106
+msgid "Groups"
+msgstr "समूह"
+
+#: src/info.rs:61 src/info.rs:107
+msgid "Licenses"
+msgstr "लाइसेंस"
+
+#: src/info.rs:62 src/info.rs:108
+msgid "Provides"
+msgstr "प्रदान"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Depends On"
+msgstr "निर्भर"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Make Deps"
+msgstr "निर्भर करें"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Check Deps"
+msgstr "चेक डिप्स"
+
+#: src/info.rs:66 src/info.rs:113
+msgid "Conflicts With"
+msgstr "के साथ संघर्ष"
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Maintainer"
+msgstr "मेंटेनर"
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Votes"
+msgstr "वोट"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Popularity"
+msgstr "लोकप्रियता"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "First Submitted"
+msgstr "पहले सबमिट"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "Last Modified"
+msgstr "अंतिम संशोधित"
+
+#: src/info.rs:72 src/info.rs:120
+msgid "Out Of Date"
+msgstr "अप्रचलित"
+
+#: src/info.rs:73 src/info.rs:125
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:74 src/info.rs:126
+msgid "Package Base ID"
+msgstr "पैकेज बेस ID"
+
+#: src/info.rs:75 src/info.rs:127
+msgid "Keywords"
+msgstr "खोजशब्द"
+
+#: src/info.rs:76 src/info.rs:129
+msgid "Snapshot URL"
+msgstr "स्नैपशॉट URL"
+
+#: src/info.rs:92
+msgid "No"
+msgstr "नहीं"
+
+#: src/info.rs:112
+msgid "Optional Deps"
+msgstr "वैकल्पिक विवरण"
+
+#: src/install.rs:131 src/install.rs:545 src/install.rs:944
+msgid "no architecture"
+msgstr "कोई वास्तुकला नहीं"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "रूट के रूप में पैकेज नहीं बना सकता"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "Makepkg . द्वारा उत्पन्न srcinfo को पार्स करने में विफल"
+
+#: src/install.rs:171 src/install.rs:442
+msgid "Resolving dependencies..."
+msgstr "निर्भरता का समाधान..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "स्रोत डाउनलोड करने में विफल "
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "निर्माण करने में विफल"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "पार्सिंग पैकेज सूची..."
+
+#: src/install.rs:261 src/install.rs:1462
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} अप टू डेट है -- स्किप बिल्ड"
+
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:84
+msgid "error:"
+msgstr "त्रुटि:"
+
+#: src/install.rs:334
+msgid "could not get news"
+msgstr "खबर नहीं मिल सकी"
+
+#: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
+msgid "Proceed with installation?"
+msgstr "स्थापना के साथ आगे बढ़ें?"
+
+#: src/install.rs:356
+msgid "no targets specified (use -h for help)"
+msgstr "कोई लक्ष्य निर्दिष्ट नहीं (मदद के लिए -h का उपयोग करें)"
+
+#: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360
+#: src/lib.rs:227
+msgid " there is nothing to do"
+msgstr " यहां करने के लिए कुछ नहीं है"
+
+#: src/install.rs:488
+msgid "can't install AUR package as root"
+msgstr "AUR पैकेज को रूट के रूप में स्थापित नहीं कर सकता"
+
+#: src/install.rs:507
+msgid "Remove make dependencies after install?"
+msgstr "इंस्टॉल करने के बाद मेक डिपेंडेंसी हटाएं?"
+
+#: src/install.rs:518
+msgid "Proceed to review?"
+msgstr "समीक्षा के लिए आगे बढ़ें?"
+
+#: src/install.rs:559
+msgid "The following packages are not compatible with your architecture:"
+msgstr "निम्नलिखित पैकेज आपके आर्किटेक्चर के अनुकूल नहीं हैं"
+
+#: src/install.rs:573
+msgid "Would you like to try build them anyway?"
+msgstr "क्या आप उन्हें वैसे भी बनाने की कोशिश करना चाहेंगे?"
+
+#: src/install.rs:662
+msgid "packages failed to build: {}"
+msgstr "पैकेज बनाने में विफल: {}"
+
+#: src/install.rs:698
+msgid "could not find .SRINFO for '{}'"
+msgstr "'{}' के लिए .SRINFO नहीं ढूंढ सका"
+
+#: src/install.rs:762
+msgid "failed to read dir: {}"
+msgstr "निर्देशिका पढ़ने में विफल: {}"
+
+#: src/install.rs:778
+msgid ""
+"{} is a directory\n"
+"\n"
+msgstr ""
+"{} एक निर्देशिका है\n"
+"\n"
+
+#: src/install.rs:818
+msgid "failed to open: {}"
+msgstr "खोलने में असफल हुआ: {}"
+
+#: src/install.rs:830
+msgid "binary file: {}"
+msgstr "बाइनरी फ़ाइल: {}"
+
+#: src/install.rs:852
+msgid " nothing new to review"
+msgstr " समीक्षा करने के लिए कुछ भी नया नहीं"
+
+#: src/install.rs:871
+msgid "failed to execute file manager: {}"
+msgstr "फ़ाइल प्रबंधक निष्पादित करने में विफल: {}"
+
+#: src/install.rs:874
+msgid "file manager did not execute successfully"
+msgstr "फ़ाइल प्रबंधक सफलतापूर्वक निष्पादित नहीं हुआ"
+
+#: src/install.rs:936
+msgid "duplicate packages: {}"
+msgstr "डुप्लीकेट पैकेज: {}"
+
+#: src/install.rs:975
+msgid "could not find all required packages:"
+msgstr "सभी आवश्यक पैकेज नहीं मिल सका:"
+
+#: src/install.rs:982
+msgid ""
+"\n"
+"    {missing} (wanted by: {stack})"
+msgstr ""
+"\n"
+"    {missing} (द्वारा चाहता था: {stack})"
+
+#: src/install.rs:996 src/install.rs:1941
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} अप टू डेट है -- लंघन"
+
+#: src/install.rs:1011
+msgid "Calculating conflicts..."
+msgstr "संघर्षों की गणना..."
+
+#: src/install.rs:1017
+msgid "Calculating inner conflicts..."
+msgstr "आंतरिक संघर्षों की गणना..."
+
+#: src/install.rs:1029
+msgid "Inner conflicts found:"
+msgstr "आंतरिक संघर्ष पाए गए:"
+
+#: src/install.rs:1051
+msgid "Conflicts found:"
+msgstr "संघर्ष पाया गया:"
+
+#: src/install.rs:1074
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "विरोधी पैकेजों की मैन्युअल रूप से पुष्टि करनी होगी"
+
+#: src/install.rs:1078
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "--noconfirm के साथ परस्पर विरोधी पैकेज स्थापित नहीं कर सकता"
+
+#: src/install.rs:1117
+msgid "Repo"
+msgstr "Repo"
+
+#: src/install.rs:1124
+msgid "Repo Make"
+msgstr "Repo Make"
+
+#: src/install.rs:1138
+msgid "Aur Make"
+msgstr "Aur Make"
+
+#: src/install.rs:1240
+msgid "fetching devel info..."
+msgstr "डेवेल जानकारी प्राप्त करना..."
+
+#: src/install.rs:1320
+msgid "Signing packages..."
+msgstr "पैकेज पर हस्ताक्षर..."
+
+#: src/install.rs:1398 src/install.rs:1403
+msgid "failed to download sources for '{}'"
+msgstr "'{}' के लिए स्रोत डाउनलोड करने में विफल"
+
+#: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
+msgid "failed to build '{}'"
+msgstr "निर्माण करने में विफल '{}'"
+
+#: src/install.rs:1411
+msgid "{}: parsing pkg list..."
+msgstr "{}: संकल्प पीकेजी सूची..."
+
+#: src/install.rs:1473
+msgid "adding {} to the install list"
+msgstr "{} को संस्थापित सूची में जोड़ना"
+
+#: src/install.rs:1532
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "पैकेज नहीं मिल सकाt '{pkg}' के लिए पैकेज सूची में'{base}'"
+
+#: src/install.rs:1670
+msgid "can't find package name in packagelist: {}"
+msgstr "पैकेजेलिस्ट में पैकेज का नाम नहीं मिल रहा है: {}"
+
+#: src/install.rs:1743
+msgid "There are {} members in group"
+msgstr "ग्रुप में {} सदस्य हैं"
+
+#: src/install.rs:1768
+msgid ""
+"\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr ""
+"\n"
+"\n"
+"एक चयन दर्ज करें (डिफ़ॉल्ट = सभी): "
+
+#: src/install.rs:1965
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} अप टू डेट है -- लंघन इंस्टाल"
+
+#: src/keys.rs:47
+msgid "keys need to be imported:)"
+msgstr "keys को आयात करने की आवश्यकता है:)"
+
+#: src/keys.rs:52
+msgid "     {key} wanted by: {base}"
+msgstr "     {key} चाहते हैं: {base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "कोई तारीख नहीं "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "कोई शीर्षक नहीं"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "कोई नई खबर नहीं"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [नज़रअंदाज़]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr "वर्तमान exe प्राप्त करने में विफल"
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "स्थानीय डेटाबेस को सिंक हो रहा..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr "  कुछ करने को नहीं"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "AUR खोज विफल"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[अप्रचलित: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[स्थापित: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[स्थापित]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[अनाथ]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "पैकेज खोज से मेल नहीं"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "स्थापित करने के लिए पैकेज (उदाहरण: 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "कुल स्थापित पैकेज: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "AUR संकुल: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "रेपो पैकेज: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "स्पष्ट रूप से स्थापित पैकेजt: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "संकुल द्वारा कब्जा कर लिया गया कुल आकार: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "दस सबसे बड़े पैकेज:"
+
+#: src/sync.rs:89 src/lib.rs:395
+msgid " [installed]"
+msgstr " [स्थापित]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "AUR अपग्रेड की तलाश है"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "डेवेल अपग्रेड की तलाश"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "चेतावनी:"
+
+#: src/upgrade.rs:181
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: पैकेज अपग्रेड की अनदेखी ({old} => {new})"
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "बाहर करने के लिए पैकेज (उदाहरण: 1 2 3, 1-3):"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[Y/N]:"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[y/N]:"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "y"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "हाँ"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "नही"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "एक नंबर दर्ज करें (डिफ़ॉल्ट=1): "
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "अमान्य संख्या: {}"
+
+#: src/util.rs:326
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "अमान्य मूल्य: {n}, 1 तथा {max} के बीच नहीं है "
+
+#: src/lib.rs:153
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "chroot बिल्ड का उपयोग नहीं कर सकते: devtools स्थापित नहीं है"
+
+#: src/lib.rs:393
+msgid " [installed: {}]"
+msgstr " [स्थापित: {}]"
