@@ -10,6 +10,7 @@ mod devel;
 mod download;
 mod exec;
 mod fmt;
+mod help;
 mod info;
 mod install;
 mod keys;

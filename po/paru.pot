@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2021-06-30 13:36+0000\n"
+"POT-Creation-Date: 2021-07-12 16:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -130,15 +130,15 @@ msgstr ""
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:947 src/install.rs:1796
+#: src/config.rs:942 src/install.rs:1812
 msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:961 src/info.rs:57 src/info.rs:96 src/install.rs:1755 src/install.rs:1804
+#: src/config.rs:956 src/info.rs:57 src/info.rs:96 src/install.rs:1771 src/install.rs:1820
 msgid "Repository"
 msgstr ""
 
-#: src/config.rs:983
+#: src/config.rs:978
 msgid "  failed to sync {}"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgstr ""
 msgid "Querying AUR..."
 msgstr ""
 
-#: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:710
 msgid "failed to parse srcinfo for '{}'"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgstr ""
 msgid "Missing ABS packages "
 msgstr ""
 
-#: src/download.rs:250 src/download.rs:276 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744 src/install.rs:807 src/install.rs:845 src/keys.rs:74
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:760 src/install.rs:823 src/install.rs:861
 msgid "failed to run:"
 msgstr ""
 
@@ -228,6 +228,310 @@ msgstr ""
 
 #: src/fmt.rs:6 src/info.rs:147 src/search.rs:176
 msgid "None"
+msgstr ""
+
+#: src/help.rs:4
+msgid "Usage:"
+msgstr ""
+
+#: src/help.rs:5
+msgid "    paru"
+msgstr ""
+
+#: src/help.rs:6
+msgid "    paru <operation> [...]"
+msgstr ""
+
+#: src/help.rs:7
+msgid "    paru <package(s)>"
+msgstr ""
+
+#: src/help.rs:9
+msgid "Pacman operations:"
+msgstr ""
+
+#: src/help.rs:10
+msgid "    paru {-h --help}"
+msgstr ""
+
+#: src/help.rs:11
+msgid "    paru {-V --version}"
+msgstr ""
+
+#: src/help.rs:12
+msgid "    paru {-D --database}    <options> <package(s)>"
+msgstr ""
+
+#: src/help.rs:13
+msgid "    paru {-F --files}       [options] [package(s)]"
+msgstr ""
+
+#: src/help.rs:14
+msgid "    paru {-Q --query}       [options] [package(s)]"
+msgstr ""
+
+#: src/help.rs:15
+msgid "    paru {-R --remove}      [options] <package(s)>"
+msgstr ""
+
+#: src/help.rs:16
+msgid "    paru {-S --sync}        [options] [package(s)]"
+msgstr ""
+
+#: src/help.rs:17
+msgid "    paru {-T --deptest}     [options] [package(s)]"
+msgstr ""
+
+#: src/help.rs:18
+msgid "    paru {-U --upgrade}     [options] [file(s)]"
+msgstr ""
+
+#: src/help.rs:20
+msgid "New operations:"
+msgstr ""
+
+#: src/help.rs:21
+msgid "    paru {-P --show}        [options]"
+msgstr ""
+
+#: src/help.rs:22
+msgid "    paru {-G --getpkgbuild} [package(s)]"
+msgstr ""
+
+#: src/help.rs:24
+msgid "If no arguments are provided 'paru -Syu' will be performed"
+msgstr ""
+
+#: src/help.rs:26
+msgid "Options without operation:"
+msgstr ""
+
+#: src/help.rs:27
+msgid "    -c --clean            Remove unneeded dependencies"
+msgstr ""
+
+#: src/help.rs:28
+msgid "       --gendb            Generates development package DB used for updating"
+msgstr ""
+
+#: src/help.rs:30
+msgid "New options:"
+msgstr ""
+
+#: src/help.rs:31
+msgid "       --repo              Assume targets are from the repositories"
+msgstr ""
+
+#: src/help.rs:32
+msgid "    -a --aur               Assume targets are from the AUR"
+msgstr ""
+
+#: src/help.rs:33
+msgid "    --aururl    <url>      Set an alternative AUR URL"
+msgstr ""
+
+#: src/help.rs:34
+msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
+msgstr ""
+
+#: src/help.rs:36
+msgid "    --makepkg   <file>     makepkg command to use"
+msgstr ""
+
+#: src/help.rs:37
+msgid "    --mflags    <flags>    Pass arguments to makepkg"
+msgstr ""
+
+#: src/help.rs:38
+msgid "    --pacman    <file>     pacman command to use"
+msgstr ""
+
+#: src/help.rs:39
+msgid "    --git       <file>     git command to use"
+msgstr ""
+
+#: src/help.rs:40
+msgid "    --gitflags  <flags>    Pass arguments to git"
+msgstr ""
+
+#: src/help.rs:41
+msgid "    --sudo      <file>     sudo command to use"
+msgstr ""
+
+#: src/help.rs:42
+msgid "    --sudoflags <flags>    Pass arguments to sudo"
+msgstr ""
+
+#: src/help.rs:43
+msgid "    --asp       <file>     asp command to use"
+msgstr ""
+
+#: src/help.rs:44
+msgid "    --bat       <file>     bat command to use"
+msgstr ""
+
+#: src/help.rs:45
+msgid "    --batflags  <flags>    Pass arguments to bat"
+msgstr ""
+
+#: src/help.rs:46
+msgid "    --gpg       <file>     gpg command to use"
+msgstr ""
+
+#: src/help.rs:47
+msgid "    --gpgflags  <flags>    Pass arguments to gpg"
+msgstr ""
+
+#: src/help.rs:48
+msgid "    --fm        <file>     File manager to use for PKGBUILD review"
+msgstr ""
+
+#: src/help.rs:49
+msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgstr ""
+
+#: src/help.rs:51
+msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgstr ""
+
+#: src/help.rs:52
+msgid "    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr ""
+
+#: src/help.rs:53
+msgid "    --searchby  <field>    Search for packages using a specified field"
+msgstr ""
+
+#: src/help.rs:55
+msgid "    --skipreview           Skip the review process"
+msgstr ""
+
+#: src/help.rs:56
+msgid "    --review               Don't skip the review process"
+msgstr ""
+
+#: src/help.rs:57
+msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
+msgstr ""
+
+#: src/help.rs:58
+msgid "    --[no]removemake       Remove makedepends after install"
+msgstr ""
+
+#: src/help.rs:59
+msgid "    --[no]cleanafter       Remove package sources after install"
+msgstr ""
+
+#: src/help.rs:60
+msgid "    --[no]rebuild          Always build target packages"
+msgstr ""
+
+#: src/help.rs:61
+msgid "    --[no]redownload       Always download PKGBUILDs of targets"
+msgstr ""
+
+#: src/help.rs:63
+msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
+msgstr ""
+
+#: src/help.rs:64
+msgid "    --[no]useask           Automatically resolve conflicts using pacman's ask flag"
+msgstr ""
+
+#: src/help.rs:65
+msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
+msgstr ""
+
+#: src/help.rs:66
+msgid "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together"
+msgstr ""
+
+#: src/help.rs:67
+msgid "    --[no]batchinstall     Build multiple AUR packages then install them together"
+msgstr ""
+
+#: src/help.rs:68
+msgid "    --[no]provides         Look for matching providers when searching for packages"
+msgstr ""
+
+#: src/help.rs:69
+msgid "    --[no]devel            Check development packages during sysupgrade"
+msgstr ""
+
+#: src/help.rs:70
+msgid "    --[no]installdebug     Also install debug packages when a package provides them"
+msgstr ""
+
+#: src/help.rs:71
+msgid "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgstr ""
+
+#: src/help.rs:72
+msgid "    --[no]chroot           Build packages in a chroot"
+msgstr ""
+
+#: src/help.rs:73
+msgid "    --[no]sign             Sign packages with gpg"
+msgstr ""
+
+#: src/help.rs:74
+msgid "    --[no]signdb           Sign databases with gpg"
+msgstr ""
+
+#: src/help.rs:75
+msgid "    --localrepo            Build packages into a local repo"
+msgstr ""
+
+#: src/help.rs:76
+msgid "    --nocheck              Don't resolve checkdepends or run the check function"
+msgstr ""
+
+#: src/help.rs:77
+msgid "    --develsuffixes        Suffixes used to decide if a package is a devel package"
+msgstr ""
+
+#: src/help.rs:78
+msgid "    --bottomup             Shows AUR's packages first and then repository's"
+msgstr ""
+
+#: src/help.rs:79
+msgid "    --topdown              Shows repository's packages first and then AUR's"
+msgstr ""
+
+#: src/help.rs:81
+msgid "show specific options:"
+msgstr ""
+
+#: src/help.rs:82
+msgid "    -c --complete         Used for completions"
+msgstr ""
+
+#: src/help.rs:83
+msgid "    -s --stats            Display system package statistics"
+msgstr ""
+
+#: src/help.rs:84
+msgid "    -w --news             Print arch news"
+msgstr ""
+
+#: src/help.rs:86
+msgid "getpkgbuild specific options:"
+msgstr ""
+
+#: src/help.rs:87
+msgid "    -p --print            Print pkgbuild to stdout"
+msgstr ""
+
+#: src/help.rs:88
+msgid "    -c --comments         Print AUR comments for pkgbuild"
+msgstr ""
+
+#: src/help.rs:90
+msgid "upgrade specific options:"
+msgstr ""
+
+#: src/help.rs:91
+msgid "    -i --install          Install package as well as building"
 msgstr ""
 
 #: src/info.rs:31 src/query.rs:51
@@ -322,7 +626,7 @@ msgstr ""
 msgid "Optional Deps"
 msgstr ""
 
-#: src/install.rs:131 src/install.rs:545 src/install.rs:944
+#: src/install.rs:131 src/install.rs:561 src/install.rs:960
 msgid "no architecture"
 msgstr ""
 
@@ -334,7 +638,7 @@ msgstr ""
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr ""
 
-#: src/install.rs:171 src/install.rs:442
+#: src/install.rs:171 src/install.rs:450
 msgid "Resolving dependencies..."
 msgstr ""
 
@@ -350,11 +654,11 @@ msgstr ""
 msgid "parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:261 src/install.rs:1462
+#: src/install.rs:261 src/install.rs:1478
 msgid "{}-{} is up to date -- skipping build"
 msgstr ""
 
-#: src/install.rs:333 src/query.rs:50 src/lib.rs:84
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:85
 msgid "error:"
 msgstr ""
 
@@ -362,180 +666,180 @@ msgstr ""
 msgid "could not get news"
 msgstr ""
 
-#: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
+#: src/install.rs:339 src/install.rs:529 src/install.rs:732 src/install.rs:864
 msgid "Proceed with installation?"
 msgstr ""
 
-#: src/install.rs:356
+#: src/install.rs:357
 msgid "no targets specified (use -h for help)"
 msgstr ""
 
-#: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360 src/lib.rs:227
+#: src/install.rs:442 src/install.rs:469 src/search.rs:324 src/search.rs:360 src/lib.rs:228
 msgid " there is nothing to do"
 msgstr ""
 
-#: src/install.rs:488
+#: src/install.rs:496
 msgid "can't install AUR package as root"
 msgstr ""
 
-#: src/install.rs:507
+#: src/install.rs:515
 msgid "Remove make dependencies after install?"
 msgstr ""
 
-#: src/install.rs:518
+#: src/install.rs:526
 msgid "Proceed to review?"
 msgstr ""
 
-#: src/install.rs:559
+#: src/install.rs:575
 msgid "The following packages are not compatible with your architecture:"
 msgstr ""
 
-#: src/install.rs:573
+#: src/install.rs:589
 msgid "Would you like to try build them anyway?"
 msgstr ""
 
-#: src/install.rs:662
+#: src/install.rs:678
 msgid "packages failed to build: {}"
 msgstr ""
 
-#: src/install.rs:698
+#: src/install.rs:714
 msgid "could not find .SRINFO for '{}'"
 msgstr ""
 
-#: src/install.rs:762
+#: src/install.rs:778
 msgid "failed to read dir: {}"
 msgstr ""
 
-#: src/install.rs:778
+#: src/install.rs:794
 msgid "{} is a directory\n"
 "\n"
 ""
 msgstr ""
 
-#: src/install.rs:818
+#: src/install.rs:834
 msgid "failed to open: {}"
 msgstr ""
 
-#: src/install.rs:830
+#: src/install.rs:846
 msgid "binary file: {}"
 msgstr ""
 
-#: src/install.rs:852
+#: src/install.rs:868
 msgid " nothing new to review"
 msgstr ""
 
-#: src/install.rs:871
+#: src/install.rs:887
 msgid "failed to execute file manager: {}"
 msgstr ""
 
-#: src/install.rs:874
+#: src/install.rs:890
 msgid "file manager did not execute successfully"
 msgstr ""
 
-#: src/install.rs:936
+#: src/install.rs:952
 msgid "duplicate packages: {}"
 msgstr ""
 
-#: src/install.rs:975
+#: src/install.rs:991
 msgid "could not find all required packages:"
 msgstr ""
 
-#: src/install.rs:982
+#: src/install.rs:998
 msgid "\n"
 "    {missing} (wanted by: {stack})"
 msgstr ""
 
-#: src/install.rs:996 src/install.rs:1941
+#: src/install.rs:1012 src/install.rs:1957
 msgid "{}-{} is up to date -- skipping"
 msgstr ""
 
-#: src/install.rs:1011
+#: src/install.rs:1027
 msgid "Calculating conflicts..."
 msgstr ""
 
-#: src/install.rs:1017
+#: src/install.rs:1033
 msgid "Calculating inner conflicts..."
 msgstr ""
 
-#: src/install.rs:1029
+#: src/install.rs:1045
 msgid "Inner conflicts found:"
 msgstr ""
 
-#: src/install.rs:1051
+#: src/install.rs:1067
 msgid "Conflicts found:"
 msgstr ""
 
-#: src/install.rs:1074
+#: src/install.rs:1090
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr ""
 
-#: src/install.rs:1078
+#: src/install.rs:1094
 msgid "can not install conflicting packages with --noconfirm"
 msgstr ""
 
-#: src/install.rs:1117
+#: src/install.rs:1133
 msgid "Repo"
 msgstr ""
 
-#: src/install.rs:1124
+#: src/install.rs:1140
 msgid "Repo Make"
 msgstr ""
 
-#: src/install.rs:1138
+#: src/install.rs:1154
 msgid "Aur Make"
 msgstr ""
 
-#: src/install.rs:1240
+#: src/install.rs:1256
 msgid "fetching devel info..."
 msgstr ""
 
-#: src/install.rs:1320
+#: src/install.rs:1336
 msgid "Signing packages..."
 msgstr ""
 
-#: src/install.rs:1398 src/install.rs:1403
+#: src/install.rs:1414 src/install.rs:1419
 msgid "failed to download sources for '{}'"
 msgstr ""
 
-#: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
+#: src/install.rs:1424 src/install.rs:1463 src/install.rs:1471
 msgid "failed to build '{}'"
 msgstr ""
 
-#: src/install.rs:1411
+#: src/install.rs:1427
 msgid "{}: parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:1473
+#: src/install.rs:1489
 msgid "adding {} to the install list"
 msgstr ""
 
-#: src/install.rs:1532
+#: src/install.rs:1548
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
 
-#: src/install.rs:1670
+#: src/install.rs:1686
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:1743
+#: src/install.rs:1759
 msgid "There are {} members in group"
 msgstr ""
 
-#: src/install.rs:1768
+#: src/install.rs:1784
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "
 msgstr ""
 
-#: src/install.rs:1965
+#: src/install.rs:1981
 msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
-#: src/keys.rs:47
+#: src/keys.rs:48
 msgid "keys need to be imported:)"
 msgstr ""
 
-#: src/keys.rs:52
+#: src/keys.rs:53
 msgid "     {key} wanted by: {base}"
 msgstr ""
 
@@ -619,7 +923,7 @@ msgstr ""
 msgid "Ten biggest packages:"
 msgstr ""
 
-#: src/sync.rs:89 src/lib.rs:395
+#: src/sync.rs:89 src/lib.rs:396
 msgid " [installed]"
 msgstr ""
 
@@ -679,10 +983,10 @@ msgstr ""
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
-#: src/lib.rs:153
+#: src/lib.rs:154
 msgid "can not use chroot builds: devtools is not installed"
 msgstr ""
 
-#: src/lib.rs:393
+#: src/lib.rs:394
 msgid " [installed: {}]"
 msgstr ""

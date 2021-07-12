@@ -2,7 +2,7 @@ use crate::args::Args;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::util::get_provider;
-use crate::{debug_enabled, printtr, repo};
+use crate::{debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
 use std::env::var;
@@ -567,7 +567,7 @@ impl Config {
         if self.help {
             match self.op {
                 Op::GetPkgBuild | Op::Show | Op::Yay => {
-                    help();
+                    help::help();
                     std::process::exit(0);
                 }
                 _ => {
@@ -907,11 +907,6 @@ impl Config {
             "aur"
         }
     }
-}
-
-fn help() {
-    let help = include_str!("../help");
-    print!("{}", help);
 }
 
 pub fn version() {
