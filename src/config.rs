@@ -458,6 +458,9 @@ impl Ini for Config {
         let err = match cb.kind {
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
+                if !matches!(section, "options" | "bin" | "env") {
+                    eprintln!("{}", tr!("error: unknown section '{}'", section));
+                }
                 Ok(())
             }
             CallbackKind::Directive(_, key, value) => self.parse_directive(key, value),
@@ -760,7 +763,7 @@ impl Config {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
             "env" => self.parse_env(key, value),
-            _ => bail!(tr!("unknown section '{}'", section)),
+            _ => Ok(()),
         }
     }
 
