@@ -5,7 +5,7 @@ use crate::util::get_provider;
 use crate::{debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
-use std::env::var;
+use std::env::{set_var, var};
 use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
@@ -759,8 +759,23 @@ impl Config {
         match section {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
+            "env" => self.parse_env(key, value),
             _ => bail!(tr!("unknown section '{}'", section)),
         }
+    }
+
+    fn parse_env(&mut self, key: &str, value: Option<&str>) -> Result<()> {
+        let value = value.context(tr!("key can not be empty"))?;
+
+        ensure!(!key.is_empty(), tr!("key can not be empty"));
+        ensure!(!key.contains('\0'), tr!("key can not contain null bytes"));
+        ensure!(
+            !value.contains('\0'),
+            tr!("value can not contain null bytes")
+        );
+
+        set_var(key, value);
+        Ok(())
     }
 
     fn parse_bin(&mut self, key: &str, value: Option<&str>) -> Result<()> {
