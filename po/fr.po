@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-12 16:56+0000\n"
-"PO-Revision-Date: 2021-07-12 19:55+0200\n"
+"PO-Revision-Date: 2021-07-13 23:32+0200\n"
 "Last-Translator: Paragoumba <paragoumba@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -240,7 +240,7 @@ msgstr "Aucun"
 
 #: src/help.rs:4
 msgid "Usage:"
-msgstr "Utilisation :"
+msgstr "Utilisation:"
 
 #: src/help.rs:5
 msgid "    paru"
@@ -256,7 +256,7 @@ msgstr "    paru <paquet(s)>"
 
 #: src/help.rs:9
 msgid "Pacman operations:"
-msgstr "Opérations Pacman :"
+msgstr "Opérations Pacman:"
 
 #: src/help.rs:10
 msgid "    paru {-h --help}"
@@ -296,7 +296,7 @@ msgstr "    paru {-U --upgrade}     [options] [fichier(s)]"
 
 #: src/help.rs:20
 msgid "New operations:"
-msgstr "Nouvelles opérations :"
+msgstr "Nouvelles opérations:"
 
 #: src/help.rs:21
 msgid "    paru {-P --show}        [options]"
@@ -307,28 +307,27 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [paquet(s)]"
 
 #: src/help.rs:24
-#, fuzzy
 msgid "If no arguments are provided 'paru -Syu' will be performed"
 msgstr "Si aucun argument n'est fourni 'paru -Syu' sera exécuté"
 
 #: src/help.rs:26
 msgid "Options without operation:"
-msgstr "Options sans opérations :"
+msgstr "Options sans opérations:"
 
 #: src/help.rs:27
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "    -c --clean            Supprime les dépendances inutiles"
+msgstr "    -c --clean             Supprime les dépendances inutiles"
 
 #: src/help.rs:28
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            Génère la BDD de paquets de développement utilisée "
-"pour mettre à jour"
+"       --gendb             Génère la BDD de paquets de développement "
+"utilisée pour mettre à jour"
 
 #: src/help.rs:30
 msgid "New options:"
-msgstr "Nouvelles options :"
+msgstr "Nouvelles options:"
 
 #: src/help.rs:31
 msgid "       --repo              Assume targets are from the repositories"
@@ -350,82 +349,73 @@ msgstr ""
 
 #: src/help.rs:36
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr "    --makepkg   <file>     Commande makepkg à utiliser"
+msgstr "    --makepkg   <fichier>      Commande makepkg à utiliser"
 
 #: src/help.rs:37
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr "    --mflags    <flags>    Passe des arguments à makepkg"
+msgstr "    --mflags    <arguments>    Passe des arguments à makepkg"
 
 #: src/help.rs:38
 msgid "    --pacman    <file>     pacman command to use"
-msgstr "    --pacman    <file>     Commande pacman à utiliser"
+msgstr "    --pacman    <fichier>      Commande pacman à utiliser"
 
 #: src/help.rs:39
 msgid "    --git       <file>     git command to use"
-msgstr "    --git       <fichier>    Commande git à utiliser"
+msgstr "    --git       <fichier>      Commande git à utiliser"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <flags>    Passe des arguments à git"
+msgstr "    --gitflags  <arguments>    Passe des arguments à git"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
-msgstr "    --sudo      <file>     Commande sudo à utiliser"
+msgstr "    --sudo      <fichier>      Commande sudo à utiliser"
 
 #: src/help.rs:42
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr "    --sudoflags <flags>    Passe des arguments à sudo"
+msgstr "    --sudoflags <arguments>    Passe des arguments à sudo"
 
 #: src/help.rs:43
 msgid "    --asp       <file>     asp command to use"
-msgstr "    --asp       <file>     Commande asp à utiliser"
+msgstr "    --asp       <fichier>      Commande asp à utiliser"
 
 #: src/help.rs:44
 msgid "    --bat       <file>     bat command to use"
-msgstr "    --bat       <file>     Commande bat à utiliser"
+msgstr "    --bat       <fichier>      Commande bat à utiliser"
 
 #: src/help.rs:45
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr "    --batflags  <flags>    Passe des arguments à bat"
+msgstr "    --batflags  <arguments>    Passe des arguments à bat"
 
 #: src/help.rs:46
 msgid "    --gpg       <file>     gpg command to use"
-msgstr "    --gpg       <file>     Commande gpg à utiliser"
+msgstr "    --gpg       <fichier>      Commande gpg à utiliser"
 
 #: src/help.rs:47
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr "    --gpgflags  <flags>    Passe des arguments à gpg"
+msgstr "    --gpgflags  <arguments>    Passe des arguments à gpg"
 
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
-msgstr ""
-"    --fm        <file>     Gestionnaire de fichier à utiliser pour la "
-"relecture des PKGBUILDs"
+msgstr "    --fm        <fichier>      Gestionnaire de fichier à utiliser pour la relecture des PKGBUILDs"
 
 #: src/help.rs:49
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
-msgstr ""
-"    --fmflags   <flags>    Passe des arguments au gestionnaire de fichier"
+msgstr "    --fmflags   <arguments>    Passe des arguments au gestionnaire de fichier"
 
 #: src/help.rs:51
-#, fuzzy
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
-msgstr ""
-"    --completioninterval   <n> Temps en jour pour rafraîchir le cache de "
-"complétion"
+msgstr "    --completioninterval   <n> Temps en jour pour rafraîchir le cache de complétion"
 
 #: src/help.rs:52
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
-"    --sortby    <field>    Trier les résultats de l'AUR par un champs "
-"spécifique pendant la recherche"
+"    --sortby    <field>    Trier les résultats de l'AUR par un champs spécifique pendant la recherche"
 
 #: src/help.rs:53
 msgid "    --searchby  <field>    Search for packages using a specified field"
-msgstr ""
-"    --searchby  <field>    Recherche des paquets en utilisant un champs "
-"spécifique"
+msgstr "    --searchby  <field>    Recherche des paquets en utilisant un champs spécifique"
 
 #: src/help.rs:55
 msgid "    --skipreview           Skip the review process"
@@ -437,20 +427,15 @@ msgstr "    --review               Ne pas passer le processus de relecture"
 
 #: src/help.rs:57
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
-msgstr ""
-"    --[no]upgrademenu      Montrer le menu interactif pour passer les mises "
-"à jour"
+msgstr "    --[no]upgrademenu      Montrer le menu interactif pour passer les mises à jour"
 
 #: src/help.rs:58
 msgid "    --[no]removemake       Remove makedepends after install"
-msgstr ""
-"    --[no]removemake       Enlève les dépendances de compilation après "
-"installation"
+msgstr "    --[no]removemake       Enlève les dépendances de compilation après installation"
 
 #: src/help.rs:59
 msgid "    --[no]cleanafter       Remove package sources after install"
-msgstr ""
-"    --[no]cleanafter       Enlève les paquets sources après installation"
+msgstr "    --[no]cleanafter       Enlève les paquets sources après installation"
 
 #: src/help.rs:60
 msgid "    --[no]rebuild          Always build target packages"
@@ -458,29 +443,23 @@ msgstr "    --[no]rebuild          Toujours recompiler les paquets cibles"
 
 #: src/help.rs:61
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr ""
-"    --[no]redownload       Toujours télécharger les PKGBUILDs des cibles"
+msgstr "    --[no]redownload       Toujours télécharger les PKGBUILDs des cibles"
 
 #: src/help.rs:63
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
-msgstr ""
-"    --[no]pgpfetch         Demande à importer les clés PGP depuis les "
-"PKGBUILDs"
+msgstr "    --[no]pgpfetch         Demande à importer les clés PGP depuis les PKGBUILDs"
 
 #: src/help.rs:64
-#, fuzzy
 msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
 "    --[no]useask           Résoudre automatiquement les conflits en "
-"utilisant le drapeau pacman ask"
+"utilisant l'argument pacman ask"
 
 #: src/help.rs:65
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
-msgstr ""
-"    --[no]newsonupgrade    Affiche les dernières nouvelles pendant la mise à "
-"jour du système"
+msgstr "    --[no]newsonupgrade    Affiche les dernières nouvelles pendant la mise à jour du système"
 
 #: src/help.rs:66
 msgid ""
@@ -507,9 +486,8 @@ msgstr ""
 "la recherche des paquets"
 
 #: src/help.rs:69
-#, fuzzy
 msgid "    --[no]devel            Check development packages during sysupgrade"
-msgstr "    --[no]devel            Vérifie"
+msgstr "    --[no]devel            Vérifie les paquets de développement pendant la mise à jour du système"
 
 #: src/help.rs:70
 msgid ""
@@ -543,7 +521,6 @@ msgid "    --localrepo            Build packages into a local repo"
 msgstr "    --localrepo            Compile les paquets dans un dépôt local"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
@@ -575,7 +552,7 @@ msgstr ""
 
 #: src/help.rs:81
 msgid "show specific options:"
-msgstr "affiche les options spécifiques :"
+msgstr "Options spécifiques de show:"
 
 #: src/help.rs:82
 msgid "    -c --complete         Used for completions"
@@ -583,8 +560,7 @@ msgstr "    -c --complete         Utilisé pour les complétions"
 
 #: src/help.rs:83
 msgid "    -s --stats            Display system package statistics"
-msgstr ""
-"    -s --stats            Affiche des statistiques sur les paquets du système"
+msgstr "    -s --stats            Affiche des statistiques sur les paquets du système"
 
 #: src/help.rs:84
 msgid "    -w --news             Print arch news"
@@ -592,7 +568,7 @@ msgstr "    -w --news             Afficher les nouvelles arch"
 
 #: src/help.rs:86
 msgid "getpkgbuild specific options:"
-msgstr "options spécifiques de getpkgbuild :"
+msgstr "Options spécifiques de getpkgbuild:"
 
 #: src/help.rs:87
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -600,18 +576,15 @@ msgstr "    -p --print            Affiche le pkgbuild sur la sortie standard"
 
 #: src/help.rs:88
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr ""
-"    -c --comments         Affiche les commentaire de l'AUR pour le pkgbuild"
+msgstr "    -c --comments         Affiche les commentaire de l'AUR pour le pkgbuild"
 
 #: src/help.rs:90
 msgid "upgrade specific options:"
-msgstr "options spécifiques de mise à jour :"
+msgstr "Options spécifiques de upgrade:"
 
 #: src/help.rs:91
-#, fuzzy
 msgid "    -i --install          Install package as well as building"
-msgstr ""
-"    -i --install          Installe les paquets ainsi que la compilation"
+msgstr "    -i --install          Installe le paquet après l'avoir compilé"
 
 #: src/info.rs:31 src/query.rs:51
 msgid "package '{}' was not found"
