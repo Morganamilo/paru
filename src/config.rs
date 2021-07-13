@@ -2,7 +2,7 @@ use crate::args::Args;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::util::get_provider;
-use crate::{debug_enabled, help, printtr, repo};
+use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
 use std::env::{set_var, var};
@@ -1006,7 +1006,7 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
     match level {
         LogLevel::WARNING => eprint!("{} {}", warn.paint("::"), msg),
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
-        LogLevel::DEBUG if debug_enabled() => eprint!("debug: <alpm> {}", msg),
+        LogLevel::DEBUG if alpm_debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
     }
 }

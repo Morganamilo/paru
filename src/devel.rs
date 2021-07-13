@@ -15,6 +15,7 @@ use std::iter::FromIterator;
 use alpm_utils::DbListExt;
 use anyhow::{bail, Context, Result};
 use futures::future::{join_all, select_ok, FutureExt};
+use log::debug;
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
@@ -223,6 +224,7 @@ async fn ls_remote(
         .arg(&remote)
         .arg(branch.unwrap_or("HEAD"));
 
+    debug!("git ls-remote {} {}", remote, branch.unwrap_or("HEAD"));
     let output = command.output().await?;
     if !output.status.success() {
         bail!("{}", String::from_utf8_lossy(&output.stderr));
