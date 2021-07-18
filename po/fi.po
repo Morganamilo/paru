@@ -2,14 +2,15 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # Henry Keinälä <henry.keinala@tuta.io> 2021
+# Kuujaku <Kuujaku@protonmail.com> 2021
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-06-28 10:08+0200\n"
-"Last-Translator: Henry Keinälä <henry.keinala@tuta.io>\n"
+"PO-Revision-Date: 2021-07-18 21:40+0200\n"
+"Last-Translator: Kuujaku <Kuujaku@protonmail.com>\n"
 "Language-Team: \n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +19,7 @@ msgstr ""
 
 #: src/clean.rs:31
 msgid "Do you want to remove ALL AUR packages from cache?"
-msgstr "Halutako poistaa KAIKKI AUR paketit välimuistista?"
+msgstr "Haluatko poistaa KAIKKI AUR paketit välimuistista?"
 
 #: src/clean.rs:33
 msgid "Do you want to remove all other AUR packages from cache?"
@@ -112,7 +113,7 @@ msgstr "avain '{}' ei kuulu mihinkään osioon"
 
 #: src/config.rs:762
 msgid "unknown section '{}'"
-msgstr "tuntematon valinta '{}'"
+msgstr "tuntematon osio '{}'"
 
 #: src/config.rs:769 src/config.rs:824 src/config.rs:829
 msgid "key can not be empty"
@@ -132,7 +133,7 @@ msgstr "vaihtoehto '{}' ei ota arvoa"
 
 #: src/config.rs:947 src/install.rs:1796
 msgid "There are {n} providers available for {pkg}:"
-msgstr "On olemassa {n} tarjoajaa paketille {pkg}"
+msgstr "On saatavilla {n} tarjoajaa paketille {pkg}"
 
 #: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755 src/install.rs:1804
 msgid "Repository"
@@ -225,7 +226,7 @@ msgstr "asp palautti {}"
 
 #: src/exec.rs:86
 msgid "Pacman is currently in use, please wait..."
-msgstr "Pacman on tällä hetkellä käytässö, odota..."
+msgstr "Pacman on tällä hetkellä käytössä, odota..."
 
 #: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
 msgid "None"
@@ -341,7 +342,7 @@ msgstr "Selvitetään riippuvuuksia..."
 
 #: src/install.rs:220 src/install.rs:225
 msgid "failed to download sources"
-msgstr "ei pystytty latamaan lähteitä"
+msgstr "ei pystytty lataamaan lähteitä"
 
 #: src/install.rs:230 src/install.rs:246 src/install.rs:254
 msgid "failed to build"
