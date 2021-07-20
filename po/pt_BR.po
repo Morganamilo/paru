@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-18 00:52+0000\n"
-"PO-Revision-Date: 2021-07-18 15:36-0300\n"
+"PO-Revision-Date: 2021-07-20 08:53-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -482,8 +482,7 @@ msgstr ""
 #: src/help.rs:65
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Mostra novas notícias durante a atualização do "
-"sistema"
+"    --[no]newsonupgrade    Exibe novidades durante a atualização do sistema"
 
 #: src/help.rs:66
 msgid ""
