@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# pt_BR Translation for Paru - A featured packed AUR helper.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # Pedro Liberatti <ferrahwolfeh@protonmail.com>, 2021.
@@ -168,7 +168,7 @@ msgstr "falha ao analisar srcinfo para '{}'"
 
 #: src/devel.rs:185
 msgid "Looking for devel repos..."
-msgstr "Procurando por repositórios devel..."
+msgstr "Procurando por repositórios de desenvolvimento..."
 
 #: src/devel.rs:194
 msgid "failed to save devel info"
@@ -482,7 +482,7 @@ msgstr ""
 #: src/help.rs:65
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Mostra novas notícias durante a atualização do "
+"    --[no]newsonupgrade    Mostra novidades durante a atualização do "
 "sistema"
 
 #: src/help.rs:66
@@ -582,7 +582,7 @@ msgstr "mostra opções específicas:"
 
 #: src/help.rs:82
 msgid "    -c --complete         Used for completions"
-msgstr "    -c --complete         Usado para completações"
+msgstr "    -c --complete         Usado para completar"
 
 #: src/help.rs:83
 msgid "    -s --stats            Display system package statistics"
@@ -590,7 +590,7 @@ msgstr "    -s --stats            Mostra estatísticas de pacotes do sistema"
 
 #: src/help.rs:84
 msgid "    -w --news             Print arch news"
-msgstr "    -w --news             Mostra notícias do arch"
+msgstr "    -w --news             Mostra novidades do arch"
 
 #: src/help.rs:86
 msgid "getpkgbuild specific options:"
