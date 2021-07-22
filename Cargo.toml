@@ -16,11 +16,11 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 [dependencies]
 alpm = "2.1.0"
 alpm-utils = "1.1.0"
-aur-depends = "1.0.0"
+aur-depends = { version = "1.0.0", default-features = false }
 aur-fetch = "0.9.1"
 cini = "0.1.1"
 pacmanconf = "1.0.0"
-raur = "5.0.1"
+raur = { version = "5.0.1", features = ["async"], default-features = false }
 srcinfo = "1.0.0"
 
 
@@ -35,7 +35,7 @@ htmlescape = "0.3.1"
 indicatif = "0.16.2"
 kuchiki = "0.8.1"
 nix = "0.21.0"
-reqwest = { version = "0.11.4", features = ["gzip"] }
+reqwest = { version = "0.11.4", features = ["gzip"], default-features = false }
 rss = { version = "1.10.0", default-features = false }
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
@@ -55,8 +55,11 @@ codegen-units = 1
 lto = true
 
 [features]
+default = ["openssl"]
 git = ["alpm/git", "alpm-utils/git", "aur-depends/git"]
 backtrace = []
 generate = ["alpm/generate"]
 static = ["alpm/static"]
 mock = ["async-trait"]
+openssl = ["reqwest/default-tls", "raur/default"]
+rustls = ["reqwest/rustls-tls", "raur/rustls"]
