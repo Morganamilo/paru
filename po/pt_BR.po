@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-18 00:52+0000\n"
-"PO-Revision-Date: 2021-07-20 08:53-0300\n"
+"PO-Revision-Date: 2021-07-24 12:24-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -344,25 +344,26 @@ msgstr "Novas opções:"
 
 #: src/help.rs:31
 msgid "       --repo              Assume targets are from the repositories"
-msgstr "       --repo              Assume que os alvos sejam dos repositórios"
+msgstr ""
+"       --repo                   Assume que os alvos sejam dos repositórios"
 
 #: src/help.rs:32
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr "    -a --aur               Assume que os alvos sejam do AUR"
+msgstr "    -a --aur                    Assume que os alvos sejam do AUR"
 
 #: src/help.rs:33
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Define uma URL alternativa do AUR"
+msgstr "    --aururl    <url>           Define uma URL alternativa do AUR"
 
 #: src/help.rs:34
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
-"    --clonedir  <diretório>      Diretório usado para baixar e executar "
+"    --clonedir  <diretório>     Diretório usado para baixar e executar "
 "PKGBUILDs"
 
 #: src/help.rs:36
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr "    --makepkg   <arquivo>     Comando makepkg a ser usado"
+msgstr "    --makepkg   <arquivo>       Comando makepkg a ser usado"
 
 #: src/help.rs:37
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
@@ -370,11 +371,11 @@ msgstr "    --mflags    <argumentos>    Passa argumentos para makepkg"
 
 #: src/help.rs:38
 msgid "    --pacman    <file>     pacman command to use"
-msgstr "    --pacman    <arquivo>     Comando pacman a ser usado"
+msgstr "    --pacman    <arquivo>       Comando pacman a ser usado"
 
 #: src/help.rs:39
 msgid "    --git       <file>     git command to use"
-msgstr "    --git       <arquivo>     Comando git a ser usado"
+msgstr "    --git       <arquivo>       Comando git a ser usado"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
@@ -382,7 +383,7 @@ msgstr "    --gitflags  <argumentos>    Passa argumentos para git"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
-msgstr "    --sudo      <arquivo>     Comando sudo a ser usado"
+msgstr "    --sudo      <arquivo>       Comando sudo a ser usado"
 
 #: src/help.rs:42
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
@@ -390,11 +391,11 @@ msgstr "    --sudoflags <argumentos>    Passa argumentos para sudo"
 
 #: src/help.rs:43
 msgid "    --asp       <file>     asp command to use"
-msgstr "    --asp       <arquivo>     Comando asp a ser usado"
+msgstr "    --asp       <arquivo>       Comando asp a ser usado"
 
 #: src/help.rs:44
 msgid "    --bat       <file>     bat command to use"
-msgstr "    --bat       <arquivo>     Comando bat a ser usado"
+msgstr "    --bat       <arquivo>       Comando bat a ser usado"
 
 #: src/help.rs:45
 msgid "    --batflags  <flags>    Pass arguments to bat"
@@ -402,7 +403,7 @@ msgstr "    --batflags  <argumentos>    Passa argumentos para bat"
 
 #: src/help.rs:46
 msgid "    --gpg       <file>     gpg command to use"
-msgstr "    --gpg       <arquivo>     Comando gpg a ser usado"
+msgstr "    --gpg       <arquivo>       Comando gpg a ser usado"
 
 #: src/help.rs:47
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
@@ -411,7 +412,7 @@ msgstr "    --gpgflags  <argumentos>    Passa argumentos para gpg"
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
-"    --fm        <arquivo>     Gerenciador de arquivos a ser usado para "
+"    --fm        <arquivo>       Gerenciador de arquivos a ser usado para "
 "revisão de PKGBUILD"
 
 #: src/help.rs:49
