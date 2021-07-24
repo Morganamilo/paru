@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-18 00:52+0000\n"
-"PO-Revision-Date: 2021-07-24 12:24-0300\n"
+"PO-Revision-Date: 2021-07-24 12:37-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -470,7 +470,7 @@ msgstr "    --[no]redownload       Sempre baixe o PKGBUILD dos alvos"
 
 #: src/help.rs:63
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
-msgstr "    --[no]pgpfetch         Sugerir importar chaves PGP de PKGBUILDs"
+msgstr "    --[no]pgpfetch         Sugere importar chaves PGP de PKGBUILDs"
 
 #: src/help.rs:64
 msgid ""
@@ -490,15 +490,14 @@ msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Atualiza e depois performa as atualizações de "
-"repo e AUR juntas"
+"    --[no]combinedupgrade  Performa as atualizações de repo e AUR juntas"
 
 #: src/help.rs:67
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
-"    --[no]batchinstall     Compila multiplos pacotes AUR depois instala "
+"    --[no]batchinstall     Compila multiplos pacotes AUR e depois instala "
 "todos juntos"
 
 #: src/help.rs:68
