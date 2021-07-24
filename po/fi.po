@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-07-24 12:42+0000\n"
-"PO-Revision-Date: 2021-07-24 22:29+0200\n"
+"PO-Revision-Date: 2021-07-24 23:31+0200\n"
 "Last-Translator: Kuujaku <Kuujaku@protonmail.com>\n"
 "Language-Team: \n"
 "Language: fi\n"
@@ -414,7 +414,7 @@ msgstr "    --fmflags   <flags>    Anna pakettiselaimelle argumentit"
 
 #: src/help.rs:51
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
-msgstr "    --completioninterval   <n> Aika päivisssä"
+msgstr "    --completioninterval   <n> Aika päivinä päivittää täydennysvälimuisti"
 
 #: src/help.rs:52
 msgid ""
