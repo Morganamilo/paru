@@ -1002,7 +1002,7 @@ msgstr "Etsitään AUR päivityksiä"
 
 #: src/upgrade.rs:148
 msgid "Looking for devel upgrades"
-msgstr "Etsintään devel päivityksiä"
+msgstr "Etsitään devel päivityksiä"
 
 #: src/upgrade.rs:179
 msgid "warning:"
