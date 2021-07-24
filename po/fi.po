@@ -504,8 +504,7 @@ msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
-"    --[no]installdebug     Asentaa myös debug paketit jos paketti tarjoaa "
- "ne"
+"    --[no]installdebug     Asentaa myös debug paketit jos paketti tarjoaa ne "
 
 #: src/help.rs:71
 msgid ""
