@@ -473,7 +473,8 @@ msgstr "    --[no]removemake       Poista make riippuvuudet asennuksen jälkeen"
 
 #: src/help.rs:59
 msgid "    --[no]cleanafter       Remove package sources after install"
-msgstr "	--[no]cleanafter       Poista paketin lähdekoodit asennuksen jälkeen"
+msgstr "	--[no]cleanafter       Poista paketin lähdekoodit "
+"asennuksen jälkeen"
 
 #: src/help.rs:60
 msgid "    --[no]rebuild          Always build target packages"
