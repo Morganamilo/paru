@@ -534,8 +534,7 @@ msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
- "    --[no]installdebug     Asentaa myös debug paketit jos paketti "
- "tarjoaa ne"
+"    --[no]installdebug     Asentaa myös debug paketit jos paketti tarjoaa ne "
 
 #: src/help.rs:71
 msgid ""
@@ -1053,7 +1052,7 @@ msgstr "Etsitään AUR päivityksiä"
 
 #: src/upgrade.rs:148
 msgid "Looking for devel upgrades"
-msgstr "Etsintään devel päivityksiä"
+msgstr "Etsitään devel päivityksiä"
 
 #: src/upgrade.rs:179
 msgid "warning:"
