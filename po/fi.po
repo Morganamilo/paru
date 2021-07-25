@@ -39,7 +39,8 @@ msgstr ""
 
 #: src/clean.rs:48
 msgid "Do you want to remove all saved diffs?"
-msgstr "Haluatko poistaa kaikki tallennetut diffit?"
+msgstr "Haluatko poistaa kaikki tallennetut "
+"diffit?"
 
 #: src/clean.rs:64
 msgid "can't open diff dir: {}"
@@ -71,15 +72,18 @@ msgstr "tuntematon vaihtoehto -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
-msgstr "ei pystytty avaamaan välimuistitiedostoa '{}'"
+msgstr "ei pystytty avaamaan "
+"välimuistitiedostoa '{}'"
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
-msgstr "ei pystytty päivittämään aur välimuistia"
+msgstr "ei pystytty päivittämään "
+"aur välimuistia"
 
 #: src/config.rs:174
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
-msgstr "kelpaamaton arvo '{val}' avaimelle {key}', odotettiin: {exp}"
+msgstr "kelpaamaton arvo '{val}' avaimelle {key}', "
+"odotettiin: {exp}"
 
 #: src/config.rs:462
 #, fuzzy
@@ -105,8 +109,8 @@ msgstr "vain yksi operaatia on sallittu kerrallaan"
 #: src/config.rs:641
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr ""
-"ei pystytty löytämään paikallista pakettivarastoa '{}' tiedostosta pacman."
-"conf"
+"ei pystytty löytämään paikallista pakettivarastoa "
+"'{}' tiedostosta pacman.conf"
 
 #: src/config.rs:673
 msgid "failed to initialize alpm: root={} dbpath={}"
@@ -135,11 +139,13 @@ msgstr "arvo ei voi sisältää null tavuja"
 
 #: src/config.rs:809
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "virhe: tuntematon vaihtoehto '{}' osiossa [bin]"
+msgstr "virhe: tuntematon vaihtoehto '{}' osiossa "
+"[bin]"
 
 #: src/config.rs:909
 msgid "error: unknown option '{}' in section [options]"
-msgstr "virhe: tuntematon vaihtoehto '{}' osiossa [options]"
+msgstr "virhe: tuntematon vaihtoehto '{}' osiossa "
+"[options]"
 
 #: src/config.rs:914
 msgid "option '{}' does not take a value"
@@ -164,7 +170,8 @@ msgstr "Etsitään AURista..."
 
 #: src/devel.rs:143 src/devel.rs:167 src/install.rs:710
 msgid "failed to parse srcinfo for '{}'"
-msgstr "ei pystytty jäsentämään srcinfoa paketille '{}'"
+msgstr "ei pystytty jäsentämään srcinfoa "
+"paketille '{}'"
 
 #: src/devel.rs:185
 msgid "Looking for devel repos..."
@@ -188,7 +195,8 @@ msgstr "virheellinen json: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr "paketit, jotka eivät ole AURissa: "
+msgstr "paketit, jotka eivät ole "
+"AURissa: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
@@ -260,11 +268,11 @@ msgstr "    paru"
 
 #: src/help.rs:6
 msgid "    paru <operation> [...]"
-msgstr "    paru <operation> [...]"
+msgstr "    paru <operaatiot> [...]"
 
 #: src/help.rs:7
 msgid "    paru <package(s)>"
-msgstr "    paru <package(s)>"
+msgstr "    paru <paketit(t)>"
 
 #: src/help.rs:9
 msgid "Pacman operations:"
@@ -280,7 +288,7 @@ msgstr "    paru {-V --version}"
 
 #: src/help.rs:12
 msgid "    paru {-D --database}    <options> <package(s)>"
-msgstr "    paru {-D --database}    <options> <package(s)>"
+msgstr "    paru {-D --database}    <options> <paketti(t)>"
 
 #: src/help.rs:13
 msgid "    paru {-F --files}       [options] [package(s)]"
@@ -292,7 +300,7 @@ msgstr "    paru {-Q --query}       [options] [package(s)]"
 
 #: src/help.rs:15
 msgid "    paru {-R --remove}      [options] <package(s)>"
-msgstr "    paru {-R --remove}      [options] <package(s)>"
+msgstr "    paru {-R --remove}      [options] <paketti(t)>"
 
 #: src/help.rs:16
 msgid "    paru {-S --sync}        [options] [package(s)]"
@@ -328,13 +336,15 @@ msgstr "Valinnat ilman toimintoja:"
 
 #: src/help.rs:27
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "	-c --clean            Poista käyttämättömät riippuvuudet"
+msgstr "	-c --clean            Poista käyttämättömät"
+"riippuvuudet"
 
 #: src/help.rs:28
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            Generoi päivittämisessä käytettävän kehitypaketti tietokannan"
+"       --gendb            Generoi päivittämisessä käytettävän kehitypaketti "
+"tietokannan"
 
 #: src/help.rs:30
 msgid "New options:"
@@ -350,67 +360,82 @@ msgstr "    -a --aur               Oleta kohteiden olevan AURissa"
 
 #: src/help.rs:33
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Aseta vaihtoehtoinen AUR URL"
+msgstr "    --aururl    <linkki>      Aseta vaihtoehtoinen "
+"AUR URL"
 
 #: src/help.rs:34
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
-msgstr "    --clonedir  <dir>      Lataamiseen ja PKGBUILDin suorittamiseen käytettävä kansio"
+msgstr "    --clonedir  <kansio>      Lataamiseen ja PKGBUILDin suorittamiseen"
+"käytettävä kansio"
 
 #: src/help.rs:36
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr "    --makepkg   <file>     käytettävä makepkg komento"
+msgstr "    --makepkg   <tiedosto>     käytettävä makepkg"
+"komento"
 
 #: src/help.rs:37
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr "    --mflags    <flags>    Anna makepkg argumentit"
+msgstr "    --mflags    <argumentti>    Anna makepkg "
+"argumentit"
 
 #: src/help.rs:38
 msgid "    --pacman    <file>     pacman command to use"
-msgstr "    --pacman    <file>     käytettävä pacman komento"
+msgstr "    --pacman    <tiedosto>     käytettävä pacman"
+"komento"
 
 #: src/help.rs:39
 msgid "    --git       <file>     git command to use"
-msgstr "    --git       <file>     käytettävä git komento"
+msgstr "    --git       <tiedosto>     käytettävä git"
+"komento"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <flags>    Anna git argumentit"
+msgstr "    --gitflags  <argumentti>    Anna git "
+"argumentit"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
-msgstr "    --sudo      <file>     käytettävä sudo komento"
+msgstr "    --sudo      <tiedosto>     käytettävä sudo"
+"komento"
 
 #: src/help.rs:42
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr "    --sudoflags <flags>    Anna sudo argumentit"
+msgstr "    --sudoflags <argumentti>    Anna sudo argumentit"
 
 #: src/help.rs:43
 msgid "    --asp       <file>     asp command to use"
-msgstr "    --asp       <file>     käytettävä asp komento"
+msgstr "    --asp       <tiedosto>     käytettävä asp"
+"komento"
 
 #: src/help.rs:44
 msgid "    --bat       <file>     bat command to use"
-msgstr "    --bat       <file>     käytettävä bat komento"
+msgstr "    --bat       <tiedosto>     käytettävä bat"
+"komento"
 
 #: src/help.rs:45
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr "    --batflags  <flags>    Anna bat argumentit"
+msgstr "    --batflags  <argumentti>    Anna bat "
+"argumentit"
 
 #: src/help.rs:46
 msgid "    --gpg       <file>     gpg command to use"
-msgstr "    --gpg       <file>     käytettävä gpg komento"
+msgstr "    --gpg       <tiedosto>     käytettävä "
+"gpg komento"
 
 #: src/help.rs:47
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr "    --gpgflags  <flags>    Anna gpg argumentit"
+msgstr "    --gpgflags  <argumentti>    Anna gpg "
+"argumentit"
 
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
-msgstr "    --fm        <file>     PKGBUILDin tarkastamiseen käytettävä pakettiselain"
+msgstr "    --fm        <tiedosto>     PKGBUILDin tarkastamiseen "
+"käytettävä pakettiselain"
 
 #: src/help.rs:49
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
-msgstr "    --fmflags   <flags>    Anna pakettiselaimelle argumentit"
+msgstr "    --fmflags   <argumentti>    Anna pakettiselaimelle "
+"argumentit"
 
 #: src/help.rs:51
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
@@ -420,11 +445,13 @@ msgstr "    --completioninterval   <n> Aika päivinä päivittää täydennysvä
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
-"    --sortby    <field>    Järjestä AUR tulokset määritellyllä kentällä haun aikana"
+"    --sortby    <kenttä>    Järjestä AUR tulokset määritellyllä kentällä haun "
+"aikana"
 
 #: src/help.rs:53
 msgid "    --searchby  <field>    Search for packages using a specified field"
-msgstr "    --searchby  <field>    Etsi paketteja käyttämällä määriteltyä kenttää"
+msgstr "    --searchby  <kenttä>    Etsi paketteja käyttämällä määriteltyä "
+"kenttää"
 
 #: src/help.rs:55
 msgid "    --skipreview           Skip the review process"
@@ -436,7 +463,8 @@ msgstr "    --review               Älä ohita review prosessia"
 
 #: src/help.rs:57
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
-msgstr "    --[no]upgrademenu      Näytä vuorovaikutteinen valikko ohittaaksesi päivitykset"
+msgstr "    --[no]upgrademenu      Näytä vuorovaikutteinen valikko "
+"ohittaaksesi päivitykset"
 
 #: src/help.rs:58
 #, fuzzy
@@ -469,15 +497,16 @@ msgstr ""
 
 #: src/help.rs:65
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
-msgstr "    --[no]newsonupgrade    Tulosta uudet uutiset sysupgraden aikana"
+msgstr "    --[no]newsonupgrade    Tulosta uudet uutiset "
+"sysupgraden aikana"
 
 #: src/help.rs:66
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Lataa uudelleen sitten suorita repo ja AUR päivitys "
-"yhdessä"
+"    --[no]combinedupgrade  Lataa uudelleen sitten suorita repo ja AUR "
+"päivitys yhdessä"
 
 #: src/help.rs:67
 msgid ""
@@ -497,7 +526,8 @@ msgstr ""
 
 #: src/help.rs:69
 msgid "    --[no]devel            Check development packages during sysupgrade"
-msgstr "    --[no]devel            Tarkista kehityspaketit sysupgraden yhteydessä"
+msgstr "    --[no]devel            Tarkista kehityspaketit sysupgraden "
+"yhteydessä"
 
 #: src/help.rs:70
 msgid ""
@@ -511,7 +541,8 @@ msgstr ""
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
-"    --[no]sudoloop         Looppaa sudo kutsut taustalla välttääksesi timeout:in"
+"    --[no]sudoloop         Looppaa sudo kutsut taustalla välttääksesi "
+"timeout:in"
 
 #: src/help.rs:72
 msgid "    --[no]chroot           Build packages in a chroot"
@@ -527,15 +558,16 @@ msgstr "    --[no]signdb           Signeeraa tietokanta gpgllä"
 
 #: src/help.rs:75
 msgid "    --localrepo            Build packages into a local repo"
-msgstr "    --localrepo            Rakenna paketteja paikalliseen repoon"
+msgstr "    --localrepo            Rakenna paketteja paikalliseen "
+"repoon"
 
 #: src/help.rs:76
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
-"    --nocheck              Älä ratkaise checkdepends:siä tai suorita check "
-"funktiota"
+"    --nocheck              Älä ratkaise checkdepends:siä tai suorita "
+"check funktiota"
 
 #: src/help.rs:77
 msgid ""
@@ -559,7 +591,7 @@ msgstr ""
 
 #: src/help.rs:81
 msgid "show specific options:"
-msgstr "näytä spesifiset valinnat:"
+msgstr "show spesifiset options:"
 
 #: src/help.rs:82
 msgid "    -c --complete         Used for completions"
@@ -567,7 +599,8 @@ msgstr "    -c --complete         Käytetään täydennykseen"
 
 #: src/help.rs:83
 msgid "    -s --stats            Display system package statistics"
-msgstr "    -s --stats            Näytä järjestelmäpaketin statistiikat"
+msgstr "    -s --stats            Näytä järjestelmäpaketin"
+"statistiikat"
 
 #: src/help.rs:84
 msgid "    -w --news             Print arch news"
@@ -635,7 +668,8 @@ msgstr "Tarkastus riippuvuudet"
 
 #: src/info.rs:67 src/info.rs:114
 msgid "Conflicts With"
-msgstr "Ristiriidassa paketeille"
+msgstr "Ristiriidassa"
+"paketeille"
 
 #: src/info.rs:68 src/info.rs:115
 msgid "Maintainer"
@@ -651,7 +685,8 @@ msgstr "Suosio"
 
 #: src/info.rs:71 src/info.rs:118
 msgid "First Submitted"
-msgstr "Ensimmäiseksi toimitettu"
+msgstr "Ensimmäiseksi"
+"toimitettu"
 
 #: src/info.rs:72 src/info.rs:119
 msgid "Last Modified"
@@ -683,7 +718,8 @@ msgstr "Ei"
 
 #: src/info.rs:113
 msgid "Optional Deps"
-msgstr "Vaihtoehtoiset riippuvuudet"
+msgstr "Vaihtoehtoiset"
+"riippuvuudet"
 
 #: src/install.rs:131 src/install.rs:561 src/install.rs:960
 msgid "no architecture"
@@ -691,11 +727,13 @@ msgstr "ei arkkitehtuuria"
 
 #: src/install.rs:138
 msgid "can't build package as root"
-msgstr "ei voida rakentaa pakettia root-käyttäjänä"
+msgstr "ei voida rakentaa "
+"pakettia root-käyttäjänä"
 
 #: src/install.rs:142
 msgid "failed to parse srcinfo generated by makepkg"
-msgstr "ei pystytty jäsentämään makepkg:in luomaa srcinfoa"
+msgstr "ei pystytty jäsentämään makepkg:in luomaa "
+"srcinfoa"
 
 #: src/install.rs:171 src/install.rs:450
 msgid "Resolving dependencies..."
@@ -707,15 +745,18 @@ msgstr "ei pystytty lataamaan lähteitä"
 
 #: src/install.rs:230 src/install.rs:246 src/install.rs:254
 msgid "failed to build"
-msgstr "ei pystytty rakentamaan"
+msgstr "ei pystytty "
+"rakentamaan"
 
 #: src/install.rs:233
 msgid "parsing pkg list..."
-msgstr "jäsennetään pkg listaa..."
+msgstr "jäsennetään pkg "
+"listaa..."
 
 #: src/install.rs:261 src/install.rs:1478
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} on ajantasalla -- ohitetaan rakennus"
+msgstr "{}-{} on ajantasalla -- ohitetaan "
+"rakennus"
 
 #: src/install.rs:333 src/query.rs:50 src/lib.rs:89
 msgid "error:"
@@ -731,7 +772,8 @@ msgstr "Jatka asentamista?"
 
 #: src/install.rs:357
 msgid "no targets specified (use -h for help)"
-msgstr "yhtään kohdetta ei ole määritelty (-h tulostaa ohjeen)"
+msgstr "yhtään kohdetta ei ole määritelty "
+"(-h tulostaa ohjeen)"
 
 #: src/install.rs:442 src/install.rs:469 src/search.rs:324 src/search.rs:360
 #: src/lib.rs:232
@@ -756,7 +798,8 @@ msgstr "Seuraavat paketit eivät ole yhteensopvia arkkitehtuurisi kanssa:"
 
 #: src/install.rs:589
 msgid "Would you like to try build them anyway?"
-msgstr "Haluaisitko kuitenkin kokeilla niiden rakentamista?"
+msgstr "Haluaisitko kuitenkin kokeilla niiden "
+"rakentamista?"
 
 #: src/install.rs:678
 msgid "packages failed to build: {}"
@@ -764,11 +807,13 @@ msgstr "pakettien rakennus epäonnistui: {}"
 
 #: src/install.rs:714
 msgid "could not find .SRINFO for '{}'"
-msgstr "ei pystytty löytämään .SRCINFOa paketille: '{}'"
+msgstr "ei pystytty löytämään "
+".SRCINFOa paketille: '{}'"
 
 #: src/install.rs:778
 msgid "failed to read dir: {}"
-msgstr "ei pystytty lukemaan kansiota: {}"
+msgstr "ei pystytty lukemaan "
+"kansiota: {}"
 
 #: src/install.rs:794
 msgid ""
@@ -792,7 +837,8 @@ msgstr " ei uutta tarkistettavaa"
 
 #: src/install.rs:887
 msgid "failed to execute file manager: {}"
-msgstr "ei pystytty suorittamaan tiedostoselainta: {}"
+msgstr "ei pystytty suorittamaan "
+"tiedostoselainta: {}"
 
 #: src/install.rs:890
 msgid "file manager did not execute successfully"
@@ -840,7 +886,8 @@ msgstr "Ristiriitaiset paketit on vahvistettava manuaalisesti"
 
 #: src/install.rs:1094
 msgid "can not install conflicting packages with --noconfirm"
-msgstr "ei voida asentaa ristiriitaisia paketteja --noconfirm:illa"
+msgstr "ei voida asentaa ristiriitaisia paketteja"
+"--noconfirm:illa"
 
 #: src/install.rs:1133
 msgid "Repo"
@@ -864,7 +911,8 @@ msgstr "Allekirjoitetaan paketteja..."
 
 #: src/install.rs:1414 src/install.rs:1419
 msgid "failed to download sources for '{}'"
-msgstr "ei pystytty latamaan lähteitä paketille '{}'"
+msgstr "ei pystytty latamaan lähteitä "
+"paketille '{}'"
 
 #: src/install.rs:1424 src/install.rs:1463 src/install.rs:1471
 msgid "failed to build '{}'"
@@ -930,11 +978,13 @@ msgstr " [ohitettu]"
 
 #: src/repo.rs:164
 msgid "failed to get current exe"
-msgstr "ei pystytty hakemaan nykyistä exe:ä"
+msgstr "ei pystytty hakemaan "
+"nykyistä exe:ä"
 
 #: src/repo.rs:195
 msgid "syncing local databases..."
-msgstr "synkronoidaan paikallisia tietokantoja..."
+msgstr "synkronoidaan "
+"paikallisia tietokantoja..."
 
 #: src/repo.rs:201
 msgid "  nothing to do"
@@ -962,7 +1012,8 @@ msgstr "[Hylätty]"
 
 #: src/search.rs:263
 msgid "no packages match search"
-msgstr "mitkään paketit ei vastannut hakua"
+msgstr "mitkään paketit ei "
+"vastannut hakua"
 
 #: src/search.rs:321
 msgid "Packages to install (eg: 1 2 3, 1-3):"
@@ -1050,11 +1101,13 @@ msgstr "virheellinen luku: {}"
 
 #: src/util.rs:326
 msgid "invalid value: {n} is not between 1 and {max}"
-msgstr "virheellinen arvo: {n} ei ole 1 ja {max} välillä"
+msgstr "virheellinen arvo: {n} ei ole 1 ja {max} "
+"välillä"
 
 #: src/lib.rs:158
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "ei voida käyttää chroot rakennuksia: devtools ei ole asennettu"
+msgstr "ei voida käyttää chroot rakennuksia: devtools ei "
+"ole asennettu"
 
 #: src/lib.rs:398
 msgid " [installed: {}]"
