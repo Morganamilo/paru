@@ -101,10 +101,10 @@ impl Config {
             let mut chars = arg.chars();
             chars.next().unwrap();
 
-            while let Some(c) = chars.next() {
+            for c in chars {
                 let arg = Arg::Short(c);
                 if takes_value(arg) == TakesValue::Required {
-                    self.handle_arg(arg, Some(chars.as_str()), op_count, false)?;
+                    self.handle_arg(arg, value, op_count, false)?;
                     return Ok(true);
                 }
                 self.handle_arg(arg, None, op_count, false)?;
