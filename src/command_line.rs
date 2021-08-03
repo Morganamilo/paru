@@ -104,8 +104,13 @@ impl Config {
             while let Some(c) = chars.next() {
                 let arg = Arg::Short(c);
                 if takes_value(arg) == TakesValue::Required {
-                    self.handle_arg(arg, Some(chars.as_str()), op_count, false)?;
-                    return Ok(true);
+                    if chars.as_str().is_empty() {
+                        self.handle_arg(arg, value, op_count, false)?;
+                        return Ok(true);
+                    } else {
+                        self.handle_arg(arg, Some(chars.as_str()), op_count, false)?;
+                        return Ok(false);
+                    }
                 }
                 self.handle_arg(arg, None, op_count, false)?;
             }
