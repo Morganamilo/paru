@@ -1,5 +1,46 @@
 # Changelog
 
+## Paru v1.8.0 (2021-8-3)
+
+### Added
+
+- Localization support 8667e98 5b1ff38
+- Added ability to static link libalpm a39641c
+- Add [env] section in paru.conf daf225f
+
+### Fixed
+
+- Fix short opts not taking args after space #485
+- Fix -Sc not cleaning untracked files #430
+- Fix -U sometimes not installing repo deps 61b10e0
+- Fix chroot builds sometimes doing nothing when no AUR updates 08aa1f7
+- Bail if call to gpg fails 9fab5d9
+
+### Changed
+
+- Order packages by dep order even when satisfied 210e375
+- Add -F to default less flags 3b6cb32
+- Warn instead of bail on unknown section 11bc07d
+
+### Localization
+
+- Add zh_CN locale #439
+- Add ca locale #439
+- Add it locale #440
+- Add pt_BR locale #434
+- Add pt locale #438
+- Add es locale #435
+- Add fi locale #441
+- Add nl locale #444
+- Add ru locale #449
+- Add de locale #436
+- Add ja locale #451
+- Add tr locale #437
+- Add ro locale #453
+- Add fr locale #456
+- Add sv locale #460
+- Add hi locale #463
+
 ## Paru v1.7.3 (2021-6-24)
 
 ### Fixed
