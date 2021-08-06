@@ -5,7 +5,7 @@ use crate::util::get_provider;
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
-use std::env::{set_var, var};
+use std::env::{set_var, var, remove_var};
 use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
@@ -648,6 +648,10 @@ impl Config {
 
         if !self.assume_installed.is_empty() && !self.chroot {
             self.mflags.push("-d".to_string());
+        }
+
+        if self.chroot {
+            remove_var("PKGEXT");
         }
 
         Ok(())
