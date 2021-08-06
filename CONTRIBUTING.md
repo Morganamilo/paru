@@ -24,7 +24,7 @@ Paru has a couple of feature flags which you may want to enable:
 
 - backtrace: generate backtraces when errors occur (requires nightly)
 - git: target the libalpm-git API
-- generate: generate the libalpm buildings at build time (requires clang)
+- generate: generate the libalpm bindings at build time (requires clang)
 
 ### Building Against a Custom libalpm
 
