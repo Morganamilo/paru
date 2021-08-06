@@ -230,10 +230,14 @@ pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) 
 
     if !ret.status.success() {
         bail!(
-            "{} {} {} --verifysource -Ccf: {}",
+            "{} {} {} {}: {}",
             tr!("failed to run:"),
             config.makepkg_bin,
             config.mflags.join(" "),
+            args.iter()
+                .map(|a| a.as_ref().to_string_lossy())
+                .collect::<Vec<_>>()
+                .join(" "),
             String::from_utf8_lossy(&ret.stderr)
         )
     }
