@@ -45,6 +45,7 @@ use std::error::Error as StdError;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 
 use ansi_term::Style;
@@ -330,6 +331,13 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                     ) {
                         if pkgs.contains(&pkg.name()) {
                             rmfiles.push(file.path());
+
+                            let mut sig = file.path().to_path_buf().into_os_string();
+                            sig.push(".sig");
+                            let sig = PathBuf::from(sig);
+                            if sig.exists() {
+                                rmfiles.push(sig);
+                            }
                         }
                     }
                 }
