@@ -311,6 +311,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             }
         }
 
+        let cb = config.alpm.take_raw_log_cb();
         for repo in &repos {
             if let Some(pkgs) = remove.get(&repo.name()) {
                 let path = repo
@@ -343,6 +344,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                 }
             }
         }
+        config.alpm.set_raw_log_cb(cb);
 
         if !rmfiles.is_empty() {
             let mut args = vec![OsStr::new("rm")];
