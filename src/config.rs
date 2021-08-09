@@ -5,7 +5,7 @@ use crate::util::get_provider;
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
-use std::env::{set_var, var, remove_var};
+use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::File;
 use std::io::{stdin, BufRead};
