@@ -1,5 +1,21 @@
 # Changelog
 
+## Paru v1.8.1 (2021-8-12)
+
+### Fixed
+- Fix makepkg command giving wrong args in error message #492
+- Fix stack overflow with some cyclic deps 22ec445
+- Fix excessive output during -Ld
+
+### Changed
+- Ignore PKGEXT in chroot 8ff2ba9
+- -Ld also removes sig files 2a1a412
+
+### Localization
+- Update nl locale #488
+- Update de locale #487
+- Update pt_BR locale #496
+
 ## Paru v1.8.0 (2021-8-3)
 
 ### Added
