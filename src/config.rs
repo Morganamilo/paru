@@ -115,7 +115,7 @@ impl Colors {
             error: Style::new().fg(Red),
             warning: Style::new().fg(Yellow),
             bold: Style::new().bold(),
-            upgrade: Style::new().fg(Green),
+            upgrade: Style::new().fg(Green).bold(),
             base: Style::new().fg(Blue),
             action: Style::new().fg(Blue).bold(),
             sl_repo: Style::new().fg(Purple).bold(),
