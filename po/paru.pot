@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2021-08-15 13:41+0000\n"
+"POT-Creation-Date: 2021-08-15 13:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -210,8 +210,8 @@ msgstr ""
 msgid "does not contain PKGBUILD: skipping"
 msgstr ""
 
-#: src/download.rs:294
-msgid " ({total>padding$}/{total}) downloading: {pkg}"
+#: src/download.rs:295
+msgid "downloading: {pkg}"
 msgstr ""
 
 #: src/download.rs:317

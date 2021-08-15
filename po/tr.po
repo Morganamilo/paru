@@ -211,8 +211,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "pkgbuild içermiyor: es geçiliyor"
 
 #: src/download.rs:294
-msgid " ({total>padding$}/{total}) downloading: {pkg}"
-msgstr " ({total>padding$}/{total}) indiliriliyor: {pkg}"
+msgid "downloading: {pkg}"
+msgstr "indiliriliyor: {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."

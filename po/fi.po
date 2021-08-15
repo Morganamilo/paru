@@ -204,8 +204,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "ei sisällä PKGBUILDia: ohitetaan"
 
 #: src/download.rs:294
-msgid " ({total>padding$}/{total}) downloading: {pkg}"
-msgstr "({total>padding$}/{total}) ladataan: {pkg}"
+msgid "downloading: {pkg}"
+msgstr "ladataan: {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."

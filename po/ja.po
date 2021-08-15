@@ -221,8 +221,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "PKGBUILD が含まれていません: スキップ"
 
 #: src/download.rs:294
-msgid " ({total>padding$}/{total}) downloading: {pkg}"
-msgstr " ({total>padding$}/{total}) {pkg} をダウンロードしています"
+msgid "downloading: {pkg}"
+msgstr "{pkg} をダウンロードしています"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."

@@ -211,8 +211,8 @@ msgid "does not contain PKGBUILD: skipping"
 msgstr "不包含 PKGBUILD: 正在跳过"
 
 #: src/download.rs:294
-msgid " ({total>padding$}/{total}) downloading: {pkg}"
-msgstr " ({total>padding$}/{total}) 正在下载 {pkg}"
+msgid "downloading: {pkg}"
+msgstr "正在下载 {pkg}"
 
 #: src/download.rs:317
 msgid "Downloading PKGBUILDs..."
