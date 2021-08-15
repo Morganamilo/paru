@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2021-07-12 16:24+0000\n"
+"POT-Creation-Date: 2021-08-15 13:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,19 +50,19 @@ msgstr ""
 msgid "can't open clone dir: {}"
 msgstr ""
 
-#: src/command_line.rs:127
+#: src/command_line.rs:132
 msgid "option {} expects a value"
 msgstr ""
 
-#: src/command_line.rs:158 src/command_line.rs:327
+#: src/command_line.rs:163 src/command_line.rs:332
 msgid "option {} does not allow a value"
 msgstr ""
 
-#: src/command_line.rs:318
+#: src/command_line.rs:323
 msgid "unknown option --{}"
 msgstr ""
 
-#: src/command_line.rs:321
+#: src/command_line.rs:326
 msgid "unknown option -{}"
 msgstr ""
 
@@ -78,95 +78,103 @@ msgstr ""
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr ""
 
-#: src/config.rs:474
-msgid "failed to find cache directory"
+#: src/config.rs:462
+msgid "error: unknown section '{}'"
 msgstr ""
 
 #: src/config.rs:477
+msgid "failed to find cache directory"
+msgstr ""
+
+#: src/config.rs:480
 msgid "failed to find config directory"
 msgstr ""
 
-#: src/config.rs:501
+#: src/config.rs:504
 msgid "config file '{}' does not exist"
 msgstr ""
 
-#: src/config.rs:550
+#: src/config.rs:553
 msgid "only one operation may be used at a time"
 msgstr ""
 
-#: src/config.rs:638
+#: src/config.rs:641
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr ""
 
-#: src/config.rs:670
+#: src/config.rs:673
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr ""
 
-#: src/config.rs:740 src/config.rs:873
+#: src/config.rs:743 src/config.rs:891
 msgid "value can not be empty for key '{}'"
 msgstr ""
 
-#: src/config.rs:756
+#: src/config.rs:759
 msgid "key '{}' does not belong to a section"
 msgstr ""
 
-#: src/config.rs:762
-msgid "unknown section '{}'"
-msgstr ""
-
-#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+#: src/config.rs:771 src/config.rs:773 src/config.rs:787 src/config.rs:842 src/config.rs:847
 msgid "key can not be empty"
 msgstr ""
 
-#: src/config.rs:791
+#: src/config.rs:774
+msgid "key can not contain null bytes"
+msgstr ""
+
+#: src/config.rs:777
+msgid "value can not contain null bytes"
+msgstr ""
+
+#: src/config.rs:809
 msgid "error: unknown option '{}' in section [bin]"
 msgstr ""
 
-#: src/config.rs:891
+#: src/config.rs:909
 msgid "error: unknown option '{}' in section [options]"
 msgstr ""
 
-#: src/config.rs:896
+#: src/config.rs:914
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:942 src/install.rs:1812
+#: src/config.rs:960 src/install.rs:1812
 msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:956 src/info.rs:57 src/info.rs:96 src/install.rs:1771 src/install.rs:1820
+#: src/config.rs:974 src/info.rs:57 src/info.rs:96 src/install.rs:1771 src/install.rs:1820
 msgid "Repository"
 msgstr ""
 
-#: src/config.rs:978
+#: src/config.rs:996
 msgid "  failed to sync {}"
 msgstr ""
 
-#: src/devel.rs:129 src/download.rs:179
+#: src/devel.rs:130 src/download.rs:179
 msgid "Querying AUR..."
 msgstr ""
 
-#: src/devel.rs:142 src/devel.rs:166 src/install.rs:710
+#: src/devel.rs:143 src/devel.rs:167 src/install.rs:710
 msgid "failed to parse srcinfo for '{}'"
 msgstr ""
 
-#: src/devel.rs:184
+#: src/devel.rs:185
 msgid "Looking for devel repos..."
 msgstr ""
 
-#: src/devel.rs:193
+#: src/devel.rs:194
 msgid "failed to save devel info"
 msgstr ""
 
-#: src/devel.rs:382
+#: src/devel.rs:384
 msgid "package does not have an update"
 msgstr ""
 
-#: src/devel.rs:417
+#: src/devel.rs:419
 msgid "failed to lookup: {}"
 msgstr ""
 
-#: src/devel.rs:445
+#: src/devel.rs:447
 msgid "invalid json: {}"
 msgstr ""
 
@@ -658,7 +666,7 @@ msgstr ""
 msgid "{}-{} is up to date -- skipping build"
 msgstr ""
 
-#: src/install.rs:333 src/query.rs:50 src/lib.rs:85
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:89
 msgid "error:"
 msgstr ""
 
@@ -674,7 +682,7 @@ msgstr ""
 msgid "no targets specified (use -h for help)"
 msgstr ""
 
-#: src/install.rs:442 src/install.rs:469 src/search.rs:324 src/search.rs:360 src/lib.rs:228
+#: src/install.rs:442 src/install.rs:469 src/search.rs:324 src/search.rs:360 src/lib.rs:232
 msgid " there is nothing to do"
 msgstr ""
 
@@ -923,7 +931,7 @@ msgstr ""
 msgid "Ten biggest packages:"
 msgstr ""
 
-#: src/sync.rs:89 src/lib.rs:396
+#: src/sync.rs:89 src/lib.rs:400
 msgid " [installed]"
 msgstr ""
 
@@ -983,10 +991,10 @@ msgstr ""
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
-#: src/lib.rs:154
+#: src/lib.rs:158
 msgid "can not use chroot builds: devtools is not installed"
 msgstr ""
 
-#: src/lib.rs:394
+#: src/lib.rs:398
 msgid " [installed: {}]"
 msgstr ""
