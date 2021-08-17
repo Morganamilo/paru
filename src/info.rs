@@ -64,6 +64,7 @@ fn longest() -> usize {
         tr!("Depends On"),
         tr!("Make Deps"),
         tr!("Check Deps"),
+        tr!("Optional Deps"),
         tr!("Conflicts With"),
         tr!("Maintainer"),
         tr!("Votes"),
