@@ -74,7 +74,7 @@ pub async fn list_aur(config: &Config) -> Result<()> {
         .filter(|l| !l.is_empty())
     {
         if config.args.has_arg("q", "quiet") {
-            let _ = stdout.write_all(&line);
+            let _ = stdout.write_all(line);
             let _ = stdout.write_all(&[b'\n']);
             continue;
         }

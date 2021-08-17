@@ -28,7 +28,7 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
 
     for line in data.split(|&c| c == b'\n').skip(1) {
         if !line.is_empty() {
-            file.write_all(&line)?;
+            file.write_all(line)?;
             file.write_all(b"\n")?;
         }
     }

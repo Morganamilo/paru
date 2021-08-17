@@ -143,7 +143,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse(Some(name.as_str()), &file)?;
     };
 
-    if args.len() == 0 {
+    if args.is_empty() {
         config.parse_args(&["-Syu"])?;
     } else {
         config.parse_args(args)?;
@@ -319,7 +319,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
                     .first()
                     .unwrap()
                     .trim_start_matches("file://");
-                repo::remove(config, path, &repo.name(), pkgs)?;
+                repo::remove(config, path, repo.name(), pkgs)?;
 
                 let files = read_dir(path)?;
 

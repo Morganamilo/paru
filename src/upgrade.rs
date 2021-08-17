@@ -92,7 +92,7 @@ fn print_upgrade(
     let n = format!("{:>pad$}", n, pad = n_max);
     let db_pkg = format!(
         "{}/{}{:pad$}",
-        color_repo(config.color.enabled, &db),
+        color_repo(config.color.enabled, db),
         c.bold.paint(pkg),
         "",
         pad = db_pkg_max - (db.len() + pkg.len()) + 1
@@ -333,7 +333,7 @@ pub async fn get_upgrades<'a, 'b>(
 
     let input = input(config, &tr!("Packages to exclude (eg: 1 2 3, 1-3):"));
     let input = input.trim();
-    let number_menu = NumberMenu::new(&input);
+    let number_menu = NumberMenu::new(input);
 
     for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
         let n = n + devel_upgrades.len() + aur_upgrades.len();

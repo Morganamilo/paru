@@ -119,7 +119,10 @@ pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Res
         print(&tr!("Last Modified"), &date(pkg.last_modified));
         print(
             &tr!("Out Of Date"),
-            pkg.out_of_date.map(date).as_deref().unwrap_or(no.as_str()),
+            pkg.out_of_date
+                .map(date)
+                .as_deref()
+                .unwrap_or_else(|| no.as_str()),
         );
 
         if verbose {

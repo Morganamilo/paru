@@ -58,7 +58,7 @@ pub async fn news(config: &Config) -> Result<i32> {
         }
 
         let no_title = tr!("No Title");
-        let title = item.title().unwrap_or(no_title.as_str());
+        let title = item.title().unwrap_or_else(|| no_title.as_str());
         println!("{}", c.bold.paint(title));
 
         printed = true;

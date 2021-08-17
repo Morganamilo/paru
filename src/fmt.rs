@@ -3,7 +3,7 @@ use chrono::{DateTime, NaiveDateTime};
 use tr::tr;
 
 pub fn opt(opt: &Option<String>) -> String {
-    opt.clone().unwrap_or(tr!("None"))
+    opt.clone().unwrap_or_else(|| tr!("None"))
 }
 
 pub fn date(date: i64) -> String {

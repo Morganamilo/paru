@@ -336,7 +336,7 @@ pub async fn filter_devel_updates(
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    config.raur.cache_info(cache, &updates).await?;
+    config.raur.cache_info(cache, updates).await?;
     let updates = updates
         .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
@@ -403,7 +403,7 @@ pub async fn fetch_devel_info(
         };
 
         for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
-            if let Some((remote, _, branch)) = parse_url(&url) {
+            if let Some((remote, _, branch)) = parse_url(url) {
                 let future = ls_remote(&config.git_bin, &config.git_flags, remote.clone(), branch);
                 futures.push(future);
                 parsed.push((remote, base.package_base().to_string(), branch));

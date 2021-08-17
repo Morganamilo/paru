@@ -163,7 +163,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     config.set_op_args_globals(Op::Sync);
 
     let flags = flags(config);
-    let resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
+    let resolver = resolver(config, &config.alpm, &config.raur, &mut cache, flags);
 
     println!(
         "{} {}",
@@ -202,7 +202,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if let Some(repo) = default_repo {
         let file = repo::file(&repo).unwrap();
-        repo::init(config, file, &repo.name())?;
+        repo::init(config, file, repo.name())?;
         std::env::set_var("PKGDEST", file);
     }
 
@@ -345,7 +345,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     config.targets = targets_str.to_vec();
     config.args.targets = config.targets.clone();
 
-    let targets = args::parse_targets(&targets_str);
+    let targets = args::parse_targets(targets_str);
     let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets)?;
     let mut done_something = false;
     let mut ran_pacman = false;
@@ -385,7 +385,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
-    let mut resolver = resolver(&config, &config.alpm, &config.raur, &mut cache, flags);
+    let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
         let upgrades = get_upgrades(config, &mut resolver).await?;
@@ -498,7 +498,7 @@ async fn prepare_build(
 
     let conflicts = check_actions(config, &mut actions, srcinfo)?;
 
-    print_warnings(config, &cache, Some(&actions));
+    print_warnings(config, cache, Some(&actions));
 
     if actions.build.is_empty() && actions.install.is_empty() {
         return Ok(BuildInfo::nothing_to_do());
@@ -537,8 +537,10 @@ async fn prepare_build(
             Ok(0)
         };
 
-        let mut bi = BuildInfo::default();
-        bi.err = err;
+        let bi = BuildInfo {
+            err,
+            ..Default::default()
+        };
         return Ok(bi);
     }
 
@@ -697,7 +699,7 @@ async fn download_pkgbuilds<'a>(
         }
     }
 
-    download::new_aur_pkgbuilds(config, &bases, &srcinfos).await?;
+    download::new_aur_pkgbuilds(config, bases, &srcinfos).await?;
 
     for base in &bases.bases {
         if srcinfos.contains_key(base.package_base()) {
@@ -1216,8 +1218,8 @@ fn do_install(
             save_devel_info(config, devel_info)?;
         }
 
-        asdeps(config, &deps)?;
-        asexp(config, &exp)?;
+        asdeps(config, deps)?;
+        asexp(config, exp)?;
         deps.clear();
         exp.clear();
         install_queue.clear();
@@ -1266,7 +1268,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
     let default_repo = repo.first();
     if let Some(repo) = default_repo {
         let file = repo::file(&repo).unwrap();
-        repo::init(config, file, &repo.name())?;
+        repo::init(config, file, repo.name())?;
         std::env::set_var("PKGDEST", file);
     }
 
@@ -1522,7 +1524,7 @@ fn build_install_pkgbuild<'a>(
                 .insert(base.package_base().to_string(), info);
         }
         if config.devel {
-            save_devel_info(config, &devel_info)?;
+            save_devel_info(config, devel_info)?;
         }
     }
 
@@ -1850,7 +1852,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") {
-        let (_, pkgs) = repo_aur_pkgs(&config);
+        let (_, pkgs) = repo_aur_pkgs(config);
 
         warnings.missing = pkgs
             .iter()
