@@ -1,13 +1,29 @@
 # Changelog
 
+## Paru v1.8.2 (2021-08-18)
+
+### Fixed
+
+- Fix wrong length check leading to overflow in -Si 9de304b
+- Fix format string printing wrongly f6b5431
+- Make upgrade text bold to match pacman d5d1724
+
+### Localization
+
+- Add zh_TW locale #493
+- Update fr locale #510
+- Update ja locale #504
+
 ## Paru v1.8.1 (2021-08-12)
 
 ### Fixed
+
 - Fix makepkg command giving wrong args in error message #492
 - Fix stack overflow with some cyclic deps 22ec445
 - Fix excessive output during -Ld
 
 ### Changed
+
 - Ignore PKGEXT in chroot 8ff2ba9
 - -Ld also removes sig files 2a1a412
 
