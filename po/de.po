@@ -176,7 +176,7 @@ msgstr "ungültiges json: {}"
 
 #: src/download.rs:83
 msgid "packages not in the AUR: "
-msgstr " Pakete nicht im AUR:"
+msgstr "Pakete nicht im AUR: "
 
 #: src/download.rs:94
 msgid "marked out of date: "
