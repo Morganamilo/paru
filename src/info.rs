@@ -2,7 +2,7 @@ use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
 use crate::fmt::{date, opt, print_indent};
-use crate::util::split_repo_aur_targets;
+use crate::util::split_repo_aur_info;
 
 use alpm_utils::Targ;
 use ansi_term::Style;
@@ -16,7 +16,7 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
     let targets = targets.iter().map(Targ::from).collect::<Vec<_>>();
 
-    let (repo, aur) = split_repo_aur_targets(conf, &targets)?;
+    let (repo, aur) = split_repo_aur_info(conf, &targets)?;
     let mut ret = 0;
 
     let aur = if !aur.is_empty() {

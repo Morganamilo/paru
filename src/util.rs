@@ -73,6 +73,37 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
     Ok((local, aur))
 }
 
+pub fn split_repo_aur_info<'a, T: AsTarg>(
+    config: &mut Config,
+    targets: &'a [T],
+) -> Result<(Vec<Targ<'a>>, Vec<Targ<'a>>)> {
+    let mut local = Vec::new();
+    let mut aur = Vec::new();
+
+    let dbs = config.alpm.syncdbs();
+
+    for targ in targets {
+        let targ = targ.as_targ();
+        if config.mode == Mode::Aur {
+            aur.push(targ);
+        } else if config.mode == Mode::Repo {
+            local.push(targ);
+        } else if let Some(repo) = targ.repo {
+            if repo == config.aur_namespace() {
+                aur.push(targ);
+            } else {
+                local.push(targ);
+            }
+        } else if dbs.pkg(targ.pkg).is_ok() {
+            local.push(targ);
+        } else {
+            aur.push(targ);
+        }
+    }
+
+    Ok((local, aur))
+}
+
 pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let action = config.color.action;
     let bold = config.color.bold;
