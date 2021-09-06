@@ -270,7 +270,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let paths = pkgdest.values().map(|s| s.as_str()).collect::<Vec<_>>();
     sign_pkg(config, &paths, build)?;
 
-    let db = config.alpm.syncdbs();
+    let db = repo::repo_aur_dbs(config).1;
     if let Some(default_repo) = default_repo {
         let pkgs = pkgdest.values().collect::<Vec<_>>();
         let r = if let Some(repo) = db
@@ -287,6 +287,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         let name = r.name().to_string();
         drop(repo);
         repo::add(config, path, &name, &pkgs)?;
+        drop(db);
         repo::refresh(config, &[name])?;
     }
 
