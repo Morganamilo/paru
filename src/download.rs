@@ -91,7 +91,7 @@ impl<'a> Warnings<'a> {
         if !self.ood.is_empty() {
             let b = color.bold;
             let e = color.error;
-            let msg = tr!("marked out of date: ");
+            let msg = tr!("Marked out of date: ");
             print!("{} {}", e.paint("::"), b.paint(&msg));
             print_indent(Style::new(), msg.len() + 3, 4, cols, "  ", &self.ood);
         }
