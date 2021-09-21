@@ -383,6 +383,7 @@ pub struct Config {
     pub combined_upgrade: bool,
     pub batch_install: bool,
     pub use_ask: bool,
+    pub save_changes: bool,
     pub clean: usize,
     pub complete: bool,
     pub print: bool,
@@ -841,6 +842,7 @@ impl Config {
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
+            "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
             "DevelSuffixes" => {
                 let value = value.ok_or_else(|| anyhow!(tr!("key can not be empty")))?;

@@ -418,6 +418,14 @@ Manually resolve package conflicts during the install. Packages which do not
 conflict will not need to be confined manually.
 
 .TP
+.B \-\-savechanges
+Commit changes to pkgbuilds made during review.
+
+.TP
+.B \-\-nosavechanges
+Don't commit changes to pkgbuilds made during review.
+
+.TP
 .B \-\-combinedupgrade
 During sysupgrade, paru will first perform a refresh, then show
 its combined menu of repo and AUR packages that will be upgraded. Then after

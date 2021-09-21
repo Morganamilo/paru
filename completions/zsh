@@ -82,6 +82,8 @@ _pacman_opts_common=(
 	"--newsonupgrade[Print new news during sysupgrade]"
 	"--useask[Automatically resolve conflicts using pacman's ask flag]"
 	'--nouseask[Confirm conflicts manually during the install]'
+	"--savechanges[Commit changes to pkgbuilds made during review]"
+	"--nosavechanges[Don't commit changes to pkgbuilds made during review]"
 	'--combinedupgrade[Refresh then perform the repo and AUR upgrade together]'
 	'--nocombinedupgrade[Perform the repo upgrade and AUR upgrade separately]'
 	'--mflags[Pass arguments to makepkg]:mflags'

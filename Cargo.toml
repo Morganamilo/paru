@@ -17,7 +17,7 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 alpm = "2.1.1"
 alpm-utils = "1.1.0"
 aur-depends = "1.0.2"
-aur-fetch = "0.9.1"
+aur-fetch = "0.10.0"
 cini = "0.1.1"
 pacmanconf = "1.0.0"
 raur = "5.0.1"
@@ -25,10 +25,10 @@ srcinfo = "1.0.0"
 
 
 ansi_term = "0.12.1"
-anyhow = "1.0.43"
+anyhow = "1.0.44"
 atty = "0.2.14"
 chrono = "0.4.19"
-dirs = "3.0.2"
+dirs = "4.0.0"
 futures = "0.3.17"
 globset = "0.4.8"
 htmlescape = "0.3.1"
@@ -38,17 +38,17 @@ nix = "0.22.1"
 reqwest = { version = "0.11.4", features = ["gzip"] }
 rss = { version = "1.10.0", default-features = false }
 serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.67"
+serde_json = "1.0.68"
 smart-default = "0.6.0"
 tempfile = "3.2.0"
 term_size = "0.3.2"
-tokio = { version = "1.11.0", features = ["process", "macros", "rt-multi-thread"] }
+tokio = { version = "1.12.0", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.2"
 env_logger = "0.9.0"
 log = "0.4.14"
 async-trait = { version = "0.1.51", optional = true }
 tr = "0.1.6"
-unicode-width = "0.1.8"
+unicode-width = "0.1.9"
 
 [profile.release]
 codegen-units = 1

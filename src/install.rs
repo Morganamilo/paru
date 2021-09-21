@@ -735,6 +735,10 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
             if !ask(config, &tr!("Proceed with installation?"), true) {
                 return Ok(1);
             }
+
+            if config.save_changes {
+                config.fetch.commit(&pkgs, "paru save changes")?;
+            }
         } else {
             let unseen = config.fetch.unseen(&pkgs)?;
             let has_diff = config.fetch.has_diff(&unseen)?;

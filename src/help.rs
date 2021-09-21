@@ -62,6 +62,7 @@ pub fn help() {
     println!();
     printtr!("    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs");
     printtr!("    --[no]useask           Automatically resolve conflicts using pacman's ask flag");
+    printtr!("    --[no]savechanges      Commit changes to pkgbuilds made during review");
     printtr!("    --[no]newsonupgrade    Print new news during sysupgrade");
     printtr!("    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together");
     printtr!("    --[no]batchinstall     Build multiple AUR packages then install them together");

@@ -235,6 +235,8 @@ impl Config {
             Arg::Long("nopgpfetch") => self.pgp_fetch = false,
             Arg::Long("useask") => self.use_ask = true,
             Arg::Long("nouseask") => self.use_ask = false,
+            Arg::Long("savechanges") => self.save_changes = true,
+            Arg::Long("nosavechanges") => self.save_changes = false,
             Arg::Long("combinedupgrade") => self.combined_upgrade = true,
             Arg::Long("nocombinedupgrade") => self.combined_upgrade = false,
             Arg::Long("batchinstall") => self.batch_install = true,
