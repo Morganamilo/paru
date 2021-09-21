@@ -253,11 +253,11 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
 
     let mut split = rest.splitn(2, '#');
     let remote = split.next().unwrap();
-    let remote = remote.splitn(2, '?').next().unwrap();
+    let remote = remote.split_once('?').map_or(remote, |x| x.0);
     let remote = format!("{}://{}", protocol, remote);
 
     let branch = if let Some(fragment) = split.next() {
-        let fragment = fragment.splitn(2, '?').next().unwrap();
+        let fragment = fragment.split_once('?').map_or(fragment, |x| x.0);
         let mut split = fragment.splitn(2, '=');
         let frag_type = split.next().unwrap();
 

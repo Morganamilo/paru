@@ -234,7 +234,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
 
     print!("\n    ");
     let desc = pkg.desc();
-    let desc = desc.as_deref().unwrap_or_default().split_whitespace();
+    let desc = desc.unwrap_or_default().split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
     if config.args.count("s", "search") > 1 {
