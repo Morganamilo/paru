@@ -7,9 +7,11 @@ use crate::printtr;
 use crate::util::{input, NumberMenu};
 
 use ansi_term::Style;
-use anyhow::{Context, Result};
+use anyhow::{ensure, Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
+use regex::RegexSet;
+use reqwest::get;
 use tr::tr;
 
 enum AnyPkg<'a> {
@@ -85,42 +87,70 @@ async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec
     Ok(pkgs?)
 }
 
+async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
+    let url = config.aur_url.join("packages.gz")?;
+    let resp = get(url.clone())
+        .await
+        .with_context(|| format!("get {}", url))?;
+    let success = resp.status().is_success();
+    ensure!(success, "get {}: {}", url, resp.status());
+
+    let data = resp.text().await?;
+
+    let regex = RegexSet::new(targets)?;
+
+    let pkgs = data
+        .lines()
+        .skip(1)
+        .filter(|pkg| regex.is_match(pkg))
+        .collect::<Vec<_>>();
+    ensure!(pkgs.len() < 2000, "too many packages");
+    let pkgs = config.raur.info(&pkgs).await?;
+    Ok(pkgs)
+}
+
 async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
     if targets.is_empty() || config.mode == Mode::Repo {
         return Ok(Vec::new());
     }
 
-    let mut targets = targets.iter().map(|t| t.to_lowercase()).collect::<Vec<_>>();
-    targets.sort_by_key(|t| t.len());
-
-    let mut matches = Vec::new();
-
-    let by = config.search_by;
-
-    if by == SearchBy::NameDesc {
-        let pkgs = search_target(config, &mut targets).await?;
-        matches.extend(pkgs);
-        matches.retain(|p| {
-            let name = p.name.to_lowercase();
-            let description = p
-                .description
-                .as_ref()
-                .map(|s| s.to_lowercase())
-                .unwrap_or_default();
-            targets
-                .iter()
-                .all(|t| name.contains(t) | description.contains(t))
-        });
-    } else if by == SearchBy::Name {
-        let pkgs = search_target(config, &mut targets).await?;
-        matches.extend(pkgs);
-        matches.retain(|p| targets.iter().all(|t| p.name.to_lowercase().contains(t)));
+    let mut matches = if config.args.has_arg("s", "search") {
+        search_aur_regex(config, targets).await?
     } else {
-        for target in targets {
-            let pkgs = config.raur.search_by(target, by).await?;
+        let mut targets = targets.iter().map(|t| t.to_lowercase()).collect::<Vec<_>>();
+        targets.sort_by_key(|t| t.len());
+
+        let mut matches = Vec::new();
+
+        let by = config.search_by;
+
+        if by == SearchBy::NameDesc {
+            let pkgs = search_target(config, &mut targets).await?;
             matches.extend(pkgs);
+            matches.retain(|p| {
+                let name = p.name.to_lowercase();
+                let description = p
+                    .description
+                    .as_ref()
+                    .map(|s| s.to_lowercase())
+                    .unwrap_or_default();
+                targets
+                    .iter()
+                    .all(|t| name.contains(t) | description.contains(t))
+            });
+        } else if by == SearchBy::Name {
+            let pkgs = search_target(config, &mut targets).await?;
+            matches.extend(pkgs);
+            matches.retain(|p| targets.iter().all(|t| p.name.to_lowercase().contains(t)));
+        } else {
+            for target in targets {
+                let pkgs = config.raur.search_by(target, by).await?;
+                matches.extend(pkgs);
+            }
         }
-    }
+
+        matches
+    };
 
     match config.sort_by {
         SortBy::Votes => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
