@@ -392,6 +392,8 @@ pub struct Config {
     pub sign: Sign,
     pub sign_db: Sign,
 
+    pub pre_build_command: Option<String>,
+
     #[default = "makepkg"]
     pub makepkg_bin: String,
     #[default = "pacman"]
@@ -809,6 +811,7 @@ impl Config {
             "SudoFlags" => self.sudo_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
+            "PreBuildCommand" => self.pre_build_command = Some(value),
             _ => eprintln!(
                 "{}",
                 tr!("error: unknown option '{}' in section [bin]", key)
