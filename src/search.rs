@@ -114,7 +114,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
         return Ok(Vec::new());
     }
 
-    let mut matches = if config.args.has_arg("s", "search") {
+    let mut matches = if config.args.has_arg("x", "regex") {
         search_aur_regex(config, targets).await?
     } else {
         let mut targets = targets.iter().map(|t| t.to_lowercase()).collect::<Vec<_>>();
