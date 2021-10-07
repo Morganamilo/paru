@@ -299,7 +299,7 @@ pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
     );
 }
 
-pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
+async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     let download = bases
         .bases
         .iter()
@@ -322,7 +322,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
         return Ok(());
     }
 
-    let fetched = if cols < 80 {
+    if cols < 80 {
         config
             .fetch
             .download_cb(&download, |cb| {
@@ -334,7 +334,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
 
                 print_download(config, cb.n, download.len(), &base.to_string());
             })
-            .await?
+            .await?;
     } else {
         let total = download.len().to_string();
         let template = format!(
@@ -348,7 +348,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                 .progress_chars("-> "),
         );
 
-        let fetched = config
+        config
             .fetch
             .download_cb(&download, |cb| {
                 let base = bases
@@ -363,10 +363,7 @@ pub async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
             .await?;
 
         pb.finish();
-        fetched
-    };
-
-    config.fetch.merge(&fetched)?;
+    }
 
     Ok(())
 }
@@ -392,8 +389,16 @@ pub async fn new_aur_pkgbuilds(
         }
     }
 
-    let bases = Bases { bases: pkgs };
-    aur_pkgbuilds(config, &bases).await
+    let all_pkgs = bases
+        .bases
+        .iter()
+        .map(|b| b.package_base())
+        .collect::<Vec<_>>();
+    let new_bases = Bases { bases: pkgs };
+    aur_pkgbuilds(config, &new_bases).await?;
+    config.fetch.merge(&all_pkgs)?;
+
+    Ok(())
 }
 
 pub async fn show_comments(config: &mut Config) -> Result<i32> {

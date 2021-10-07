@@ -548,6 +548,26 @@ async fn prepare_build(
     let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
+    if let Some(ref cmd) = config.pre_build_command {
+        let mut split = cmd.split_whitespace();
+        let cmd = split.next().unwrap();
+        let args = split.collect::<Vec<_>>();
+
+        for base in &bases.bases {
+            let dir = config.fetch.clone_dir.join(base.package_base());
+            std::env::set_var("PKGBASE", base.package_base());
+            std::env::set_var("VERSION", base.version());
+            exec::command(&cmd, &dir, &args)?;
+        }
+
+        std::env::remove_var("PKGBASE");
+        std::env::remove_var("VERSION");
+
+        /*if srcinfo.is_some() {
+            exec::command(&cmd, ".", &args)?;
+        }*/
+    }
+
     if !config.skip_review {
         let ret = review(config, &actions)?;
         if ret != 0 {

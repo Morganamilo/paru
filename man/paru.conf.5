@@ -293,6 +293,15 @@ being passed to file manager.
 .B Pager = Command
 Command to use for paging
 
+.TP
+.B PreBuildCommand = Command
+Command will be executed for each package before it is build. The commands current
+directory will be set to the directory containing the package's PKGBUILD. If a package
+is already built then the build will be skipped but this command will still be run for
+that package.
+
+the variables PKGBASE and VERSION will be set for the command to use.
+
 .SH ENV
 Set environment variables.
 
