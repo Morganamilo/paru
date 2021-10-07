@@ -15,6 +15,7 @@ mod info;
 mod install;
 mod keys;
 mod news;
+mod order;
 mod query;
 mod remove;
 mod repo;
@@ -194,13 +195,15 @@ async fn handle_query(config: &mut Config) -> Result<i32> {
     }
 }
 
-async fn handle_show(config: &Config) -> Result<i32> {
+async fn handle_show(config: &mut Config) -> Result<i32> {
     if config.news > 0 {
         news::news(config).await
     } else if config.complete {
         Ok(completion::print(config, None).await)
     } else if config.stats {
         stats::stats(config).await
+    } else if config.order {
+        order::order(config).await
     } else {
         Ok(0)
     }

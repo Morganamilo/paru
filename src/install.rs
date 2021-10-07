@@ -1167,19 +1167,6 @@ fn print_install(config: &Config, actions: &Actions) {
     println!();
 }
 
-/*fn download_pkgbuild_sources(config: &Config, build: &[aur_depends::Base]) -> Result<()> {
-    for base in build {
-        let pkg = base.package_base();
-        let dir = config.build_dir.join(pkg);
-
-        exec::makepkg(config, &dir, &["--verifysource", "-Ccf"])?
-            .success()
-            .with_context(|| format!("failed to download sources for '{}'", base))?;
-    }
-
-    Ok(())
-}*/
-
 fn do_install(
     config: &Config,
     deps: &mut Vec<&str>,
@@ -1704,7 +1691,7 @@ fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, St
     Ok((pkgdests, version))
 }
 
-fn flags(config: &mut Config) -> aur_depends::Flags {
+pub fn flags(config: &mut Config) -> aur_depends::Flags {
     let mut flags = Flags::new();
 
     if config.args.has_arg("needed", "needed") {
