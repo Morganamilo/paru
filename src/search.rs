@@ -64,6 +64,10 @@ fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
         ret.extend(pkgs);
     }
 
+    if config.limit != 0 {
+        ret.truncate(config.limit);
+    }
+
     Ok(ret)
 }
 
@@ -163,6 +167,10 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
         SortBy::Submitted => matches.sort_by_key(|p| p.first_submitted),
         SortBy::Modified => matches.sort_by_key(|p| p.last_modified),
         _ => (),
+    }
+
+    if config.limit != 0 {
+        matches.truncate(config.limit);
     }
 
     Ok(matches)

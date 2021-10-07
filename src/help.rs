@@ -51,6 +51,7 @@ pub fn help() {
     printtr!("    --completioninterval   <n> Time in days to refresh completion cache");
     printtr!("    --sortby    <field>    Sort AUR results by a specific field during search");
     printtr!("    --searchby  <field>    Search for packages using a specified field");
+    printtr!("    --limit     <limit>    limits the number of items returned in a search");
     println!();
     printtr!("    --skipreview           Skip the review process");
     printtr!("    --review               Don't skip the review process");

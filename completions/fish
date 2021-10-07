@@ -196,6 +196,7 @@ complete -c $progname -n "not $noopt" -l fm -d 'File manager to use' -f
 complete -c $progname -n "not $noopt" -l completioninterval -d 'Refresh interval for completion cache' -f
 complete -c $progname -n "not $noopt" -l sortby -d 'Sort AUR results by a specific field during search' -xa "{votes,popularity,id,baseid,name,base,submitted,modified}"
 complete -c $progname -n "not $noopt" -l searchby -d 'Search for AUR packages by querying the specified field' -xa "{name,name-desc,maintainer,depends,checkdepends,makedepends,optdepends}"
+complete -c $progname -n "not $noopt" -l limit -d 'Limit number of search results' -x
 complete -c $progname -n "not $noopt" -l upgrademenu -d 'Show a detailed list of updates with the option to skip any' -f
 complete -c $progname -n "not $noopt" -l noupgrademenu -d 'Do not show the upgrade menu' -f
 complete -c $progname -n "not $noopt" -l removemake -d 'Remove make deps after install' -f
