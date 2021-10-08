@@ -361,6 +361,7 @@ pub struct Config {
     pub sort_by: SortBy,
     #[default(raur::SearchBy::NameDesc)]
     pub search_by: raur::SearchBy,
+    pub limit: usize,
     #[default(SortMode::TopDown)]
     pub sort_mode: SortMode,
     #[default(Mode::Any)]
@@ -847,18 +848,6 @@ impl Config {
             "UseAsk" => self.use_ask = true,
             "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
-            "DevelSuffixes" => {
-                let value = value.ok_or_else(|| anyhow!(tr!("key can not be empty")))?;
-                let split = value.split_whitespace().map(|s| s.to_string());
-                self.devel_suffixes.extend(split);
-            }
-            "NoWarn" => {
-                let value = value.ok_or_else(|| anyhow!(tr!("key can not be empty")))?;
-                let split = value.split_whitespace().map(|s| s.to_string());
-                for word in split {
-                    self.no_warn_builder.add(Glob::new(&word)?);
-                }
-            }
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
@@ -907,8 +896,18 @@ impl Config {
             "RemoveMake" => self.remove_make = ConfigEnum::from_str(key, value?.as_str())?,
             "SortBy" => self.sort_by = ConfigEnum::from_str(key, value?.as_str())?,
             "SearchBy" => self.search_by = ConfigEnum::from_str(key, value?.as_str())?,
+            "Limit" => self.limit = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
+            "DevelSuffixes" => {
+                self.devel_suffixes
+                    .extend(value?.split_whitespace().map(|s| s.to_string()));
+            }
+            "NoWarn" => {
+                for word in value?.split_whitespace() {
+                    self.no_warn_builder.add(Glob::new(word)?);
+                }
+            }
             _ => ok2 = false,
         };
 

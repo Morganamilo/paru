@@ -97,6 +97,7 @@ _pacman_opts_common=(
 	'--sudoloop[Loop sudo calls in the background to avoid timeout]'
 	'--nosudoloop[Do not loop sudo calls in the background]'
 	'--searchby[Search for packages using a specified field]'
+	'--limit[limit number of search results]'
 	'--sortby[Sort AUR results by a specific field during search]'
 	'--batchinstall[Build multiple AUR packages then install them together]'
 	'--nobatchinstall[Build and install each AUR package one by one]'

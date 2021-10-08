@@ -200,6 +200,7 @@ impl Config {
             }
             Arg::Long("sortby") => self.sort_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
+            Arg::Long("limit") => self.limit = value?.parse()?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("stats") | Arg::Short('s') => self.stats = true,
             Arg::Long("removemake") => {
@@ -366,6 +367,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("completioninterval") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,
         Arg::Long("searchby") => TakesValue::Required,
+        Arg::Long("limit") => TakesValue::Required,
         Arg::Long("removemake") => TakesValue::Optional,
         Arg::Long("redownload") => TakesValue::Optional,
         Arg::Long("rebuild") => TakesValue::Optional,
