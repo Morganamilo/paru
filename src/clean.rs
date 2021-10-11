@@ -22,7 +22,8 @@ pub fn clean(config: &Config) -> Result<()> {
     }
 
     if config.mode != Mode::Repo {
-        let remove_all = config.delete >= 1;
+        let rm = config.delete >= 1;
+        let remove_all = config.clean >= 2;
         let clean_method = &config.pacman.clean_method;
         let keep_installed = clean_method.iter().any(|a| a == "KeepInstalled");
         let keep_current = clean_method.iter().any(|a| a == "KeepCurrent");
@@ -40,7 +41,7 @@ pub fn clean(config: &Config) -> Result<()> {
         printtr!("Clone Directory: {}", config.fetch.clone_dir.display());
 
         if ask(config, &question, !remove_all) {
-            clean_aur(config, keep_installed, keep_current, remove_all)?;
+            clean_aur(config, keep_installed, keep_current, remove_all, rm)?;
         }
 
         printtr!("\nDiff Directory: {}", config.fetch.diff_dir.display());
@@ -84,6 +85,7 @@ fn clean_aur(
     keep_installed: bool,
     keep_current: bool,
     remove_all: bool,
+    rm: bool,
 ) -> Result<()> {
     if !config.fetch.clone_dir.exists() {
         return Ok(());
@@ -93,7 +95,8 @@ fn clean_aur(
         .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
     for file in cached_pkgs {
-        if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current) {
+        if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current, rm)
+        {
             print_error(config.color.error, err);
             continue;
         }
@@ -116,6 +119,7 @@ fn clean_aur_pkg(
     remove_all: bool,
     keep_installed: bool,
     keep_current: bool,
+    rm: bool,
 ) -> Result<()> {
     let file = file?;
 
@@ -129,9 +133,7 @@ fn clean_aur_pkg(
     let _ = fix_perms(&file.path());
 
     if remove_all {
-        remove_dir_all(file.path())
-            .with_context(|| tr!("could not remove '{}'", file.path().display().to_string()))?;
-        return Ok(());
+        return do_remove(config, &file.path(), rm);
     }
 
     let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
@@ -160,7 +162,20 @@ fn clean_aur_pkg(
         }
     }
 
-    clean_untracked(config, &config.fetch.clone_dir.join(srcinfo.base.pkgbase))
+    do_remove(
+        config,
+        &config.fetch.clone_dir.join(srcinfo.base.pkgbase),
+        rm,
+    )
+}
+
+fn do_remove(config: &Config, path: &Path, rm: bool) -> Result<()> {
+    if rm {
+        remove_dir_all(path)
+            .with_context(|| tr!("could not remove '{}'", path.display().to_string()))
+    } else {
+        clean_untracked(config, path)
+    }
 }
 
 pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
