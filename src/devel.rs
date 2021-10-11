@@ -11,15 +11,18 @@ use std::fs::{create_dir_all, OpenOptions};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
+use std::time::Duration;
 
 use alpm_utils::DbListExt;
-use anyhow::{bail, Context, Result};
+use ansi_term::Style;
+use anyhow::{anyhow, bail, Context, Result};
 use futures::future::{join_all, select_ok, FutureExt};
 use log::debug;
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
 use srcinfo::Srcinfo;
 use tokio::process::Command as AsyncCommand;
+use tokio::time::timeout;
 use tr::tr;
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
@@ -210,10 +213,10 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     Ok(())
 }
 
-async fn ls_remote(
+async fn ls_remote_intenral(
     git: &str,
     flags: &[String],
-    remote: String,
+    remote: &str,
     branch: Option<&str>,
 ) -> Result<String> {
     let mut command = AsyncCommand::new(git);
@@ -237,6 +240,29 @@ async fn ls_remote(
         .to_string();
 
     Ok(sha)
+}
+
+async fn ls_remote(
+    style: Style,
+    git: &str,
+    flags: &[String],
+    remote: String,
+    branch: Option<&str>,
+) -> Result<String> {
+    let remote = &remote;
+    let time = Duration::from_secs(15);
+    let future = ls_remote_intenral(git, flags, remote, branch);
+    let future = timeout(time, future);
+
+    if let Ok(v) = future.await {
+        v
+    } else {
+        print_error(
+            style,
+            anyhow!("timed out looking for devel update: {}", remote),
+        );
+        bail!("")
+    }
 }
 
 fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
@@ -365,7 +391,8 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
     let mut futures = Vec::with_capacity(info.len());
 
     for info in info {
-        futures.push(has_update(&config.git_bin, &config.git_flags, info).boxed());
+        futures
+            .push(has_update(config.color.error, &config.git_bin, &config.git_flags, info).boxed());
     }
 
     if select_ok(futures).await.is_ok() {
@@ -375,8 +402,8 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
     }
 }
 
-async fn has_update(git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
-    let sha = ls_remote(git, flags, url.url.clone(), url.branch.as_deref()).await?;
+async fn has_update(style: Style, git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
+    let sha = ls_remote(style, git, flags, url.url.clone(), url.branch.as_deref()).await?;
     if sha != *url.commit {
         return Ok(());
     }
@@ -404,7 +431,13 @@ pub async fn fetch_devel_info(
 
         for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
             if let Some((remote, _, branch)) = parse_url(url) {
-                let future = ls_remote(&config.git_bin, &config.git_flags, remote.clone(), branch);
+                let future = ls_remote(
+                    config.color.error,
+                    &config.git_bin,
+                    &config.git_flags,
+                    remote.clone(),
+                    branch,
+                );
                 futures.push(future);
                 parsed.push((remote, base.package_base().to_string(), branch));
             }
