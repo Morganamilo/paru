@@ -349,6 +349,7 @@ pub struct Config {
 
     pub news: u32,
     pub stats: bool,
+    pub order: bool,
     pub gendb: bool,
 
     #[default(YesNoAll::No)]

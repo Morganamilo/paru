@@ -203,6 +203,7 @@ impl Config {
             Arg::Long("limit") => self.limit = value?.parse()?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("stats") | Arg::Short('s') => self.stats = true,
+            Arg::Long("order") | Arg::Short('o') => self.order = true,
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
             }
