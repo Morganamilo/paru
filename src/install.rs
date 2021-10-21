@@ -549,7 +549,7 @@ async fn prepare_build(
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if let Some(ref cmd) = config.pre_build_command {
-        let args = [&"-c".to_string(), cmd];
+        let args = [&"-c", cmd.as_str()];
 
         for base in &bases.bases {
             let dir = config.fetch.clone_dir.join(base.package_base());
