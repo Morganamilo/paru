@@ -34,9 +34,9 @@ globset = "0.4.8"
 htmlescape = "0.3.1"
 indicatif = "0.16.2"
 kuchiki = "0.8.1"
-nix = "0.22.1"
+nix = "0.23.0"
 reqwest = { version = "0.11.4", features = ["gzip", "socks"] }
-rss = { version = "1.10.0", default-features = false }
+rss = { version = "2.0.0", default-features = false }
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.68"
 smart-default = "0.6.0"
