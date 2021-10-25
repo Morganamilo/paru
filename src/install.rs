@@ -1621,7 +1621,7 @@ fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Res
             for _ in 0..config.args.count("y", "refresh") {
                 args.arg("y");
             }
-            for _ in 0..config.args.count("u", "susupgrade") {
+            for _ in 0..config.args.count("u", "sysupgrade") {
                 args.arg("u");
             }
         }
