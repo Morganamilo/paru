@@ -849,7 +849,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                                             "{} {} {}",
                                             tr!("failed to run:"),
                                             config.bat_bin,
-                                            file.path().display().to_string()
+                                            file.path().display()
                                         )
                                     })?;
                                 let _ = stdin.write_all(&output.stdout);

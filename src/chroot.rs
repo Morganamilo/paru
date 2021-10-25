@@ -93,7 +93,7 @@ impl Chroot {
     pub fn build(&self, pkgbuild: &Path, chroot_flags: &[&str], flags: &[&str]) -> Result<()> {
         let mut args = chroot_flags
             .iter()
-            .map(|f| OsStr::new(f))
+            .map(OsStr::new)
             .collect::<Vec<_>>();
         args.push(OsStr::new("-r"));
         args.push(OsStr::new(self.path.as_os_str()));

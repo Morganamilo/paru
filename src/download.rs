@@ -206,6 +206,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
     let cd = std::env::current_dir().context(tr!("could not get current directory"))?;
     let asp = &config.asp_bin;
 
+    #[allow(clippy::question_mark)]
     if Command::new(asp).output().is_err() {
         bail!(tr!("can not get repo packages: asp is not installed"));
     }
