@@ -366,7 +366,7 @@ msgstr "    --git       <파일>     사용할 깃(git) 명령어"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <플래그>   깃(git) 에 사용할 플래그"
+msgstr "    --gitflags  <플래그>   깃(git)에 사용할 플래그"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
@@ -582,7 +582,7 @@ msgstr "라이선스"
 
 #: src/info.rs:63 src/info.rs:110
 msgid "Provides"
-msgstr "공급하는 꾸러미 "
+msgstr "제공하는 꾸러미 "
 
 #: src/info.rs:64 src/info.rs:111
 msgid "Depends On"
@@ -598,7 +598,7 @@ msgstr "의존 요소 "
 
 #: src/info.rs:67 src/info.rs:114
 msgid "Optional Deps"
-msgstr "선택으로 의존하는 요소 "
+msgstr "선택적으로 의존하는 요소 "
 
 #: src/info.rs:68 src/info.rs:115
 msgid "Conflicts With"
@@ -626,7 +626,7 @@ msgstr "마지막으로 수정된 날짜"
 
 #: src/info.rs:74 src/info.rs:122
 msgid "Out Of Date"
-msgstr "지원 중단됨"
+msgstr "만료됨"
 
 #: src/info.rs:75 src/info.rs:130
 msgid "ID"
@@ -694,12 +694,12 @@ msgstr "설치를 진행하시겠습니까?"
 
 #: src/install.rs:358
 msgid "no targets specified (use -h for help)"
-msgstr "대상을 지정하지 않음. (도움말을 보려면 -h 사용)"
+msgstr "지정된 대상이 없음. (도움말을 보려면 -h)"
 
 #: src/install.rs:443 src/install.rs:470 src/search.rs:362 src/search.rs:398
 #: src/lib.rs:236
 msgid " there is nothing to do"
-msgstr " 할 일이 없음"
+msgstr " 할 일 없음"
 
 #: src/install.rs:497
 msgid "can't install AUR package as root"
@@ -843,7 +843,7 @@ msgstr "꾸러미 리스트에서 해당되는 꾸러미를 찾을 수 없음: {
 
 #: src/install.rs:1773
 msgid "There are {} members in group"
-msgstr "{}개의 구성원이 그룹에 있음"
+msgstr "{} 개의 구성원이 그룹에 있음"
 
 #: src/install.rs:1798
 msgid "\n\nEnter a selection (default=all): "
@@ -895,7 +895,7 @@ msgstr "AUR 검색 실패"
 
 #: src/search.rs:196
 msgid "[Out-of-date: {}]"
-msgstr "[]"
+msgstr "[만료됨: {}]"
 
 #: src/search.rs:202 src/search.rs:256
 msgid "[Installed: {}]"
