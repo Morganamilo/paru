@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-10-26 09:45+0000\n"
-"PO-Revision-Date: 2021-10-29 00:00+1100\n"
+"PO-Revision-Date: 2021-10-29 12:00+1100\n"
 "Last-Translator: ponte-vecchio <zkogdxdkur@p.monash.edu>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ko\n"
@@ -105,7 +105,7 @@ msgstr "pacman.conf에서 로컬 저장소 '{}'을/를 찾을 수 없음 "
 
 #: src/config.rs:682
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "alpm 초기화 실패: 루트={} 데이터베이스 경로={}"
+msgstr "alpm 초기화 실패: root={} dbpath={}"
 
 #: src/config.rs:752 src/config.rs:890
 msgid "value can not be empty for key '{}'"
@@ -967,11 +967,11 @@ msgstr "포함시키지 않을 꾸러미 (예: 1 2 3, 1-3): "
 
 #: src/util.rs:111
 msgid "[Y/n]:"
-msgstr "[Y/n](기본값: Y, 예): "
+msgstr "[Y/n]: "
 
 #: src/util.rs:113
 msgid "[y/N]:"
-msgstr "[y/N](기본값: N, 아니요): "
+msgstr "[y/N]: "
 
 #: src/util.rs:132
 msgid "y"
@@ -979,7 +979,7 @@ msgstr "y"
 
 #: src/util.rs:132
 msgid "yes"
-msgstr "예"
+msgstr "yes"
 
 #: src/util.rs:134
 msgid "n"
@@ -987,7 +987,7 @@ msgstr "n"
 
 #: src/util.rs:134
 msgid "no"
-msgstr "아니요"
+msgstr "no"
 
 #: src/util.rs:330
 msgid "Enter a number (default=1): "
@@ -1003,7 +1003,7 @@ msgstr "유효하지 않은 값: {n}이 1과 {max} 사이여야 함 "
 
 #: src/lib.rs:160
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "개발자 도구가 설치되어 있지 않음. 관리자(루트)로 빌드 불가 "
+msgstr "devtools가 설치되어 있지 않음. 관리자(루트)로 빌드 불가 "
 
 #: src/lib.rs:411
 msgid " [installed: {}]"
