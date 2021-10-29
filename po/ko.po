@@ -1,0 +1,1010 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the paru package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-10-26 09:45+0000\n"
+"PO-Revision-Date: 2021-10-29 12:00+1100\n"
+"Last-Translator: ponte-vecchio <zkogdxdkur@p.monash.edu>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/clean.rs:32
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "캐시에서 모든 AUR 꾸러미를 제거하시겠습니까?"
+
+#: src/clean.rs:34
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "캐시에서 다른 모든 AUR 꾸러미를 제거하시겠습니까?"
+
+#: src/clean.rs:41
+msgid "Clone Directory: {}"
+msgstr "{}: 디렉터리 복제하기"
+
+#: src/clean.rs:47
+msgid "\n"
+"Diff Directory: {}"
+msgstr "\n"
+"{}: 디렉터리 변경사항 보기"
+
+#: src/clean.rs:49
+msgid "Do you want to remove all saved diffs?"
+msgstr "저장된 변경사항을 모두 제거하시겠습니까?"
+
+#: src/clean.rs:65
+msgid "can't open diff dir: {}"
+msgstr "{} 디렉터리 변경사항을 열 수 없음"
+
+#: src/clean.rs:76 src/clean.rs:175
+msgid "could not remove '{}'"
+msgstr "'{}'을/를 제거할 수 없음"
+
+#: src/clean.rs:95
+msgid "can't open clone dir: {}"
+msgstr "{} 디렉터리를 열 수 없음"
+
+#: src/command_line.rs:132
+msgid "option {} expects a value"
+msgstr "{} 옵션은 값이 필요함"
+
+#: src/command_line.rs:163 src/command_line.rs:336
+msgid "option {} does not allow a value"
+msgstr "{} 옵션은 값을 허가하지 않음"
+
+#: src/command_line.rs:327
+msgid "unknown option --{}"
+msgstr "알 수 없는 옵션 --{}"
+
+#: src/command_line.rs:330
+msgid "unknown option -{}"
+msgstr "알 수 없는 옵션 -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "캐시 파일 '{}' 열기 실패함"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "AUR 캐시 갱신 실패"
+
+#: src/config.rs:174
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "'{key}' 키에 대한 잘못된 값 '{value}', 기대값: {exp}"
+
+#: src/config.rs:467
+msgid "error: unknown section '{}'"
+msgstr "오류: 알 수 없는 섹션 '{}'"
+
+#: src/config.rs:482
+msgid "failed to find cache directory"
+msgstr "캐시 디렉터리를 찾을 수 없음 "
+
+#: src/config.rs:485
+msgid "failed to find config directory"
+msgstr "설정 디렉터리를 찾을 수 없음 "
+
+#: src/config.rs:509
+msgid "config file '{}' does not exist"
+msgstr "구성파일 '{}'이/가 존재하지 않음 "
+
+#: src/config.rs:558
+msgid "only one operation may be used at a time"
+msgstr "한 번에 한 명령어만 사용 가능 "
+
+#: src/config.rs:646
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "pacman.conf에서 로컬 저장소 '{}'을/를 찾을 수 없음 "
+
+#: src/config.rs:682
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "alpm 초기화 실패: root={} dbpath={}"
+
+#: src/config.rs:752 src/config.rs:890
+msgid "value can not be empty for key '{}'"
+msgstr "'{}' 키의 값은 비어있을 수 없음 "
+
+#: src/config.rs:768
+msgid "key '{}' does not belong to a section"
+msgstr "'{}' 키는 어느 섹션에도 속하지 않음 "
+
+#: src/config.rs:780 src/config.rs:782 src/config.rs:796
+msgid "key can not be empty"
+msgstr "키는 비어있을 수 없음"
+
+#: src/config.rs:783
+msgid "key can not contain null bytes"
+msgstr "키에 빈 바이트를 포함할 수 없음"
+
+#: src/config.rs:786
+msgid "value can not contain null bytes"
+msgstr "값에 빈 바이트를 포함할 수 없음"
+
+#: src/config.rs:819
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "오류: [bin] 섹션에 알 수 없는 옵션 '{}'"
+
+#: src/config.rs:918
+msgid "error: unknown option '{}' in section [options]"
+msgstr "오류: [options] 섹션에 알 수 없는 옵션 '{}'"
+
+#: src/config.rs:923
+msgid "option '{}' does not take a value"
+msgstr "'{}' 옵션은 값을 받지 않음"
+
+#: src/config.rs:969 src/install.rs:1826
+msgid "There are {n} providers available for {pkg}:"
+msgstr "{pkg} 꾸러미 제공자가 {n}개: "
+
+#: src/config.rs:983 src/info.rs:57 src/info.rs:97 src/install.rs:1785
+#: src/install.rs:1834
+msgid "Repository"
+msgstr "저장소"
+
+#: src/config.rs:1005
+msgid "  failed to sync {}"
+msgstr "  {} 동기화 실패"
+
+#: src/devel.rs:133 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "AUR 조회중..."
+
+#: src/devel.rs:146 src/devel.rs:170 src/install.rs:733
+msgid "failed to parse srcinfo for '{}'"
+msgstr "'{}'의 srcinfo 해석 실패"
+
+#: src/devel.rs:188
+msgid "Looking for devel repos..."
+msgstr "개발자용 저장소 탐색 중..."
+
+#: src/devel.rs:197
+msgid "failed to save devel info"
+msgstr "개발자 정보 저장 실패"
+
+#: src/devel.rs:411
+msgid "package does not have an update"
+msgstr "해당 꾸러미에 대한 업데이트 없음"
+
+#: src/devel.rs:452
+msgid "failed to lookup: {}"
+msgstr "{}: 조회불가"
+
+#: src/devel.rs:480
+msgid "invalid json: {}"
+msgstr "{}: 유효하지 않은 json"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "AUR에 해당 꾸러미가 없음"
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "오래된 꾸러미로 표식됨: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "고아화된 꾸러미: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "현재 디렉터리를 불러올 수 없음"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "저장소에서 꾸러미를 받을 수 없음: asp가 설치되지 않음"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "ABS 꾸러미가 설치되지 않음"
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:535
+#: src/download.rs:548 src/download.rs:562 src/exec.rs:72 src/exec.rs:113
+#: src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186
+#: src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:787
+#: src/install.rs:850 src/install.rs:888
+msgid "failed to run:"
+msgstr "실행 실패: "
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "PKGBUILD 없음: 건너 뛰는 중"
+
+#: src/download.rs:295
+msgid "downloading: {pkg}"
+msgstr "{pkg} 내려 받는 중"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "PKGBUILD들 내려 받는 중..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr " 모든 PKGBUILD 최신버전"
+
+#: src/download.rs:525
+msgid "{} is not installed: can not get repo packages"
+msgstr "{}이/가 설치되지 않음: 저장소에서 꾸러미를 받을 수 없음"
+
+#: src/download.rs:566
+msgid "asp returned {}"
+msgstr "asp 반환 값: {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman 이미 사용 중. 기다려주세요..."
+
+#: src/fmt.rs:6 src/info.rs:151 src/search.rs:214
+msgid "None"
+msgstr "없음"
+
+#: src/help.rs:4
+msgid "Usage:"
+msgstr "사용법: "
+
+#: src/help.rs:5
+msgid "    paru"
+msgstr "    paru"
+
+#: src/help.rs:6
+msgid "    paru <operation> [...]"
+msgstr "    paru <명령어> [...]"
+
+#: src/help.rs:7
+msgid "    paru <package(s)>"
+msgstr "    paru <꾸러미>"
+
+#: src/help.rs:9
+msgid "Pacman operations:"
+msgstr "Pacman 명령어: "
+
+#: src/help.rs:10
+msgid "    paru {-h --help}"
+msgstr "    paru {-h --help}"
+
+#: src/help.rs:11
+msgid "    paru {-V --version}"
+msgstr "    paru {-V --version}"
+
+#: src/help.rs:12
+msgid "    paru {-D --database}    <options> <package(s)>"
+msgstr "    paru {-D --database}    <추가 옵션> <꾸러미>"
+
+#: src/help.rs:13
+msgid "    paru {-F --files}       [options] [package(s)]"
+msgstr "    paru {-F --files}       [추가 옵션] [꾸러미]"
+
+#: src/help.rs:14
+msgid "    paru {-Q --query}       [options] [package(s)]"
+msgstr "    paru {-Q --query}       [추가 옵션] [꾸러미]"
+
+#: src/help.rs:15
+msgid "    paru {-R --remove}      [options] <package(s)>"
+msgstr "    paru {-R --remove}      [추가 옵션] <꾸러미>"
+
+#: src/help.rs:16
+msgid "    paru {-S --sync}        [options] [package(s)]"
+msgstr "    paru {-S --sync}        [추가 옵션] [꾸러미]"
+
+#: src/help.rs:17
+msgid "    paru {-T --deptest}     [options] [package(s)]"
+msgstr "    paru {-T --deptest}     [추가 옵션] [꾸러미]"
+
+#: src/help.rs:18
+msgid "    paru {-U --upgrade}     [options] [file(s)]"
+msgstr "    paru {-U --upgrade}     [추가 옵션] [파일]"
+
+#: src/help.rs:20
+msgid "New operations:"
+msgstr "새로운 명령어: "
+
+#: src/help.rs:21
+msgid "    paru {-P --show}        [options]"
+msgstr "    paru {-P --show}        [추가 옵션]"
+
+#: src/help.rs:22
+msgid "    paru {-G --getpkgbuild} [package(s)]"
+msgstr "    paru {-G --getpkgbuild} [꾸러미]"
+
+#: src/help.rs:24
+msgid "If no arguments are provided 'paru -Syu' will be performed"
+msgstr "특정한 명령어가 사용되지 않을 시 'paru -Syu'가 기본적으로 적용됩니다."
+
+#: src/help.rs:26
+msgid "Options without operation:"
+msgstr "명령어가 필요하지 않은 옵션: "
+
+#: src/help.rs:27
+msgid "    -c --clean            Remove unneeded dependencies"
+msgstr "    -c --clean            필요 없는 의존 요소 삭제"
+
+#: src/help.rs:28
+msgid "       --gendb            Generates development package DB used for updating"
+msgstr "       --gendb            업데이트용 개발자 꾸러미 데이터베이스 생성"
+
+#: src/help.rs:30
+msgid "New options:"
+msgstr "새로운 옵션: "
+
+#: src/help.rs:31
+msgid "       --repo              Assume targets are from the repositories"
+msgstr "       --repo              지정된 저장소에서만 조회"
+
+#: src/help.rs:32
+msgid "    -a --aur               Assume targets are from the AUR"
+msgstr "    -a --aur               AUR에서만 조회"
+
+#: src/help.rs:33
+msgid "    --aururl    <url>      Set an alternative AUR URL"
+msgstr "    --aururl    <주소>     대체로 쓰일 AUR 주소 지정하기"
+
+#: src/help.rs:34
+msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
+msgstr "    --clonedir  <디렉터리> PKGBUILD를 내려 받고 실행할 디렉터리"
+
+#: src/help.rs:36
+msgid "    --makepkg   <file>     makepkg command to use"
+msgstr "    --makepkg   <파일>     사용할 makepkg 명령어"
+
+#: src/help.rs:37
+msgid "    --mflags    <flags>    Pass arguments to makepkg"
+msgstr "    --mflags    <플래그>   makepkg에 사용할 플래그"
+
+#: src/help.rs:38
+msgid "    --pacman    <file>     pacman command to use"
+msgstr "    --pacman    <파일>     사용할 Pacman 명령어"
+
+#: src/help.rs:39
+msgid "    --git       <file>     git command to use"
+msgstr "    --git       <파일>     사용할 깃(git) 명령어"
+
+#: src/help.rs:40
+msgid "    --gitflags  <flags>    Pass arguments to git"
+msgstr "    --gitflags  <플래그>   깃(git)에 사용할 플래그"
+
+#: src/help.rs:41
+msgid "    --sudo      <file>     sudo command to use"
+msgstr "    --sudo      <파일>     사용할 관리자(sudo) 명령어"
+
+#: src/help.rs:42
+msgid "    --sudoflags <flags>    Pass arguments to sudo"
+msgstr "    --sudoflags <플래그>   sudo에 사용할 플래그"
+
+#: src/help.rs:43
+msgid "    --asp       <file>     asp command to use"
+msgstr "    --asp       <파일>     사용할 asp 명령어"
+
+#: src/help.rs:44
+msgid "    --bat       <file>     bat command to use"
+msgstr "    --bat       <파일>     사용할 bat 명령어"
+
+#: src/help.rs:45
+msgid "    --batflags  <flags>    Pass arguments to bat"
+msgstr "    --batflags  <플래그>   bat에 사용할 플래그"
+
+#: src/help.rs:46
+msgid "    --gpg       <file>     gpg command to use"
+msgstr "    --gpg       <파일>     사용할 gpg 명령어"
+
+#: src/help.rs:47
+msgid "    --gpgflags  <flags>    Pass arguments to gpg"
+msgstr "    --gpgflags  <플래그>   gpg에 사용할 플래그"
+
+#: src/help.rs:48
+msgid "    --fm        <file>     File manager to use for PKGBUILD review"
+msgstr "    --fm        <파일>     PKGBUILD 리뷰에 사용할 파일 관리자"
+
+#: src/help.rs:49
+msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgstr "    --fmflags   <플래그>   파일 관리자에 사용할 플래그"
+
+#: src/help.rs:51
+msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgstr "    --completioninterval   <n> 캐시를 갱신할 주기 (단위: 일)"
+
+#: src/help.rs:52
+msgid "    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr "    --sortby    <필드명>   AUR 검색 결과를 특정 필드에 따라 정렬"
+
+#: src/help.rs:53
+msgid "    --searchby  <field>    Search for packages using a specified field"
+msgstr "    --searchby  <필드명>   특정 필드를 사용해 꾸러미 검색"
+
+#: src/help.rs:54
+msgid "    --limit     <limit>    limits the number of items returned in a search"
+msgstr "    --limit     <개수>     검색 결과를 특정 개수로 한정"
+
+#: src/help.rs:56
+msgid "    --skipreview           Skip the review process"
+msgstr "    --skipreview           리뷰 건너뛰기"
+
+#: src/help.rs:57
+msgid "    --review               Don't skip the review process"
+msgstr "    --review               리뷰 건너뛰지 않기"
+
+#: src/help.rs:58
+msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
+msgstr "    --[no]upgrademenu      업그레이드 건너뛰기에 관련된 대화식 메뉴 보이[지않]기"
+
+#: src/help.rs:59
+msgid "    --[no]removemake       Remove makedepends after install"
+msgstr "    --[no]removemake       설치 후 의존 요소 제거하[지않]기"
+
+#: src/help.rs:60
+msgid "    --[no]cleanafter       Remove package sources after install"
+msgstr "    --[no]cleanafter       설치 후 꾸러미 소스 제거하[지않]기"
+
+#: src/help.rs:61
+msgid "    --[no]rebuild          Always build target packages"
+msgstr "    --[no]rebuild          조회된 꾸러미 빌드하[지않]기"
+
+#: src/help.rs:62
+msgid "    --[no]redownload       Always download PKGBUILDs of targets"
+msgstr "    --[no]redownload       조회된 PKGBUILD 항상 내려 받[지않]기"
+
+#: src/help.rs:64
+msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
+msgstr "    --[no]pgpfetch         PKGBUILD에서 PGP키 가져오[지않]기"
+
+#: src/help.rs:65
+msgid "    --[no]useask           Automatically resolve conflicts using pacman's ask flag"
+msgstr "    --[no]useask           Pacman의 ask 플래그로 충돌 자동 해결하[지않]기"
+
+#: src/help.rs:66
+msgid "    --[no]savechanges      Commit changes to pkgbuilds made during review"
+msgstr "    --[no]savechanges      리뷰 중 pkgbuild에 만든 변경사항 커밋하[지않]기"
+
+#: src/help.rs:67
+msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
+msgstr "    --[no]newsonupgrade    시스템 업그레이드 중 새로운 소식 출력하[지않]기"
+
+#: src/help.rs:68
+msgid "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together"
+msgstr "    --[no]combinedupgrade  저장소와 AUR 같이 업그레이드 하[지않]기"
+
+#: src/help.rs:69
+msgid "    --[no]batchinstall     Build multiple AUR packages then install them together"
+msgstr "    --[no]batchinstall     여러 AUR 꾸러미를 빌드한 뒤에 다 같이 설치하[지않]기"
+
+#: src/help.rs:70
+msgid "    --[no]provides         Look for matching providers when searching for packages"
+msgstr "    --[no]provides         "
+
+#: src/help.rs:71
+msgid "    --[no]devel            Check development packages during sysupgrade"
+msgstr "    --[no]devel            시스템 업그레이드 시 개발자 꾸러미 확인하[지않]기"
+
+#: src/help.rs:72
+msgid "    --[no]installdebug     Also install debug packages when a package provides them"
+msgstr "    --[no]installdebug     꾸러미 설치 시 디버깅용 꾸러미도 같이 설치하[지않]기"
+
+#: src/help.rs:73
+msgid "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgstr "    --[no]sudoloop         타임아웃 예방 용 sudo 루프 사용하[지않]기"
+
+#: src/help.rs:74
+msgid "    --[no]chroot           Build packages in a chroot"
+msgstr "    --[no]chroot           루트(관리자)로 꾸러기 빌드하[지않]기"
+
+#: src/help.rs:75
+msgid "    --[no]sign             Sign packages with gpg"
+msgstr "    --[no]sign             gpg로 꾸러미 서명하[지않]기"
+
+#: src/help.rs:76
+msgid "    --[no]signdb           Sign databases with gpg"
+msgstr "    --[no]signdb           gpg로 데이터베이스 서명하[지않]기"
+
+#: src/help.rs:77
+msgid "    --localrepo            Build packages into a local repo"
+msgstr "    --localrepo            꾸러미를 로컬 저장소로 빌드하기"
+
+#: src/help.rs:78
+msgid "    --nocheck              Don't resolve checkdepends or run the check function"
+msgstr "    --nocheck              의존성 검사를 하[지않]기"
+
+#: src/help.rs:79
+msgid "    --develsuffixes        Suffixes used to decide if a package is a devel package"
+msgstr "    --develsuffixes        개발자용 꾸러미를 지정할 접두어"
+
+#: src/help.rs:80
+msgid "    --bottomup             Shows AUR's packages first and then repository's"
+msgstr "    --bottomup             AUR -> 저장소 순으로 꾸러미 보이기"
+
+#: src/help.rs:81
+msgid "    --topdown              Shows repository's packages first and then AUR's"
+msgstr "    --topdown              저장소 -> AUR 순으로 꾸러미 보이기"
+
+#: src/help.rs:83
+msgid "show specific options:"
+msgstr "세세한 옵션: "
+
+#: src/help.rs:84
+msgid "    -c --complete         Used for completions"
+msgstr "    -c --complete         완성 기능"
+
+#: src/help.rs:85
+msgid "    -s --stats            Display system package statistics"
+msgstr "    -s --stats            시스템 꾸러미 통계 보이기"
+
+#: src/help.rs:86
+msgid "    -w --news             Print arch news"
+msgstr "    -w --news             새로운 아치(Arch) 소식 출력하기"
+
+#: src/help.rs:88
+msgid "getpkgbuild specific options:"
+msgstr "getpkgbuild 옵션: "
+
+#: src/help.rs:89
+msgid "    -p --print            Print pkgbuild to stdout"
+msgstr "    -p --print            pkgbuild를 표준출력으로 보이기"
+
+#: src/help.rs:90
+msgid "    -c --comments         Print AUR comments for pkgbuild"
+msgstr "    -c --comments         해당 pkgbuild에 대한 AUR 댓글 출력하기"
+
+#: src/help.rs:92
+msgid "upgrade specific options:"
+msgstr "세세한 업그레이드 옵션: "
+
+#: src/help.rs:93
+msgid "    -i --install          Install package as well as building"
+msgstr "    -i --install          꾸러미 설치 및 빌드하기"
+
+#: src/info.rs:31 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "'{}'라는 꾸러미를 찾을 수 없음"
+
+#: src/info.rs:58 src/info.rs:98
+msgid "Name"
+msgstr "이름"
+
+#: src/info.rs:59 src/info.rs:99
+msgid "Version"
+msgstr "버전"
+
+#: src/info.rs:60 src/info.rs:100
+msgid "Description"
+msgstr "설명"
+
+#: src/info.rs:61 src/info.rs:108
+msgid "Groups"
+msgstr "그룹/단체"
+
+#: src/info.rs:62 src/info.rs:109
+msgid "Licenses"
+msgstr "라이선스"
+
+#: src/info.rs:63 src/info.rs:110
+msgid "Provides"
+msgstr "제공하는 꾸러미 "
+
+#: src/info.rs:64 src/info.rs:111
+msgid "Depends On"
+msgstr "의존하는 꾸러미 "
+
+#: src/info.rs:65 src/info.rs:112
+msgid "Make Deps"
+msgstr "메이크 의존 요소"
+
+#: src/info.rs:66 src/info.rs:113
+msgid "Check Deps"
+msgstr "의존 요소 "
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Optional Deps"
+msgstr "선택적으로 의존하는 요소 "
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Conflicts With"
+msgstr "충돌하는 꾸러미"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Maintainer"
+msgstr "담당자"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "Votes"
+msgstr "투표 수"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "Popularity"
+msgstr "유명도"
+
+#: src/info.rs:72 src/info.rs:119
+msgid "First Submitted"
+msgstr "첫 게시날짜"
+
+#: src/info.rs:73 src/info.rs:120
+msgid "Last Modified"
+msgstr "마지막으로 수정된 날짜"
+
+#: src/info.rs:74 src/info.rs:122
+msgid "Out Of Date"
+msgstr "만료됨"
+
+#: src/info.rs:75 src/info.rs:130
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:76 src/info.rs:131
+msgid "Package Base ID"
+msgstr "꾸러미 베이스 ID"
+
+#: src/info.rs:77 src/info.rs:132
+msgid "Keywords"
+msgstr "키워드"
+
+#: src/info.rs:78 src/info.rs:134
+msgid "Snapshot URL"
+msgstr "스냅샷 웹주소"
+
+#: src/info.rs:94
+msgid "No"
+msgstr "아니요"
+
+#: src/install.rs:131 src/install.rs:584 src/install.rs:987
+msgid "no architecture"
+msgstr "아키텍처가 명시되지 않음"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "관리자(루트)로 꾸러미를 빌드할 수 없음"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "makepkg에서 만들어진 srcinfo 해석 실패"
+
+#: src/install.rs:171 src/install.rs:451
+msgid "Resolving dependencies..."
+msgstr "의존성 해결 중..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "소스 내려받기 실패"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "빌드 실패"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "꾸러미 리스트 해석 중..."
+
+#: src/install.rs:261 src/install.rs:1492
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} 현재 최신버전 -- 빌드 건너뛰는 중"
+
+#: src/install.rs:334 src/query.rs:50 src/lib.rs:91
+msgid "error:"
+msgstr "오류: "
+
+#: src/install.rs:335
+msgid "could not get news"
+msgstr "새로운 소식을 불러올 수 없음"
+
+#: src/install.rs:340 src/install.rs:530 src/install.rs:755 src/install.rs:891
+msgid "Proceed with installation?"
+msgstr "설치를 진행하시겠습니까?"
+
+#: src/install.rs:358
+msgid "no targets specified (use -h for help)"
+msgstr "지정된 대상이 없음. (도움말을 보려면 -h)"
+
+#: src/install.rs:443 src/install.rs:470 src/search.rs:362 src/search.rs:398
+#: src/lib.rs:236
+msgid " there is nothing to do"
+msgstr " 할 일 없음"
+
+#: src/install.rs:497
+msgid "can't install AUR package as root"
+msgstr "관리자(루트)로 AUR 꾸러미를 설치할 수 없음"
+
+#: src/install.rs:516
+msgid "Remove make dependencies after install?"
+msgstr "설치 후 빌드에 사용한 의존성 꾸러미를 삭제하시겠습니까?"
+
+#: src/install.rs:527
+msgid "Proceed to review?"
+msgstr "리뷰를 진행하시겠습니까?"
+
+#: src/install.rs:598
+msgid "The following packages are not compatible with your architecture:"
+msgstr "해당 꾸러미는 현 컴퓨터의 설계와 호환되지 않음: "
+
+#: src/install.rs:612
+msgid "Would you like to try build them anyway?"
+msgstr "무시하고 빌드를 진행하시겠습니까?"
+
+#: src/install.rs:701
+msgid "packages failed to build: {}"
+msgstr "꾸러미 빌드 실패: {}"
+
+#: src/install.rs:737
+msgid "could not find .SRINFO for '{}'"
+msgstr "'{}'에 대한 .SRINFO를 찾지 못함"
+
+#: src/install.rs:805
+msgid "failed to read dir: {}"
+msgstr "{}: 디렉터리를 읽지 못함"
+
+#: src/install.rs:821
+msgid "{} is a directory\n\n"
+msgstr "{}은/는 디렉터리임\n\n"
+
+#: src/install.rs:861
+msgid "failed to open: {}"
+msgstr "{}: 열 수 없음"
+
+#: src/install.rs:873
+msgid "binary file: {}"
+msgstr "{}: 바이너리 파일"
+
+#: src/install.rs:895
+msgid " nothing new to review"
+msgstr " 리뷰할 게 없음"
+
+#: src/install.rs:914
+msgid "failed to execute file manager: {}"
+msgstr "{}: 파일 관리자 실행 실패"
+
+#: src/install.rs:917
+msgid "file manager did not execute successfully"
+msgstr "파일 관리자가 성공적으로 실행되지 않음"
+
+#: src/install.rs:979
+msgid "duplicate packages: {}"
+msgstr "{}: 겹치는 꾸러미"
+
+#: src/install.rs:1018
+msgid "could not find all required packages:"
+msgstr "필요한 꾸러미들을 모두 찾지 못함: "
+
+#: src/install.rs:1025
+msgid "\n    {missing} (wanted by: {stack})"
+msgstr "\n    {missing} ({stack}: 필요로 함)"
+
+#: src/install.rs:1039 src/install.rs:1971
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} 현재 최신버전 -- 건너뛰는 중"
+
+#: src/install.rs:1054
+msgid "Calculating conflicts..."
+msgstr "충돌 계산 중..."
+
+#: src/install.rs:1060
+msgid "Calculating inner conflicts..."
+msgstr "내부충돌 계산 중..."
+
+#: src/install.rs:1072
+msgid "Inner conflicts found:"
+msgstr "내부 충돌: "
+
+#: src/install.rs:1094
+msgid "Conflicts found:"
+msgstr "충돌 발견: "
+
+#: src/install.rs:1117
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "충돌되는 꾸러미는 각각 확인되어야 함"
+
+#: src/install.rs:1121
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "충돌되는 꾸러미는 --noconfirm으로 설치할 수 없음"
+
+#: src/install.rs:1160
+msgid "Repo"
+msgstr "저장소"
+
+#: src/install.rs:1167
+msgid "Repo Make"
+msgstr "저장소 메이크"
+
+#: src/install.rs:1181
+msgid "Aur Make"
+msgstr "AUR 메이크"
+
+#: src/install.rs:1270
+msgid "fetching devel info..."
+msgstr "개발자 정보 불러오는 중..."
+
+#: src/install.rs:1350
+msgid "Signing packages..."
+msgstr "꾸러미 서명 중..."
+
+#: src/install.rs:1428 src/install.rs:1433
+msgid "failed to download sources for '{}'"
+msgstr "'{}'의 소스 내려받기 실패"
+
+#: src/install.rs:1438 src/install.rs:1477 src/install.rs:1485
+msgid "failed to build '{}'"
+msgstr "빌드 실패: '{}'"
+
+#: src/install.rs:1441
+msgid "{}: parsing pkg list..."
+msgstr "{}: 꾸러미 리스트 해석 중..."
+
+#: src/install.rs:1503
+msgid "adding {} to the install list"
+msgstr "설치할 리스트에 {} 추가"
+
+#: src/install.rs:1562
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "꾸러미 리스트 '{base}'에서 '{pkg}'를 찾을 수 없음"
+
+#: src/install.rs:1700
+msgid "can't find package name in packagelist: {}"
+msgstr "꾸러미 리스트에서 해당되는 꾸러미를 찾을 수 없음: {}"
+
+#: src/install.rs:1773
+msgid "There are {} members in group"
+msgstr "{} 개의 구성원이 그룹에 있음"
+
+#: src/install.rs:1798
+msgid "\n\nEnter a selection (default=all): "
+msgstr "\n\n선택지를 입력하세요 (기본값=all): "
+
+#: src/install.rs:1995
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} 현재 최신버전입 -- 설치 건너뛰는 중"
+
+#: src/keys.rs:48
+msgid "keys need to be imported:)"
+msgstr "키를 불러와야 합니다:)"
+
+#: src/keys.rs:53
+msgid "     {key} wanted by: {base}"
+msgstr "     {base}: {key}를 필요로 함"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "날짜 없음 "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "제목 없음"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "새로운 소식 없음"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [무시됨]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr "현 "
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "로컬 데이터베이스 동기화 중..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr "  할 일 없음"
+
+#: src/search.rs:34
+msgid "aur search failed"
+msgstr "AUR 검색 실패"
+
+#: src/search.rs:196
+msgid "[Out-of-date: {}]"
+msgstr "[만료됨: {}]"
+
+#: src/search.rs:202 src/search.rs:256
+msgid "[Installed: {}]"
+msgstr "[설치됨: {}]"
+
+#: src/search.rs:204 src/search.rs:258
+msgid "[Installed]"
+msgstr "[설치됨]"
+
+#: src/search.rs:211
+msgid "[Orphaned]"
+msgstr "[고아화됨]"
+
+#: src/search.rs:301
+msgid "no packages match search"
+msgstr "조회된 꾸러미가 없음"
+
+#: src/search.rs:359
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "설치할 꾸러미 (예: 1 2 3, 1-3): "
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "총 설치된 꾸러미: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "AUR 꾸러미: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "저장소 꾸러미: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "명시된 꾸러미: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "설치된 꾸러미 총 용량: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "용량이 제일 큰 꾸러미 10개: "
+
+#: src/sync.rs:89 src/lib.rs:413
+msgid " [installed]"
+msgstr " [설치됨]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "최신화할 AUR 꾸러미 조회중"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "최신화할 개발자꾸러미 조회중"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "경고: "
+
+#: src/upgrade.rs:181
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: 꾸러미 최신화 무시하는 중 ({old} => {new}) "
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "포함시키지 않을 꾸러미 (예: 1 2 3, 1-3): "
+
+#: src/util.rs:111
+msgid "[Y/n]:"
+msgstr "[Y/n]: "
+
+#: src/util.rs:113
+msgid "[y/N]:"
+msgstr "[y/N]: "
+
+#: src/util.rs:132
+msgid "y"
+msgstr "y"
+
+#: src/util.rs:132
+msgid "yes"
+msgstr "yes"
+
+#: src/util.rs:134
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:134
+msgid "no"
+msgstr "no"
+
+#: src/util.rs:330
+msgid "Enter a number (default=1): "
+msgstr "번호를 입력하세요 (기본값=1) "
+
+#: src/util.rs:347
+msgid "invalid number: {}"
+msgstr "유효하지 않은 값: {} "
+
+#: src/util.rs:357
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "유효하지 않은 값: {n}이 1과 {max} 사이여야 함 "
+
+#: src/lib.rs:160
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "devtools가 설치되어 있지 않음. 관리자(루트)로 빌드 불가 "
+
+#: src/lib.rs:411
+msgid " [installed: {}]"
+msgstr " [설치됨: {}]"
