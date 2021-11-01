@@ -549,15 +549,13 @@ async fn prepare_build(
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if let Some(ref cmd) = config.pre_build_command {
-        let mut split = cmd.split_whitespace();
-        let cmd = split.next().unwrap();
-        let args = split.collect::<Vec<_>>();
+        let args = [&"-c", cmd.as_str()];
 
         for base in &bases.bases {
             let dir = config.fetch.clone_dir.join(base.package_base());
             std::env::set_var("PKGBASE", base.package_base());
             std::env::set_var("VERSION", base.version());
-            exec::command(&cmd, &dir, &args)?;
+            exec::command("sh", &dir, &args)?;
         }
 
         std::env::remove_var("PKGBASE");
