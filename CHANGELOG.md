@@ -1,5 +1,28 @@
 # Changelog
 
+## Paru v1.9.0 (2021-10-01)
+
+### Added
+
+- Add -Po to show package install order #550
+- Add timeout to git ls-remote 6278891
+- Add -hg to default DevelSuffixes #546
+- Add search size limit #541
+- Add socks proxy support 5a25ec3
+- Add -x/--regex for -Ss 6790a5d
+- Add --savechanges to save pkgbuild changes e05ca07
+
+### Fixed
+
+- Fix typos #560
+- Fix -d acting as -cc 69ae7bf
+- Fix -U picking non local repo if package with same name 95c1f91
+
+### Localization
+
+- Add ko locale #565
+- Update de locale #513
+
 ## Paru v1.8.2 (2021-08-18)
 
 ### Fixed
@@ -28,6 +51,7 @@
 - -Ld also removes sig files 2a1a412
 
 ### Localization
+
 - Update nl locale #488
 - Update de locale #487
 - Update pt_BR locale #496
