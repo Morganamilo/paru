@@ -1394,28 +1394,21 @@ fn build_install_pkgbuild<'a>(
     let c = config.color;
     let mut debug_paths = HashMap::new();
     let dir = config.build_dir.join(base.package_base());
+    let db = config.alpm.localdb().pkgs();
 
-    let mut satisfied = false;
-
-    if !config.chroot && config.batch_install {
-        for pkg in &base.pkgs {
-            let mut deps = pkg
-                .pkg
-                .depends
-                .iter()
-                .chain(&pkg.pkg.make_depends)
-                .chain(&pkg.pkg.check_depends);
-
-            satisfied = deps.all(|dep| {
-                config
-                    .alpm
-                    .localdb()
-                    .pkgs()
-                    .find_satisfier(dep.as_str())
-                    .is_some()
+    let satisfied = !config.chroot
+        && config.batch_install
+        && base
+            .pkgs
+            .iter()
+            .flat_map(|pkg| {
+                pkg.pkg
+                    .depends
+                    .iter()
+                    .chain(&pkg.pkg.make_depends)
+                    .chain(&pkg.pkg.check_depends)
             })
-        }
-    }
+            .all(|dep| db.find_satisfier(dep.as_str()).is_some());
 
     if !config.chroot && !satisfied {
         do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
