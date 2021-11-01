@@ -14,9 +14,9 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
-alpm = "2.1.1"
-alpm-utils = "1.1.0"
-aur-depends = "1.0.2"
+alpm = "2.1.3"
+alpm-utils = "1.1.2"
+aur-depends = "1.0.3"
 aur-fetch = "0.10.0"
 cini = "0.1.1"
 pacmanconf = "1.0.0"
@@ -34,15 +34,15 @@ globset = "0.4.8"
 htmlescape = "0.3.1"
 indicatif = "0.16.2"
 kuchiki = "0.8.1"
-nix = "0.22.1"
-reqwest = { version = "0.11.4", features = ["gzip", "socks"] }
-rss = { version = "1.10.0", default-features = false }
+nix = "0.23.0"
+reqwest = { version = "0.11.6", features = ["gzip", "socks"] }
+rss = { version = "2.0.0", default-features = false }
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.68"
 smart-default = "0.6.0"
 tempfile = "3.2.0"
 term_size = "0.3.2"
-tokio = { version = "1.12.0", features = ["process", "macros", "rt-multi-thread"] }
+tokio = { version = "1.13.0", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.2"
 env_logger = "0.9.0"
 log = "0.4.14"
