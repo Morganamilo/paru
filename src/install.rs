@@ -28,6 +28,7 @@ use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use args::Args;
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
+use log::debug;
 use nix::sys::signal::{signal, SigHandler, Signal};
 use raur::Cache;
 use srcinfo::Srcinfo;
@@ -172,6 +173,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     );
 
     let actions = resolver.resolve_depends(&deps, &make_deps).await?;
+    debug!("{:#?}", actions);
     let mut build_info =
         prepare_build(config, HashMap::new(), &mut cache, actions, Some(&srcinfo)).await?;
 
@@ -452,6 +454,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     );
 
     let actions = resolver.resolve_targets(&targets).await?;
+    debug!("{:#?}", actions);
     let repo_targs = actions
         .install
         .iter()

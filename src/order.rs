@@ -2,6 +2,7 @@ use crate::config::Config;
 use crate::install::flags;
 use anyhow::Result;
 use aur_depends::{Actions, Conflict, Package, Resolver};
+use log::debug;
 use std::collections::HashSet;
 
 pub async fn order(config: &mut Config) -> Result<i32> {
@@ -11,6 +12,7 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     config.alpm.take_raw_question_cb();
     let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
+    debug!("{:#?}", actions);
 
     let conflicts = actions.calculate_conflicts(true);
     let inner_conflicts = actions.calculate_inner_conflicts(true);
