@@ -68,11 +68,15 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     let version = config.color.sl_version;
     let installed = config.color.sl_installed;
 
-    for line in data
+    let mut lines = data
         .split(|&c| c == b'\n')
         .skip(1)
         .filter(|l| !l.is_empty())
-    {
+        .collect::<Vec<_>>();
+
+    lines.sort_unstable();
+
+    for line in lines {
         if config.args.has_arg("q", "quiet") {
             let _ = stdout.write_all(line);
             let _ = stdout.write_all(&[b'\n']);

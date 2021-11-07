@@ -28,6 +28,7 @@ use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use args::Args;
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
+use log::debug;
 use nix::sys::signal::{signal, SigHandler, Signal};
 use raur::Cache;
 use srcinfo::Srcinfo;
@@ -172,6 +173,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     );
 
     let actions = resolver.resolve_depends(&deps, &make_deps).await?;
+    debug!("{:#?}", actions);
     let mut build_info =
         prepare_build(config, HashMap::new(), &mut cache, actions, Some(&srcinfo)).await?;
 
@@ -452,6 +454,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     );
 
     let actions = resolver.resolve_targets(&targets).await?;
+    debug!("{:#?}", actions);
     let repo_targs = actions
         .install
         .iter()
@@ -549,15 +552,13 @@ async fn prepare_build(
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if let Some(ref cmd) = config.pre_build_command {
-        let mut split = cmd.split_whitespace();
-        let cmd = split.next().unwrap();
-        let args = split.collect::<Vec<_>>();
+        let args = [&"-c", cmd.as_str()];
 
         for base in &bases.bases {
             let dir = config.fetch.clone_dir.join(base.package_base());
             std::env::set_var("PKGBASE", base.package_base());
             std::env::set_var("VERSION", base.version());
-            exec::command(&cmd, &dir, &args)?;
+            exec::command("sh", &dir, &args)?;
         }
 
         std::env::remove_var("PKGBASE");
@@ -1394,28 +1395,21 @@ fn build_install_pkgbuild<'a>(
     let c = config.color;
     let mut debug_paths = HashMap::new();
     let dir = config.build_dir.join(base.package_base());
+    let db = config.alpm.localdb().pkgs();
 
-    let mut satisfied = false;
-
-    if !config.chroot && config.batch_install {
-        for pkg in &base.pkgs {
-            let mut deps = pkg
-                .pkg
-                .depends
-                .iter()
-                .chain(&pkg.pkg.make_depends)
-                .chain(&pkg.pkg.check_depends);
-
-            satisfied = deps.all(|dep| {
-                config
-                    .alpm
-                    .localdb()
-                    .pkgs()
-                    .find_satisfier(dep.as_str())
-                    .is_some()
+    let satisfied = !config.chroot
+        && config.batch_install
+        && base
+            .pkgs
+            .iter()
+            .flat_map(|pkg| {
+                pkg.pkg
+                    .depends
+                    .iter()
+                    .chain(&pkg.pkg.make_depends)
+                    .chain(&pkg.pkg.check_depends)
             })
-        }
-    }
+            .all(|dep| db.find_satisfier(dep.as_str()).is_some());
 
     if !config.chroot && !satisfied {
         do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
