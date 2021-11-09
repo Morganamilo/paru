@@ -49,6 +49,60 @@ impl Status {
     }
 }
 
+pub fn command_err<C: AsRef<OsStr>, S: AsRef<OsStr>>(cmd: C, args: &[S]) -> String {
+    format!(
+        "{} {} {}",
+        tr!("failed to run:"),
+        cmd.as_ref().to_string_lossy(),
+        args.iter()
+            .map(|a| a.as_ref().to_string_lossy())
+            .collect::<Vec<_>>()
+            .join(" ")
+    )
+}
+
+fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
+    cmd: C,
+    dir: P,
+    args: &[S],
+) -> Result<Status> {
+    Command::new(cmd.as_ref())
+        .current_dir(dir)
+        .args(args)
+        .status()
+        .map(|s| Status(s.code().unwrap_or(1)))
+        .with_context(|| command_err(cmd.as_ref(), args.as_ref()))
+}
+
+pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
+    cmd: C,
+    dir: P,
+    args: &[S],
+) -> Result<()> {
+    command_status(cmd.as_ref(), dir, args)?
+        .success()
+        .with_context(|| command_err(cmd, args))?;
+    Ok(())
+}
+
+pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
+    cmd: C,
+    dir: P,
+    args: &[S],
+) -> Result<Output> {
+    let ret = Command::new(cmd.as_ref())
+        .current_dir(dir)
+        .args(args)
+        .output()
+        .with_context(|| command_err(cmd.as_ref(), args.as_ref()))?;
+
+    if !ret.status.success() {
+        bail!(command_err(cmd, args));
+    }
+
+    Ok(ret)
+}
+
 pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
     update_sudo(&sudo, &flags)?;
     thread::spawn(move || sudo_loop(&sudo, &flags));
@@ -63,15 +117,7 @@ fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
 }
 
 fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    let ret = Command::new(sudo).args(flags).status().with_context(|| {
-        let flags = flags
-            .iter()
-            .map(|s| s.as_ref().to_string_lossy().into_owned())
-            .collect::<Vec<_>>()
-            .join(" ");
-        format!("{} {} {}", tr!("failed to run:"), sudo, flags)
-    })?;
-    Status(ret.code().unwrap_or(1)).success()?;
+    command_status(sudo, ".", flags)?;
     Ok(())
 }
 
@@ -97,150 +143,50 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
     config: &Config,
     args: &Args<S>,
 ) -> Result<Status> {
-    let mut command: std::process::Command;
-    let error_msg: String;
-
     if config.need_root {
         wait_for_lock(config);
-
-        command = Command::new(&config.sudo_bin);
-        command.args(&config.sudo_flags);
-        command.arg(args.bin.as_ref());
-        let mut sudo_command = config.sudo_flags.clone();
-        sudo_command.insert(0, config.sudo_bin.clone());
-        error_msg = format!(
-            "{} {} {} {}",
-            tr!("failed to run:"),
-            sudo_command.join(" "),
-            args.bin,
-            args.args().join(" ")
-        );
+        let mut cmd_args = config
+            .sudo_flags
+            .iter()
+            .map(|s| s.as_ref())
+            .collect::<Vec<_>>();
+        cmd_args.push(args.bin.as_ref());
+        let args = args.args();
+        cmd_args.extend(args.iter().map(|s| s.as_str()));
+        command_status(&config.sudo_bin, ".", &cmd_args)
     } else {
-        command = Command::new(args.bin.as_ref());
-        error_msg = format!(
-            "{} {} {}",
-            tr!("failed to run:"),
-            args.bin,
-            args.args().join(" ")
-        );
+        command_status(args.bin.as_ref(), ".", &args.args())
     }
-
-    let ret = command
-        .args(args.args())
-        .status()
-        .with_context(|| error_msg)?;
-    Ok(Status(ret.code().unwrap_or(1)))
 }
 
-pub fn pacman_output<S: AsRef<str> + Display>(config: &Config, args: &Args<S>) -> Result<Output> {
-    let mut command = if config.need_root {
-        let mut command = Command::new(&config.sudo_bin);
-        command.args(&config.sudo_flags);
-        command.arg(args.bin.as_ref());
-        command
+pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
+    config: &Config,
+    args: &Args<S>,
+) -> Result<Output> {
+    if config.need_root {
+        wait_for_lock(config);
+        let mut cmd_args = config
+            .sudo_flags
+            .iter()
+            .map(|s| s.as_ref())
+            .collect::<Vec<_>>();
+        cmd_args.push(args.bin.as_ref());
+        let args = args.args();
+        cmd_args.extend(args.iter().map(|s| s.as_str()));
+        command_output(&config.sudo_bin, ".", &cmd_args)
     } else {
-        Command::new(args.bin.as_ref())
-    };
-
-    let output = command
-        .args(args.args())
-        .output()
-        .with_context(|| format!("{} pacman {}", tr!("failed to run:"), args.bin))?;
-    Ok(output)
+        command_output(args.bin.as_ref(), ".", &args.args())
+    }
 }
 
 pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
-    let ret = Command::new(&config.makepkg_bin)
-        .current_dir(dir)
-        .args(&config.mflags)
-        .args(args)
-        .status()
-        .with_context(|| {
-            format!(
-                "{} {} {} {}",
-                tr!("failed to run:"),
-                config.makepkg_bin,
-                config.mflags.join(" "),
-                args.iter()
-                    .map(|a| a.as_ref().to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            )
-        })?;
-
-    Ok(Status(ret.code().unwrap_or(1)))
-}
-
-pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
-    cmd: C,
-    dir: P,
-    args: &[S],
-) -> Result<()> {
-    let ret = Command::new(cmd.as_ref())
-        .current_dir(dir)
-        .args(args)
-        .status()
-        .with_context(|| {
-            format!(
-                "{} {} {}",
-                tr!("failed to run:"),
-                cmd.as_ref().to_string_lossy(),
-                args.iter()
-                    .map(|a| a.as_ref().to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            )
-        })?;
-
-    let status = Status(ret.code().unwrap_or(1));
-
-    status.success().with_context(|| {
-        format!(
-            "{} {} {}",
-            tr!("failed to run:"),
-            cmd.as_ref().to_string_lossy(),
-            args.iter()
-                .map(|a| a.as_ref().to_string_lossy())
-                .collect::<Vec<_>>()
-                .join(" ")
-        )
-    })?;
-
-    Ok(())
+    let mut cmd_args = config.mflags.iter().map(|s| s.as_ref()).collect::<Vec<_>>();
+    cmd_args.extend(args.iter().map(|s| s.as_ref()));
+    command_status(&config.makepkg_bin, dir, &cmd_args)
 }
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
-    let ret = Command::new(&config.makepkg_bin)
-        .current_dir(dir)
-        .args(&config.mflags)
-        .args(args)
-        .output()
-        .with_context(|| {
-            format!(
-                "{} {} {} {}",
-                tr!("failed to run:"),
-                config.makepkg_bin,
-                config.mflags.join(" "),
-                args.iter()
-                    .map(|a| a.as_ref().to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            )
-        })?;
-
-    if !ret.status.success() {
-        bail!(
-            "{} {} {} {}: {}",
-            tr!("failed to run:"),
-            config.makepkg_bin,
-            config.mflags.join(" "),
-            args.iter()
-                .map(|a| a.as_ref().to_string_lossy())
-                .collect::<Vec<_>>()
-                .join(" "),
-            String::from_utf8_lossy(&ret.stderr)
-        )
-    }
-
-    Ok(ret)
+    let mut cmd_args = config.mflags.iter().map(|s| s.as_ref()).collect::<Vec<_>>();
+    cmd_args.extend(args.iter().map(|s| s.as_ref()));
+    command_output(&config.makepkg_bin, dir, &cmd_args)
 }
