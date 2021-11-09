@@ -1194,6 +1194,7 @@ dependencies = [
  "kuchiki",
  "log",
  "nix",
+ "once_cell",
  "pacmanconf",
  "raur",
  "regex",
@@ -1201,6 +1202,7 @@ dependencies = [
  "rss",
  "serde",
  "serde_json",
+ "signal-hook",
  "smart-default",
  "srcinfo",
  "tempfile",
@@ -1709,6 +1711,16 @@ name = "shlex"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
+
+[[package]]
+name = "signal-hook"
+version = "0.3.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c98891d737e271a2954825ef19e46bd16bdb98e2746f2eec4f7a4ef7946efd1"
+dependencies = [
+ "libc",
+ "signal-hook-registry",
+]
 
 [[package]]
 name = "signal-hook-registry"

@@ -5,11 +5,32 @@ use std::ffi::OsStr;
 use std::fmt::{Display, Formatter};
 use std::path::Path;
 use std::process::{Command, Output};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
+use once_cell::sync::Lazy;
+use signal_hook::consts::signal::*;
+use signal_hook::flag as signal_flag;
 use tr::tr;
+
+static DEFAULT_SIGNALS: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+    let arc = Arc::new(AtomicBool::new(true));
+    signal_flag::register_conditional_default(SIGTERM, Arc::clone(&arc)).unwrap();
+    signal_flag::register_conditional_default(SIGINT, Arc::clone(&arc)).unwrap();
+    signal_flag::register_conditional_default(SIGQUIT, Arc::clone(&arc)).unwrap();
+    arc
+});
+
+static CAUGHT_SIGNAL: Lazy<Arc<AtomicUsize>> = Lazy::new(|| {
+    let arc = Arc::new(AtomicUsize::new(0));
+    signal_flag::register_usize(SIGTERM, Arc::clone(&arc), SIGTERM as usize).unwrap();
+    signal_flag::register_usize(SIGINT, Arc::clone(&arc), SIGINT as usize).unwrap();
+    signal_flag::register_usize(SIGQUIT, Arc::clone(&arc), SIGQUIT as usize).unwrap();
+    arc
+});
 
 #[derive(Debug, Clone)]
 pub struct PacmanError {
@@ -66,12 +87,20 @@ fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     dir: P,
     args: &[S],
 ) -> Result<Status> {
-    Command::new(cmd.as_ref())
+    let term = &*CAUGHT_SIGNAL;
+
+    let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
         .status()
         .map(|s| Status(s.code().unwrap_or(1)))
-        .with_context(|| command_err(cmd.as_ref(), args.as_ref()))
+        .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
+
+    DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
+    match term.load(Ordering::Relaxed) {
+        0 => ret,
+        n => std::process::exit(128 + n as i32),
+    }
 }
 
 pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
@@ -90,11 +119,19 @@ pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     dir: P,
     args: &[S],
 ) -> Result<Output> {
+    let term = &*CAUGHT_SIGNAL;
+
     let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
         .output()
-        .with_context(|| command_err(cmd.as_ref(), args.as_ref()))?;
+        .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
+
+    DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
+    let ret = match term.load(Ordering::Relaxed) {
+        0 => ret?,
+        n => std::process::exit(128 + n as i32),
+    };
 
     if !ret.status.success() {
         bail!(command_err(cmd, args));
