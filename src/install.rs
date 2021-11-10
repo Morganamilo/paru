@@ -1528,6 +1528,8 @@ fn build_install_pkgbuild<'a>(
             devel_info
                 .info
                 .insert(base.package_base().to_string(), info);
+        } else {
+            devel_info.info.remove(base.package_base());
         }
         if config.devel {
             save_devel_info(config, devel_info)?;
@@ -1571,6 +1573,8 @@ fn build_install_pkgbuild<'a>(
             devel_info
                 .info
                 .insert(base.package_base().to_string(), info);
+        } else {
+            devel_info.info.remove(base.package_base());
         }
     }
 
