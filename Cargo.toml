@@ -50,6 +50,8 @@ async-trait = { version = "0.1.51", optional = true }
 tr = "0.1.6"
 unicode-width = "0.1.9"
 regex = "1.5.4"
+signal-hook = "0.3.10"
+once_cell = "1.8.0"
 
 [profile.release]
 codegen-units = 1
