@@ -573,7 +573,7 @@ msgstr ""
 
 #: src/help.rs:81
 msgid "show specific options:"
-msgstr "mostrar opções específicas:"
+msgstr "opções específicas show:"
 
 #: src/help.rs:82
 msgid "    -c --complete         Used for completions"
