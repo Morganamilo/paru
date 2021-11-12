@@ -1017,7 +1017,7 @@ msgstr "A procurar atualizações no AUR"
 
 #: src/upgrade.rs:148
 msgid "Looking for devel upgrades"
-msgstr "À procura de atualizações de desenvolvimento"
+msgstr "A procurar atualizações de desenvolvimento"
 
 #: src/upgrade.rs:179
 msgid "warning:"
