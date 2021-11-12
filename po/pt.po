@@ -1069,7 +1069,7 @@ msgstr "valor inválido: {n} não está entre 1 e {max}"
 
 #: src/lib.rs:158
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "não é possível compilar em chroot: o devtools não está instalado"
+msgstr "não é possível compilar em chroot: devtools não está instalado"
 
 #: src/lib.rs:398
 msgid " [installed: {}]"
