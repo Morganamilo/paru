@@ -128,6 +128,64 @@ Print new news from the Arch Linux homepage. News is considered new if it is
 newer than the build date of all native packages. Pass this twice to show all
 available news.
 
+.TP
+.B \-o, \-\-order
+Print buildorder for targets.
+
+This option outputs information about how to build a package and its
+dependencies. Each line of output specifies an action to perform or information
+to take into consideration.
+
+Each line of output will be in one of the following formats:
+
+.RE
+.RS 7
+.B MISSING <DEP> [WANTED BY]...
+.RS 7
+A dependency could not be found.
+
+<DEP> is the dependency that could not be found and
+[WANTED BY] is the current dependency stack. The dependency stack will be empty if the package
+that could not be found was a target.
+
+Paru will exit 1 if any packages are missing.
+.RE
+.RE
+
+.RS 7
+.B CONFLICT LOCAL|INNER <PKG> <CONFLICTING PKG> [CONFLICT]
+.RS 7
+There was a package conflict.
+
+The second arg will be LOCAL if the conflict is with an installed package and INNER if two of
+the to be installed packages conflict. <PKG> and <CONFLICTING PKG> are the packages in conflict
+and [CONFLICT] will be the conflict string if it is different from <CONFLICTING PKG>.
+.RE
+.RE
+
+.RS 7
+.B INSTALL TARGET|DEP|MAKE <DB> <NAME>
+.RS 7
+Install a package from the pacman repos.
+
+The first arg will be TARGET if the package is a target, DEP if a dependency, or MAKE if the package
+is a build time dependency. <DB> is the name of the database the package belongs to and <NAME> is the
+name of the package.
+.RE
+.RE
+
+.RS 7
+.B AUR TARGET|DEP|MAKE <BASE> <NAMES>...
+.RS 7
+Build a package from the AUR.
+
+The first arg will be TARGET if the package is a target, DEP if a dependency, or MAKE if the package
+is a build time dependency. <BASE> is the pkgbase of the package  and <NAMES> are the names of the
+packages belonging to the pkgbase.
+.RE
+
+More options may be added in the future.
+
 .SH GETPKGBUILD OPTIONS (APPLY TO \-G AND \-\-GETPKGBUILD)
 .TP
 .B \-p, \-\-print
@@ -331,6 +389,13 @@ Print search results from bottom to top. AUR packages will print first.
 .B \-\-limit <limit>
 Limit the number of packages returned in a search to the given amount. Defaults
 to 0 (no limit). This applies separately to repo and AUR packages.
+
+.TP
+.B \-x, \-\-regex
+Enable regex for aur search.
+
+The regex will only be matched against pkgnames and not pkgdescs as you would
+usually expect.
 
 .TP
 .B \-\-nocheck
