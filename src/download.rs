@@ -181,7 +181,7 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         let warnings =
             cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore).await?;
         if !warnings.missing.is_empty() {
-            ret |= ret
+            ret = 1
         }
         warnings.missing(config.color, config.cols);
         let aur = warnings.pkgs;
