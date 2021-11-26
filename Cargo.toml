@@ -26,7 +26,6 @@ srcinfo = "1.0.0"
 
 ansi_term = "0.12.1"
 anyhow = "1.0.48"
-atty = "0.2.14"
 chrono = "0.4.19"
 dirs = "4.0.0"
 futures = "0.3.18"
