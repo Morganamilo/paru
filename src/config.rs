@@ -849,6 +849,7 @@ impl Config {
             "UseAsk" => self.use_ask = true,
             "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
+            "Comments" => self.comments = true,
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
@@ -900,6 +901,7 @@ impl Config {
             "Limit" => self.limit = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
+            "MakepkgConf" => self.makepkg_conf = Some(value?),
             "DevelSuffixes" => {
                 self.devel_suffixes
                     .extend(value?.split_whitespace().map(|s| s.to_string()));
