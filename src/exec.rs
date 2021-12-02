@@ -32,6 +32,12 @@ static CAUGHT_SIGNAL: Lazy<Arc<AtomicUsize>> = Lazy::new(|| {
     arc
 });
 
+pub static RAISE_SIGPIPE: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+    let arc = Arc::new(AtomicBool::new(true));
+    signal_flag::register_conditional_default(SIGPIPE, Arc::clone(&arc)).unwrap();
+    arc
+});
+
 #[derive(Debug, Clone)]
 pub struct PacmanError {
     pub msg: String,
