@@ -118,6 +118,8 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
             .init();
     }
 
+    let _ = &*exec::DEFAULT_SIGNALS;
+
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
 
     let mut config = match Config::new() {
