@@ -8,7 +8,7 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::File;
-use std::io::{BufRead, stdin, stdout};
+use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
 
 use alpm::{
