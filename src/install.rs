@@ -735,7 +735,7 @@ async fn download_pkgbuilds<'a>(
                 vacant.insert(srcinfo);
             }
         } else {
-            bail!(tr!("could not find .SRINFO for '{}'", base.package_base()));
+            bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
         }
     }
     Ok(srcinfos)
