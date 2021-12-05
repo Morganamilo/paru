@@ -52,7 +52,6 @@ use std::process::Command;
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
-use nix::sys::signal::{signal, SigHandler, Signal};
 use tr::{tr, tr_init};
 
 #[macro_export]
@@ -118,7 +117,8 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
             .init();
     }
 
-    unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
+    let _ = &*exec::DEFAULT_SIGNALS;
+    let _ = &*exec::RAISE_SIGPIPE;
 
     let mut config = match Config::new() {
         Ok(config) => config,

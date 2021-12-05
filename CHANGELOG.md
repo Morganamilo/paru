@@ -1,6 +1,24 @@
 # Changelog
 
-## Paru v1.9.0 (2021-10-01)
+## Paru v1.9.1 (2021-11-26)
+
+### Fixed
+
+- Make paru -G return a correct exit code #601
+- Fix manpage wording #598
+- Add docs for -Po and --regex 3ebff0f
+- Remove Stale develinfo when package changes source Remove dbaec6c
+
+### Changed
+
+- Sort -Sla output 200b8b1
+- Wait for child process to exit on signal 8c04dbb
+
+### Localization
+
+- Update pt_br locale #568
+
+## Paru v1.9.0 (2021-11-01)
 
 ### Added
 

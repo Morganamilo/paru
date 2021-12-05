@@ -8,7 +8,7 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::File;
-use std::io::{stdin, BufRead};
+use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
 
 use alpm::{
@@ -17,10 +17,9 @@ use alpm::{
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
-use atty::Stream::Stdout;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
-use nix::unistd::dup2;
+use nix::unistd::{dup2, isatty};
 use std::os::unix::io::AsRawFd;
 use tr::tr;
 use url::Url;
@@ -100,7 +99,7 @@ pub struct Colors {
 impl From<&str> for Colors {
     fn from(s: &str) -> Self {
         match s {
-            "auto" if atty::is(Stdout) => Colors::new(),
+            "auto" if isatty(stdout().as_raw_fd()).unwrap_or(false) => Colors::new(),
             "always" => Colors::new(),
             _ => Colors::default(),
         }

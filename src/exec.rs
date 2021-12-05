@@ -16,7 +16,7 @@ use signal_hook::consts::signal::*;
 use signal_hook::flag as signal_flag;
 use tr::tr;
 
-static DEFAULT_SIGNALS: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+pub static DEFAULT_SIGNALS: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
     let arc = Arc::new(AtomicBool::new(true));
     signal_flag::register_conditional_default(SIGTERM, Arc::clone(&arc)).unwrap();
     signal_flag::register_conditional_default(SIGINT, Arc::clone(&arc)).unwrap();
@@ -29,6 +29,12 @@ static CAUGHT_SIGNAL: Lazy<Arc<AtomicUsize>> = Lazy::new(|| {
     signal_flag::register_usize(SIGTERM, Arc::clone(&arc), SIGTERM as usize).unwrap();
     signal_flag::register_usize(SIGINT, Arc::clone(&arc), SIGINT as usize).unwrap();
     signal_flag::register_usize(SIGQUIT, Arc::clone(&arc), SIGQUIT as usize).unwrap();
+    arc
+});
+
+pub static RAISE_SIGPIPE: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+    let arc = Arc::new(AtomicBool::new(true));
+    signal_flag::register_conditional_default(SIGPIPE, Arc::clone(&arc)).unwrap();
     arc
 });
 
@@ -89,6 +95,8 @@ fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
 ) -> Result<Status> {
     let term = &*CAUGHT_SIGNAL;
 
+    DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
+
     let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
@@ -97,7 +105,8 @@ fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
         .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
-    match term.load(Ordering::Relaxed) {
+
+    match term.swap(0, Ordering::Relaxed) {
         0 => ret,
         n => std::process::exit(128 + n as i32),
     }
@@ -121,6 +130,8 @@ pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
 ) -> Result<Output> {
     let term = &*CAUGHT_SIGNAL;
 
+    DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
+
     let ret = Command::new(cmd.as_ref())
         .current_dir(dir)
         .args(args)
@@ -128,7 +139,7 @@ pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
         .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
-    let ret = match term.load(Ordering::Relaxed) {
+    let ret = match term.swap(0, Ordering::Relaxed) {
         0 => ret?,
         n => std::process::exit(128 + n as i32),
     };

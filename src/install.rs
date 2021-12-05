@@ -20,6 +20,7 @@ use std::fs::{read_dir, read_link, OpenOptions};
 use std::io::{stdin, stdout, BufRead, Read, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::sync::atomic::Ordering;
 
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies_dep, satisfies_provide};
@@ -29,7 +30,6 @@ use anyhow::{bail, ensure, Context, Result};
 use args::Args;
 use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
 use log::debug;
-use nix::sys::signal::{signal, SigHandler, Signal};
 use raur::Cache;
 use srcinfo::Srcinfo;
 use tr::tr;
@@ -774,7 +774,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                     .or_else(|| var("PAGER").ok())
                     .unwrap_or_else(|| "less".to_string());
 
-                unsafe { signal(Signal::SIGPIPE, SigHandler::SigIgn).unwrap() };
+                exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
                 let mut command = Command::new("sh");
 
                 if std::env::var("LESS").is_err() {
@@ -887,7 +887,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                 command
                     .wait()
                     .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
-                unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl).unwrap() };
+                exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
 
                 if !ask(config, &tr!("Proceed with installation?"), true) {
                     return Ok(1);
