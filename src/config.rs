@@ -848,7 +848,6 @@ impl Config {
             "UseAsk" => self.use_ask = true,
             "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
-            "Comments" => self.comments = true,
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
