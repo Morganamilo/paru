@@ -552,7 +552,7 @@ async fn prepare_build(
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if let Some(ref cmd) = config.pre_build_command {
-        let args = [&"-c", cmd.as_str()];
+        let args = ["-c", cmd.as_str()];
 
         for base in &bases.bases {
             let dir = config.fetch.clone_dir.join(base.package_base());
@@ -850,7 +850,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                                             "{} {} {}",
                                             tr!("failed to run:"),
                                             config.bat_bin,
-                                            file.path().display().to_string()
+                                            file.path().display()
                                         )
                                     })?;
                                 let _ = stdin.write_all(&output.stdout);
