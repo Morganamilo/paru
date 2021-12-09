@@ -1168,7 +1168,7 @@ dependencies = [
 
 [[package]]
 name = "paru"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "alpm",
  "alpm-utils",
