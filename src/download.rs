@@ -245,7 +245,7 @@ fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
             .arg("update")
             .arg(pkg)
             .output()
-            .with_context(|| format!("{} {} upadate {}", tr!("failed to run:"), asp, pkg))?;
+            .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
 
         ensure!(
             ret.status.success(),
