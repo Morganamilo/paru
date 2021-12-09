@@ -1,5 +1,19 @@
 # Changelog
 
+## Paru v1.9.2 (2021-12-09)
+
+## Fixed
+
+- Fix paru not actually waiting on children properly e336648
+- Fix typo #608 f8e0888
+
+### Localization
+
+- Update pt locale #553
+- Update es locale #606
+- Update ru locale #607
+- Update pt_br locale #605
+
 ## Paru v1.9.1 (2021-11-26)
 
 ### Fixed

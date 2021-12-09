@@ -102,7 +102,7 @@ fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
         .args(args)
         .status()
         .map(|s| Status(s.code().unwrap_or(1)))
-        .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
+        .with_context(|| command_err(cmd.as_ref(), args));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
 
@@ -136,7 +136,7 @@ pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
         .current_dir(dir)
         .args(args)
         .output()
-        .with_context(|| command_err(cmd.as_ref(), args.as_ref()));
+        .with_context(|| command_err(cmd.as_ref(), args));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
     let ret = match term.swap(0, Ordering::Relaxed) {
