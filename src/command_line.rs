@@ -178,6 +178,7 @@ impl Config {
             Arg::Long("asp") => self.asp_bin = value?.to_string(),
             Arg::Long("bat") => self.bat_bin = value?.to_string(),
             Arg::Long("fm") => self.fm = Some(value?.to_string()),
+            Arg::Long("pager") => self.pager_cmd = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
             Arg::Long("builddir") | Arg::Long("clonedir") => self.build_dir = value?.into(),

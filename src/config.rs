@@ -899,6 +899,7 @@ impl Config {
             "Limit" => self.limit = value?.parse()?,
             "CompletionInterval" => self.completion_interval = value?.parse()?,
             "PacmanConf" => self.pacman_conf = Some(value?),
+            "MakepkgConf" => self.makepkg_conf = Some(value?),
             "DevelSuffixes" => {
                 self.devel_suffixes
                     .extend(value?.split_whitespace().map(|s| s.to_string()));

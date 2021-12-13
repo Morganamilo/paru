@@ -193,6 +193,7 @@ complete -c $progname -n "not $noopt" -l git -d 'Git command to use' -f
 complete -c $progname -n "not $noopt" -l asp -d 'Asp command to use' -f
 complete -c $progname -n "not $noopt" -l gpg -d 'Gpg command to use' -f
 complete -c $progname -n "not $noopt" -l fm -d 'File manager to use' -f
+complete -c $progname -n "not $noopt" -l pager -d 'Pager command to use' -f
 complete -c $progname -n "not $noopt" -l completioninterval -d 'Refresh interval for completion cache' -f
 complete -c $progname -n "not $noopt" -l sortby -d 'Sort AUR results by a specific field during search' -xa "{votes,popularity,id,baseid,name,base,submitted,modified}"
 complete -c $progname -n "not $noopt" -l searchby -d 'Search for AUR packages by querying the specified field' -xa "{name,name-desc,maintainer,depends,checkdepends,makedepends,optdepends}"
