@@ -453,7 +453,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
     };
 
     if !chroot.exists() {
-        chroot.create(config, &["base-devel"])?;
+        chroot.create(config, &["base", "base-devel"])?;
     }
 
     if config.update {

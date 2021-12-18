@@ -210,7 +210,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if config.chroot {
         if !chroot.exists() {
-            chroot.create(config, &["base-devel"])?;
+            chroot.create(config, &["base", "base-devel"])?;
         } else {
             chroot.update()?;
         }
@@ -1287,7 +1287,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
 
     if config.chroot {
         if !chroot.exists() {
-            chroot.create(config, &["base-devel"])?;
+            chroot.create(config, &["base", "base-devel"])?;
         } else {
             chroot.update()?;
         }
