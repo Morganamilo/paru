@@ -697,7 +697,7 @@ msgstr "Izbriši make dependencies nakon instalacije?"
 
 #: src/install.rs:526
 msgid "Proceed to review?"
-msgstr "Nastavi na pregled?"
+msgstr "Nastavi na review?"
 
 #: src/install.rs:575
 msgid "The following packages are not compatible with your architecture:"
@@ -737,7 +737,7 @@ msgstr "binarna datoteka: {}"
 
 #: src/install.rs:868
 msgid " nothing new to review"
-msgstr " ništa novo za pregledati"
+msgstr " ništa novo za review"
 
 #: src/install.rs:887
 msgid "failed to execute file manager: {}"
