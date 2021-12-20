@@ -717,7 +717,7 @@ msgstr "nije moguće pronaći .SRINFO za '{}'"
 
 #: src/install.rs:778
 msgid "failed to read dir: {}"
-msgstr "neuspješno čitanje direktorija: {}"
+msgstr "neuspješno čitanje dir-a: {}"
 
 #: src/install.rs:794
 msgid "{} is a directory\n"
