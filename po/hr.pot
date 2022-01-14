@@ -1,0 +1,1006 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the paru package.
+# Ivan Merčep <i1mercep@gmail.com>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-12-21 13:44+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ivan Merčep <i1mercep@gmail.com>\n"
+"Language-Team: Ivan Merčep <i1mercep@gmail.com>\n"
+"Language: hr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "Izbrisati SVE AUR pakete iz cache memorije?"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "Izbrisati sve ostale AUR pakete iz cache memorije?"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr "Clone Direktorij: {}"
+
+#: src/clean.rs:46
+msgid "\n"
+"Diff Directory: {}"
+msgstr "\n"
+"Diff Direktorij {}"
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "Izbrisati sve spremljene diffs?"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "nije moguće otvoriti diff dir: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "nije moguće izbrisati '{}'"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "nije moguće klonirati dir: {}"
+
+#: src/command_line.rs:132
+msgid "option {} expects a value"
+msgstr "opcija {} očekuje vrijednost"
+
+#: src/command_line.rs:163 src/command_line.rs:332
+msgid "option {} does not allow a value"
+msgstr "opcija {} ne dopušta vrijednost"
+
+#: src/command_line.rs:323
+msgid "unknown option --{}"
+msgstr "nepoznata opcija --{}"
+
+#: src/command_line.rs:326
+msgid "unknown option -{}"
+msgstr "nepoznata opcija -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "neuspješno otvaranje cache datoteke '{}'"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "neuspješan update aur cache-a"
+
+#: src/config.rs:174
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "Nevažeća vrijednost '{val}' za key '{key}', očekivana: {exp}"
+
+#: src/config.rs:462
+msgid "error: unknown section '{}'"
+msgstr "greška: nepoznata sekcija '{}'"
+
+#: src/config.rs:477
+msgid "failed to find cache directory"
+msgstr "neuspješno traženje cache direktorija"
+
+#: src/config.rs:480
+msgid "failed to find config directory"
+msgstr "neuspješno traženje config direktorija"
+
+#: src/config.rs:504
+msgid "config file '{}' does not exist"
+msgstr "config datoteka '{}' ne postoji"
+
+#: src/config.rs:553
+msgid "only one operation may be used at a time"
+msgstr "istovremeno se smije koristiti samo jedna operacija"
+
+#: src/config.rs:641
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "neuspješno traženje lokalnog repozitorija '{}' u pacman.conf"
+
+#: src/config.rs:673
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "neuspješna inicijalizacija alpm: root={} dbpath={}"
+
+#: src/config.rs:743 src/config.rs:891
+msgid "value can not be empty for key '{}'"
+msgstr "vrijednost ne smije biti prazna za key '{}'"
+
+#: src/config.rs:759
+msgid "key '{}' does not belong to a section"
+msgstr "key '{}' ne pripada sekciji"
+
+#: src/config.rs:771 src/config.rs:773 src/config.rs:787 src/config.rs:842 src/config.rs:847
+msgid "key can not be empty"
+msgstr "key ne smije biti prazan"
+
+#: src/config.rs:774
+msgid "key can not contain null bytes"
+msgstr "key ne smije sadržavati null bytes"
+
+#: src/config.rs:777
+msgid "value can not contain null bytes"
+msgstr "vrijednost ne smije sadržavati null bytes"
+
+#: src/config.rs:809
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "greška: nepoznata opcija '{}' u sekciji [bin]"
+
+#: src/config.rs:909
+msgid "error: unknown option '{}' in section [options]"
+msgstr "greška: nepoznata opcija '{}' u sekciji [opcije]"
+
+#: src/config.rs:914
+msgid "option '{}' does not take a value"
+msgstr "opcija '{}' ne prima vrijednost"
+
+#: src/config.rs:960 src/install.rs:1812
+msgid "There are {n} providers available for {pkg}:"
+msgstr "{pkg} ima {n} dostupnih providera:"
+
+#: src/config.rs:974 src/info.rs:57 src/info.rs:96 src/install.rs:1771 src/install.rs:1820
+msgid "Repository"
+msgstr "Repozitorij"
+
+#: src/config.rs:996
+msgid "  failed to sync {}"
+msgstr "  neuspješan sync {}"
+
+#: src/devel.rs:130 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "Upit na AUR..."
+
+#: src/devel.rs:143 src/devel.rs:167 src/install.rs:710
+msgid "failed to parse srcinfo for '{}'"
+msgstr "neuspješno raščlanjivanje srcinfo za '{}'"
+
+#: src/devel.rs:185
+msgid "Looking for devel repos..."
+msgstr "Traženje devel repos..."
+
+#: src/devel.rs:194
+msgid "failed to save devel info"
+msgstr "neuspješno spremanje devel info"
+
+#: src/devel.rs:384
+msgid "package does not have an update"
+msgstr "paket nema update"
+
+#: src/devel.rs:419
+msgid "failed to lookup: {}"
+msgstr "neuspješan lookup: {}"
+
+#: src/devel.rs:447
+msgid "invalid json: {}"
+msgstr "nevažeći json: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "paketi nisu u AUR: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "označeno kao zastarjelo"
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "napušteni: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "neuspješno dohvaćanje trenutnog direktorija"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "neuspješno dohvaćanje repo paketa: asp is not installed"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "Nedostaje ABS paket"
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:760 src/install.rs:823 src/install.rs:861
+msgid "failed to run:"
+msgstr "neuspješno pokretanje:"
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "ne sadrži PKGBUILD: preskačem"
+
+#: src/download.rs:295
+msgid "downloading: {pkg}"
+msgstr "preuzimanje: {pkg}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "Preuzimanje PKGBUILDs..."
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr " PKGBUILDs su ažurirani"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "{} nije instaliran: neuspjepno dohvaćanje repo paketa"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "asp je vratio {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman se trenutno koristi, pričekajte..."
+
+#: src/fmt.rs:6 src/info.rs:147 src/search.rs:176
+msgid "None"
+msgstr "Ništa"
+
+#: src/help.rs:4
+msgid "Usage:"
+msgstr "Korištenje:"
+
+#: src/help.rs:5
+msgid "    paru"
+msgstr "    paru"
+
+#: src/help.rs:6
+msgid "    paru <operation> [...]"
+msgstr "    paru <operacija> [...]"
+
+#: src/help.rs:7
+msgid "    paru <package(s)>"
+msgstr "    paru <paket(i)>"
+
+#: src/help.rs:9
+msgid "Pacman operations:"
+msgstr "Pacman operacije:"
+
+#: src/help.rs:10
+msgid "    paru {-h --help}"
+msgstr "    paru {-h --help}"
+
+#: src/help.rs:11
+msgid "    paru {-V --version}"
+msgstr "    paru {-V --version}"
+
+#: src/help.rs:12
+msgid "    paru {-D --database}    <options> <package(s)>"
+msgstr "    paru {-D --database}    <opcije> <paket(i)>"
+
+#: src/help.rs:13
+msgid "    paru {-F --files}       [options] [package(s)]"
+msgstr "    paru {-F --files}       [opcije] [paket(i)]"
+
+#: src/help.rs:14
+msgid "    paru {-Q --query}       [options] [package(s)]"
+msgstr "    paru {-Q --query}       [opcije] [paket(i)]"
+
+#: src/help.rs:15
+msgid "    paru {-R --remove}      [options] <package(s)>"
+msgstr "    paru {-R --remove}      [opcije] <paket(i)>"
+
+#: src/help.rs:16
+msgid "    paru {-S --sync}        [options] [package(s)]"
+msgstr "    paru {-S --sync}        [opcije] [paket(i)]"
+
+#: src/help.rs:17
+msgid "    paru {-T --deptest}     [options] [package(s)]"
+msgstr "    paru {-T --deptest}     [opcije] [paket(i)]"
+
+#: src/help.rs:18
+msgid "    paru {-U --upgrade}     [options] [file(s)]"
+msgstr "    paru {-U --upgrade}     [opcije] [datoteke]"
+
+#: src/help.rs:20
+msgid "New operations:"
+msgstr "Nove operacije:"
+
+#: src/help.rs:21
+msgid "    paru {-P --show}        [options]"
+msgstr "    paru {-P --show}        [opcije]"
+
+#: src/help.rs:22
+msgid "    paru {-G --getpkgbuild} [package(s)]"
+msgstr "    paru {-G --getpkgbuild} [paket(i)]"
+
+#: src/help.rs:24
+msgid "If no arguments are provided 'paru -Syu' will be performed"
+msgstr "Ako je pokrento bez argumenata, pokreće se 'paru -Syu'"
+
+#: src/help.rs:26
+msgid "Options without operation:"
+msgstr "Opcije bez operacije:"
+
+#: src/help.rs:27
+msgid "    -c --clean            Remove unneeded dependencies"
+msgstr "    -c --clean            Izbriši nepotrebne ovisnosti"
+
+#: src/help.rs:28
+msgid "       --gendb            Generates development package DB used for updating"
+msgstr "       --gendb            Generira development paket DB za update"
+
+#: src/help.rs:30
+msgid "New options:"
+msgstr "Noce opcije:"
+
+#: src/help.rs:31
+msgid "       --repo              Assume targets are from the repositories"
+msgstr "       --repo              Pretpostavlja da su ciljevi iz repozitorija"
+
+#: src/help.rs:32
+msgid "    -a --aur               Assume targets are from the AUR"
+msgstr "    -a --aur               Pretpostavlja da su ciljevi iz AUR"
+
+#: src/help.rs:33
+msgid "    --aururl    <url>      Set an alternative AUR URL"
+msgstr "    --aururl    <url>      Postavi alternativni AUR URL"
+
+#: src/help.rs:34
+msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
+msgstr "    --clonedir  <dir>      Direktorij za download i run PKGBUILDs"
+
+#: src/help.rs:36
+msgid "    --makepkg   <file>     makepkg command to use"
+msgstr "    --makepkg   <file>     makepkg naredba"
+
+#: src/help.rs:37
+msgid "    --mflags    <flags>    Pass arguments to makepkg"
+msgstr "    --mflags    <flags>    Argumenti za prosljediti u makepkg"
+
+#: src/help.rs:38
+msgid "    --pacman    <file>     pacman command to use"
+msgstr "    --pacman    <file>     pacman naredba"
+
+#: src/help.rs:39
+msgid "    --git       <file>     git command to use"
+msgstr "    --git       <file>     git naredba"
+
+#: src/help.rs:40
+msgid "    --gitflags  <flags>    Pass arguments to git"
+msgstr "    --gitflags  <flags>    Argumenti za prosljediti u git"
+
+#: src/help.rs:41
+msgid "    --sudo      <file>     sudo command to use"
+msgstr "    --sudo      <file>     sudo naredba"
+
+#: src/help.rs:42
+msgid "    --sudoflags <flags>    Pass arguments to sudo"
+msgstr "    --sudoflags <flags>    Argumenti za prosljediti u sudo"
+
+#: src/help.rs:43
+msgid "    --asp       <file>     asp command to use"
+msgstr "    --asp       <file>     asp naredba"
+
+#: src/help.rs:44
+msgid "    --bat       <file>     bat command to use"
+msgstr "    --bat       <file>     bat naredba"
+
+#: src/help.rs:45
+msgid "    --batflags  <flags>    Pass arguments to bat"
+msgstr "    --batflags  <flags>    Argumenti za prosljediti u bat"
+
+#: src/help.rs:46
+msgid "    --gpg       <file>     gpg command to use"
+msgstr "    --gpg       <file>     gpg naredba"
+
+#: src/help.rs:47
+msgid "    --gpgflags  <flags>    Pass arguments to gpg"
+msgstr "    --gpgflags  <flags>    Argumenti za prosljediti u gpg"
+
+#: src/help.rs:48
+msgid "    --fm        <file>     File manager to use for PKGBUILD review"
+msgstr "    --fm        <file>     File manager za PKGBUILD review"
+
+#: src/help.rs:49
+msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgstr "    --fmflags   <flags>    Argmuneti za prosljediti u file manager"
+
+#: src/help.rs:51
+msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgstr "    --completioninterval   <n> Vrijeme u danima za osvježavanje completion cache"
+
+#: src/help.rs:52
+msgid "    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr "    --sortby    <field>    Sortiranje AUR rezultata prema specifičnim poljima tjekom traženja"
+
+#: src/help.rs:53
+msgid "    --searchby  <field>    Search for packages using a specified field"
+msgstr "    --searchby  <field>    Pretraživanje paketa koristeći specifično polje"
+
+#: src/help.rs:55
+msgid "    --skipreview           Skip the review process"
+msgstr "    --skipreview           Preskoči review process"
+
+#: src/help.rs:56
+msgid "    --review               Don't skip the review process"
+msgstr "    --review               Ne preskači review process"
+
+#: src/help.rs:57
+msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
+msgstr "    --[no]upgrademenu      Pokaži interaktivni menu za preskakanje ažuriranja"
+
+#: src/help.rs:58
+msgid "    --[no]removemake       Remove makedepends after install"
+msgstr "    --[no]removemake       Izbriši makedepends nakon instalacije"
+
+#: src/help.rs:59
+msgid "    --[no]cleanafter       Remove package sources after install"
+msgstr "    --[no]cleanafter       izbriši source paketa nakon instalacije"
+
+#: src/help.rs:60
+msgid "    --[no]rebuild          Always build target packages"
+msgstr "    --[no]rebuild          Uvijek buildaj ciljane pakete"
+
+#: src/help.rs:61
+msgid "    --[no]redownload       Always download PKGBUILDs of targets"
+msgstr "    --[no]redownload       Uvijek preuzmi PKGBUILDs od ciljeva"
+
+#: src/help.rs:63
+msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
+msgstr "    --[no]pgpfetch         Prompt za import PGP ključeva iz PKGBUILDs"
+
+#: src/help.rs:64
+msgid "    --[no]useask           Automatically resolve conflicts using pacman's ask flag"
+msgstr "    --[no]useask           Automatski razriješi konflikte koristeći pacman-ovu ask flag"
+
+#: src/help.rs:65
+msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
+msgstr "    --[no]newsonupgrade    Ispis vijesti tijekom sysupgrade"
+
+#: src/help.rs:66
+msgid "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together"
+msgstr "    --[no]combinedupgrade  Refresh pa napravi repo i AUR upgrade skupa"
+
+#: src/help.rs:67
+msgid "    --[no]batchinstall     Build multiple AUR packages then install them together"
+msgstr "    --[no]batchinstall     Build više AUR paketa pa ih instaliraj skupa"
+
+#: src/help.rs:68
+msgid "    --[no]provides         Look for matching providers when searching for packages"
+msgstr "    --[no]provides         Pretraži odgovarajuće providere tijekom pretrage paketa"
+
+#: src/help.rs:69
+msgid "    --[no]devel            Check development packages during sysupgrade"
+msgstr "    --[no]devel            Provjeri development pakete tijekom sysupgrade"
+
+#: src/help.rs:70
+msgid "    --[no]installdebug     Also install debug packages when a package provides them"
+msgstr "    --[no]installdebug     Također instaliraj debug pakete kada ih paket pruža"
+
+#: src/help.rs:71
+msgid "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgstr "    --[no]sudoloop         Loop sudo pozive u pozadini zbog izbjegavanja timeout-a"
+
+#: src/help.rs:72
+msgid "    --[no]chroot           Build packages in a chroot"
+msgstr "    --[no]chroot           Build pakete u chroot"
+
+#: src/help.rs:73
+msgid "    --[no]sign             Sign packages with gpg"
+msgstr "    --[no]sign             Potpisivanje paketa sa gpg"
+
+#: src/help.rs:74
+msgid "    --[no]signdb           Sign databases with gpg"
+msgstr "    --[no]signdb           Potpisivanje baza podataka sa gpg"
+
+#: src/help.rs:75
+msgid "    --localrepo            Build packages into a local repo"
+msgstr "    --localrepo            Build pakete u lokalni repo"
+
+#: src/help.rs:76
+msgid "    --nocheck              Don't resolve checkdepends or run the check function"
+msgstr "    --nocheck              Ne razrješavaj checkdepends ili pozivaj check funkciju"
+
+#: src/help.rs:77
+msgid "    --develsuffixes        Suffixes used to decide if a package is a devel package"
+msgstr "    --develsuffixes        Sufiksi za odlučivanje je li paket devel paket"
+
+#: src/help.rs:78
+msgid "    --bottomup             Shows AUR's packages first and then repository's"
+msgstr "    --bottomup             Prvo ispis AUR paketa pa onda repozitorija"
+
+#: src/help.rs:79
+msgid "    --topdown              Shows repository's packages first and then AUR's"
+msgstr "    --topdown              Prvo ispis paketa repozitorija pa onda AUR"
+
+#: src/help.rs:81
+msgid "show specific options:"
+msgstr "ispis specifične opcije:"
+
+#: src/help.rs:82
+msgid "    -c --complete         Used for completions"
+msgstr "    -c --complete         Za dovršavanje"
+
+#: src/help.rs:83
+msgid "    -s --stats            Display system package statistics"
+msgstr "    -s --stats            Ispis statistike system paketa"
+
+#: src/help.rs:84
+msgid "    -w --news             Print arch news"
+msgstr "    -w --news             Ispis arch vijesti"
+
+#: src/help.rs:86
+msgid "getpkgbuild specific options:"
+msgstr "getpkgbuild specifične opcije:"
+
+#: src/help.rs:87
+msgid "    -p --print            Print pkgbuild to stdout"
+msgstr "    -p --print            Ispis pkgbuild u stdout"
+
+#: src/help.rs:88
+msgid "    -c --comments         Print AUR comments for pkgbuild"
+msgstr "    -c --comments         Ispis AUR komentara za pkgbuild"
+
+#: src/help.rs:90
+msgid "upgrade specific options:"
+msgstr "upgrade specifične opcije:"
+
+#: src/help.rs:91
+msgid "    -i --install          Install package as well as building"
+msgstr "    -i --install          Install i build paket"
+
+#: src/info.rs:31 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "paket '{}' nije pronađen"
+
+#: src/info.rs:58 src/info.rs:97
+msgid "Name"
+msgstr "Naziv"
+
+#: src/info.rs:59 src/info.rs:98
+msgid "Version"
+msgstr "Verzija"
+
+#: src/info.rs:60 src/info.rs:99
+msgid "Description"
+msgstr "Opis"
+
+#: src/info.rs:61 src/info.rs:107
+msgid "Groups"
+msgstr "Grupe"
+
+#: src/info.rs:62 src/info.rs:108
+msgid "Licenses"
+msgstr "Dozvole"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Provides"
+msgstr "Provideri"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Depends On"
+msgstr "Ovisi O"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Make Deps"
+msgstr "Make Deps"
+
+#: src/info.rs:66 src/info.rs:112
+msgid "Check Deps"
+msgstr "Check Deps"
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Conflicts With"
+msgstr "Konflikti S"
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Maintainer"
+msgstr "Održavatelj"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Votes"
+msgstr "Glasovi"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "Popularity"
+msgstr "Popularnost"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "First Submitted"
+msgstr "Prvi Submit"
+
+#: src/info.rs:72 src/info.rs:119
+msgid "Last Modified"
+msgstr "Zadnja Modifikacija"
+
+#: src/info.rs:73 src/info.rs:121
+msgid "Out Of Date"
+msgstr "Zastarjelo"
+
+#: src/info.rs:74 src/info.rs:126
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:75 src/info.rs:127
+msgid "Package Base ID"
+msgstr "Paket Base ID"
+
+#: src/info.rs:76 src/info.rs:128
+msgid "Keywords"
+msgstr "Ključne riječi"
+
+#: src/info.rs:77 src/info.rs:130
+msgid "Snapshot URL"
+msgstr "Snapshot URL"
+
+#: src/info.rs:93
+msgid "No"
+msgstr "Ne"
+
+#: src/info.rs:113
+msgid "Optional Deps"
+msgstr "Izborni Deps"
+
+#: src/install.rs:131 src/install.rs:561 src/install.rs:960
+msgid "no architecture"
+msgstr "bez arhitekture"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "Nije moguće napraviti build paketa kao root"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "Neuspješno raščlanjivanje srcinfo generiranog od makepkg"
+
+#: src/install.rs:171 src/install.rs:450
+msgid "Resolving dependencies..."
+msgstr "Razrješavanje dependencies..."
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "neuspješno preuzimanje source-a"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "neuspješan build"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "raščlanjivanje pkg list..."
+
+#: src/install.rs:261 src/install.rs:1478
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} je ažuriran -- preskačem build"
+
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:89
+msgid "error:"
+msgstr "greška:"
+
+#: src/install.rs:334
+msgid "could not get news"
+msgstr "neuspješno preuzimanje vijesti"
+
+#: src/install.rs:339 src/install.rs:529 src/install.rs:732 src/install.rs:864
+msgid "Proceed with installation?"
+msgstr "Nastavi sa instalacijom?"
+
+#: src/install.rs:357
+msgid "no targets specified (use -h for help)"
+msgstr "ciljevi nisu specifirani (-h za help)"
+
+#: src/install.rs:442 src/install.rs:469 src/search.rs:324 src/search.rs:360 src/lib.rs:232
+msgid " there is nothing to do"
+msgstr " nema se što napraviti"
+
+#: src/install.rs:496
+msgid "can't install AUR package as root"
+msgstr "nije moguće instalirati AUR pakete kao root"
+
+#: src/install.rs:515
+msgid "Remove make dependencies after install?"
+msgstr "Izbriši make dependencies nakon instalacije?"
+
+#: src/install.rs:526
+msgid "Proceed to review?"
+msgstr "Nastavi na review?"
+
+#: src/install.rs:575
+msgid "The following packages are not compatible with your architecture:"
+msgstr "Sljedeći paketi nemaju kompatibilnu arhitekturu:"
+
+#: src/install.rs:589
+msgid "Would you like to try build them anyway?"
+msgstr "Svejedno napravi build?"
+
+#: src/install.rs:678
+msgid "packages failed to build: {}"
+msgstr "neuspješan build na paketima: {}"
+
+#: src/install.rs:714
+msgid "could not find .SRINFO for '{}'"
+msgstr "nije moguće pronaći .SRINFO za '{}'"
+
+#: src/install.rs:778
+msgid "failed to read dir: {}"
+msgstr "neuspješno čitanje dir-a: {}"
+
+#: src/install.rs:794
+msgid "{} is a directory\n"
+"\n"
+""
+msgstr "{} je direktorij\n"
+"\n"
+""
+
+#: src/install.rs:834
+msgid "failed to open: {}"
+msgstr "neuspješno otvaranje: {}"
+
+#: src/install.rs:846
+msgid "binary file: {}"
+msgstr "binarna datoteka: {}"
+
+#: src/install.rs:868
+msgid " nothing new to review"
+msgstr " ništa novo za review"
+
+#: src/install.rs:887
+msgid "failed to execute file manager: {}"
+msgstr "neuspješno pokretanje file manager-a: {}"
+
+#: src/install.rs:890
+msgid "file manager did not execute successfully"
+msgstr "file manager se nije uspješno pokrenuo"
+
+#: src/install.rs:952
+msgid "duplicate packages: {}"
+msgstr "dupli paketi: {}"
+
+#: src/install.rs:991
+msgid "could not find all required packages:"
+msgstr "neuspješno traženje potrebnih paketa:"
+
+#: src/install.rs:998
+msgid "\n"
+"    {missing} (wanted by: {stack})"
+msgstr "\n"
+"    {missing} (tražen od: {stack})"
+
+#: src/install.rs:1012 src/install.rs:1957
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} je ažuriran -- preskačem"
+
+#: src/install.rs:1027
+msgid "Calculating conflicts..."
+msgstr "Računanje konflikata..."
+
+#: src/install.rs:1033
+msgid "Calculating inner conflicts..."
+msgstr "Računanje unutrašnjih konflikata..."
+
+#: src/install.rs:1045
+msgid "Inner conflicts found:"
+msgstr "Unutrašnji konflikti pronađeni:"
+
+#: src/install.rs:1067
+msgid "Conflicts found:"
+msgstr "Konflikti pronađeni:"
+
+#: src/install.rs:1090
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "Paketi u konfliktu se moraju ručno potvrditi"
+
+#: src/install.rs:1094
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "nije moguće instalirati pakete u konfliktu sa --noconfirm"
+
+#: src/install.rs:1133
+msgid "Repo"
+msgstr "Repo"
+
+#: src/install.rs:1140
+msgid "Repo Make"
+msgstr "Repo Make"
+
+#: src/install.rs:1154
+msgid "Aur Make"
+msgstr "Aur Make"
+
+#: src/install.rs:1256
+msgid "fetching devel info..."
+msgstr "dohvaćanje devel info..."
+
+#: src/install.rs:1336
+msgid "Signing packages..."
+msgstr "Potpisivanje paketa..."
+
+#: src/install.rs:1414 src/install.rs:1419
+msgid "failed to download sources for '{}'"
+msgstr "neuspješno preuzimanje source-a za '{}'"
+
+#: src/install.rs:1424 src/install.rs:1463 src/install.rs:1471
+msgid "failed to build '{}'"
+msgstr "neuspješan build '{}'"
+
+#: src/install.rs:1427
+msgid "{}: parsing pkg list..."
+msgstr "{}: raščlanjivanje pkg list..."
+
+#: src/install.rs:1489
+msgid "adding {} to the install list"
+msgstr "dodavanje {} na install list"
+
+#: src/install.rs:1548
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "nije moguće pronaći paket '{pkg}' u listi paketa za '{base}'"
+
+#: src/install.rs:1686
+msgid "can't find package name in packagelist: {}"
+msgstr "nije moguće pronaći naziv paketa u listi paketa: {}"
+
+#: src/install.rs:1759
+msgid "There are {} members in group"
+msgstr "Grupa ima {} članova"
+
+#: src/install.rs:1784
+msgid "\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr "\n"
+"\n"
+"Unos odabira (default=all): "
+
+#: src/install.rs:1981
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} je ažuriran -- preskakanje instalacije"
+
+#: src/keys.rs:48
+msgid "keys need to be imported:)"
+msgstr "klučevi moraju biti uvezeni:)"
+
+#: src/keys.rs:53
+msgid "     {key} wanted by: {base}"
+msgstr "     {key} tražen od: {base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "Bez Datuma "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "Bez Naslova"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "Nema novih vijesti"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [ignorirano]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr "neuspješno dohvaćanje trenutnog exe"
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "sinkroniziranje lokalne baze podataka..."
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr "  ništa za napraviti"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "neuspješna aur pretraga"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[Zastarjelo: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[Instalirano: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[Instalirano]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[Napušteno]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "nema paketa koji odgovara pretrazi"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "Paketi za instalaciju (eg: 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "Ukupno instalirano paketa: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "Aur paketi: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "Repo paketi: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "Explicitno instalirani paketi: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "Ukupna veličina okupiranih paketa: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "Deset najvećih paketa:"
+
+#: src/sync.rs:89 src/lib.rs:400
+msgid " [installed]"
+msgstr " [instalirano]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "Traženje AUR ažuriranja"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "Traženje devel ažuriranja"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "upozorenje:"
+
+#: src/upgrade.rs:181
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: ignoriranje ažuriranja ({old} => {new})"
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "Paketi za odstranjivanje"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[D/n]"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[d/N]"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "d"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "da"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "ne"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "Unos broja (default=1): "
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "nevažeći broj: {}"
+
+#: src/util.rs:326
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "nevažeća vrijednost: {n} nije između 1 i {max}"
+
+#: src/lib.rs:158
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "nije moguće koristiti chroot builds: devtools nije instaliran"
+
+#: src/lib.rs:398
+msgid " [installed: {}]"
+msgstr " [instalirano: {}]"
