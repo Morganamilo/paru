@@ -391,6 +391,7 @@ pub struct Config {
     pub news_on_upgrade: bool,
     pub comments: bool,
     pub sign: Sign,
+    pub keep_old_packages: bool,
     pub sign_db: Sign,
 
     pub pre_build_command: Option<String>,
@@ -869,6 +870,7 @@ impl Config {
                     None => Sign::Yes,
                 }
             }
+            "KeepOldPackages" => self.keep_old_packages = false,
             "SignDb" => {
                 self.sign_db = match value {
                     Some(v) => Sign::Key(v.to_string()),

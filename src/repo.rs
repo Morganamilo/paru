@@ -53,7 +53,12 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         )?;
     }
 
-    let mut args = vec![OsStr::new("-R"), file.as_os_str()];
+    let mut args = Vec::new();
+    if !config.keep_old_packages {
+        args.push(OsStr::new("-R"));
+    }
+    args.push(file.as_os_str());
+
     let pkgs = pkgs
         .iter()
         .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
