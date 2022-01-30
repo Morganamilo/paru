@@ -316,6 +316,8 @@ impl Config {
                     Err(_) => Sign::Yes,
                 }
             }
+            Arg::Long("nokeepold") => self.keep_old_packages = false,
+            Arg::Long("keepold") => self.keep_old_packages = true,
             Arg::Long("signdb") => {
                 self.sign_db = match value {
                     Ok(k) => Sign::Key(k.to_string()),
