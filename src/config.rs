@@ -870,7 +870,7 @@ impl Config {
                     None => Sign::Yes,
                 }
             }
-            "KeepOldPackages" => self.keep_old_packages = false,
+            "KeepOldPackages" => self.keep_old_packages = true,
             "SignDb" => {
                 self.sign_db = match value {
                     Some(v) => Sign::Key(v.to_string()),
