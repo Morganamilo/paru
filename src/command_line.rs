@@ -203,7 +203,11 @@ impl Config {
             Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("limit") => self.limit = value?.parse()?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
-            Arg::Long("stats") | Arg::Short('s') => self.stats = true,
+            Arg::Long("stats") => self.stats = true,
+            Arg::Short('s') => {
+                self.stats = true;
+                self.ssh = true;
+            }
             Arg::Long("order") | Arg::Short('o') => self.order = true,
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
@@ -269,6 +273,7 @@ impl Config {
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
+            Arg::Long("ssh") => self.ssh = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op(Op::Database),
             Arg::Long("files") | Arg::Short('F') => set_op(Op::Files),
