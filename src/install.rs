@@ -551,22 +551,18 @@ async fn prepare_build(
     let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
-    if let Some(ref cmd) = config.pre_build_command {
-        let args = ["-c", cmd.as_str()];
-
+    if let Some(ref pb_cmd) = config.pre_build_command {
         for base in &bases.bases {
             let dir = config.fetch.clone_dir.join(base.package_base());
             std::env::set_var("PKGBASE", base.package_base());
             std::env::set_var("VERSION", base.version());
-            exec::command("sh", &dir, &args)?;
+            let mut cmd = Command::new("sh");
+            cmd.current_dir(dir).arg("-c").arg(pb_cmd);
+            exec::command(&mut cmd)?;
         }
 
         std::env::remove_var("PKGBASE");
         std::env::remove_var("VERSION");
-
-        /*if srcinfo.is_some() {
-            exec::command(&cmd, ".", &args)?;
-        }*/
     }
 
     if !config.skip_review {
@@ -1342,8 +1338,6 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
 
 fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
     if config.sign != Sign::No {
-        let mut args = vec!["--detach-sign", "--no-armor", "--batch"];
-
         let c = config.color;
         println!(
             "{} {}",
@@ -1351,12 +1345,14 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
             c.bold.paint(tr!("Signing packages..."))
         );
 
-        if let Sign::Key(ref k) = config.sign {
-            args.push("-u");
-            args.push(k.as_str());
-        }
-
         for path in paths {
+            let mut cmd = Command::new("gpg");
+            cmd.args(["--detach-sign", "--no-armor", "--batch"]);
+
+            if let Sign::Key(ref k) = config.sign {
+                cmd.arg("-u").arg(k);
+            }
+
             let sig = format!("{}.sig", path);
             if Path::new(&sig).exists() {
                 if delete_sig {
@@ -1365,12 +1361,10 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
                     continue;
                 }
             }
-            let mut args = args.clone();
 
-            args.push("--output");
-            args.push(&sig);
-            args.push(path);
-            exec::command("gpg", ".", &args)?;
+            cmd.arg("--output").arg(&sig).arg(path);
+
+            exec::command(&mut cmd)?;
         }
     }
 

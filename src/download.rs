@@ -410,10 +410,9 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let c = config.color;
 
     for base in &bases.bases {
-        let url = config.aur_url.join(&format!(
-            "packages/{}",
-            base.package_base()
-        ))?;
+        let url = config
+            .aur_url
+            .join(&format!("packages/{}", base.package_base()))?;
 
         let response = client
             .get(url.clone())

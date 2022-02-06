@@ -43,7 +43,6 @@ use crate::query::print_upgrade_list;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error as StdError;
-use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
 use std::path::PathBuf;
@@ -350,9 +349,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         config.alpm.set_raw_log_cb(cb);
 
         if !rmfiles.is_empty() {
-            let mut args = vec![OsStr::new("rm")];
-            args.extend(rmfiles.iter().map(|f| f.as_os_str()));
-            exec::command(&config.sudo_bin, ".", &args)?;
+            let mut cmd = Command::new(&config.sudo_bin);
+            cmd.arg("rm").args(rmfiles);
+            exec::command(&mut cmd)?;
         }
 
         let repos = repos

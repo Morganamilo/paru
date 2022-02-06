@@ -76,33 +76,27 @@ impl Status {
     }
 }
 
-pub fn command_err<C: AsRef<OsStr>, S: AsRef<OsStr>>(cmd: C, args: &[S]) -> String {
+fn command_err(cmd: &Command) -> String {
     format!(
         "{} {} {}",
         tr!("failed to run:"),
-        cmd.as_ref().to_string_lossy(),
-        args.iter()
-            .map(|a| a.as_ref().to_string_lossy())
+        cmd.get_program().to_string_lossy(),
+        cmd.get_args()
+            .map(|a| a.to_string_lossy())
             .collect::<Vec<_>>()
             .join(" ")
     )
 }
 
-fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
-    cmd: C,
-    dir: P,
-    args: &[S],
-) -> Result<Status> {
+fn command_status(cmd: &mut Command) -> Result<Status> {
     let term = &*CAUGHT_SIGNAL;
 
     DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
 
-    let ret = Command::new(cmd.as_ref())
-        .current_dir(dir)
-        .args(args)
+    let ret = cmd
         .status()
         .map(|s| Status(s.code().unwrap_or(1)))
-        .with_context(|| command_err(cmd.as_ref(), args));
+        .with_context(|| command_err(cmd));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
 
@@ -112,31 +106,19 @@ fn command_status<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     }
 }
 
-pub fn command<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
-    cmd: C,
-    dir: P,
-    args: &[S],
-) -> Result<()> {
-    command_status(cmd.as_ref(), dir, args)?
+pub fn command(cmd: &mut Command) -> Result<()> {
+    command_status(cmd)?
         .success()
-        .with_context(|| command_err(cmd, args))?;
+        .with_context(|| command_err(cmd))?;
     Ok(())
 }
 
-pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
-    cmd: C,
-    dir: P,
-    args: &[S],
-) -> Result<Output> {
+pub fn command_output(cmd: &mut Command) -> Result<Output> {
     let term = &*CAUGHT_SIGNAL;
 
     DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
 
-    let ret = Command::new(cmd.as_ref())
-        .current_dir(dir)
-        .args(args)
-        .output()
-        .with_context(|| command_err(cmd.as_ref(), args));
+    let ret = cmd.output().with_context(|| command_err(cmd));
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
     let ret = match term.swap(0, Ordering::Relaxed) {
@@ -145,7 +127,7 @@ pub fn command_output<C: AsRef<OsStr>, S: AsRef<OsStr>, P: AsRef<Path>>(
     };
 
     if !ret.status.success() {
-        bail!(command_err(cmd, args));
+        bail!(command_err(cmd));
     }
 
     Ok(ret)
@@ -165,7 +147,9 @@ fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
 }
 
 fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    command_status(sudo, ".", flags)?;
+    let mut cmd = Command::new(sudo);
+    cmd.args(flags);
+    command_status(&mut cmd)?;
     Ok(())
 }
 
@@ -193,17 +177,15 @@ pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
 ) -> Result<Status> {
     if config.need_root {
         wait_for_lock(config);
-        let mut cmd_args = config
-            .sudo_flags
-            .iter()
-            .map(|s| s.as_ref())
-            .collect::<Vec<_>>();
-        cmd_args.push(args.bin.as_ref());
-        let args = args.args();
-        cmd_args.extend(args.iter().map(|s| s.as_str()));
-        command_status(&config.sudo_bin, ".", &cmd_args)
+        let mut cmd = Command::new(&config.sudo_bin);
+        cmd.args(&config.sudo_flags)
+            .arg(args.bin.as_ref())
+            .args(args.args());
+        command_status(&mut cmd)
     } else {
-        command_status(args.bin.as_ref(), ".", &args.args())
+        let mut cmd = Command::new(args.bin.as_ref());
+        cmd.args(args.args());
+        command_status(&mut cmd)
     }
 }
 
@@ -213,28 +195,26 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
 ) -> Result<Output> {
     if config.need_root {
         wait_for_lock(config);
-        let mut cmd_args = config
-            .sudo_flags
-            .iter()
-            .map(|s| s.as_ref())
-            .collect::<Vec<_>>();
-        cmd_args.push(args.bin.as_ref());
-        let args = args.args();
-        cmd_args.extend(args.iter().map(|s| s.as_str()));
-        command_output(&config.sudo_bin, ".", &cmd_args)
+        let mut cmd = Command::new(&config.sudo_bin);
+        cmd.args(&config.sudo_flags)
+            .arg(args.bin.as_ref())
+            .args(args.args());
+        command_output(&mut cmd)
     } else {
-        command_output(args.bin.as_ref(), ".", &args.args())
+        let mut cmd = Command::new(args.bin.as_ref());
+        cmd.args(args.args());
+        command_output(&mut cmd)
     }
 }
 
 pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
-    let mut cmd_args = config.mflags.iter().map(|s| s.as_ref()).collect::<Vec<_>>();
-    cmd_args.extend(args.iter().map(|s| s.as_ref()));
-    command_status(&config.makepkg_bin, dir, &cmd_args)
+    let mut cmd = Command::new(&config.makepkg_bin);
+    cmd.args(&config.mflags).args(args).current_dir(dir);
+    command_status(&mut cmd)
 }
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
-    let mut cmd_args = config.mflags.iter().map(|s| s.as_ref()).collect::<Vec<_>>();
-    cmd_args.extend(args.iter().map(|s| s.as_ref()));
-    command_output(&config.makepkg_bin, dir, &cmd_args)
+    let mut cmd = Command::new(&config.makepkg_bin);
+    cmd.args(&config.mflags).args(args).current_dir(dir);
+    command_output(&mut cmd)
 }
