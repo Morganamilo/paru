@@ -339,7 +339,7 @@ msgstr "het parsen van de gegenereerde srcinfo door makepkg is mislukt"
 
 #: src/install.rs:171 src/install.rs:442
 msgid "Resolving dependencies..."
-msgstr "Afhaneklijkheden oplossen..."
+msgstr "Afhankelijkheden oplossen..."
 
 #: src/install.rs:220 src/install.rs:225
 msgid "failed to download sources"
