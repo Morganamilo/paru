@@ -238,7 +238,7 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
     } else if !config.targets.is_empty() {
         search::search_install(config).await
     } else {
-        bail!("no operation specified (use -h for help)");
+        bail!(tr!("no operation specified (use -h for help)"));
     }
 }
 
