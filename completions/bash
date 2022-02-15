@@ -63,7 +63,7 @@ _paru() {
   sync=('asdeps asexplicit clean dbonly downloadonly overwrite groups ignore ignoregroup
          info list needed nodeps assume-installed print refresh recursive search sysupgrade'
     'c g i l p s u w y')
-  upgrade=('asdeps asexplicit overwrite needed nodeps assume-installed print recursive' 'p')
+  upgrade=('asdeps asexplicit overwrite needed nodeps assume-installed print recursive install' 'p i')
   core=('database files help query remove sync upgrade version' 'D F Q R S U V h')
 
   common=('arch cachedir color config confirm dbpath debug gpgdir help hookdir logfile
