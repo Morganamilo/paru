@@ -931,7 +931,9 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
 
     let mut args = config.pacman_args();
     args.remove("asdeps")
+        .remove("asdep")
         .remove("asexplicit")
+        .remove("asexp")
         .remove("y")
         .remove("i")
         .remove("refresh");
@@ -941,9 +943,9 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         args.remove("u").remove("sysupgrade");
     }
 
-    if config.globals.has_arg("asexplicit", "asexplicit") {
+    if config.globals.has_arg("asexplicit", "asexp") {
         exp.extend(install.iter().map(|p| p.pkg.name()));
-    } else if config.globals.has_arg("asdeps", "asdeps") {
+    } else if config.globals.has_arg("asdeps", "asdep") {
         deps.extend(install.iter().map(|p| p.pkg.name()));
     } else {
         for pkg in install {
@@ -1535,7 +1537,7 @@ fn build_install_pkgbuild<'a>(
             continue;
         }
 
-        if config.args.has_arg("asexplicit", "asexplicit") {
+        if config.args.has_arg("asexplicit", "asexp") {
             exp.push(pkg.pkg.name.as_str());
         } else if config.args.has_arg("asdeps", "asdeps") {
             deps.push(pkg.pkg.name.as_str());
@@ -1603,9 +1605,9 @@ fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Res
         let mut args = config.pacman_globals();
         args.op("sync");
         copy_sync_args(config, &mut args);
-        if config.args.has_arg("asexplicit", "asexplicit") {
+        if config.args.has_arg("asexplicit", "asexp") {
             args.arg("asexplicit");
-        } else if config.args.has_arg("asdeps", "asdeps") {
+        } else if config.args.has_arg("asdeps", "asdep") {
             args.arg("asdeps");
         }
 
