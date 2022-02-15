@@ -290,7 +290,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         .filter(|r| config.delete >= 1 || config.targets.is_empty() || config.targets.contains(r))
         .collect::<Vec<_>>();
 
-    if config.update {
+    if config.refresh {
         repo::refresh(config, &repos)?;
     }
 
@@ -380,7 +380,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         return Ok(0);
     }
 
-    if config.update {
+    if config.refresh {
         return Ok(0);
     }
 
@@ -455,7 +455,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         chroot.create(config, &["base-devel"])?;
     }
 
-    if config.update {
+    if config.sysupgrade {
         chroot.update()?;
     }
 
@@ -463,7 +463,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         let mut args = vec!["pacman", "-S"];
         args.extend(config.targets.iter().map(|s| s.as_str()));
         chroot.run(&args)?;
-    } else if !config.update || !config.targets.is_empty() {
+    } else if !config.sysupgrade || !config.targets.is_empty() {
         chroot.run(&config.targets)?;
     }
     Ok(0)

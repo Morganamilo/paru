@@ -178,10 +178,11 @@ complete -c $progname -n "$getpkgbuild" -xa "$listall"
 complete -c $progname -n "$repoctl" -s l -l list -d 'List packages in local repos' -f
 complete -c $progname -n "$repoctl" -s d -l delete -d 'Remove a package from the local repo' -f
 complete -c $progname -n "$repoctl" -s q -l quiet -d 'Show less information' -f
+complete -c $progname -n "$repoctl" -s y -l refresh -d 'Refresh local repos' -f
 
 # Chrootctl options
 complete -c $progname -n "$chrootctl" -s l -l install -d 'Install a package into the chroot' -f
-complete -c $progname -n "$chrootctl" -s u -l upgrade -d 'Upgrade the chroot' -f
+complete -c $progname -n "$chrootctl" -s u -l sysupgrade -d 'Upgrade the chroot' -f
 
 # New options
 complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f

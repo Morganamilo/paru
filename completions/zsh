@@ -167,12 +167,13 @@ _pacman_opts_repoctl_modifiers=(
 	{-l,--list}'[List packages in local repos]'
 	{-d,--delete}"[Remove a package from the local repo]"
 	{-q,--quiet}'[Show less information]'
+	{-y,--refresh}'[Refresh local repos]'
 )
 
 # -L
 _pacman_opts_chrootctl_modifiers=(
 	{-i,--install}'[Install a package into the chroot]'
-	{-u,--upgrade}'[Upgrade the chroot]'
+	{-u,--sysupgrade}'[Upgrade the chroot]'
 )
 
 # -P

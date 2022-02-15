@@ -172,7 +172,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
 
         cmd.arg("--dbpath")
             .arg(config.alpm.dbpath())
-            .arg("-Lu")
+            .arg("-Ly")
             .args(repos);
 
         let status = cmd.spawn()?.wait()?;
