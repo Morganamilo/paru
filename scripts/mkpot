@@ -5,6 +5,7 @@ xtr\
 	-d paru\
 	--msgid-bugs-address https://github.com/Morganamilo/paru \
 	--package-name=paru\
+	--package-version="$(awk -F '=' '/^version/ {print $2}' Cargo.toml | sed 's/\"//g')" \
 	-k printtr tr\
 	-o=po/paru.pot\
 	src/lib.rs
