@@ -701,10 +701,7 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
     Ok(ret)
 }
 
-async fn download_pkgbuilds(
-    config: &Config,
-    bases: &Bases,
-) -> Result<HashMap<String, Srcinfo>> {
+async fn download_pkgbuilds(config: &Config, bases: &Bases) -> Result<HashMap<String, Srcinfo>> {
     let mut srcinfos = HashMap::new();
 
     for base in &bases.bases {
