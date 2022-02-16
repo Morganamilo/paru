@@ -701,7 +701,7 @@ fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
     Ok(ret)
 }
 
-async fn download_pkgbuilds<'a>(
+async fn download_pkgbuilds(
     config: &Config,
     bases: &Bases,
 ) -> Result<HashMap<String, Srcinfo>> {
