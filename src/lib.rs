@@ -290,7 +290,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         .filter(|r| config.delete >= 1 || config.targets.is_empty() || config.targets.contains(r))
         .collect::<Vec<_>>();
 
-    if config.refresh {
+    if config.refresh || config.sysupgrade {
         repo::refresh(config, &repos)?;
     }
 
@@ -380,7 +380,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         return Ok(0);
     }
 
-    if config.refresh {
+    if config.refresh || config.sysupgrade {
         return Ok(0);
     }
 
