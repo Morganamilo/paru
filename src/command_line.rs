@@ -260,7 +260,8 @@ impl Config {
                 self.comments = true;
             }
             Arg::Long("install") | Arg::Short('i') => self.install = true,
-            Arg::Long("update") | Arg::Short('u') => self.update = true,
+            Arg::Long("sysupgrade") | Arg::Short('u') => self.sysupgrade = true,
+            Arg::Long("refresh") | Arg::Short('y') => self.refresh = true,
             Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
             Arg::Long("list") | Arg::Short('l') => self.list = true,
             Arg::Long("delete") | Arg::Short('d') => self.delete += 1,

@@ -410,10 +410,9 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let c = config.color;
 
     for base in &bases.bases {
-        let url = config.aur_url.join(&format!(
-            "packages/{}/comments?&PP=1000000",
-            base.package_base()
-        ))?;
+        let url = config
+            .aur_url
+            .join(&format!("packages/{}", base.package_base()))?;
 
         let response = client
             .get(url.clone())
@@ -441,7 +440,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 
         if config.sort_mode == SortMode::TopDown {
             for (title, comment) in iter.into_iter() {
-                println!("{}", c.bold.paint(title.trim()));
+                print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
 
                 for line in comment.trim().split('\n') {
                     let line = line.split_whitespace();
@@ -452,7 +451,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
             }
         } else {
             for (title, comment) in iter.into_iter().rev() {
-                println!("{}", c.bold.paint(title.trim()));
+                print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
 
                 for line in comment.trim().split('\n') {
                     let line = line.split_whitespace();

@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "1.9.2"
+version = "1.9.3"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 
@@ -14,34 +14,34 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
-alpm = "2.1.3"
+alpm = "2.2.1"
 alpm-utils = "1.1.2"
 aur-depends = "1.0.3"
 aur-fetch = "0.10.0"
-cini = "0.1.1"
+cini = "1.0.0"
 pacmanconf = "1.0.0"
 raur = "5.0.1"
 srcinfo = "1.0.0"
 
 
 ansi_term = "0.12.1"
-anyhow = "1.0.51"
+anyhow = "1.0.53"
 chrono = "0.4.19"
 dirs = "4.0.0"
-futures = "0.3.18"
+futures = "0.3.21"
 globset = "0.4.8"
 htmlescape = "0.3.1"
 indicatif = "0.16.2"
 kuchiki = "0.8.1"
-nix = "0.23.0"
-reqwest = { version = "0.11.7", features = ["gzip", "socks"] }
+nix = "0.23.1"
+reqwest = { version = "0.11.9", features = ["gzip", "socks"] }
 rss = { version = "2.0.0", default-features = false }
-serde = { version = "1.0.131", features = ["derive"] }
-serde_json = "1.0.72"
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
 smart-default = "0.6.0"
-tempfile = "3.2.0"
+tempfile = "3.3.0"
 term_size = "0.3.2"
-tokio = { version = "1.14.0", features = ["process", "macros", "rt-multi-thread"] }
+tokio = { version = "1.17.0", features = ["process", "macros", "rt-multi-thread"] }
 url = "2.2.2"
 env_logger = "0.9.0"
 log = "0.4.14"
@@ -49,8 +49,8 @@ async-trait = { version = "0.1.52", optional = true }
 tr = "0.1.6"
 unicode-width = "0.1.9"
 regex = "1.5.4"
-signal-hook = "0.3.12"
-once_cell = "1.8.0"
+signal-hook = "0.3.13"
+once_cell = "1.9.0"
 
 [profile.release]
 codegen-units = 1
@@ -62,3 +62,6 @@ backtrace = []
 generate = ["alpm/generate"]
 static = ["alpm/static"]
 mock = ["async-trait"]
+
+#[patch.crates-io]
+#alpm = { path = "../alpm.rs/alpm" }

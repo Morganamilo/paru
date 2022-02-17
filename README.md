@@ -39,6 +39,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 - **PKGBUILD syntax highlighting**: You can install [`bat`](https://github.com/sharkdp/bat) to enable syntax highlighting during PKGBUILD review.
 
+- **Tracking -git packages**: Paru tracks -git package by monitoring the upstream repository. Paru can only do this for packages that paru itself installed. `paru --gendb` will make paru aware of packages it did not install.
+
 ## Examples
 
 `paru <target>` -- Interactively search and install `<target>`.

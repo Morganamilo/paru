@@ -621,7 +621,7 @@ msgstr "    -p --print            Imprimir pkgbuild en stdout"
 
 #: src/help.rs:91
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr "   -c --comments         Mostrar comentarios de AUR para pkgbuild"
+msgstr "    -c --comments         Mostrar comentarios de AUR para pkgbuild"
 
 #: src/help.rs:93
 msgid "upgrade specific options:"

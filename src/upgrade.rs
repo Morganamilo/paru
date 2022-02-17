@@ -29,7 +29,9 @@ pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
         .sync_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
 
     let mut pkgs = config.alpm.trans_add().iter().collect::<Vec<_>>();
-    let dbs = config.alpm.syncdbs();
+    let (dbs, _) = repo::repo_aur_dbs(config);
+
+    pkgs.retain(|p| dbs.iter().any(|db| db.name() == p.db().unwrap().name()));
 
     pkgs.sort_by(|a, b| {
         dbs.iter()
