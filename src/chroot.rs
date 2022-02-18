@@ -45,7 +45,7 @@ impl Chroot {
         let tmp = pacman_conf(&self.pacman_conf)?;
         let dir = self.path.join("root");
 
-        let mut cmd = Command::new("makechrootpkg");
+        let mut cmd = Command::new("mkarchroot");
         cmd.arg("-C")
             .arg(tmp.path())
             .arg("-M")
