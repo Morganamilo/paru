@@ -64,12 +64,9 @@ pub fn check_pgp_keys(
 }
 
 fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()> {
-    let mut args = config
-        .gpg_flags
-        .iter()
-        .map(|s| s.as_str())
-        .collect::<Vec<_>>();
-    args.push("--recv-keys");
-    args.extend(import.keys());
-    exec::command(&config.gpg_bin, ".", &args)
+    let mut cmd = Command::new(&config.gpg_bin);
+    cmd.args(&config.gpg_flags)
+        .arg("--recv-keys")
+        .args(import.keys());
+    exec::command(&mut cmd)
 }

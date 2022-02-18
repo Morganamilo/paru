@@ -4,6 +4,7 @@ use anyhow::Result;
 use std::ffi::OsStr;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 #[derive(Debug)]
 pub struct Chroot {
@@ -37,25 +38,22 @@ impl Chroot {
     }
 
     pub fn create<S: AsRef<OsStr>>(&self, config: &Config, pkgs: &[S]) -> Result<()> {
-        let args = &[
-            OsStr::new("install"),
-            OsStr::new("-dm755"),
-            self.path.as_os_str(),
-        ];
-        exec::command(&config.sudo_bin, ".", args)?;
+        let mut cmd = Command::new(&config.sudo_bin);
+        cmd.arg("install").arg("-dm755").arg(&self.path);
+        exec::command(&mut cmd)?;
 
         let tmp = pacman_conf(&self.pacman_conf)?;
         let dir = self.path.join("root");
 
-        let mut args = vec![
-            OsStr::new("-C"),
-            tmp.path().as_os_str(),
-            OsStr::new("-M"),
-            OsStr::new(&self.makepkg_conf),
-            dir.as_os_str(),
-        ];
-        args.extend(pkgs.iter().map(|p| p.as_ref()));
-        exec::command("mkarchroot", ".", &args)?;
+        let mut cmd = Command::new("mkarchroot");
+        cmd.arg("-C")
+            .arg(tmp.path())
+            .arg("-M")
+            .arg(&self.makepkg_conf)
+            .arg(dir)
+            .args(pkgs);
+
+        exec::command(&mut cmd)?;
         Ok(())
     }
 
@@ -63,26 +61,26 @@ impl Chroot {
         let dir = self.path.join("root");
         let tmp = pacman_conf(&self.pacman_conf)?;
 
-        let mut a = vec![
-            OsStr::new("-C"),
-            tmp.path().as_os_str(),
-            OsStr::new("-M"),
-            OsStr::new(&self.makepkg_conf),
-            dir.as_os_str(),
-        ];
+        let mut cmd = Command::new("arch-nspawn");
+        cmd.arg("-C")
+            .arg(tmp.path())
+            .arg("-M")
+            .arg(&self.makepkg_conf)
+            .arg(dir);
 
         for file in &self.ro {
-            a.push(OsStr::new("--bind-ro"));
-            a.push(OsStr::new(file));
+            cmd.arg("--bind-ro");
+            cmd.arg(file);
         }
 
         for file in &self.rw {
-            a.push(OsStr::new("--bind"));
-            a.push(OsStr::new(file));
+            cmd.arg("--bind");
+            cmd.arg(file);
         }
 
-        a.extend(args.iter().map(|p| p.as_ref()));
-        exec::command("arch-nspawn", ".", &a)?;
+        cmd.args(args);
+
+        exec::command(&mut cmd)?;
         Ok(())
     }
 
@@ -91,72 +89,24 @@ impl Chroot {
     }
 
     pub fn build(&self, pkgbuild: &Path, chroot_flags: &[&str], flags: &[&str]) -> Result<()> {
-        let mut args = chroot_flags.iter().map(OsStr::new).collect::<Vec<_>>();
-        args.push(OsStr::new("-r"));
-        args.push(OsStr::new(self.path.as_os_str()));
+        let mut cmd = Command::new("makechrootpkg");
+
+        cmd.current_dir(pkgbuild)
+            .args(chroot_flags)
+            .arg("-r")
+            .arg(&self.path);
 
         for file in &self.ro {
-            args.push(OsStr::new("-D"));
-            args.push(OsStr::new(file));
+            cmd.arg("-D").arg(file);
         }
 
         for file in &self.rw {
-            args.push(OsStr::new("-d"));
-            args.push(OsStr::new(file));
+            cmd.arg("-d").arg(file);
         }
 
-        args.push(OsStr::new("--"));
+        cmd.arg("--").args(flags).args(&self.mflags);
 
-        for flag in flags {
-            args.push(OsStr::new(flag));
-        }
-        for flag in &self.mflags {
-            args.push(OsStr::new(flag));
-        }
-
-        exec::command("makechrootpkg", pkgbuild, &args)?;
+        exec::command(&mut cmd)?;
         Ok(())
     }
 }
-
-/*pub fn chroot(globals: clap::Globals, ch: clap::Chroot) -> Result<()> {
-    let pacman = pacmanconf::Config::from_file(&globals.pacman_conf)?;
-
-    let chroot = Chroot {
-        path: ch.chroot,
-        pacman_conf: globals.pacman_conf.clone(),
-        makepkg_conf: globals.makepkg_conf.clone(),
-        ro: repo::all_files(&pacman)
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-        rw: pacman.cache_dir.clone(),
-    };
-
-    println!("{:?}", chroot);
-
-    if !chroot.path.exists() && !ch.create {
-        bail!("chroot does not exist: use 'chroot -c' to create it");
-    }
-
-    if ch.create {
-        if ch.targets.is_empty() {
-            chroot.create(&["base-devel"])?;
-        } else {
-            chroot.create(&ch.targets)?;
-        }
-    } else if ch.upgrade {
-        chroot.update()?;
-    } else if ch.interactive {
-        let targs: &[&str] = &[];
-        chroot.run(targs)?;
-    } else if ch.sync {
-        let mut cmd = vec!["pacman", "-S", "--ask=255"];
-        cmd.extend(ch.targets.iter().map(|s| s.as_str()));
-        chroot.run(&cmd)?;
-    } else {
-        chroot.run(&ch.targets)?;
-    }
-
-    Ok(())
-}*/

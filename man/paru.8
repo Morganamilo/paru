@@ -206,6 +206,10 @@ Remove a package from the local repo.
 Pass this twice to also uninstall the package.
 
 .TP
+.B \-y, \-\-refresh
+Refresh local repos.
+
+.TP
 .B \-q, \-\-quiet
 Show less information.
 
@@ -215,7 +219,7 @@ Show less information.
 Install a package into the chroot.
 
 .TP
-.B \-u, \-\-upgrade
+.B \-u, \-\-sysupgrade
 Upgrade the chroot.
 
 .SH UPGRADE OPTIONS (APPLY TO \-U AND \-\-UPGRADE)
@@ -288,6 +292,9 @@ separated list that is quoted by the shell.
 .B \-\-fm <command>
 This enables fm review mode, where PKGBUILD review is done using the file
 manager specified by command.
+
+This allows the PKGBUILDs and related files to be edited. Changes won't
+persist unless commited.
 
 .TP
 .B \-\-fmflags <flags>

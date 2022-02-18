@@ -43,7 +43,6 @@ use crate::query::print_upgrade_list;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error as StdError;
-use std::ffi::OsStr;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
 use std::path::PathBuf;
@@ -239,7 +238,7 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
     } else if !config.targets.is_empty() {
         search::search_install(config).await
     } else {
-        bail!("no operation specified (use -h for help)");
+        bail!(tr!("no operation specified (use -h for help)"));
     }
 }
 
@@ -291,7 +290,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         .filter(|r| config.delete >= 1 || config.targets.is_empty() || config.targets.contains(r))
         .collect::<Vec<_>>();
 
-    if config.update {
+    if config.refresh || config.sysupgrade {
         repo::refresh(config, &repos)?;
     }
 
@@ -350,9 +349,9 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         config.alpm.set_raw_log_cb(cb);
 
         if !rmfiles.is_empty() {
-            let mut args = vec![OsStr::new("rm")];
-            args.extend(rmfiles.iter().map(|f| f.as_os_str()));
-            exec::command(&config.sudo_bin, ".", &args)?;
+            let mut cmd = Command::new(&config.sudo_bin);
+            cmd.arg("rm").args(rmfiles);
+            exec::command(&mut cmd)?;
         }
 
         let repos = repos
@@ -381,7 +380,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         return Ok(0);
     }
 
-    if config.update {
+    if config.refresh || config.sysupgrade {
         return Ok(0);
     }
 
@@ -456,7 +455,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         chroot.create(config, &["base-devel"])?;
     }
 
-    if config.update {
+    if config.sysupgrade {
         chroot.update()?;
     }
 
@@ -464,7 +463,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         let mut args = vec!["pacman", "-S"];
         args.extend(config.targets.iter().map(|s| s.as_str()));
         chroot.run(&args)?;
-    } else if !config.update || !config.targets.is_empty() {
+    } else if !config.sysupgrade || !config.targets.is_empty() {
         chroot.run(&config.targets)?;
     }
     Ok(0)
