@@ -56,7 +56,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     let mut cmd = Command::new("repo-add");
 
-    if !config.keep_old_packages {
+    if !config.keep_repo_cache {
         cmd.arg("-R");
     }
 

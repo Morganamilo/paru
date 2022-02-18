@@ -240,8 +240,8 @@ complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' 
 complete -c $progname -n "not $noopt" -l nochroot -d "Don't build packages in a chroot" -f
 complete -c $progname -n "not $noopt" -l sign -d 'Sign packages with gpg' -f
 complete -c $progname -n "not $noopt" -l nosign -d "Don't sign packages with gpg" -f
-complete -c $progname -n "not $noopt" -l keepold -d 'Keep old versions of packages with local repo' -f
-complete -c $progname -n "not $noopt" -l nokeepold -d "Don't keep old versions of packages with local repo" -f
+complete -c $progname -n "not $noopt" -l keeprepocache -d 'Keep old versions of packages with local repo' -f
+complete -c $progname -n "not $noopt" -l nokeeprepocache -d "Don't keep old versions of packages with local repo" -f
 complete -c $progname -n "not $noopt" -l signdb -d 'Sign databases with gpg' -f
 complete -c $progname -n "not $noopt" -l nosigndb -d "Don't sign databases with gpg" -f
 complete -c $progname -n "not $noopt" -l localrepo -d 'Build packages in a local repo' -f
