@@ -391,6 +391,7 @@ pub struct Config {
     pub news_on_upgrade: bool,
     pub comments: bool,
     pub sign: Sign,
+    pub keep_repo_cache: bool,
     pub sign_db: Sign,
 
     pub pre_build_command: Option<String>,
@@ -870,6 +871,7 @@ impl Config {
                     None => Sign::Yes,
                 }
             }
+            "KeepRepoCache" => self.keep_repo_cache = true,
             "SignDb" => {
                 self.sign_db = match value {
                     Some(v) => Sign::Key(v.to_string()),
