@@ -2,7 +2,7 @@
 name = "paru"
 version = "1.9.3"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
-edition = "2018"
+edition = "2021"
 
 description = "Aur helper and pacman wrapper"
 homepage = "http://github.com/Morganamilo/paru"
