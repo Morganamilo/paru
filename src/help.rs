@@ -89,6 +89,7 @@ pub fn help() {
     printtr!("getpkgbuild specific options:");
     printtr!("    -p --print            Print pkgbuild to stdout");
     printtr!("    -c --comments         Print AUR comments for pkgbuild");
+    printtr!("    -s --ssh              Clone package using SSH");
     println!();
     printtr!("upgrade specific options:");
     printtr!("    -i --install          Install package as well as building");
