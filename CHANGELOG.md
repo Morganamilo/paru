@@ -1,5 +1,22 @@
 # Changelog
 
+## Paru v1.10.0 (2021-03-24)
+
+### Added
+
+- Add flag to download AUR packages via SSH #669
+- Add option to keep older packages in local repo #668
+
+### Fixed
+
+- Fix being unable to create chroot 5bf10e1
+- Fix typo in man page #695
+
+### Localization
+
+- Update ko_KR locale #680
+- Update pt_BR locale #687
+
 ## Paru v1.9.3 (2021-02-16)
 
 ### Added
