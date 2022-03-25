@@ -131,10 +131,10 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
 
     if input == tr!("y") || input == tr!("yes") {
         true
-    } else if input == tr!("n") || input == tr!("no") {
-        false
-    } else {
+    } else if input.trim().is_empty() {
         default
+    } else {
+        false
     }
 }
 

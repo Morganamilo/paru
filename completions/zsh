@@ -106,6 +106,8 @@ _pacman_opts_common=(
 	"--nochroot[Don't build packages in a chroot]"
 	'--sign[Sign packages with gpg]'
 	"--nosign[Don't sign packages with gpg]"
+	'--keeprepocache[Keep old versions of packages with local repo]'
+	"--nokeeprepocache[Don't keep old versions of packages with local repo]"
 	'--signdb[Sign databases with gpg]'
 	"--nosigndb[Don't sign databases with gpg]"
 	'--localrepo[Build packages in a local repo]'
@@ -125,6 +127,7 @@ _pacman_opts_pkgfile=(
 	'--asdeps[mark packages as non-explicitly installed]'
 	'--asexplicit[mark packages as explicitly installed]'
 	{-p,--print}'[Only print the targets instead of performing the operation]'
+	{-i,--install}'[Install package as well as building]'
 	'*--ignore[Ignore a package upgrade]:package: _pacman_completions_all_packages'
 	'*--ignoregroup[Ignore a group upgrade]:package group:_pacman_completions_all_groups'
 	'--print-format[Specify how the targets should be printed]'
@@ -166,12 +169,13 @@ _pacman_opts_repoctl_modifiers=(
 	{-l,--list}'[List packages in local repos]'
 	{-d,--delete}"[Remove a package from the local repo]"
 	{-q,--quiet}'[Show less information]'
+	{-y,--refresh}'[Refresh local repos]'
 )
 
 # -L
 _pacman_opts_chrootctl_modifiers=(
 	{-i,--install}'[Install a package into the chroot]'
-	{-u,--upgrade}'[Upgrade the chroot]'
+	{-u,--sysupgrade}'[Upgrade the chroot]'
 )
 
 # -P

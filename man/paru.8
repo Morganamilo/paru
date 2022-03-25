@@ -1,4 +1,4 @@
-.TH "PARU" "8" "2020\-11\-2" "paru v1.0.2 "Paru Manual"
+.TH "PARU" "8" "2021\-03\-24" "paru v1.10.0 "Paru Manual"
 .nh
 .ad l
 .SH NAME
@@ -195,6 +195,10 @@ Prints the PKGBUILD to the terminal instead of downloading it.
 .B \-c, \-\-comments
 Print the AUR comments from the PKGBUILD's AUR page.
 
+.TP
+.B \-s, \-\-ssh
+Clone the AUR package using SSH (e.g.: a read-write remote).
+
 .SH REPOCTL OPTIONS (APPLY TO \-L AND \-\-REPOCTL)
 .TP
 .B \-l, \-\-list
@@ -206,6 +210,10 @@ Remove a package from the local repo.
 Pass this twice to also uninstall the package.
 
 .TP
+.B \-y, \-\-refresh
+Refresh local repos.
+
+.TP
 .B \-q, \-\-quiet
 Show less information.
 
@@ -215,7 +223,7 @@ Show less information.
 Install a package into the chroot.
 
 .TP
-.B \-u, \-\-upgrade
+.B \-u, \-\-sysupgrade
 Upgrade the chroot.
 
 .SH UPGRADE OPTIONS (APPLY TO \-U AND \-\-UPGRADE)
@@ -252,7 +260,7 @@ The command to use for \fBmakepkg\fR calls. This can be a command in
 
 .TP
 .B \-\-makepkgconf <file>
-Specifies a \fBmakepkg.conf\fR file to use in the chroot enviorment. The file
+Specifies a \fBmakepkg.conf\fR file to use in the chroot environment. The file
 can only be an absolute path to the file.
 
 .TP
@@ -288,6 +296,9 @@ separated list that is quoted by the shell.
 .B \-\-fm <command>
 This enables fm review mode, where PKGBUILD review is done using the file
 manager specified by command.
+
+This allows the PKGBUILDs and related files to be edited. Changes won't
+persist unless commited.
 
 .TP
 .B \-\-fmflags <flags>
@@ -583,6 +594,15 @@ Sign packages with gpg. Optionally indicate which key to sign with.
 .TP
 .B \-\-nosign
 Don't sign package with gpg.
+
+.TP
+.B \-\-keeprepocache
+Normally upon AUR packages getting updated the old versions will be removed from the local repo.
+This option disables that behavior, keeping the both all versions and only updating the DB.
+
+.TP
+.B \-\-nokeeprepocache
+Don't keep old packages.
 
 .TP
 .B \-\-signdb [= key]

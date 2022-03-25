@@ -390,7 +390,9 @@ pub struct Config {
     pub print: bool,
     pub news_on_upgrade: bool,
     pub comments: bool,
+    pub ssh: bool,
     pub sign: Sign,
+    pub keep_repo_cache: bool,
     pub sign_db: Sign,
 
     pub pre_build_command: Option<String>,
@@ -438,7 +440,8 @@ pub struct Config {
     pub chroot: bool,
     pub install: bool,
     pub uninstall: bool,
-    pub update: bool,
+    pub sysupgrade: bool,
+    pub refresh: bool,
     pub quiet: bool,
     pub list: bool,
     pub delete: u32,
@@ -614,12 +617,22 @@ impl Config {
             self.raur = crate::mock::Mock::new()?;
         }
 
+        let aur_url = if self.ssh {
+            self.aur_url
+                .to_string()
+                .replacen("https://", "ssh://aur@", 1)
+                .parse()
+                .expect("change AUR URL schema from HTTPS to SSH")
+        } else {
+            self.aur_url.clone()
+        };
+
         self.fetch = aur_fetch::Handle {
             git: self.git_bin.clone().into(),
             git_flags: self.git_flags.clone(),
             clone_dir: self.build_dir.clone(),
             diff_dir: self.cache_dir.join("diff"),
-            aur_url: self.aur_url.clone(),
+            aur_url,
         };
 
         self.need_root = self.need_root();
@@ -869,6 +882,7 @@ impl Config {
                     None => Sign::Yes,
                 }
             }
+            "KeepRepoCache" => self.keep_repo_cache = true,
             "SignDb" => {
                 self.sign_db = match value {
                     Some(v) => Sign::Key(v.to_string()),

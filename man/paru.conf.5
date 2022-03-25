@@ -1,4 +1,4 @@
-.TH "PARU.CONF" "5" "2020\-11\-2" "paru v1.0.2" "Paru Manual"
+.TH "PARU.CONF" "5" "2021\-03\-24" "paru v1.10.0" "Paru Manual"
 .nh
 .ad l
 .SH NAME
@@ -220,6 +220,11 @@ Sign packages with gpg. Optionally indicate which key to sign with.
 Sign databases with gpg. Optionally indicate which key to sign with.
 
 .TP
+.B KeepRepoCache
+Normally upon AUR packages getting updated the old versions will be removed from the local repo.
+This option disables that behavior, keeping the both all versions and only updating the DB.
+
+.TP
 .B SkipReview
 Skip the review process.
 
@@ -261,6 +266,9 @@ guaranteed to work with a custom \fBsudo\fR command.
 .B FileManager = path/to/fm
 This enables fm review mode, where PKGBUILD review is done using the file
 manager specified by command.
+
+This allows the PKGBUILDs and related files to be edited. Changes won't
+persist unless commited.
 
 .TP
 .B MFlags = Flags...

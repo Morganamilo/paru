@@ -151,6 +151,7 @@ complete -c $progname -n "$sync" -xa "$listall $listgroups"
 # In practice, it's going to be tar.xz, tar.gz or tar.zst
 complete -c $progname -n "$upgrade" -xa '(__fish_complete_suffix pkg.tar.zst; __fish_complete_suffix pkg.tar.xz; __fish_complete_suffix pkg.tar.gz)' -d 'Package file'
 
+complete -c $progname -n "$upgrade" -s i -l install -d 'Install package as well as building' -f
 
 # paru operations
 complete -c $progname -s P -f -l show -n "$noopt" -d 'Print information'
@@ -177,10 +178,11 @@ complete -c $progname -n "$getpkgbuild" -xa "$listall"
 complete -c $progname -n "$repoctl" -s l -l list -d 'List packages in local repos' -f
 complete -c $progname -n "$repoctl" -s d -l delete -d 'Remove a package from the local repo' -f
 complete -c $progname -n "$repoctl" -s q -l quiet -d 'Show less information' -f
+complete -c $progname -n "$repoctl" -s y -l refresh -d 'Refresh local repos' -f
 
 # Chrootctl options
 complete -c $progname -n "$chrootctl" -s l -l install -d 'Install a package into the chroot' -f
-complete -c $progname -n "$chrootctl" -s u -l upgrade -d 'Upgrade the chroot' -f
+complete -c $progname -n "$chrootctl" -s u -l sysupgrade -d 'Upgrade the chroot' -f
 
 # New options
 complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f
@@ -238,6 +240,8 @@ complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' 
 complete -c $progname -n "not $noopt" -l nochroot -d "Don't build packages in a chroot" -f
 complete -c $progname -n "not $noopt" -l sign -d 'Sign packages with gpg' -f
 complete -c $progname -n "not $noopt" -l nosign -d "Don't sign packages with gpg" -f
+complete -c $progname -n "not $noopt" -l keeprepocache -d 'Keep old versions of packages with local repo' -f
+complete -c $progname -n "not $noopt" -l nokeeprepocache -d "Don't keep old versions of packages with local repo" -f
 complete -c $progname -n "not $noopt" -l signdb -d 'Sign databases with gpg' -f
 complete -c $progname -n "not $noopt" -l nosigndb -d "Don't sign databases with gpg" -f
 complete -c $progname -n "not $noopt" -l localrepo -d 'Build packages in a local repo' -f

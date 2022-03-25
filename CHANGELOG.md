@@ -1,5 +1,48 @@
 # Changelog
 
+## Paru v1.10.0 (2021-03-24)
+
+### Added
+
+- Add flag to download AUR packages via SSH #669
+- Add option to keep older packages in local repo #668
+
+### Fixed
+
+- Fix being unable to create chroot 5bf10e1
+- Fix typo in man page #695
+
+### Localization
+
+- Update ko_KR locale #680
+- Update pt_BR locale #687
+
+## Paru v1.9.3 (2021-02-16)
+
+### Added
+
+- Add --pager and MakepkgConf options #603
+- Add --asdep --asexp as short hand options 348bdb3
+
+### Fixed
+
+- Fix crash when updating local repo where local version != sync 017e05b
+- Add completion to -Ui 19fd836
+- Return no instead of default for invalid input 408f3cc
+- Fix crash when current directory no longer exists ffef79d
+- Fix comment fetching with new aurweb ea02818
+
+### Changed
+
+- Rename -C --upgrade to --sysupgrade and -Lu to -Ly 0bace84
+- Expand docs on --fm 48b0086
+
+### Localization
+
+- Add hr locale #632
+- Update es locale #645
+- Update zh_CN locale #675
+
 ## Paru v1.9.2 (2021-12-09)
 
 ## Fixed

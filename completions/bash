@@ -63,7 +63,7 @@ _paru() {
   sync=('asdeps asexplicit clean dbonly downloadonly overwrite groups ignore ignoregroup
          info list needed nodeps assume-installed print refresh recursive search sysupgrade'
     'c g i l p s u w y')
-  upgrade=('asdeps asexplicit overwrite needed nodeps assume-installed print recursive' 'p')
+  upgrade=('asdeps asexplicit overwrite needed nodeps assume-installed print recursive install' 'p i')
   core=('database files help query remove sync upgrade version' 'D F Q R S U V h')
 
   common=('arch cachedir color config confirm dbpath debug gpgdir help hookdir logfile
@@ -76,13 +76,13 @@ _paru() {
            nouseask savechanges nosavechanges combinedupgrade nocombinedupgrade
            batchinstall nobatchinstall provides noprovides devel nodevel develsuffixes
            sudoloop nosudoloop bottomup topdown newsonupgrade bat batflags chroot nochroot
-           sign nosign signdb nosigndb
+           sign nosign keeprepocache nokeeprepocache signdb nosigndb
            localrepo review skipreview' 'b d h q r v a')
 
   show=('news stats' 'w s')
   getpkgbuild=('print comments' 'p c')
-  chrootctl=('upgrade install' 'u i')
-  repoctl=('quiet list delete' 'q l d')
+  chrootctl=('sysupgrade install' 'u i')
+  repoctl=('quiet list delete refresh' 'q l d y')
 
   for o in 'D database' 'F files' 'Q query' 'R remove' 'S sync' 'U upgrade' 'P show' 'G getpkgbuild' 'C chrootctl' 'L repoctl'; do
     _arch_incomp "$o" && break

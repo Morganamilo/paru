@@ -38,37 +38,39 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     let group = unistd::getgid();
 
     if !path.exists() {
-        exec::command(
-            &config.sudo_bin,
-            ".",
-            &[
-                OsStr::new("install"),
-                OsStr::new("-dm755"),
-                OsStr::new("-o"),
-                user.to_string().as_ref(),
-                OsStr::new("-g"),
-                group.to_string().as_ref(),
-                path.as_os_str(),
-            ],
-        )?;
+        let mut cmd = Command::new(&config.sudo_bin);
+        cmd.arg("install")
+            .arg("-dm755")
+            .arg("-o")
+            .arg(user.to_string())
+            .arg("-g")
+            .arg(group.to_string())
+            .arg(path);
+        exec::command(&mut cmd)?;
     }
 
-    let mut args = vec![OsStr::new("-R"), file.as_os_str()];
     let pkgs = pkgs
         .iter()
         .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
         .collect::<Vec<_>>();
 
+    let mut cmd = Command::new("repo-add");
+
+    if !config.keep_repo_cache {
+        cmd.arg("-R");
+    }
+
+    cmd.arg(file).args(pkgs);
+
     if config.sign_db != Sign::No {
-        args.push("-s".as_ref());
+        cmd.arg("-s");
         if let Sign::Key(ref k) = config.sign_db {
-            args.push("-k".as_ref());
-            args.push(k.as_ref());
+            cmd.arg("-k");
+            cmd.arg(k);
         }
     }
 
-    args.extend(pkgs.iter().map(|p| p.as_os_str()));
-    let err = exec::command("repo-add", ".", &args);
+    let err = exec::command(&mut cmd);
 
     let user = User::from_uid(user).unwrap().unwrap();
 
@@ -101,18 +103,19 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
     let name = read_link(db)?;
     let file = path.join(&name);
 
-    let mut args = vec![file.as_os_str()];
+    let mut cmd = Command::new("repo-remove");
+    cmd.arg(file);
 
     if config.sign_db != Sign::No {
-        args.push("-s".as_ref());
+        cmd.arg("-s");
         if let Sign::Key(ref k) = config.sign_db {
-            args.push("-k".as_ref());
-            args.push(k.as_ref());
+            cmd.arg("-k");
+            cmd.arg(k);
         }
     }
 
-    args.extend(pkgs.iter().map(|p| p.as_ref()));
-    exec::command("repo-remove", ".", &args)?;
+    cmd.args(pkgs);
+    exec::command(&mut cmd)?;
 
     Ok(())
 }
@@ -174,7 +177,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
 
         cmd.arg("--dbpath")
             .arg(config.alpm.dbpath())
-            .arg("-Lu")
+            .arg("-Ly")
             .args(repos);
 
         let status = cmd.spawn()?.wait()?;

@@ -203,7 +203,11 @@ impl Config {
             Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("limit") => self.limit = value?.parse()?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
-            Arg::Long("stats") | Arg::Short('s') => self.stats = true,
+            Arg::Long("stats") => self.stats = true,
+            Arg::Short('s') => {
+                self.stats = true;
+                self.ssh = true;
+            }
             Arg::Long("order") | Arg::Short('o') => self.order = true,
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
@@ -260,7 +264,8 @@ impl Config {
                 self.comments = true;
             }
             Arg::Long("install") | Arg::Short('i') => self.install = true,
-            Arg::Long("update") | Arg::Short('u') => self.update = true,
+            Arg::Long("sysupgrade") | Arg::Short('u') => self.sysupgrade = true,
+            Arg::Long("refresh") | Arg::Short('y') => self.refresh = true,
             Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
             Arg::Long("list") | Arg::Short('l') => self.list = true,
             Arg::Long("delete") | Arg::Short('d') => self.delete += 1,
@@ -269,6 +274,7 @@ impl Config {
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
+            Arg::Long("ssh") => self.ssh = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op(Op::Database),
             Arg::Long("files") | Arg::Short('F') => set_op(Op::Files),
@@ -316,6 +322,8 @@ impl Config {
                     Err(_) => Sign::Yes,
                 }
             }
+            Arg::Long("nokeeprepocache") => self.keep_repo_cache = false,
+            Arg::Long("keeprepocache") => self.keep_repo_cache = true,
             Arg::Long("signdb") => {
                 self.sign_db = match value {
                     Ok(k) => Sign::Key(k.to_string()),

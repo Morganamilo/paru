@@ -68,11 +68,14 @@ Alternatively, you can use programs like `poedit` to write the translations.
 To update existing translations against new code you must first update the
 template file then update the .po files.
 
+Do this as its own commit.
+
 Updating the template requires [xtr](https://github.com/woboq/tr) to be installed.
 
 ```
 ./scripts/mkpot
 ./scripts/updpo
+git commit po
 ```
 
 Then fill in new strings.
