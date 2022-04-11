@@ -688,7 +688,7 @@ impl Config {
         Ok(())
     }
 
-    pub fn init_alpm(&mut self) -> Result<()> {
+    pub fn new_alpm(&self) -> Result<alpm::Alpm> {
         let mut alpm = alpm_utils::alpm_with_conf(&self.pacman).with_context(|| {
             tr!(
                 "failed to initialize alpm: root={} dbpath={}",
@@ -715,7 +715,11 @@ impl Config {
             alpm.add_ignoregroup(group.as_str())?;
         }
 
-        self.alpm = Alpm::new(alpm);
+        Ok(alpm)
+    }
+
+    pub fn init_alpm(&mut self) -> Result<()> {
+        self.alpm = Alpm::new(self.new_alpm()?);
         Ok(())
     }
 
