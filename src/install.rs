@@ -5,7 +5,7 @@ use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAll, YesNoAsk};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
-use crate::fmt::{color_repo, print_indent};
+use crate::fmt::{color_repo, print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
@@ -512,7 +512,11 @@ async fn prepare_build(
         return Ok(BuildInfo::nothing_to_do());
     }
 
-    print_install(config, &actions);
+    if config.pacman.verbose_pkg_lists {
+        print_install_verbose(config, &actions);
+    } else {
+        print_install(config, &actions);
+    }
 
     let has_make = if !config.chroot
         && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make))
@@ -1123,68 +1127,6 @@ fn check_actions(
     }
 
     Ok((conflicts, inner_conflicts))
-}
-
-fn print_install(config: &Config, actions: &Actions) {
-    let c = config.color;
-    println!();
-
-    let install = actions
-        .install
-        .iter()
-        .filter(|p| !p.make)
-        .map(|p| format!("{}-{}", p.pkg.name(), p.pkg.version()))
-        .collect::<Vec<_>>();
-    let make_install = actions
-        .install
-        .iter()
-        .filter(|p| p.make)
-        .map(|p| format!("{}-{}", p.pkg.name(), p.pkg.version()))
-        .collect::<Vec<_>>();
-
-    let mut build = actions.build.clone();
-    for base in &mut build {
-        base.pkgs.retain(|p| !p.make);
-    }
-    build.retain(|b| !b.pkgs.is_empty());
-    let build = build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
-
-    let mut make_build = actions.build.clone();
-    for base in &mut make_build {
-        base.pkgs.retain(|p| p.make);
-    }
-    make_build.retain(|b| !b.pkgs.is_empty());
-    let make_build = make_build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
-
-    if !install.is_empty() {
-        let fmt = format!("{} ({}) ", tr!("Repo"), install.len());
-        let start = 17 + install.len().to_string().len();
-        print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", install);
-    }
-
-    if !make_install.is_empty() {
-        let fmt = format!("{} ({}) ", tr!("Repo Make"), make_install.len());
-        let start = 22 + make_install.len().to_string().len();
-        print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", make_install);
-    }
-
-    if !build.is_empty() {
-        let fmt = format!("{} ({}) ", "Aur", build.len());
-        let start = 16 + build.len().to_string().len();
-        print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", build);
-    }
-
-    if !make_build.is_empty() {
-        let fmt = format!("{} ({}) ", tr!("Aur Make"), make_build.len());
-        let start = 16 + make_build.len().to_string().len();
-        print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", make_build);
-    }
-
-    println!();
 }
 
 fn do_install(
