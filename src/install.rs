@@ -158,7 +158,9 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
         .collect::<Vec<_>>();
 
     if !config.sudo_loop.is_empty() {
-        exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_loop.clone())?;
+        let mut flags = config.sudo_flags.clone();
+        flags.extend(config.sudo_loop.clone());
+        exec::spawn_sudo(config.sudo_bin.clone(), flags)?;
     }
 
     config.set_op_args_globals(Op::Sync);
@@ -324,7 +326,9 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     let c = config.color;
 
     if !config.sudo_loop.is_empty() {
-        exec::spawn_sudo(config.sudo_bin.clone(), config.sudo_loop.clone())?;
+        let mut flags = config.sudo_flags.clone();
+        flags.extend(config.sudo_loop.clone());
+        exec::spawn_sudo(config.sudo_bin.clone(), flags)?;
     }
 
     if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
