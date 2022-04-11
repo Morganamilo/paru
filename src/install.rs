@@ -23,7 +23,7 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
 use alpm::{Alpm, Depend, Version};
-use alpm_utils::depends::{satisfies_dep, satisfies_provide};
+use alpm_utils::depends::{satisfies_dep, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
@@ -1375,10 +1375,23 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
     Ok(())
 }
 
-fn deps_satisfied(config: &Config, base: &Base) -> Result<bool> {
+fn is_ver_char(c: char) -> bool {
+    matches!(c, '<' | '=' | '>')
+}
+
+fn trim_dep_ver(dep: &str, trim: bool) -> &str {
+    if trim {
+        dep.split_once(is_ver_char).map_or(dep, |x| x.0)
+    } else {
+        dep
+    }
+}
+
+fn deps_not_satisfied(config: &Config, base: &Base) -> Result<Vec<String>> {
+    let nover = config.args.count("d", "nodeps") > 0;
     let db = config.new_alpm()?;
     let db = db.localdb().pkgs();
-    let res = base
+    let mut res = base
         .pkgs
         .iter()
         .flat_map(|pkg| {
@@ -1393,12 +1406,36 @@ fn deps_satisfied(config: &Config, base: &Base) -> Result<bool> {
                 .chain(&pkg.pkg.make_depends)
                 .chain(check.into_iter().flatten())
         })
-        .all(|dep| db.find_satisfier(dep.as_str()).is_some());
+        .filter(|dep| {
+            db.find_satisfier(trim_dep_ver(dep.as_str(), nover))
+                .is_none()
+        })
+        .map(|dep| dep.to_string())
+        .collect::<Vec<_>>();
+
+    if nover {
+        res.retain(|dep| {
+            !config
+                .alpm
+                .assume_installed()
+                .iter()
+                .any(|provide| satisfies_provide_nover(Depend::new(dep.as_str()), provide))
+        });
+    } else {
+        res.retain(|dep| {
+            !config
+                .alpm
+                .assume_installed()
+                .iter()
+                .any(|provide| satisfies_provide(Depend::new(dep.as_str()), provide))
+        });
+    }
 
     Ok(res)
 }
 
-fn deps_satisfied_by_repo(config: &Config, base: &Base) -> Result<bool> {
+fn deps_not_satisfied_by_repo(config: &Config, base: &Base) -> Result<Vec<String>> {
+    let nover = config.args.count("d", "nodeps") > 0;
     let db = config.new_alpm()?;
     let db = db.syncdbs();
     let res = base
@@ -1416,7 +1453,12 @@ fn deps_satisfied_by_repo(config: &Config, base: &Base) -> Result<bool> {
                 .chain(&pkg.pkg.make_depends)
                 .chain(check.into_iter().flatten())
         })
-        .all(|dep| db.find_satisfier(dep.as_str()).is_some());
+        .filter(|dep| {
+            db.find_satisfier(trim_dep_ver(dep.as_str(), nover))
+                .is_none()
+        })
+        .map(|dep| dep.to_string())
+        .collect();
 
     Ok(res)
 }
@@ -1440,19 +1482,25 @@ fn build_install_pkgbuild<'a>(
     let mut debug_paths = HashMap::new();
     let dir = config.build_dir.join(base.package_base());
 
-    if !config.chroot && config.batch_install && deps_satisfied(config, base)? {
+    if !config.chroot && (!config.batch_install || !deps_not_satisfied(config, base)?.is_empty()) {
         do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
         *conflict = false;
     }
 
-    let ok = if config.chroot {
-        deps_satisfied_by_repo(config, base)?
+    let missing = if config.args.count("d", "nodeps") > 1 {
+        Vec::new()
+    } else if config.chroot {
+        deps_not_satisfied_by_repo(config, base)?
     } else {
-        deps_satisfied(config, base)?
+        deps_not_satisfied(config, base)?
     };
 
-    if !ok {
-        bail!(tr!("can't build {}, deps not satisfied", base));
+    if !missing.is_empty() {
+        bail!(tr!(
+            "can't build {base}, deps not satisfied: {deps}",
+            base = base,
+            deps = missing.join("  ")
+        ));
     }
 
     if config.chroot {
