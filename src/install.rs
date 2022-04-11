@@ -1401,11 +1401,16 @@ fn build_install_pkgbuild<'a>(
             .pkgs
             .iter()
             .flat_map(|pkg| {
+                let check = if config.no_check {
+                    None
+                } else {
+                    Some(&pkg.pkg.check_depends)
+                };
                 pkg.pkg
                     .depends
                     .iter()
                     .chain(&pkg.pkg.make_depends)
-                    .chain(&pkg.pkg.check_depends)
+                    .chain(check.into_iter().flatten())
             })
             .all(|dep| db.find_satisfier(dep.as_str()).is_some())
         {
