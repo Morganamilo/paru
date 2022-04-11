@@ -1223,6 +1223,7 @@ fn do_install(
             args.arg("noconfirm");
         }
 
+        debug!("flushing install queue");
         args.targets = install_queue.iter().map(|s| s.as_str()).collect();
         exec::pacman(config, &args)?.success()?;
 
@@ -1374,6 +1375,52 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
     Ok(())
 }
 
+fn deps_satisfied(config: &Config, base: &Base) -> Result<bool> {
+    let db = config.new_alpm()?;
+    let db = db.localdb().pkgs();
+    let res = base
+        .pkgs
+        .iter()
+        .flat_map(|pkg| {
+            let check = if config.no_check {
+                None
+            } else {
+                Some(&pkg.pkg.check_depends)
+            };
+            pkg.pkg
+                .depends
+                .iter()
+                .chain(&pkg.pkg.make_depends)
+                .chain(check.into_iter().flatten())
+        })
+        .all(|dep| db.find_satisfier(dep.as_str()).is_some());
+
+    Ok(res)
+}
+
+fn deps_satisfied_by_repo(config: &Config, base: &Base) -> Result<bool> {
+    let db = config.new_alpm()?;
+    let db = db.syncdbs();
+    let res = base
+        .pkgs
+        .iter()
+        .flat_map(|pkg| {
+            let check = if config.no_check {
+                None
+            } else {
+                Some(&pkg.pkg.check_depends)
+            };
+            pkg.pkg
+                .depends
+                .iter()
+                .chain(&pkg.pkg.make_depends)
+                .chain(check.into_iter().flatten())
+        })
+        .all(|dep| db.find_satisfier(dep.as_str()).is_some());
+
+    Ok(res)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn build_install_pkgbuild<'a>(
     config: &mut Config,
@@ -1393,34 +1440,19 @@ fn build_install_pkgbuild<'a>(
     let mut debug_paths = HashMap::new();
     let dir = config.build_dir.join(base.package_base());
 
-    let mut satisfied = false;
-    if !config.chroot && config.batch_install {
-        let db = config.new_alpm()?;
-        let db = db.localdb().pkgs();
-        if base
-            .pkgs
-            .iter()
-            .flat_map(|pkg| {
-                let check = if config.no_check {
-                    None
-                } else {
-                    Some(&pkg.pkg.check_depends)
-                };
-                pkg.pkg
-                    .depends
-                    .iter()
-                    .chain(&pkg.pkg.make_depends)
-                    .chain(check.into_iter().flatten())
-            })
-            .all(|dep| db.find_satisfier(dep.as_str()).is_some())
-        {
-            satisfied = true
-        }
-    }
-
-    if !config.chroot && !satisfied {
+    if !config.chroot && config.batch_install && deps_satisfied(config, base)? {
         do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
         *conflict = false;
+    }
+
+    let ok = if config.chroot {
+        deps_satisfied_by_repo(config, base)?
+    } else {
+        deps_satisfied(config, base)?
+    };
+
+    if !ok {
+        bail!(tr!("can't build {}, deps not satisfied", base));
     }
 
     if config.chroot {
