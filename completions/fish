@@ -222,6 +222,8 @@ complete -c $progname -n "not $noopt" -l useask -d 'Automatically resolve confli
 complete -c $progname -n "not $noopt" -l nouseask -d 'Confirm conflicts manually during the install' -f
 complete -c $progname -n "not $noopt" -l savechanges -d 'Commit changes to pkgbuilds made during review' -f
 complete -c $progname -n "not $noopt" -l nosavechanges -d "Don't commit changes to pkgbuilds made during review" -f
+complete -c $progname -n "not $noopt" -l failfast -d 'Exit as soon as any AUR packages fail to build' -f
+complete -c $progname -n "not $noopt" -l nofailfast -d "Don't Exit as soon as any AUR packages fail to build" -f
 complete -c $progname -n "not $noopt" -l combinedupgrade -d 'Refresh then perform the repo and AUR upgrade together' -f
 complete -c $progname -n "not $noopt" -l nocombinedupgrade -d 'Perform the repo upgrade and AUR upgrade separately' -f
 complete -c $progname -n "not $noopt" -l batchinstall -d 'Build multiple AUR packages then install them together' -f

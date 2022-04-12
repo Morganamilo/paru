@@ -85,6 +85,8 @@ _pacman_opts_common=(
 	'--nouseask[Confirm conflicts manually during the install]'
 	"--savechanges[Commit changes to pkgbuilds made during review]"
 	"--nosavechanges[Don't commit changes to pkgbuilds made during review]"
+	"--failfast[Exit as soon as any AUR packages fail to build]"
+	"--nofailfast[Don't exit as soon as any AUR packages fail to build]"
 	'--combinedupgrade[Refresh then perform the repo and AUR upgrade together]'
 	'--nocombinedupgrade[Perform the repo upgrade and AUR upgrade separately]'
 	'--mflags[Pass arguments to makepkg]:mflags'

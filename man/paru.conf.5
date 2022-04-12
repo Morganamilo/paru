@@ -119,6 +119,12 @@ However, this is very unlikely.
 Commit changes to pkgbuilds made during review.
 
 .TP
+.B FailFast
+Exit as soon as any AUR packages fail to build.
+
+By default Paru will continue and try to build other AUR packages.
+
+.TP
 .B Redownload [= all]
 Always download PKGBUILDs of targets even when a copy is available in cache. If
 set to all then this applies to all packages, not only targets.

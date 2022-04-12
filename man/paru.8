@@ -518,6 +518,16 @@ Commit changes to pkgbuilds made during review.
 Don't commit changes to pkgbuilds made during review.
 
 .TP
+.B \-\-failfast
+Exit as soon as any AUR packages fail to build.
+
+By default Paru will continue and try to build other AUR packages.
+
+.TP
+.B \-\-nofailfast
+Don't exit as soon as any AUR packages fail to build.
+
+.TP
 .B \-\-combinedupgrade
 During sysupgrade, paru will first perform a refresh, then show
 its combined menu of repo and AUR packages that will be upgraded. Then after

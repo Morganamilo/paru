@@ -275,6 +275,8 @@ impl Config {
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
             Arg::Long("comments") => self.comments = true,
             Arg::Long("ssh") => self.ssh = true,
+            Arg::Long("failfast") => self.fail_fast = true,
+            Arg::Long("nofailfast") => self.fail_fast = true,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op(Op::Database),
             Arg::Long("files") | Arg::Short('F') => set_op(Op::Files),

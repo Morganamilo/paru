@@ -1264,7 +1264,13 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
             Ok(_) => {
                 bi.failed.pop().unwrap();
             }
-            Err(e) => print_error(config.color.error, e),
+            Err(e) => {
+                if config.fail_fast {
+                    bi.failed.pop().unwrap();
+                    return Err(e);
+                }
+                print_error(config.color.error, e);
+            }
         }
     }
 
