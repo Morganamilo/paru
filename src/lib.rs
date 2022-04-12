@@ -283,6 +283,11 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
     let version = config.color.sl_version;
     let installedc = config.color.sl_installed;
 
+    if config.clean >= 1 {
+        repo::clean(config)?;
+        return Ok(0);
+    }
+
     let (_, repos) = repo::repo_aur_dbs(config);
     let repos = repos
         .into_iter()

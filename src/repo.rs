@@ -1,6 +1,8 @@
 use crate::config::{Config, LocalRepos, Sign};
 use crate::exec;
+use crate::fmt::print_indent;
 use crate::printtr;
+use crate::util::ask;
 
 use std::env::current_exe;
 use std::ffi::OsStr;
@@ -9,9 +11,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use alpm::{AlpmListMut, Db};
+use ansi_term::Style;
 use anyhow::{Context, Result};
 use nix::unistd::{self, User};
 use tr::tr;
+use unicode_width::UnicodeWidthStr;
 
 pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     config: &Config,
@@ -203,6 +207,72 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     } else {
         printtr!("  nothing to do");
     }
+
+    Ok(0)
+}
+
+pub fn clean(config: &mut Config) -> Result<i32> {
+    let c = config.color;
+    let (_, repos) = repo_aur_dbs(config);
+    let repo_names = repos
+        .iter()
+        .map(|r| r.name().to_string())
+        .collect::<Vec<_>>();
+    drop(repos);
+    refresh(config, &repo_names)?;
+    let (_, repos) = repo_aur_dbs(config);
+    let db = config.alpm.localdb();
+
+    let mut rem = repos
+        .iter()
+        .map(|repo| {
+            repo.pkgs()
+                .iter()
+                .filter(|pkg| db.pkg(pkg.name()).is_err())
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    rem.retain(|r| !r.is_empty());
+    drop(repos);
+
+    if rem.is_empty() {
+        printtr!("there is nothing to do");
+        return Ok(0);
+    }
+
+    println!();
+    let count = rem.iter().fold(0, |acc, r| acc + r.len());
+    let fmt = format!("{} ({}) ", tr!("Packages"), count);
+    let start = fmt.width();
+    print!("{}", c.bold.paint(fmt));
+    print_indent(
+        Style::new(),
+        start,
+        4,
+        config.cols,
+        "  ",
+        rem.iter().flat_map(|r| r).map(|p| p.name()),
+    );
+
+    println!();
+    if !ask(config, &tr!("Proceed with removal?"), true) {
+        return Ok(1);
+    }
+
+    for pkgs in rem {
+        let repo = pkgs[0].db().unwrap();
+        let path = file(&repo).unwrap();
+        let pkgs = pkgs.iter().map(|p| p.name()).collect::<Vec<_>>();
+        remove(config, path, repo.name(), &pkgs)?;
+    }
+
+    let (_, repos) = repo_aur_dbs(config);
+    let repo_names = repos
+        .iter()
+        .map(|r| r.name().to_string())
+        .collect::<Vec<_>>();
+    drop(repos);
+    refresh(config, &repo_names)?;
 
     Ok(0)
 }

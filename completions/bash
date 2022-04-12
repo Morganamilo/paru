@@ -82,7 +82,7 @@ _paru() {
   show=('news stats' 'w s')
   getpkgbuild=('print comments' 'p c')
   chrootctl=('sysupgrade install' 'u i')
-  repoctl=('quiet list delete refresh' 'q l d y')
+  repoctl=('quiet list delete refresh clean' 'q l d y c')
 
   for o in 'D database' 'F files' 'Q query' 'R remove' 'S sync' 'U upgrade' 'P show' 'G getpkgbuild' 'C chrootctl' 'L repoctl'; do
     _arch_incomp "$o" && break
