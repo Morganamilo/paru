@@ -12,6 +12,7 @@ jobs:
           [
             "linux/amd64 x86_64",
             "linux/arm64/v8 aarch64",
+            "linux/arm/v7 armv7h"
           ]
     name: Build ${{ matrix.arch }}
     runs-on: ubuntu-latest
@@ -70,6 +71,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: paru-aarch64
+      - uses: actions/download-artifact@v2
+        with:
+          name: paru-armv7h
       - name: Create Release
         id: create_release
         uses: actions/create-release@master
@@ -99,4 +103,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./paru-aarch64.tar.zst
           asset_name: paru-${{ steps.tags.outputs.tag }}-aarch64.tar.zst
+          asset_content_type: application/tar+zstd
+      - name: Upload armv7h asset
+        id: upload-release-asset-armv7h
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./paru-armv7h.tar.zst
+          asset_name: paru-${{ steps.tags.outputs.tag }}-armv7h.tar.zst
           asset_content_type: application/tar+zstd
