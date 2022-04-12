@@ -214,8 +214,6 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
     let bold = c.bold;
     let db = config.alpm.localdb();
 
-    println!();
-
     let package = tr!("Repo ({})", actions.install.len());
     let aur = tr!("Aur ({})", actions.iter_build_pkgs().count());
     let old = tr!("Old Version");
@@ -291,6 +289,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
     }
 
     if !actions.install.is_empty() {
+        println!();
         println!(
             "{}{:<package_len$}  {}{:<old_len$}  {}{:<new_len$}  {}",
             bold.paint(&package),
@@ -328,9 +327,8 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
         }
     }
 
-    println!();
-
     if !actions.build.is_empty() {
+        println!();
         println!(
             "{}{:<package_len$}  {}{:<old_len$}  {}{:<new_len$}  {}",
             bold.paint(&aur),
