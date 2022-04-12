@@ -7,5 +7,5 @@ COPY ../ .
 RUN pacman -Sy --noconfirm archlinux-keyring
 RUN pacman -Su --noconfirm rustup
 RUN rustup default stable
-RUN ./scripts/dist
+RUN --mount=type=tmpfs,target=/root/.cargo ./scripts/dist
 
