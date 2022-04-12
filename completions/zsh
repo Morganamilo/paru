@@ -87,6 +87,8 @@ _pacman_opts_common=(
 	"--nosavechanges[Don't commit changes to pkgbuilds made during review]"
 	"--failfast[Exit as soon as any AUR packages fail to build]"
 	"--nofailfast[Don't exit as soon as any AUR packages fail to build]"
+	"--keepsrc[Keep src/ and pkg/ directories after building packages]"
+	"--nokeepsrc[Don't keep src/ and pkg/ directories after building packages]"
 	'--combinedupgrade[Refresh then perform the repo and AUR upgrade together]'
 	'--nocombinedupgrade[Perform the repo upgrade and AUR upgrade separately]'
 	'--mflags[Pass arguments to makepkg]:mflags'

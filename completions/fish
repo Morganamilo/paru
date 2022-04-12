@@ -224,6 +224,8 @@ complete -c $progname -n "not $noopt" -l savechanges -d 'Commit changes to pkgbu
 complete -c $progname -n "not $noopt" -l nosavechanges -d "Don't commit changes to pkgbuilds made during review" -f
 complete -c $progname -n "not $noopt" -l failfast -d 'Exit as soon as any AUR packages fail to build' -f
 complete -c $progname -n "not $noopt" -l nofailfast -d "Don't Exit as soon as any AUR packages fail to build" -f
+complete -c $progname -n "not $noopt" -l keepsrc -d "Keep src/ and pkg/ directories after building packages" -f
+complete -c $progname -n "not $noopt" -l nokeepsrc -d "Don't keep src/ and pkg/ directories after building packages" -f
 complete -c $progname -n "not $noopt" -l combinedupgrade -d 'Refresh then perform the repo and AUR upgrade together' -f
 complete -c $progname -n "not $noopt" -l nocombinedupgrade -d 'Perform the repo upgrade and AUR upgrade separately' -f
 complete -c $progname -n "not $noopt" -l batchinstall -d 'Build multiple AUR packages then install them together' -f

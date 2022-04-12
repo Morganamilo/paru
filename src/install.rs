@@ -220,16 +220,24 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if config.chroot {
         chroot
-            .build(&dir, &["-cu"], &["-ofA"])
+            .build(&dir, &["-u"], &["-ofA"])
             .context(tr!("failed to download sources"))?;
     } else {
         // download sources
-        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+        let mut args = vec!["--verifysource", "-Af"];
+        if !config.keep_src {
+            args.push("-Cc");
+        }
+        exec::makepkg(config, &dir, &args)?
             .success()
             .context(tr!("failed to download sources"))?;
 
         // pkgver bump
-        exec::makepkg(config, &dir, &["-ofCA"])?
+        let mut args = vec!["-ofA"];
+        if !config.keep_src {
+            args.push("-C");
+        }
+        exec::makepkg(config, &dir, &args)?
             .success()
             .context(tr!("failed to build"))?;
     }
@@ -249,13 +257,13 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
                 )
                 .context(tr!("failed to build"))?;
         } else {
-            exec::makepkg(
-                config,
-                &dir,
-                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
-            )?
-            .success()
-            .context(tr!("failed to build"))?;
+            let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
+            if !config.keep_src {
+                args.push("-c");
+            }
+            exec::makepkg(config, &dir, &args)?
+                .success()
+                .context(tr!("failed to build"))?;
         }
     } else {
         println!(
@@ -1453,16 +1461,24 @@ fn build_install_pkgbuild<'a>(
 
     if config.chroot {
         chroot
-            .build(&dir, &["-cu"], &["-ofA"])
+            .build(&dir, &["-u"], &["-ofA"])
             .with_context(|| tr!("failed to download sources for '{}'", base))?;
     } else {
         // download sources
-        exec::makepkg(config, &dir, &["--verifysource", "-ACcf"])?
+        let mut args = vec!["--verifysource", "-Af"];
+        if !config.keep_src {
+            args.push("-Cc");
+        }
+        exec::makepkg(config, &dir, &args)?
             .success()
             .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
         // pkgver bump
-        exec::makepkg(config, &dir, &["-ofCA"])?
+        let mut args = vec!["-ofA"];
+        if !config.keep_src {
+            args.push("-C");
+        }
+        exec::makepkg(config, &dir, &args)?
             .success()
             .with_context(|| tr!("failed to build '{}'", base))?;
     }
@@ -1505,13 +1521,13 @@ fn build_install_pkgbuild<'a>(
                 )
                 .with_context(|| tr!("failed to build '{}'", base))?;
         } else {
-            exec::makepkg(
-                config,
-                &dir,
-                &["-cfeA", "--noconfirm", "--noprepare", "--holdver"],
-            )?
-            .success()
-            .with_context(|| tr!("failed to build '{}'", base))?;
+            let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
+            if !config.keep_src {
+                args.push("-c");
+            }
+            exec::makepkg(config, &dir, &args)?
+                .success()
+                .with_context(|| tr!("failed to build '{}'", base))?;
         }
     } else {
         println!(

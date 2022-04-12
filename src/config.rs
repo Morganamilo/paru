@@ -393,6 +393,7 @@ pub struct Config {
     pub ssh: bool,
     pub keep_repo_cache: bool,
     pub fail_fast: bool,
+    pub keep_src: bool,
 
     pub sign: Sign,
     pub sign_db: Sign,
@@ -890,6 +891,7 @@ impl Config {
             }
             "KeepRepoCache" => self.keep_repo_cache = true,
             "FailFast" => self.fail_fast = true,
+            "KeepSrc" => self.keep_src = true,
             "SignDb" => {
                 self.sign_db = match value {
                     Some(v) => Sign::Key(v.to_string()),

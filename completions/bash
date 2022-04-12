@@ -73,7 +73,7 @@ _paru() {
            asp gpg gpgflags fm fmflags pager completioninterval sortby searchby limit upgrademenu
            removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
-           nouseask savechanges nosavechanges failfast nofailfast combinedupgrade
+           nouseask savechanges nosavechanges failfast nofailfast keepsrc nokeepsrc combinedupgrade
            nocombinedupgrade batchinstall nobatchinstall provides noprovides devel nodevel
            develsuffixes sudoloop nosudoloop bottomup topdown newsonupgrade bat batflags
            chroot nochroot sign nosign keeprepocache nokeeprepocache signdb nosigndb
