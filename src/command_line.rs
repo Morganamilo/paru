@@ -276,7 +276,9 @@ impl Config {
             Arg::Long("comments") => self.comments = true,
             Arg::Long("ssh") => self.ssh = true,
             Arg::Long("failfast") => self.fail_fast = true,
-            Arg::Long("nofailfast") => self.fail_fast = true,
+            Arg::Long("nofailfast") => self.fail_fast = false,
+            Arg::Long("keepsrc") => self.keep_src = true,
+            Arg::Long("nokeepsrc") => self.keep_src = false,
             // ops
             Arg::Long("database") | Arg::Short('D') => set_op(Op::Database),
             Arg::Long("files") | Arg::Short('F') => set_op(Op::Files),
