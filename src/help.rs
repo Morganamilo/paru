@@ -73,6 +73,8 @@ pub fn help() {
     printtr!("    --[no]installdebug     Also install debug packages when a package provides them");
     printtr!("    --[no]sudoloop         Loop sudo calls in the background to avoid timeout");
     printtr!("    --[no]chroot           Build packages in a chroot");
+    printtr!("    --[no]failfast         Exit as soon as building an AUR package fails");
+    printtr!("    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages");
     printtr!("    --[no]sign             Sign packages with gpg");
     printtr!("    --[no]signdb           Sign databases with gpg");
     printtr!("    --localrepo            Build packages into a local repo");
