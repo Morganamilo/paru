@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2021-06-28 03:24+0000\n"
-"PO-Revision-Date: 2021-08-05 19:08+0200\n"
-"Last-Translator: Ewout van Mansom <ewout@vanmansom.name>\n"
+"PO-Revision-Date: 2022-04-13 15:13+0200\n"
+"Last-Translator: Philip Goto <philip.goto@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
@@ -83,7 +83,7 @@ msgstr "ongeldige waarde '{val}' voor '{key}', verwachte waarde is: {exp}"
 
 #: src/config.rs:474
 msgid "failed to find cache directory"
-msgstr "kon de cache map niet vinden"
+msgstr "kon de cachemap niet vinden"
 
 #: src/config.rs:477
 msgid "failed to find config directory"
@@ -99,11 +99,11 @@ msgstr "slechts één verrichting per keer is toegelaten"
 
 #: src/config.rs:638
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "kon lokale opslag '{}' in pacman.conf niet vinden"
+msgstr "kan lokale opslag '{}' in pacman.conf niet vinden"
 
 #: src/config.rs:670
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "initializeren van alpm mislukt: root={} dbpath={}"
+msgstr "initialiseren van alpm mislukt: root={} dbpath={}"
 
 #: src/config.rs:740 src/config.rs:873
 msgid "value can not be empty for key '{}'"
@@ -135,11 +135,11 @@ msgstr "optie '{}' neemt geen waarde aan"
 
 #: src/config.rs:947 src/install.rs:1796
 msgid "There are {n} providers available for {pkg}:"
-msgstr "Er zijn {n} aanbieders beschikbaar voor {pkg}"
+msgstr "Er zijn {n} aanbieders beschikbaar voor {pkg}:"
 
 #: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755 src/install.rs:1804
 msgid "Repository"
-msgstr "Opslagplaats"
+msgstr "Repository"
 
 #: src/config.rs:983
 msgid "  failed to sync {}"
@@ -155,15 +155,15 @@ msgstr "het parsen van srcinfo is mislukt voor '{}'"
 
 #: src/devel.rs:184
 msgid "Looking for devel repos..."
-msgstr "Zoeken naar devel opslagplaats..."
+msgstr "Zoeken naar devel-repo's..."
 
 #: src/devel.rs:193
 msgid "failed to save devel info"
-msgstr "opslaan van devel info mislukt"
+msgstr "opslaan van devel-info mislukt"
 
 #: src/devel.rs:382
 msgid "package does not have an update"
-msgstr "pakket heeft geen updates"
+msgstr "pakket heeft geen update"
 
 #: src/devel.rs:417
 msgid "failed to lookup: {}"
@@ -183,7 +183,7 @@ msgstr "gemarkeerd als verouderd: "
 
 #: src/download.rs:105
 msgid "orphans: "
-msgstr "wezen: "
+msgstr "onbeheerd: "
 
 #: src/download.rs:206
 msgid "could not get current directory"
@@ -199,7 +199,7 @@ msgstr "Missende ABS-pakketten "
 
 #: src/download.rs:250 src/download.rs:276 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744 src/install.rs:807 src/install.rs:845 src/keys.rs:74
 msgid "failed to run:"
-msgstr "opstart mislukt:"
+msgstr "opstarten mislukt:"
 
 #: src/download.rs:263
 msgid "does not contain PKGBUILD: skipping"
@@ -215,7 +215,7 @@ msgstr "PKGBUILDs downloaden..."
 
 #: src/download.rs:321
 msgid " PKGBUILDs up to date"
-msgstr " PKGBUILD is nog actueel"
+msgstr " PKGBUILDs zijn nog actueel"
 
 #: src/download.rs:520
 msgid "{} is not installed: can not get repo packages"
@@ -263,7 +263,7 @@ msgstr "Voorziet"
 
 #: src/info.rs:63 src/info.rs:109
 msgid "Depends On"
-msgstr "Hangt af van"
+msgstr "Is afhankelijk van"
 
 #: src/info.rs:64 src/info.rs:110
 msgid "Make Deps"
@@ -307,7 +307,7 @@ msgstr "ID"
 
 #: src/info.rs:74 src/info.rs:126
 msgid "Package Base ID"
-msgstr "Pakket basis ID"
+msgstr "Basis-ID van pakket"
 
 #: src/info.rs:75 src/info.rs:127
 msgid "Keywords"
@@ -577,7 +577,7 @@ msgstr "  niets te doen"
 
 #: src/search.rs:32
 msgid "aur search failed"
-msgstr "zoeken in aur mislukt"
+msgstr "zoeken in AUR mislukt"
 
 #: src/search.rs:158
 msgid "[Out-of-date: {}]"
@@ -593,11 +593,11 @@ msgstr "[Geïnstalleerd]"
 
 #: src/search.rs:173
 msgid "[Orphaned]"
-msgstr "[Wees]"
+msgstr "[Onbeheerd]"
 
 #: src/search.rs:263
 msgid "no packages match search"
-msgstr "geen matchtende pakketten gevonden"
+msgstr "geen overeenkomende pakketten gevonden"
 
 #: src/search.rs:321
 msgid "Packages to install (eg: 1 2 3, 1-3):"
@@ -609,11 +609,11 @@ msgstr "Totaal aantal geïnstalleerde pakketten: {}"
 
 #: src/stats.rs:87
 msgid "Aur packages: {}"
-msgstr "Aur pakketten: {}"
+msgstr "AUR-pakketten: {}"
 
 #: src/stats.rs:91
 msgid "Repo packages: {}"
-msgstr "Opslag pakketten: {}"
+msgstr "Repo-pakketten: {}"
 
 #: src/stats.rs:95
 msgid "Explicitly installed packages: {}"
@@ -633,19 +633,19 @@ msgstr " [geïnstalleerd]"
 
 #: src/upgrade.rs:122
 msgid "Looking for AUR upgrades"
-msgstr "Aan het uitkijken naar AUR upgrades"
+msgstr "Zoeken naar AUR-upgrades"
 
 #: src/upgrade.rs:148
 msgid "Looking for devel upgrades"
-msgstr "Aan het uitkijken naar devel upgrades"
+msgstr "Zoeken naar devel-upgrades"
 
 #: src/upgrade.rs:179
 msgid "warning:"
-msgstr "opgepast:"
+msgstr "waarschuwing:"
 
 #: src/upgrade.rs:181
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
-msgstr "{pkg}: package upgrade wordt genegeerd ({old} => {new})"
+msgstr "{pkg}: pakketupgrade wordt genegeerd ({old} => {new})"
 
 #: src/upgrade.rs:334
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
@@ -673,15 +673,15 @@ msgstr "n"
 
 #: src/util.rs:103
 msgid "no"
-msgstr "neen"
+msgstr "nee"
 
 #: src/util.rs:299
 msgid "Enter a number (default=1): "
-msgstr "Voer een nummer in (standaard=1)"
+msgstr "Voer een nummer in (standaard=1): "
 
 #: src/util.rs:316
 msgid "invalid number: {}"
-msgstr "ongeldige nummer: {}"
+msgstr "ongeldig nummer: {}"
 
 #: src/util.rs:326
 msgid "invalid value: {n} is not between 1 and {max}"
@@ -689,7 +689,7 @@ msgstr "ongeldige waarde: {n} ligt niet tussen 1 en {max}"
 
 #: src/lib.rs:153
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "kan chroot bouw niet gebruiken: devtools is niet geïnstalleerd"
+msgstr "kan chroot-builds niet gebruiken: devtools is niet geïnstalleerd"
 
 #: src/lib.rs:393
 msgid " [installed: {}]"
