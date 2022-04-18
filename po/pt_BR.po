@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-04-18 00:53+0000\n"
-"PO-Revision-Date: 2022-02-19 11:15-0300\n"
+"PO-Revision-Date: 2022-04-17 22:09-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -261,32 +261,28 @@ msgid "Aur Make"
 msgstr "Pacotes Make no AUR"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "Repositório"
+msgstr "Repositório ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
 msgstr ""
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "Versão"
+msgstr "Versão Antiga"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "Versão"
+msgstr "Nova Versão"
 
 #: src/fmt.rs:221
 msgid "Make Only"
 msgstr ""
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "sim"
+msgstr "Sim"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -597,16 +593,17 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           Compila pacotes em chroot"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild          Sempre compile pacotes alvos"
+msgstr ""
+"    --[no]failfast         Termina assim que um pacote AUR falhar em compilar"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild          Sempre compile pacotes alvos"
+msgstr ""
+"    --[no]keepsrc          Mantém diretórios src/ e pkg/ após compilar "
+"pacotes"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -679,9 +676,8 @@ msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         Mostra comentários do AUR para pkgbuild"
 
 #: src/help.rs:94
-#, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --stats            Mostra estatísticas de pacotes do sistema"
+msgstr "    -s --ssh              Clona pacote utilizando SSH"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
@@ -1028,19 +1024,16 @@ msgid "  nothing to do"
 msgstr "  nada a fazer"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " nada para fazer"
+msgstr "nada para fazer"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "ID Base do pacote"
+msgstr "Pacotes"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "Continuar para revisão?"
+msgstr "Continuar com remoção?"
 
 #: src/search.rs:34
 msgid "aur search failed"
