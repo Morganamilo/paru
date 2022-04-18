@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-04-18 00:53+0000\n"
-"PO-Revision-Date: 2022-04-17 22:09-0300\n"
+"PO-Revision-Date: 2022-04-17 22:11-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -266,7 +266,7 @@ msgstr "Repositório ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
 msgid "Old Version"
@@ -278,7 +278,7 @@ msgstr "Nova Versão"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "Apenas Compila"
 
 #: src/fmt.rs:222
 msgid "Yes"
@@ -290,7 +290,7 @@ msgstr "Não"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "colunas insuficientes para mostrar tabela"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -942,7 +942,7 @@ msgstr "Assinando pacotes..."
 
 #: src/install.rs:1456
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "não foi possível compilar {base}, dependências não satisfeitas: {deps}"
 
 #: src/install.rs:1465 src/install.rs:1474
 msgid "failed to download sources for '{}'"
