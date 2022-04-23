@@ -550,8 +550,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} ist aktuell — Überspringe Installation"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "Schlüssel müssen importiert werden:)"
+msgid "keys need to be imported:"
+msgstr "Schlüssel müssen importiert werden:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"

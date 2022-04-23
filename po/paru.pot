@@ -860,7 +860,7 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
 #: src/keys.rs:48
-msgid "keys need to be imported:)"
+msgid "keys need to be imported:"
 msgstr ""
 
 #: src/keys.rs:53

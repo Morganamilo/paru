@@ -538,8 +538,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} är aktuell -- hoppar över installation"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "nycklar behövs importeras:)"
+msgid "keys need to be imported:"
+msgstr "nycklar behövs importeras:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"

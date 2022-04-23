@@ -538,8 +538,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} on ajantasalla -- ohitetaan asennus"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "avaimet on asennettava:)"
+msgid "keys need to be imported:"
+msgstr "avaimet on asennettava:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"
