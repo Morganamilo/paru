@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-03-24 18:20+0000\n"
-"PO-Revision-Date: 2022-05-07 17:46+0200\n"
+"PO-Revision-Date: 2022-05-09 17:52+0200\n"
 "Last-Translator: Philip Goto <philip.goto@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -321,92 +321,100 @@ msgstr ""
 
 #: src/help.rs:26
 msgid "Options without operation:"
-msgstr ""
+msgstr "Opties zonder handeling:"
 
 #: src/help.rs:27
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr ""
+msgstr "    -c --clean            Verwijder onnodige afhankelijkheden"
 
 #: src/help.rs:28
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
+"       --gendb            Genereert ontwikkelingspakketdatabase gebruikt "
+"voor updaten"
 
 #: src/help.rs:30
 msgid "New options:"
-msgstr ""
+msgstr "Nieuwe opties:"
 
 #: src/help.rs:31
 msgid "       --repo              Assume targets are from the repositories"
 msgstr ""
+"       --repo              Ga ervan uit dat doelen van de repositories komen"
 
 #: src/help.rs:32
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr ""
+msgstr "    -a --aur               Ga ervan uit dat doelen van de AUR komen"
 
 #: src/help.rs:33
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr ""
+msgstr "    --aururl    <url>      Stel een alternatieve AUR-URL in"
 
 #: src/help.rs:34
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
+"    --clonedir  <map>      Map die wordt gebruikt om PKGBUILDs te downloaden "
+"en uit te voeren"
 
 #: src/help.rs:36
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr ""
+msgstr "    --makepkg   <bestand>     makepkg-commando om te gebruiken"
 
 #: src/help.rs:37
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr ""
+msgstr "    --mflags    <argumenten>    Geef argumenten mee aan makepkg"
 
 #: src/help.rs:38
 msgid "    --pacman    <file>     pacman command to use"
-msgstr ""
+msgstr "    --pacman    <bestand>     pacman-commando om te gebruiken"
 
 #: src/help.rs:39
 msgid "    --git       <file>     git command to use"
-msgstr ""
+msgstr "    --git       <bestand>     git-commando om te gebruiken"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr ""
+msgstr "    --gitflags  <argumenten>    Geef argumenten mee aan git"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
-msgstr ""
+msgstr "    --sudo      <bestand>     sudo-commando om te gebruiken"
 
 #: src/help.rs:42
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr ""
+msgstr "    --sudoflags <argumenten>    Geef argumenten mee aan sudo"
 
 #: src/help.rs:43
 msgid "    --asp       <file>     asp command to use"
-msgstr ""
+msgstr "    --asp       <bestand>     asp-commando om te gebruiken"
 
 #: src/help.rs:44
 msgid "    --bat       <file>     bat command to use"
-msgstr ""
+msgstr "    --bat       <bestand>     bat-commando om te gebruiken"
 
 #: src/help.rs:45
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr ""
+msgstr "    --batflags  <argumenten>    Geef argumenten mee aan bat"
 
 #: src/help.rs:46
 msgid "    --gpg       <file>     gpg command to use"
-msgstr ""
+msgstr "    --gpg       <bestand>     gpg-commando om te gebruiken"
 
 #: src/help.rs:47
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr ""
+msgstr "    --gpgflags  <argumenten>    Geef argumenten mee aan gpg"
 
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
+"    --fm        <bestand>     Bestandsbeheerder voor het beoordelen van "
+"PKGBUILDs"
 
 #: src/help.rs:49
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
 msgstr ""
+"    --fmflags   <flags>    Geef argumenten mee aan de bestandsbeheerder"
 
 #: src/help.rs:51
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
@@ -550,43 +558,43 @@ msgstr ""
 
 #: src/help.rs:84
 msgid "show specific options:"
-msgstr ""
+msgstr "Opties voor tonen:"
 
 #: src/help.rs:85
 msgid "    -c --complete         Used for completions"
-msgstr ""
+msgstr "    -c --complete         Gebruikt voor automatisch aanvullen"
 
 #: src/help.rs:86
 msgid "    -s --stats            Display system package statistics"
-msgstr ""
+msgstr "    -s --stats            Toon systeempakketstatistieken"
 
 #: src/help.rs:87
 msgid "    -w --news             Print arch news"
-msgstr ""
+msgstr "    -w --news             Print Arch-nieuws"
 
 #: src/help.rs:89
 msgid "getpkgbuild specific options:"
-msgstr ""
+msgstr "Opties voor getpkgbuild:"
 
 #: src/help.rs:90
 msgid "    -p --print            Print pkgbuild to stdout"
-msgstr ""
+msgstr "    -p --print            Print pkgbuild naar standaarduitvoer"
 
 #: src/help.rs:91
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr ""
+msgstr "    -c --comments         Print AUR-comments voor de pkgbuild"
 
 #: src/help.rs:92
 msgid "    -s --ssh              Clone package using SSH"
-msgstr ""
+msgstr "    -s --ssh              Kloon pakket met SSH"
 
 #: src/help.rs:94
 msgid "upgrade specific options:"
-msgstr ""
+msgstr "Opties voor upgrades:"
 
 #: src/help.rs:95
 msgid "    -i --install          Install package as well as building"
-msgstr ""
+msgstr "    -i --install          Installeer pakket naast deze te bouwen"
 
 #: src/info.rs:31 src/query.rs:51
 msgid "package '{}' was not found"
@@ -731,7 +739,7 @@ msgstr "geen doelen gespecificeerd (gebruik -h voor hulp)"
 #: src/install.rs:445 src/install.rs:473 src/search.rs:362 src/search.rs:398
 #: src/lib.rs:235
 msgid " there is nothing to do"
-msgstr " er is niets te doen"
+msgstr " er valt niets te doen"
 
 #: src/install.rs:500
 msgid "can't install AUR package as root"
