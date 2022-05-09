@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-03-24 18:20+0000\n"
-"PO-Revision-Date: 2022-05-09 17:52+0200\n"
+"PO-Revision-Date: 2022-05-09 18:36+0200\n"
 "Last-Translator: Philip Goto <philip.goto@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -408,153 +408,184 @@ msgstr "    --gpgflags  <argumenten>    Geef argumenten mee aan gpg"
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
-"    --fm        <bestand>     Bestandsbeheerder voor het beoordelen van "
+"    --fm        <bestand>     Bestandsbeheerder voor het controleren van "
 "PKGBUILDs"
 
 #: src/help.rs:49
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
 msgstr ""
-"    --fmflags   <flags>    Geef argumenten mee aan de bestandsbeheerder"
+"    --fmflags   <argumenten>    Geef argumenten mee aan de bestandsbeheerder"
 
 #: src/help.rs:51
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr ""
+"    --completioninterval   <n> Aantal dagen waarna de automatisch-aanvullen-"
+"cache wordt ververst"
 
 #: src/help.rs:52
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
+"    --sortby    <veld>    Sorteer AUR-resultaten op een aangegeven veld "
+"tijdens het zoeken"
 
 #: src/help.rs:53
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr ""
+"    --searchby  <veld>    Zoek naar pakketten binnen een aangegeven veld"
 
 #: src/help.rs:54
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
-msgstr ""
+msgstr "    --limit     <limiet>    Limiteert het aantal zoekresultaten"
 
 #: src/help.rs:55
 msgid "    -x --regex             Enable regex for aur search"
 msgstr ""
+"    -x --regex             Reguliere expressies gebruiken bij het zoeken in "
+"de AUR"
 
 #: src/help.rs:57
 msgid "    --skipreview           Skip the review process"
-msgstr ""
+msgstr "    --skipreview           Het controleproces overslaan"
 
 #: src/help.rs:58
 msgid "    --review               Don't skip the review process"
-msgstr ""
+msgstr "    --review               Het controleproces niet overslaan"
 
 #: src/help.rs:59
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
+"    --[no]upgrademenu      Interactief menu tontn om upgrades over te slaan"
 
 #: src/help.rs:60
 msgid "    --[no]removemake       Remove makedepends after install"
 msgstr ""
+"    --[no]removemake       Bouwafhalkelijkheden verwijderen na de installatie"
 
 #: src/help.rs:61
 msgid "    --[no]cleanafter       Remove package sources after install"
-msgstr ""
+msgstr "    --[no]cleanafter       Pakketbronnen verwijderen na de installatie"
 
 #: src/help.rs:62
 msgid "    --[no]rebuild          Always build target packages"
-msgstr ""
+msgstr "    --[no]rebuild          Doelpakketten altijd bouwen"
 
 #: src/help.rs:63
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr ""
+msgstr "    --[no]redownload       PKGBUILDs van doelen altijd downloaden"
 
 #: src/help.rs:65
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr ""
+"    --[no]pgpfetch         Vragen om PGP-sleutels van PKGBUILDs te importeren"
 
 #: src/help.rs:66
 msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
+"    --[no]useask           Automatisch conflicten oplossen gebruikmakend van "
+"pacman's ask-argument"
 
 #: src/help.rs:67
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
+"    --[no]savechanges      Veranderingen die gemaakt zijn tijdens de "
+"controle doorvoeren in PKGBUILDs"
 
 #: src/help.rs:68
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
-msgstr ""
+msgstr "    --[no]newsonupgrade    Nieuws printen tijdens een systeemupgrade"
 
 #: src/help.rs:69
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
+"    --[no]combinedupgrade  Bijwerken, en vervolgens de repo- en AUR-upgrades "
+"samen uitvoeren"
 
 #: src/help.rs:70
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
+"    --[no]batchinstall     Meerdere AUR-pakketten bouwen, en deze vervolgens "
+"samen installeren"
 
 #: src/help.rs:71
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
+"    --[no]provides         Naar overeenkomende voorzieningen zoeken bij het "
+"zoeken naar pakketten"
 
 #: src/help.rs:72
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
+"    --[no]devel            Op ontwikkelingspakketten controleren tijdens een "
+"systeemupgrade"
 
 #: src/help.rs:73
 msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
+"    --[no]installdebug     Tevens debug-pakketten installeren wanneer deze "
+"beschikbaar zijn"
 
 #: src/help.rs:74
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
+"    --[no]sudoloop         Blijf sudo-commando's in de achtergrond uitvoeren "
+"om een timeout te voorkomen"
 
 #: src/help.rs:75
 msgid "    --[no]chroot           Build packages in a chroot"
-msgstr ""
+msgstr "    --[no]chroot           Pakketten in een chroot bouwen"
 
 #: src/help.rs:76
 msgid "    --[no]sign             Sign packages with gpg"
-msgstr ""
+msgstr "    --[no]sign             Pakketten signeren met gpg"
 
 #: src/help.rs:77
 msgid "    --[no]signdb           Sign databases with gpg"
-msgstr ""
+msgstr "    --[no]signdb           Databases signeren met gpg"
 
 #: src/help.rs:78
 msgid "    --localrepo            Build packages into a local repo"
-msgstr ""
+msgstr "    --localrepo            Pakketten naar een lokale repo bouwen"
 
 #: src/help.rs:79
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
+"    --nocheck              De testafhankelijkheden en de testfunctie negeren"
 
 #: src/help.rs:80
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr ""
+"    --develsuffixes        Achtervoegsels die gebruikt worden om te "
+"controleren of een pakket een ontwikkelingspakket is"
 
 #: src/help.rs:81
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
+"    --bottomup             AUR-pakketten voor repository-pakketten tonen"
 
 #: src/help.rs:82
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
+"    --topdown              Repository-pakketten voor AUR-pakketten tonen"
 
 #: src/help.rs:84
 msgid "show specific options:"
@@ -566,11 +597,11 @@ msgstr "    -c --complete         Gebruikt voor automatisch aanvullen"
 
 #: src/help.rs:86
 msgid "    -s --stats            Display system package statistics"
-msgstr "    -s --stats            Toon systeempakketstatistieken"
+msgstr "    -s --stats            Systeempakketstatistieken tonen"
 
 #: src/help.rs:87
 msgid "    -w --news             Print arch news"
-msgstr "    -w --news             Print Arch-nieuws"
+msgstr "    -w --news             Arch-nieuws printen"
 
 #: src/help.rs:89
 msgid "getpkgbuild specific options:"
@@ -578,15 +609,15 @@ msgstr "Opties voor getpkgbuild:"
 
 #: src/help.rs:90
 msgid "    -p --print            Print pkgbuild to stdout"
-msgstr "    -p --print            Print pkgbuild naar standaarduitvoer"
+msgstr "    -p --print            PKGBUILD naar standaarduitvoer printen"
 
 #: src/help.rs:91
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr "    -c --comments         Print AUR-comments voor de pkgbuild"
+msgstr "    -c --comments         AUR-comments van de pkgbuild printen"
 
 #: src/help.rs:92
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --ssh              Kloon pakket met SSH"
+msgstr "    -s --ssh              Pakket met SSH klonen"
 
 #: src/help.rs:94
 msgid "upgrade specific options:"
@@ -594,7 +625,7 @@ msgstr "Opties voor upgrades:"
 
 #: src/help.rs:95
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Installeer pakket naast deze te bouwen"
+msgstr "    -i --install          Pakket installeren naast deze te bouwen"
 
 #: src/info.rs:31 src/query.rs:51
 msgid "package '{}' was not found"
@@ -751,7 +782,7 @@ msgstr "Bouwafhankelijke pakketten verwijderen na installatie?"
 
 #: src/install.rs:530
 msgid "Proceed to review?"
-msgstr "Doorgaan naar beoordelen?"
+msgstr "Doorgaan naar controleren?"
 
 #: src/install.rs:595
 msgid "The following packages are not compatible with your architecture:"
@@ -791,7 +822,7 @@ msgstr "binair bestand: {}"
 
 #: src/install.rs:889
 msgid " nothing new to review"
-msgstr " niets nieuws om te beoordelen"
+msgstr " niets nieuws om te controleren"
 
 #: src/install.rs:908
 msgid "failed to execute file manager: {}"
