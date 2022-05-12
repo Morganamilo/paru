@@ -5,7 +5,7 @@
 set -l progname paru
 
 # paru constants
-set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F database query sync remove upgrade deptest files version'
+set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L database query sync remove upgrade deptest files version repoctl'
 set -l listall "(paru -Pc | string replace ' ' \t)"
 set -l listpacman "(__fish_print_packages)"
 set -l paruspecific '__fish_contains_opt -s'
