@@ -9,7 +9,9 @@ use crate::fmt::{color_repo, print_indent, print_install, print_install_verbose}
 use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
-use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu, ask_or_skip};
+use crate::util::{
+    ask, ask_or_skip, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu,
+};
 use crate::{args, exec, news, printtr, repo, RaurHandle};
 
 use std::collections::hash_map::Entry;
