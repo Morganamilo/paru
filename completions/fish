@@ -177,6 +177,7 @@ complete -c $progname -n "$getpkgbuild" -xa "$listall"
 # Repoctl options
 complete -c $progname -n "$repoctl" -s l -l list -d 'List packages in local repos' -f
 complete -c $progname -n "$repoctl" -s d -l delete -d 'Remove a package from the local repo' -f
+complete -c $progname -n "$repoctl; and __fish_contains_opt -s d delete" -d 'Package in local repo' -xa '(paru --repoctl --list --quiet)'
 complete -c $progname -n "$repoctl" -s q -l quiet -d 'Show less information' -f
 complete -c $progname -n "$repoctl" -s y -l refresh -d 'Refresh local repos' -f
 complete -c $progname -n "$repoctl" -s c -l clean -d 'Remove uninstalled packages from repos' -f
