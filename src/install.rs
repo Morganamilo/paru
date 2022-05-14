@@ -9,7 +9,7 @@ use crate::fmt::{color_repo, print_indent, print_install, print_install_verbose}
 use crate::keys::check_pgp_keys;
 use crate::print_error;
 use crate::upgrade::get_upgrades;
-use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu};
+use crate::util::{ask, get_provider, repo_aur_pkgs, split_repo_aur_targets, NumberMenu, ask_or_skip};
 use crate::{args, exec, news, printtr, repo, RaurHandle};
 
 use std::collections::hash_map::Entry;
@@ -542,8 +542,10 @@ async fn prepare_build(
         false
     };
 
+    let mut temp_skip_review = 1;
     if !config.skip_review && !actions.build.is_empty() {
-        if !ask(config, &tr!("Proceed to review?"), true) {
+        temp_skip_review = ask_or_skip(config, &tr!("Proceed to review?"), 1);
+        if temp_skip_review == 0 {
             return Ok(BuildInfo::stop());
         }
     } else if !ask(config, &tr!("Proceed with installation?"), true) {
@@ -581,7 +583,7 @@ async fn prepare_build(
         std::env::remove_var("VERSION");
     }
 
-    if !config.skip_review {
+    if !config.skip_review && temp_skip_review == 1 {
         let ret = review(config, &actions)?;
         if ret != 0 {
             let mut bi = BuildInfo::stop();

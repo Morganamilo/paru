@@ -138,6 +138,42 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     }
 }
 
+pub fn ask_or_skip(config: &Config, question: &str, default: i8) -> i8 {
+    let action = config.color.action;
+    let bold = config.color.bold;
+    let yn = if default == 1 {
+        tr!("[Y/n/skip]:")
+    } else {
+        tr!("[y/N/skip]:")
+    };
+    print!(
+        "{} {} {} ",
+        action.paint("::"),
+        bold.paint(question),
+        bold.paint(yn)
+    );
+    let _ = stdout().lock().flush();
+    if config.no_confirm {
+        println!();
+        return default;
+    }
+    let stdin = stdin();
+    let mut input = String::new();
+    let _ = stdin.read_line(&mut input);
+    let input = input.to_lowercase();
+    let input = input.trim();
+
+    if input == tr!("y") || input == tr!("yes") {
+        1
+    } else if input.trim().is_empty() {
+        default
+    } else if input == tr!("skip") {
+        2
+    } else {
+        0
+    }
+}
+
 pub fn input(config: &Config, question: &str) -> String {
     let action = config.color.action;
     let bold = config.color.bold;
