@@ -167,7 +167,7 @@ pub fn ask_or_skip(config: &Config, question: &str, default: i8) -> i8 {
         1
     } else if input.trim().is_empty() {
         default
-    } else if input == tr!("skip") {
+    } else if input == tr!("skip") || input == tr!("s") {
         2
     } else {
         0
