@@ -551,8 +551,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} अप टू डेट है -- लंघन इंस्टाल"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "keys को आयात करने की आवश्यकता है:)"
+msgid "keys need to be imported:"
+msgstr "keys को आयात करने की आवश्यकता है:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"

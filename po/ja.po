@@ -864,8 +864,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} は最新です -- インストールをスキップ"
 
 #: src/keys.rs:48
-msgid "keys need to be imported:)"
-msgstr "鍵をインポートする必要があります:)"
+msgid "keys need to be imported:"
+msgstr "鍵をインポートする必要があります:"
 
 #: src/keys.rs:53
 msgid "     {key} wanted by: {base}"

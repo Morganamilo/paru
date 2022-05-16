@@ -895,8 +895,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} уже свежих версий --- пропускаем установку"
 
 #: src/keys.rs:48
-msgid "keys need to be imported:)"
-msgstr "нужно импортировать ключи:)"
+msgid "keys need to be imported:"
+msgstr "нужно импортировать ключи:"
 
 #: src/keys.rs:53
 msgid "     {key} wanted by: {base}"

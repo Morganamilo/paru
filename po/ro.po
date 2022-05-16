@@ -549,8 +549,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} este actualizat la ultima versiune -- se sare peste instalare"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "cheile trebuie importate:)"
+msgid "keys need to be imported:"
+msgstr "cheile trebuie importate:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"

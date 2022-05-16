@@ -867,8 +867,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} 已為最新 -- 略過安裝"
 
 #: src/keys.rs:48
-msgid "keys need to be imported:)"
-msgstr "必須匯入金鑰:)"
+msgid "keys need to be imported:"
+msgstr "必須匯入金鑰:"
 
 #: src/keys.rs:53
 msgid "     {key} wanted by: {base}"

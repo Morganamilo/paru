@@ -850,8 +850,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} je ažuriran -- preskakanje instalacije"
 
 #: src/keys.rs:48
-msgid "keys need to be imported:)"
-msgstr "klučevi moraju biti uvezeni:)"
+msgid "keys need to be imported:"
+msgstr "klučevi moraju biti uvezeni:"
 
 #: src/keys.rs:53
 msgid "     {key} wanted by: {base}"

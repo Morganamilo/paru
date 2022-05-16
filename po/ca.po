@@ -554,8 +554,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} està actualitzat -- s'està ometent la instal·lació"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "cal importar les claus:)"
+msgid "keys need to be imported:"
+msgstr "cal importar les claus:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"

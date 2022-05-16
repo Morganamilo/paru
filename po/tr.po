@@ -550,8 +550,8 @@ msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} güncel -- yükleme es geçiliyor"
 
 #: src/keys.rs:47
-msgid "keys need to be imported:)"
-msgstr "anahtar içe aktarılmalıdır:)"
+msgid "keys need to be imported:"
+msgstr "anahtar içe aktarılmalıdır:"
 
 #: src/keys.rs:52
 msgid "     {key} wanted by: {base}"
