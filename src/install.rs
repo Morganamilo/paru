@@ -246,8 +246,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     let (mut pkgdest, _) = parse_package_list(config, &dir)?;
 
     let build = !pkgdest.values().all(|p| Path::new(p).exists())
-        || config.rebuild == YesNoAll::Yes
-        || config.rebuild == YesNoAll::All;
+        || matches!(config.rebuild, YesNoAll::Yes | YesNoAll::All);
     if build {
         // actual build
         if config.chroot {
