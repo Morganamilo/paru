@@ -182,7 +182,7 @@ complete -c $progname -n "$repoctl" -s y -l refresh -d 'Refresh local repos' -f
 complete -c $progname -n "$repoctl" -s c -l clean -d 'Remove uninstalled packages from repos' -f
 
 # Chrootctl options
-complete -c $progname -n "$chrootctl" -s i -l install -d 'Install a package into the chroot' -xa "$listall"
+complete -c $progname -n "$chrootctl" -s i -l install -d 'Install a package into the chroot' -xa "$listpacman"
 complete -c $progname -n "$chrootctl" -s u -l sysupgrade -d 'Upgrade the chroot' -f
 
 # New options
