@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru 1.9.3\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-03-24 18:20+0000\n"
-"PO-Revision-Date: 2022-03-25 20:14+0000\n"
+"PO-Revision-Date: 2022-05-16 14:21+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <hugokarvalho@hotmail.com>\n"
 "Language: pt\n"
@@ -615,7 +615,6 @@ msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         Mostra comentários AUR para pkgbuild"
 
 #: src/help.rs:92
-#| msgid "    -s --stats            Display system package statistics"
 msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              Clonar pacote ao usar SSH"
 
