@@ -121,7 +121,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint(tr!("Looking for AUR upgrades"))
+                c.bold.paint(tr!("Looking for AUR upgrades..."))
             );
         }
 
@@ -147,7 +147,7 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint(tr!("Looking for devel upgrades"))
+                c.bold.paint(tr!("Looking for devel upgrades..."))
             );
         }
 
