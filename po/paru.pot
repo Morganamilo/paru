@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-05-24 11:41+0000\n"
+"POT-Creation-Date: 2022-06-24 23:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/clean.rs:32
-msgid "Do you want to remove ALL AUR packages from cache?"
+msgid "Do you want to clean ALL AUR packages from cache?"
 msgstr ""
 
 #: src/clean.rs:34
-msgid "Do you want to remove all other AUR packages from cache?"
+msgid "Do you want to clean all other AUR packages from cache?"
 msgstr ""
 
 #: src/clean.rs:41
@@ -138,11 +138,11 @@ msgstr ""
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:992 src/install.rs:1876
+#: src/config.rs:992 src/install.rs:1880
 msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:1006 src/info.rs:57 src/info.rs:97 src/install.rs:1835 src/install.rs:1884
+#: src/config.rs:1006 src/info.rs:57 src/info.rs:97 src/install.rs:1839 src/install.rs:1888
 msgid "Repository"
 msgstr ""
 
@@ -202,7 +202,7 @@ msgstr ""
 msgid "Missing ABS packages "
 msgstr ""
 
-#: src/download.rs:248 src/download.rs:274 src/download.rs:532 src/download.rs:545 src/download.rs:559 src/exec.rs:82 src/install.rs:798 src/install.rs:861 src/install.rs:899
+#: src/download.rs:248 src/download.rs:274 src/download.rs:536 src/download.rs:549 src/download.rs:563 src/exec.rs:82 src/install.rs:798 src/install.rs:861 src/install.rs:899
 msgid "failed to run:"
 msgstr ""
 
@@ -222,11 +222,11 @@ msgstr ""
 msgid " PKGBUILDs up to date"
 msgstr ""
 
-#: src/download.rs:522
+#: src/download.rs:526
 msgid "{} is not installed: can not get repo packages"
 msgstr ""
 
-#: src/download.rs:563
+#: src/download.rs:567
 msgid "asp returned {}"
 msgstr ""
 
@@ -726,7 +726,7 @@ msgstr ""
 msgid "parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:274 src/install.rs:1538
+#: src/install.rs:274 src/install.rs:1542
 msgid "{}-{} is up to date -- skipping build"
 msgstr ""
 
@@ -821,7 +821,7 @@ msgid "\n"
 "    {missing} (wanted by: {stack})"
 msgstr ""
 
-#: src/install.rs:1052 src/install.rs:2021
+#: src/install.rs:1052 src/install.rs:2025
 msgid "{}-{} is up to date -- skipping"
 msgstr ""
 
@@ -865,7 +865,7 @@ msgstr ""
 msgid "failed to download sources for '{}'"
 msgstr ""
 
-#: src/install.rs:1484 src/install.rs:1523 src/install.rs:1531
+#: src/install.rs:1484 src/install.rs:1527 src/install.rs:1535
 msgid "failed to build '{}'"
 msgstr ""
 
@@ -873,29 +873,33 @@ msgstr ""
 msgid "{}: parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:1549
+#: src/install.rs:1491
+msgid "package list does not match srcinfo"
+msgstr ""
+
+#: src/install.rs:1553
 msgid "adding {} to the install list"
 msgstr ""
 
-#: src/install.rs:1610
+#: src/install.rs:1614
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
 
-#: src/install.rs:1750
+#: src/install.rs:1754
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:1823
+#: src/install.rs:1827
 msgid "There are {} members in group"
 msgstr ""
 
-#: src/install.rs:1848
+#: src/install.rs:1852
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "
 msgstr ""
 
-#: src/install.rs:2045
+#: src/install.rs:2049
 msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
@@ -1004,11 +1008,11 @@ msgid " [installed]"
 msgstr ""
 
 #: src/upgrade.rs:124
-msgid "Looking for AUR upgrades"
+msgid "Looking for AUR upgrades..."
 msgstr ""
 
 #: src/upgrade.rs:150
-msgid "Looking for devel upgrades"
+msgid "Looking for devel upgrades..."
 msgstr ""
 
 #: src/upgrade.rs:181

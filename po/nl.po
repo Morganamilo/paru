@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-05-29 11:16+0000\n"
+"POT-Creation-Date: 2022-06-24 23:23+0000\n"
 "PO-Revision-Date: 2022-05-29 13:19+0200\n"
 "Last-Translator: Philip Goto <philip.goto@gmail.com>\n"
 "Language-Team: \n"
@@ -20,11 +20,13 @@ msgstr ""
 "X-Generator: Poedit 3.0.1\n"
 
 #: src/clean.rs:32
-msgid "Do you want to remove ALL AUR packages from cache?"
+#, fuzzy
+msgid "Do you want to clean ALL AUR packages from cache?"
 msgstr "Wilt u ALLE AUR-pakketten uit de cache verwijderen?"
 
 #: src/clean.rs:34
-msgid "Do you want to remove all other AUR packages from cache?"
+#, fuzzy
+msgid "Do you want to clean all other AUR packages from cache?"
 msgstr "Wilt u alle andere AUR-pakketten uit de cache verwijderen?"
 
 #: src/clean.rs:41
@@ -143,12 +145,12 @@ msgstr "fout: onbekende optie '{}' in sectie [options]"
 msgid "option '{}' does not take a value"
 msgstr "optie '{}' neemt geen waarde aan"
 
-#: src/config.rs:992 src/install.rs:1876
+#: src/config.rs:992 src/install.rs:1880
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Er zijn {n} aanbieders beschikbaar voor {pkg}:"
 
-#: src/config.rs:1006 src/info.rs:57 src/info.rs:97 src/install.rs:1835
-#: src/install.rs:1884
+#: src/config.rs:1006 src/info.rs:57 src/info.rs:97 src/install.rs:1839
+#: src/install.rs:1888
 msgid "Repository"
 msgstr "Repository"
 
@@ -208,8 +210,8 @@ msgstr "kan de repo-pakketten niet krijgen: asp is niet geïnstalleerd"
 msgid "Missing ABS packages "
 msgstr "Missende ABS-pakketten "
 
-#: src/download.rs:248 src/download.rs:274 src/download.rs:532
-#: src/download.rs:545 src/download.rs:559 src/exec.rs:82 src/install.rs:798
+#: src/download.rs:248 src/download.rs:274 src/download.rs:536
+#: src/download.rs:549 src/download.rs:563 src/exec.rs:82 src/install.rs:798
 #: src/install.rs:861 src/install.rs:899
 msgid "failed to run:"
 msgstr "starten mislukt:"
@@ -230,11 +232,11 @@ msgstr "PKGBUILDs downloaden..."
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs zijn nog actueel"
 
-#: src/download.rs:522
+#: src/download.rs:526
 msgid "{} is not installed: can not get repo packages"
 msgstr "{} is niet geïnstalleerd: kan de repo-pakketten niet krijgen"
 
-#: src/download.rs:563
+#: src/download.rs:567
 msgid "asp returned {}"
 msgstr "asp antwoordde met {}"
 
@@ -806,7 +808,7 @@ msgstr "bouwen mislukt"
 msgid "parsing pkg list..."
 msgstr "pakketlijst parsen..."
 
-#: src/install.rs:274 src/install.rs:1538
+#: src/install.rs:274 src/install.rs:1542
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} is nog actueel -- bouwen wordt overgeslagen"
 
@@ -907,7 +909,7 @@ msgstr ""
 "\n"
 "    {missing} (nodig voor: {stack})"
 
-#: src/install.rs:1052 src/install.rs:2021
+#: src/install.rs:1052 src/install.rs:2025
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} is actueel -- overslaan"
 
@@ -951,7 +953,7 @@ msgstr "kan {base} niet bouwen, afhankelijkheden niet voldaan: {deps}"
 msgid "failed to download sources for '{}'"
 msgstr "bron van '{}' downloaden mislukt"
 
-#: src/install.rs:1484 src/install.rs:1523 src/install.rs:1531
+#: src/install.rs:1484 src/install.rs:1527 src/install.rs:1535
 msgid "failed to build '{}'"
 msgstr "bouwen van '{}' mislukt"
 
@@ -959,23 +961,28 @@ msgstr "bouwen van '{}' mislukt"
 msgid "{}: parsing pkg list..."
 msgstr "{}: pakketlijst parsen..."
 
-#: src/install.rs:1549
+#: src/install.rs:1491
+#, fuzzy
+msgid "package list does not match srcinfo"
+msgstr "geen overeenkomende pakketten gevonden"
+
+#: src/install.rs:1553
 msgid "adding {} to the install list"
 msgstr "{} aan de installatielijst aan het toevoegen"
 
-#: src/install.rs:1610
+#: src/install.rs:1614
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr "kon het pakket {pkg} niet vinden in de pakketlijst van '{base}'"
 
-#: src/install.rs:1750
+#: src/install.rs:1754
 msgid "can't find package name in packagelist: {}"
 msgstr "kon de pakketnaam niet vinden in de pakketlijst: {}"
 
-#: src/install.rs:1823
+#: src/install.rs:1827
 msgid "There are {} members in group"
 msgstr "Er zijn {} leden in de groep"
 
-#: src/install.rs:1848
+#: src/install.rs:1852
 msgid ""
 "\n"
 "\n"
@@ -985,7 +992,7 @@ msgstr ""
 "\n"
 "Voer een selectie in (standaard=alles): "
 
-#: src/install.rs:2045
+#: src/install.rs:2049
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} is actueel -- installatie overslaan"
 
@@ -1094,11 +1101,13 @@ msgid " [installed]"
 msgstr " [geïnstalleerd]"
 
 #: src/upgrade.rs:124
-msgid "Looking for AUR upgrades"
+#, fuzzy
+msgid "Looking for AUR upgrades..."
 msgstr "Zoeken naar AUR-upgrades..."
 
 #: src/upgrade.rs:150
-msgid "Looking for devel upgrades"
+#, fuzzy
+msgid "Looking for devel upgrades..."
 msgstr "Zoeken naar devel-upgrades"
 
 #: src/upgrade.rs:181
