@@ -1487,6 +1487,10 @@ fn build_install_pkgbuild<'a>(
     printtr!("{}: parsing pkg list...", base);
     let (mut pkgdest, version) = parse_package_list(config, &dir)?;
 
+    if !base.pkgs.iter().all(|p| pkgdest.contains_key(&p.pkg.name)) {
+        bail!(tr!("package list does not match srcinfo"));
+    }
+
     if config.install_debug {
         let mut debug = Vec::new();
         for dest in pkgdest.values() {
