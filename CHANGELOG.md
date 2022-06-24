@@ -1,5 +1,42 @@
 # Changelog
 
+## Paru v1.11.0 (2021-06-24)
+
+### Added
+
+- Don't try to build packages if deps are missing on fail baceee9
+- Support verbose pkg list 84f16c4
+- Add armv7h builds #723
+- Add --failfast df382ce
+- Add --keepsrc 6b7858a
+- Add -Lc 57c2f23
+- add fossil as devel suffix to the config #728
+
+### Fixed
+
+- Fix typo in paru.conf man page #709
+- Include sudo flags in sudo loop 3620089
+- Properly check for deps via provides with batch install a90ced5
+- Don't check check_depends during batch install if --nocheck 386633d
+- Fix fish completion #736 #749 #756
+- Fix rebuild option #750
+- Fix typo #738
+- Fix --redownload=all 5371b65
+- Fix crash when package changes packagename bf9691c
+- Fix chroot cleaning c60d17e
+- Use clean instead of remove for -Sc message ca8040e
+
+### Localization
+
+- Update pt locale #706
+- Update hr locale #704
+- Update nl locale #724 #743 #765
+- Update pt_BR locale #732
+
+### Changed
+
+- Add triple dots to upgrade search messages #769
+
 ## Paru v1.10.0 (2021-03-24)
 
 ### Added

@@ -1,10 +1,10 @@
 [package]
 name = "paru"
-version = "1.10.0"
+version = "1.11.0"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2021"
 
-description = "Aur helper and pacman wrapper"
+description = "Feature packed AUR helper"
 homepage = "http://github.com/Morganamilo/paru"
 repository = "http://github.com/Morganamilo/paru"
 documentation = "https://docs.rs/paru"
