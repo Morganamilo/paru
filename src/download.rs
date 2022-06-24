@@ -372,8 +372,17 @@ pub async fn new_aur_pkgbuilds(
     srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<()> {
     let mut pkgs = Vec::new();
+
+    let all_pkgs = bases
+        .bases
+        .iter()
+        .map(|b| b.package_base())
+        .collect::<Vec<_>>();
+
     if config.redownload == YesNoAll::All {
-        return aur_pkgbuilds(config, bases).await;
+        aur_pkgbuilds(config, bases).await?;
+        config.fetch.merge(&all_pkgs)?;
+        return Ok(());
     }
 
     for base in &bases.bases {
@@ -387,11 +396,6 @@ pub async fn new_aur_pkgbuilds(
         }
     }
 
-    let all_pkgs = bases
-        .bases
-        .iter()
-        .map(|b| b.package_base())
-        .collect::<Vec<_>>();
     let new_bases = Bases { bases: pkgs };
     aur_pkgbuilds(config, &new_bases).await?;
     config.fetch.merge(&all_pkgs)?;
