@@ -29,9 +29,9 @@ pub fn clean(config: &Config) -> Result<()> {
         let keep_current = clean_method.iter().any(|a| a == "KeepCurrent");
 
         let question = if remove_all {
-            tr!("Do you want to remove ALL AUR packages from cache?")
+            tr!("Do you want to clean ALL AUR packages from cache?")
         } else {
-            tr!("Do you want to remove all other AUR packages from cache?")
+            tr!("Do you want to clean all other AUR packages from cache?")
         };
 
         if config.mode == Mode::Any {
