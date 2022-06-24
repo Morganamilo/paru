@@ -1,6 +1,6 @@
 # Changelog
 
-## Paru v1.11.0 (2021-06-24)
+## Paru v1.11.0 (2022-06-24)
 
 ### Added
 
@@ -37,7 +37,7 @@
 
 - Add triple dots to upgrade search messages #769
 
-## Paru v1.10.0 (2021-03-24)
+## Paru v1.10.0 (2022-03-24)
 
 ### Added
 
@@ -54,7 +54,7 @@
 - Update ko_KR locale #680
 - Update pt_BR locale #687
 
-## Paru v1.9.3 (2021-02-16)
+## Paru v1.9.3 (2022-02-16)
 
 ### Added
 
