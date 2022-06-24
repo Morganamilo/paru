@@ -220,7 +220,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     if config.chroot {
         chroot
-            .build(&dir, &["-u"], &["-ofA"])
+            .build(&dir, &["-c"], &["-ofA"])
             .context(tr!("failed to download sources"))?;
     } else {
         // download sources
@@ -1462,7 +1462,7 @@ fn build_install_pkgbuild<'a>(
 
     if config.chroot {
         chroot
-            .build(&dir, &["-u"], &["-ofA"])
+            .build(&dir, &["-c"], &["-ofA"])
             .with_context(|| tr!("failed to download sources for '{}'", base))?;
     } else {
         // download sources
