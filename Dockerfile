@@ -6,6 +6,6 @@ COPY ../ .
 
 RUN pacman -Sy --noconfirm archlinux-keyring
 RUN pacman -Su --noconfirm rustup
-RUN rustup default stable
+RUN rustup default nightly
 RUN ./scripts/dist
 
