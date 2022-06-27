@@ -1,13 +1,13 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 #
-# Jeff Huang <s8321414@gmail.com>, 2021.
+# Jeff Huang <s8321414@gmail.com>, 2021, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2021-08-12 20:49+0800\n"
+"PO-Revision-Date: 2022-06-28 07:22+0800\n"
 "Last-Translator: Jeff Huang <s8321414@gmail.com>\n"
 "Language-Team: Chinese <zh-l10n@lists.slat.org>\n"
 "Language: zh_TW\n"
@@ -15,17 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Lokalize 21.04.3\n"
+"X-Generator: Lokalize 22.04.2\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "您確定要從快取中移除所有 AUR 軟體包嗎？"
+msgstr "您確定要從快取中清除所有 AUR 軟體包嗎？"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "您確定要從快取中移除其他所有的 AUR 軟體包嗎？"
+msgstr "您確定要從快取中清除其他所有的 AUR 軟體包嗎？"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -84,9 +82,8 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "鍵「{key}」有無效值「{val}」，預期： {exp}"
 
 #: src/config.rs:472
-#, fuzzy
 msgid "error: unknown section '{}'"
-msgstr "未知部份「{}」"
+msgstr "錯誤：未知部份「{}」"
 
 #: src/config.rs:487
 msgid "failed to find cache directory"
@@ -126,11 +123,11 @@ msgstr "鍵不能為空"
 
 #: src/config.rs:802
 msgid "key can not contain null bytes"
-msgstr ""
+msgstr "鍵不能包含空的位元組"
 
 #: src/config.rs:805
 msgid "value can not contain null bytes"
-msgstr ""
+msgstr "值不能包含空的位元組"
 
 #: src/config.rs:838
 msgid "error: unknown option '{}' in section [bin]"
@@ -260,40 +257,36 @@ msgid "Aur Make"
 msgstr "Aur Make"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "軟體庫"
+msgstr "軟體庫 ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "版本"
+msgstr "舊版本"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "版本"
+msgstr "新版本"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "僅 Make"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "yes"
+msgstr "是"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
-msgstr "無"
+msgstr "否"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "可用於表格顯示的欄位不足"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -472,11 +465,11 @@ msgstr "    --searchby  <field>    使用特定欄位搜尋軟體包"
 #: src/help.rs:54
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
-msgstr ""
+msgstr "    --limit     <limit>    限制一次搜尋中回傳的項目數量"
 
 #: src/help.rs:55
 msgid "    -x --regex             Enable regex for aur search"
-msgstr ""
+msgstr "    -x --regex             對 AUR 搜尋啟用正規表示式"
 
 #: src/help.rs:57
 msgid "    --skipreview           Skip the review process"
@@ -519,7 +512,7 @@ msgstr "    --[no]useask           使用 pacman 的 ask 旗標來自動解決�
 #: src/help.rs:67
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
-msgstr ""
+msgstr "    --[no]savechanges      遞交在審閱期間對 PKGBUILD 所作的變更"
 
 #: src/help.rs:68
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
@@ -563,16 +556,14 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           在 chroot 中建置軟體包"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild          一律建置目標軟體包"
+msgstr "    --[no]failfast         建構 AUR 軟體包失敗後立刻退出"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild          一律建置目標軟體包"
+msgstr "    --[no]keepsrc          在建構完軟體包後保留 src/ 與 pkg/ 目錄"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -637,9 +628,8 @@ msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         顯示 PKGBUILD 的 AUR 評論"
 
 #: src/help.rs:94
-#, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --stats            顯示系統軟體包統計"
+msgstr "    -s --ssh              使用 SSH 再製軟體包"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
@@ -815,7 +805,6 @@ msgid "packages failed to build: {}"
 msgstr "建置軟體包失敗：{}"
 
 #: src/install.rs:748
-#, fuzzy
 msgid "could not find .SRCINFO for '{}'"
 msgstr "找不到「{}」的 .SRCINFO"
 
@@ -905,7 +894,7 @@ msgstr "正在簽署軟體包……"
 
 #: src/install.rs:1457
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "無法建構 {base}，並未滿足以下依賴關係： {deps}"
 
 #: src/install.rs:1466 src/install.rs:1475
 msgid "failed to download sources for '{}'"
@@ -920,9 +909,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}：正在解析軟體包清單……"
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "無軟體包符合搜尋條件"
+msgstr "軟體包清單不符合 srcinfo"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -991,19 +979,16 @@ msgid "  nothing to do"
 msgstr "  無事可作"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " 無事可作"
+msgstr "無事可作"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "軟體包基礎 ID"
+msgstr "軟體包"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "繼續檢閱？"
+msgstr "繼續移除？"
 
 #: src/search.rs:34
 msgid "aur search failed"
@@ -1062,14 +1047,12 @@ msgid " [installed]"
 msgstr "[已安裝]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "正在尋找 AUR 升級"
+msgstr "正在尋找 AUR 升級……"
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "正在尋找開發升級"
+msgstr "正在尋找開發升級……"
 
 #: src/upgrade.rs:181
 msgid "warning:"
@@ -1116,9 +1099,8 @@ msgid "can not use chroot builds: devtools is not installed"
 msgstr "無法使用 chroot 建置：未安裝 devtools"
 
 #: src/lib.rs:241
-#, fuzzy
 msgid "no operation specified (use -h for help)"
-msgstr "未指定目標（使用 -h 以取得說明）"
+msgstr "未指定動作（使用 -h 以取得說明）"
 
 #: src/lib.rs:415
 msgid " [installed: {}]"
