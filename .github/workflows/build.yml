@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - v*
+    branches:
+       - release/*
 
 jobs:
   build-releases:
