@@ -322,7 +322,10 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
                     .map(|pkg| pkg.version().as_str())
                     .unwrap_or(""),
                 pkg.pkg.version().as_str(),
-                if pkg.make { &yes } else { &no }
+                if pkg.make { &yes } else { &no },
+                package_len = package_len - aur.width(),
+                old_len = old_len - old.width(),
+                new_len = new_len - new.width(),
             );
         }
     }
@@ -351,7 +354,10 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
                     .map(|v| v.as_str())
                     .unwrap_or_default(),
                 pkg.pkg.version,
-                if pkg.make { &yes } else { &no }
+                if pkg.make { &yes } else { &no },
+                package_len = package_len - aur.width(),
+                old_len = old_len - old.width(),
+                new_len = new_len - new.width(),
             );
         }
     }
