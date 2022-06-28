@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  1.9.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2022-02-10 22:54+0800\n"
+"PO-Revision-Date: 2022-06-28 13:40+0800\n"
 "Last-Translator: St.kai <St.kai@live.cn>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -18,14 +18,12 @@ msgstr ""
 "X-Generator: Poedit 3.0.1\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "你想要从缓存中移除所有 AUR 包吗？"
+msgstr "你想要从缓存中清除所有 AUR 包吗？"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "你想要从缓存中删除所有其他的 AUR 包吗？"
+msgstr "你想要从缓存中清除所有其他的 AUR 包吗？"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -259,32 +257,28 @@ msgid "Aur Make"
 msgstr "AUR（生成依赖）"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "软件库"
+msgstr "软件库（{}）"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur（{}）"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "版本"
+msgstr "旧版本"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "版本"
+msgstr "新版本"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "仅构建"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "yes"
+msgstr "是"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -292,7 +286,7 @@ msgstr "否"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "可用于表格显示的列不足"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -562,16 +556,14 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot            在 chroot 中构建"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild           始终构建目标软件包"
+msgstr "    --[no]failfast          构建 AUR 软件包失败后立即退出"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild           始终构建目标软件包"
+msgstr "    --[no]keepsrc           构建完软件包后保留 src/ 和 pkg/ 目录"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -636,9 +628,8 @@ msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments           打印 PKGBUILD 的 AUR 评论"
 
 #: src/help.rs:94
-#, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --stats              显示系统软件见包统计信息"
+msgstr "    -s --ssh                使用 SSH 克隆软件包"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
@@ -903,7 +894,7 @@ msgstr "正在为软件包签名..."
 
 #: src/install.rs:1457
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "无法构建 {base}，未满足以下依赖关系：{deps}"
 
 #: src/install.rs:1466 src/install.rs:1475
 msgid "failed to download sources for '{}'"
@@ -918,9 +909,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}: 正在解析软件包列表..."
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "没有符合搜索条件的软件包"
+msgstr "包列表与 srcinfo 不匹配"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -989,19 +979,16 @@ msgid "  nothing to do"
 msgstr "  今日无事可做"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " 今日无事可做"
+msgstr "今日无事可做"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "包基础 ID"
+msgstr "软件包"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "继续以审阅？"
+msgstr "继续删除？"
 
 #: src/search.rs:34
 msgid "aur search failed"
@@ -1060,14 +1047,12 @@ msgid " [installed]"
 msgstr " [已安装]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "正在查找 AUR 更新"
+msgstr "正在查找 AUR 更新..."
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "正在查找开发版更新"
+msgstr "正在查找开发版更新..."
 
 #: src/upgrade.rs:181
 msgid "warning:"
