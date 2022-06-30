@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::repo;
 
 use alpm::Ver;
-use aur_depends::Actions;
+use aur_depends::{Actions, Base};
 
 use ansi_term::Style;
 use chrono::{DateTime, NaiveDateTime};
@@ -123,16 +123,22 @@ fn to_install(actions: &Actions) -> ToInstall {
 
     let mut build = actions.build.clone();
     for base in &mut build {
-        base.pkgs.retain(|p| !p.make);
+        match base {
+            Base::Aur(base) => base.pkgs.retain(|p| !p.make),
+            Base::Custom(base) => base.pkgs.retain(|p| !p.make),
+        }
     }
-    build.retain(|b| !b.pkgs.is_empty());
+    build.retain(|b| b.package_count() != 0);
     let build = build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
 
     let mut make_build = actions.build.clone();
     for base in &mut make_build {
-        base.pkgs.retain(|p| p.make);
+        match base {
+            Base::Aur(base) => base.pkgs.retain(|p| p.make),
+            Base::Custom(base) => base.pkgs.retain(|p| p.make),
+        }
     }
-    make_build.retain(|b| !b.pkgs.is_empty());
+    make_build.retain(|b| b.package_count() != 0);
     let make_build = make_build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
 
     ToInstall {
@@ -165,14 +171,25 @@ pub fn print_install(config: &Config, actions: &Actions) {
     }
 
     if !to.aur.is_empty() {
-        let fmt = format!("{} ({}) ", "Aur", to.aur.len());
+        let aur = if actions.iter_custom_pkgs().next().is_some() {
+            "Pkgbuilds"
+        } else {
+            "Aur"
+        };
+        let fmt = format!("{} ({}) ", aur, to.aur.len());
         let start = 16 + to.aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", to.aur);
     }
 
     if !to.make_aur.is_empty() {
-        let fmt = format!("{} ({}) ", tr!("Aur Make"), to.make_aur.len());
+        let aur = if actions.iter_custom_pkgs().next().is_some() {
+            tr!("Pkgbuilds Make")
+        } else {
+            tr!("Aur Make")
+        };
+
+        let fmt = format!("{} ({}) ", aur, to.make_aur.len());
         let start = 16 + to.make_aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
         print_indent(Style::new(), start, 4, config.cols, "  ", to.make_aur);
@@ -215,7 +232,13 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
     let db = config.alpm.localdb();
 
     let package = tr!("Repo ({})", actions.install.len());
-    let aur = tr!("Aur ({})", actions.iter_build_pkgs().count());
+    let aur = match (
+        actions.iter_aur_pkgs().count(),
+        actions.iter_custom_pkgs().count(),
+    ) {
+        (a, 0) => tr!("Aur ({})", a),
+        (a, c) => tr!("Pkgbuilds ({})", a + c),
+    };
     let old = tr!("Old Version");
     let new = tr!("New Version");
     let make = tr!("Make Only");
@@ -250,23 +273,50 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
     let make_len = yes.width().max(no.width()).max(make.width());
 
     let aur_len = actions
-        .iter_build_pkgs()
-        .map(|pkg| repo(config, &pkg.pkg.name).len() + 1 + pkg.pkg.name.len())
+        .build
+        .iter()
+        .filter_map(|pkg| match pkg {
+            Base::Aur(base) => base
+                .pkgs
+                .iter()
+                .map(|pkg| repo(config, &pkg.pkg.name).len() + 1 + pkg.pkg.name.len())
+                .max(),
+            Base::Custom(base) => base
+                .pkgs
+                .iter()
+                .map(|pkg| repo(config, &pkg.pkg.pkgname).len() + 1 + pkg.pkg.pkgname.len())
+                .max(),
+        })
         .chain(Some(aur.width()))
         .max()
         .unwrap_or_default();
 
     let aur_old_len = actions
-        .iter_build_pkgs()
-        .filter_map(|pkg| old_ver(config, &pkg.pkg.name))
+        .build
+        .iter()
+        .filter_map(|pkg| match pkg {
+            Base::Aur(base) => base
+                .pkgs
+                .iter()
+                .filter_map(|pkg| old_ver(config, &pkg.pkg.name))
+                .map(|v| v.as_str())
+                .max(),
+            Base::Custom(base) => base
+                .pkgs
+                .iter()
+                .filter_map(|pkg| old_ver(config, &pkg.pkg.pkgname))
+                .map(|v| v.as_str())
+                .max(),
+        })
         .map(|v| v.len())
         .chain(Some(old.width()))
         .max()
         .unwrap_or_default();
 
     let aur_new_len = actions
-        .iter_build_pkgs()
-        .map(|pkg| pkg.pkg.version.len())
+        .build
+        .iter()
+        .map(|base| base.version().len())
         .chain(Some(new.width()))
         .max()
         .unwrap_or_default();
@@ -343,16 +393,35 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
             new_len = new_len - new.width(),
         );
 
-        for pkg in actions.iter_build_pkgs() {
-            println!(
-                "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
-                format!("{}/{}", repo(config, &pkg.pkg.name), pkg.pkg.name),
-                old_ver(config, &pkg.pkg.name)
-                    .map(|v| v.as_str())
-                    .unwrap_or_default(),
-                pkg.pkg.version,
-                if pkg.make { &yes } else { &no }
-            );
+        for pkg in actions.build.iter() {
+            match pkg {
+                Base::Aur(base) => {
+                    for pkg in &base.pkgs {
+                        println!(
+                            "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
+                            format!("{}/{}", repo(config, &pkg.pkg.name), pkg.pkg.name),
+                            old_ver(config, &pkg.pkg.name)
+                                .map(|v| v.as_str())
+                                .unwrap_or_default(),
+                            pkg.pkg.version,
+                            if pkg.make { &yes } else { &no }
+                        );
+                    }
+                }
+                Base::Custom(base) => {
+                    for pkg in &base.pkgs {
+                        println!(
+                            "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
+                            format!("{}/{}", base.repo, pkg.pkg.pkgname),
+                            old_ver(config, &pkg.pkg.pkgname)
+                                .map(|v| v.as_str())
+                                .unwrap_or_default(),
+                            base.srcinfo.version(),
+                            if pkg.make { &yes } else { &no }
+                        );
+                    }
+                }
+            }
         }
     }
 

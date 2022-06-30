@@ -88,6 +88,8 @@ impl Mock {
 
 #[async_trait]
 impl Raur for Mock {
+    type Err = raur::Error;
+
     async fn raw_info<S: AsRef<str> + Send + Sync>(
         &self,
         pkgs: &[S],

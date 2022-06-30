@@ -10,7 +10,7 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     let flags = flags(config);
 
     config.alpm.take_raw_question_cb();
-    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags);
+    let resolver = Resolver::new(&config.alpm, Vec::new(), &mut cache, &config.raur, flags);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 
@@ -41,16 +41,17 @@ fn print_build(actions: &mut Actions) {
     for build in &mut actions.build {
         let base = build.package_base();
 
-        for b in &build.pkgs {
+        //TODO
+        /* for b in &build.pkgs {
             println!("AUR {} {} {}", get_pkg_type(b), base, b.pkg.name);
-        }
+        }*/
     }
 }
 
 fn print_missing(actions: &Actions) {
-    for pk in &actions.missing {
+    /*for pk in &actions.missing {
         println!("MISSING {} {}", pk.dep, pk.stack.join(" "));
-    }
+    }*/
 }
 
 fn print_conflicting(conflicts: Vec<Conflict>, type_str: &str) {

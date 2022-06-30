@@ -39,9 +39,9 @@ dependencies = [
 
 [[package]]
 name = "alpm-utils"
-version = "1.1.2"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09329cd59e48e140faceb66ec714d8b5fe28a414327b381ae9a8af47ab29a700"
+checksum = "01c6892a7ced000868007e9ee99a80680c96f5b3e535e9ade81a54501e391232"
 dependencies = [
  "alpm",
  "pacmanconf",
@@ -100,14 +100,13 @@ dependencies = [
 [[package]]
 name = "aur-depends"
 version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c4e3b6b0b2b272ccef82683f191dc81e0e5289a43081aa0ea91982db4eb0efc"
 dependencies = [
  "alpm",
  "alpm-utils",
  "bitflags",
  "log",
  "raur",
+ "srcinfo",
 ]
 
 [[package]]
@@ -232,12 +231,6 @@ dependencies = [
  "time",
  "winapi",
 ]
-
-[[package]]
-name = "cini"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "895f4cd6403d7bd85e13ff3ec635d58183e5e708e7bd70430a91d661b04548e2"
 
 [[package]]
 name = "cini"
@@ -377,9 +370,9 @@ dependencies = [
 
 [[package]]
 name = "either"
-version = "1.6.1"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
+checksum = "3f107b87b6afc2a64fd13cac55fe06d6c8859f12d4b14cbcdd2c67d0976781be"
 
 [[package]]
 name = "encode_unicode"
@@ -1002,12 +995,11 @@ checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 
 [[package]]
 name = "nix"
-version = "0.23.1"
+version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f866317acbd3a240710c63f065ffb1e4fd466259045ccb504130b7f668f35c6"
+checksum = "8f17df307904acd05aa8e32e97bb20f2a0df1728bbc2d771ae8f9a90463441e9"
 dependencies = [
  "bitflags",
- "cc",
  "cfg-if 1.0.0",
  "libc",
  "memoffset",
@@ -1146,11 +1138,11 @@ dependencies = [
 
 [[package]]
 name = "pacmanconf"
-version = "1.0.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "faba895e4237d5dfd3459a4c0ef807b3510e088d28e7f5fd71a72962af84fef4"
+checksum = "ba64fdfa5d4589657dc8c8497b67322d8a64c162357ea0359656bfe23eec6185"
 dependencies = [
- "cini 0.1.1",
+ "cini",
 ]
 
 [[package]]
@@ -1188,7 +1180,7 @@ dependencies = [
  "aur-depends",
  "aur-fetch",
  "chrono",
- "cini 1.0.0",
+ "cini",
  "dirs",
  "env_logger",
  "futures",
@@ -1449,16 +1441,14 @@ dependencies = [
 
 [[package]]
 name = "raur"
-version = "5.0.1"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdfdf9ad20905a8bd2d95c1f7c7b374930f0f0fd014c084b68c34f1a79fd85cd"
+checksum = "86e7cb15e8c14377d8d2f8bea32a8b135a5c9d64c5ec4a3ea7cf5d703a4bd227"
 dependencies = [
  "async-trait",
  "reqwest",
  "serde",
  "serde_derive",
- "serde_json",
- "url",
 ]
 
 [[package]]
@@ -1638,9 +1628,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.10"
+version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a41d061efea015927ac527063765e73601444cdc344ba855bc7bd44578b25e1c"
+checksum = "3d92beeab217753479be2f74e54187a6aed4c125ff0703a866c3147a02f0c6dd"
 
 [[package]]
 name = "serde"
@@ -1664,9 +1654,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.81"
+version = "1.0.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b7ce2b32a1aed03c558dc61a5cd328f15aff2dbc17daad8fb8af04d2100e15c"
+checksum = "82c2c1fdcd807d1098552c5b9a36e425e42e9fbd7c6a37a8425f390f781f7fa7"
 dependencies = [
  "itoa 1.0.2",
  "ryu",
@@ -1734,9 +1724,9 @@ checksum = "eb703cfe953bccee95685111adeedb76fabe4e97549a58d16f03ea7b9367bb32"
 
 [[package]]
 name = "smallvec"
-version = "1.8.1"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc88c725d61fc6c3132893370cac4a0200e3fedf5da8331c570664b1987f5ca2"
+checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
 name = "smart-default"

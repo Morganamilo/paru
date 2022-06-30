@@ -1,5 +1,4 @@
 use crate::config::Config;
-use crate::download::Bases;
 use crate::exec;
 use crate::printtr;
 use crate::util::ask;
@@ -8,22 +7,28 @@ use std::collections::{HashMap, HashSet};
 use std::process::Command;
 
 use anyhow::Result;
+use aur_depends::Actions;
 use aur_depends::Base;
 use srcinfo::Srcinfo;
 use tr::tr;
 
 pub fn check_pgp_keys(
     config: &Config,
-    bases: &Bases,
+    actions: &Actions,
     srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<()> {
     let mut import: HashMap<&str, Vec<&Base>> = HashMap::new();
     let mut seen = HashSet::new();
     let c = config.color;
 
-    for base in &bases.bases {
-        let pkg = base.package_base();
-        let srcinfo = srcinfos.get(pkg).unwrap();
+    for base in &actions.build {
+        let srcinfo = match base {
+            Base::Aur(base) => {
+                let pkg = base.package_base();
+                srcinfos.get(pkg).unwrap()
+            }
+            Base::Custom(base) => base.srcinfo.as_ref(),
+        };
         for key in &srcinfo.base.valid_pgp_keys {
             if !seen.insert(key) {
                 continue;

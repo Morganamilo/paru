@@ -30,10 +30,10 @@ use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use args::Args;
-use aur_depends::{Actions, AurPackage, Base, Conflict, Flags, RepoPackage, Resolver};
+use aur_depends::{Actions, Base, Conflict, Flags, RepoPackage, Resolver, Want};
 use log::debug;
 use raur::Cache;
-use srcinfo::Srcinfo;
+use srcinfo::{ArchVec, Srcinfo};
 use tr::tr;
 
 #[derive(SmartDefault, PartialEq, Eq, Debug)]
@@ -530,7 +530,7 @@ async fn prepare_build(
     }
 
     let has_make = if !config.chroot
-        && (actions.iter_build_pkgs().any(|p| p.make) || actions.install.iter().any(|p| p.make))
+        && (actions.build.iter().any(|p| p.make()) || actions.install.iter().any(|p| p.make))
     {
         if config.remove_make == YesNoAsk::Ask {
             ask(
@@ -567,21 +567,24 @@ async fn prepare_build(
         return Ok(bi);
     }
 
-    let bases = actions.iter_build_pkgs().map(|p| p.pkg.clone()).collect();
+    //TODO custom
+    // download custom pkgbuilds
+    // actually this should already be done
+    let bases = actions.iter_aur_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
     if let Some(ref pb_cmd) = config.pre_build_command {
         for base in &bases.bases {
+            // TODO custom
             let dir = config.fetch.clone_dir.join(base.package_base());
-            std::env::set_var("PKGBASE", base.package_base());
-            std::env::set_var("VERSION", base.version());
             let mut cmd = Command::new("sh");
-            cmd.current_dir(dir).arg("-c").arg(pb_cmd);
+            cmd.env("PKGBASE", base.package_base())
+                .env("VERSION", base.version())
+                .current_dir(dir)
+                .arg("-c")
+                .arg(pb_cmd);
             exec::command(&mut cmd)?;
         }
-
-        std::env::remove_var("PKGBASE");
-        std::env::remove_var("VERSION");
     }
 
     if !config.skip_review {
@@ -633,7 +636,7 @@ async fn prepare_build(
     }
 
     if config.pgp_fetch {
-        check_pgp_keys(config, &bases, &srcinfos)?;
+        check_pgp_keys(config, &actions, &srcinfos)?;
     }
 
     let err = if !config.chroot {
@@ -651,8 +654,6 @@ async fn prepare_build(
         .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
         .collect::<HashSet<_>>();
 
-    let build = actions.build;
-
     let mut remove_make = Vec::new();
 
     if has_make {
@@ -666,18 +667,23 @@ async fn prepare_build(
         );
 
         remove_make.extend(
-            build
-                .iter()
-                .flat_map(|b| &b.pkgs)
+            actions
+                .iter_aur_pkgs()
                 .filter(|p| p.make)
                 .map(|p| p.pkg.name.clone()),
+        );
+        remove_make.extend(
+            actions
+                .iter_custom_pkgs()
+                .filter(|p| p.1.make)
+                .map(|p| p.1.pkg.pkgname.clone()),
         );
     }
 
     Ok(BuildInfo {
         err,
         status: Status::Ok,
-        build,
+        build: actions.build,
         srcinfos,
         aur_repos,
         bases,
@@ -1035,7 +1041,12 @@ fn check_actions(
             if missing.stack.is_empty() {
                 err.push_str(&format!("\n    {} (target)", c.error.paint(&missing.dep)));
             } else {
-                let stack = missing.stack.join(" -> ");
+                let stack = missing
+                    .stack
+                    .iter()
+                    .map(fmt_stack)
+                    .collect::<Vec<_>>()
+                    .join(" -> ");
                 err.push_str(&tr!(
                     "\n    {missing} (wanted by: {stack})",
                     missing = c.error.paint(&missing.dep),
@@ -1346,80 +1357,185 @@ fn trim_dep_ver(dep: &str, trim: bool) -> &str {
     }
 }
 
-fn deps_not_satisfied(config: &Config, base: &Base) -> Result<Vec<String>> {
+fn check_deps_local<'a>(
+    alpm: &Alpm,
+    missing: &mut Vec<&'a str>,
+    deps: impl Iterator<Item = &'a str>,
+    nover: bool,
+) {
+    let db = alpm.localdb().pkgs();
+
+    for dep in deps {
+        let not_found = db.find_satisfier(trim_dep_ver(dep, nover)).is_none();
+
+        if not_found {
+            missing.push(dep)
+        }
+    }
+}
+
+fn check_deps_sync<'a>(
+    alpm: &Alpm,
+    missing: &mut Vec<&'a str>,
+    deps: impl Iterator<Item = &'a str>,
+    nover: bool,
+) {
+    let db = alpm.syncdbs();
+
+    for dep in deps {
+        let not_found = db.find_satisfier(trim_dep_ver(dep, nover)).is_none();
+
+        if not_found {
+            missing.push(dep)
+        }
+    }
+}
+
+fn supported_deps<'a>(config: &'a Config, deps: &'a [ArchVec]) -> impl Iterator<Item = &'a str> {
+    let arch = config.alpm.architectures().first().unwrap_or_default();
+    deps.iter()
+        .filter(move |v| v.supports(arch))
+        .flat_map(|v| &v.vec)
+        .map(|s| s.as_str())
+}
+
+fn deps_not_satisfied<'a>(config: &'a Config, base: &'a Base) -> Result<Vec<&'a str>> {
     let nover = config.args.count("d", "nodeps") > 0;
-    let db = config.new_alpm()?;
-    let db = db.localdb().pkgs();
-    let mut res = base
-        .pkgs
-        .iter()
-        .flat_map(|pkg| {
-            let check = if config.no_check {
-                None
-            } else {
-                Some(&pkg.pkg.check_depends)
-            };
-            pkg.pkg
-                .depends
-                .iter()
-                .chain(&pkg.pkg.make_depends)
-                .chain(check.into_iter().flatten())
-        })
-        .filter(|dep| {
-            db.find_satisfier(trim_dep_ver(dep.as_str(), nover))
-                .is_none()
-        })
-        .map(|dep| dep.to_string())
-        .collect::<Vec<_>>();
+
+    let alpm = config.new_alpm()?;
+    let mut missing = Vec::new();
+
+    match base {
+        Base::Aur(base) => {
+            for pkg in &base.pkgs {
+                check_deps_local(
+                    &alpm,
+                    &mut missing,
+                    pkg.pkg.depends.iter().map(|s| s.as_str()),
+                    nover,
+                );
+                check_deps_local(
+                    &alpm,
+                    &mut missing,
+                    pkg.pkg.make_depends.iter().map(|s| s.as_str()),
+                    nover,
+                );
+                if !config.no_check {
+                    check_deps_local(
+                        &alpm,
+                        &mut missing,
+                        pkg.pkg.check_depends.iter().map(|s| s.as_str()),
+                        nover,
+                    );
+                }
+            }
+        }
+        Base::Custom(base) => {
+            check_deps_local(
+                &alpm,
+                &mut missing,
+                supported_deps(config, &base.srcinfo.base.makedepends),
+                nover,
+            );
+            if !config.no_check {
+                check_deps_local(
+                    &alpm,
+                    &mut missing,
+                    supported_deps(config, &base.srcinfo.base.checkdepends),
+                    nover,
+                );
+            }
+
+            for pkg in &base.pkgs {
+                check_deps_local(
+                    &alpm,
+                    &mut missing,
+                    supported_deps(config, &pkg.pkg.depends),
+                    nover,
+                );
+            }
+        }
+    }
 
     if nover {
-        res.retain(|dep| {
+        missing.retain(|dep| {
             !config
                 .alpm
                 .assume_installed()
                 .iter()
-                .any(|provide| satisfies_provide_nover(Depend::new(dep.as_str()), provide))
+                .any(|provide| satisfies_provide_nover(Depend::new(*dep), provide))
         });
     } else {
-        res.retain(|dep| {
+        missing.retain(|dep| {
             !config
                 .alpm
                 .assume_installed()
                 .iter()
-                .any(|provide| satisfies_provide(Depend::new(dep.as_str()), provide))
+                .any(|provide| satisfies_provide(Depend::new(*dep), provide))
         });
     }
 
-    Ok(res)
+    Ok(missing)
 }
 
-fn deps_not_satisfied_by_repo(config: &Config, base: &Base) -> Result<Vec<String>> {
+fn deps_not_satisfied_by_repo<'a>(config: &'a Config, base: &'a Base) -> Result<Vec<&'a str>> {
     let nover = config.args.count("d", "nodeps") > 0;
-    let db = config.new_alpm()?;
-    let db = db.syncdbs();
-    let res = base
-        .pkgs
-        .iter()
-        .flat_map(|pkg| {
-            let check = if config.no_check {
-                None
-            } else {
-                Some(&pkg.pkg.check_depends)
-            };
-            pkg.pkg
-                .depends
-                .iter()
-                .chain(&pkg.pkg.make_depends)
-                .chain(check.into_iter().flatten())
-        })
-        .filter(|dep| {
-            db.find_satisfier(trim_dep_ver(dep.as_str(), nover))
-                .is_none()
-        })
-        .map(|dep| dep.to_string())
-        .collect();
+    let alpm = config.new_alpm()?;
+    let mut missing = Vec::new();
 
-    Ok(res)
+    match base {
+        Base::Aur(base) => {
+            for pkg in &base.pkgs {
+                check_deps_sync(
+                    &alpm,
+                    &mut missing,
+                    pkg.pkg.depends.iter().map(|s| s.as_str()),
+                    nover,
+                );
+                check_deps_sync(
+                    &alpm,
+                    &mut missing,
+                    pkg.pkg.make_depends.iter().map(|s| s.as_str()),
+                    nover,
+                );
+                if !config.no_check {
+                    check_deps_sync(
+                        &alpm,
+                        &mut missing,
+                        pkg.pkg.check_depends.iter().map(|s| s.as_str()),
+                        nover,
+                    );
+                }
+            }
+        }
+        Base::Custom(base) => {
+            check_deps_sync(
+                &alpm,
+                &mut missing,
+                supported_deps(config, &base.srcinfo.base.makedepends),
+                nover,
+            );
+            if !config.no_check {
+                check_deps_sync(
+                    &alpm,
+                    &mut missing,
+                    supported_deps(config, &base.srcinfo.base.checkdepends),
+                    nover,
+                );
+            }
+
+            for pkg in &base.pkgs {
+                check_deps_sync(
+                    &alpm,
+                    &mut missing,
+                    supported_deps(config, &pkg.pkg.depends),
+                    nover,
+                );
+            }
+        }
+    }
+
+    Ok(missing)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1512,31 +1628,49 @@ fn build_install_pkgbuild<'a>(
     printtr!("{}: parsing pkg list...", base);
     let (mut pkgdest, version) = parse_package_list(config, &dir)?;
 
-    if !base.pkgs.iter().all(|p| pkgdest.contains_key(&p.pkg.name)) {
+    if !base.packages().all(|p| pkgdest.contains_key(p)) {
         bail!(tr!("package list does not match srcinfo"));
     }
 
     if config.install_debug {
-        let mut debug = Vec::new();
         for dest in pkgdest.values() {
             let file = dest.rsplit('/').next().unwrap();
 
-            for pkg in &base.pkgs {
-                let debug_pkg = format!("{}-debug-", pkg.pkg.name);
+            match base {
+                Base::Aur(base) => {
+                    let mut debug = Vec::new();
+                    for pkg in &base.pkgs {
+                        let debug_pkg = format!("{}-debug-", pkg.pkg.name);
 
-                if file.starts_with(&debug_pkg) {
-                    let debug_pkg = format!("{}-debug", pkg.pkg.name);
-                    let mut pkg = pkg.clone();
-                    let mut raur_pkg = (*pkg.pkg).clone();
-                    raur_pkg.name = debug_pkg;
-                    pkg.pkg = raur_pkg.into();
-                    debug_paths.insert(pkg.pkg.name.clone(), dest.clone());
-                    debug.push(pkg);
+                        if file.starts_with(&debug_pkg) {
+                            let debug_pkg = format!("{}-debug", pkg.pkg.name);
+                            let mut pkg = pkg.clone();
+                            let mut raur_pkg = (*pkg.pkg).clone();
+                            raur_pkg.name = debug_pkg;
+                            pkg.pkg = raur_pkg.into();
+                            debug_paths.insert(pkg.pkg.name.clone(), dest.clone());
+                            debug.push(pkg);
+                        }
+                    }
+                    base.pkgs.extend(debug);
+                }
+                Base::Custom(base) => {
+                    let mut debug = Vec::new();
+                    for pkg in &base.pkgs {
+                        let debug_pkg = format!("{}-debug-", pkg.pkg.pkgname);
+
+                        if file.starts_with(&debug_pkg) {
+                            let debug_pkg = format!("{}-debug", pkg.pkg.pkgname);
+                            let mut pkg = pkg.clone();
+                            pkg.pkg.pkgname = debug_pkg;
+                            debug_paths.insert(pkg.pkg.pkgname.clone(), dest.clone());
+                            debug.push(pkg);
+                        }
+                    }
+                    base.pkgs.extend(debug);
                 }
             }
         }
-
-        base.pkgs.extend(debug);
     }
 
     let needs_build = needs_build(config, base, &pkgdest, &version);
@@ -1566,23 +1700,25 @@ fn build_install_pkgbuild<'a>(
             tr!(
                 "{}-{} is up to date -- skipping build",
                 base.package_base(),
-                base.pkgs[0].pkg.version
+                base.version()
             )
         )
     }
 
     for (pkg, path) in &debug_paths {
         if !Path::new(path).exists() {
-            base.pkgs.retain(|p| p.pkg.name != *pkg);
+            match base {
+                Base::Aur(base) => base.pkgs.retain(|p| p.pkg.name != *pkg),
+                Base::Custom(base) => base.pkgs.retain(|p| p.pkg.pkgname != *pkg),
+            }
         } else {
             printtr!("adding {} to the install list", pkg);
         }
     }
 
     let paths = base
-        .pkgs
-        .iter()
-        .filter_map(|p| pkgdest.get(&p.pkg.name))
+        .packages()
+        .filter_map(|p| pkgdest.get(p))
         .chain(debug_paths.values())
         .map(|s| s.as_str())
         .collect::<Vec<_>>();
@@ -1617,36 +1753,41 @@ fn build_install_pkgbuild<'a>(
         }
     }
 
-    for pkg in &base.pkgs {
-        if !needs_install(config, base, &version, pkg) {
-            continue;
-        }
-
-        if config.args.has_arg("asexplicit", "asexp") {
-            exp.push(pkg.pkg.name.as_str());
-        } else if config.args.has_arg("asdeps", "asdeps") {
-            deps.push(pkg.pkg.name.as_str());
-        } else if config.alpm.localdb().pkg(&*pkg.pkg.name).is_err() {
-            if pkg.target {
-                exp.push(pkg.pkg.name.as_str())
-            } else {
-                deps.push(pkg.pkg.name.as_str())
+    match &*base {
+        Base::Aur(b) => {
+            for pkg in &b.pkgs {
+                dep_or_exp(
+                    config,
+                    base,
+                    &version,
+                    &pkg.pkg.name,
+                    pkg.target,
+                    exp,
+                    deps,
+                    &mut pkgdest,
+                    install_queue,
+                    conflicts,
+                    conflict,
+                )?
             }
         }
-
-        let path = pkgdest.remove(&pkg.pkg.name).with_context(|| {
-            tr!(
-                "could not find package '{pkg}' in package list for '{base}'",
-                pkg = pkg.pkg.name,
-                base = base
-            )
-        })?;
-
-        *conflict |= base
-            .pkgs
-            .iter()
-            .any(|p| conflicts.contains(p.pkg.name.as_str()));
-        install_queue.push(path);
+        Base::Custom(b) => {
+            for pkg in &b.pkgs {
+                dep_or_exp(
+                    config,
+                    base,
+                    &version,
+                    &pkg.pkg.pkgname,
+                    pkg.target,
+                    exp,
+                    deps,
+                    &mut pkgdest,
+                    install_queue,
+                    conflicts,
+                    conflict,
+                )?
+            }
+        }
     }
 
     if repo.is_none() {
@@ -1668,18 +1809,32 @@ fn chroot_install(config: &Config, bi: &BuildInfo, repo_targs: &[String]) -> Res
     }
 
     if !config.args.has_arg("w", "downloadonly") {
-        let mut targets = bi
-            .build
-            .iter()
-            .filter(|b| {
-                !bi.failed
-                    .iter()
-                    .any(|f| b.package_base() == f.package_base())
-            })
-            .flat_map(|b| &b.pkgs)
-            .filter(|p| p.target)
-            .map(|p| p.pkg.name.as_str())
-            .collect::<Vec<_>>();
+        let mut targets = Vec::new();
+
+        let iter = bi.build.iter().filter(|b| {
+            !bi.failed
+                .iter()
+                .any(|f| b.package_base() == f.package_base())
+        });
+
+        for base in iter {
+            match base {
+                Base::Aur(base) => {
+                    for pkg in &base.pkgs {
+                        if pkg.target {
+                            targets.push(pkg.pkg.name.as_str())
+                        }
+                    }
+                }
+                Base::Custom(base) => {
+                    for pkg in &base.pkgs {
+                        if pkg.target {
+                            targets.push(pkg.pkg.pkgname.as_str())
+                        }
+                    }
+                }
+            }
+        }
 
         if config.args.has_arg("u", "sysupgrade") {
             targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
@@ -1811,10 +1966,10 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         config.mflags.push("--nocheck".into());
     }
     if config.mode == Mode::Aur {
-        flags |= Flags::AUR_ONLY;
+        flags &= !Flags::NATIVE_REPO;
     }
     if config.mode == Mode::Repo {
-        flags |= Flags::REPO_ONLY;
+        flags &= !Flags::AUR;
     }
     if !config.provides {
         flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);
@@ -1840,7 +1995,7 @@ fn resolver<'a, 'b>(
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
+    let mut resolver = aur_depends::Resolver::new(alpm, Vec::new(), cache, raur, flags)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
         .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
@@ -1975,7 +2130,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     if let Some(actions) = actions {
         warnings.ood.extend(
             actions
-                .iter_build_pkgs()
+                .iter_aur_pkgs()
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.out_of_date.is_some())
                 .filter(|pkg| !config.no_warn.is_match(&pkg.name))
@@ -1984,7 +2139,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
 
         warnings.orphans.extend(
             actions
-                .iter_build_pkgs()
+                .iter_aur_pkgs()
                 .map(|pkg| &pkg.pkg)
                 .filter(|pkg| pkg.maintainer.is_none())
                 .filter(|pkg| !config.no_warn.is_match(&pkg.name))
@@ -2007,9 +2162,7 @@ fn needs_build(
     pkgdest: &HashMap<String, String>,
     version: &str,
 ) -> bool {
-    if (config.rebuild == YesNoAll::Yes && base.pkgs.iter().any(|p| p.target))
-        || config.rebuild == YesNoAll::All
-    {
+    if (config.rebuild == YesNoAll::Yes && base.target()) || config.rebuild == YesNoAll::All {
         return true;
     }
 
@@ -2020,25 +2173,20 @@ fn needs_build(
         if config.repos != LocalRepos::None {
             let (_, repos) = repo::repo_aur_dbs(config);
 
-            for pkg in &base.pkgs {
-                match repos.pkg(pkg.pkg.name.as_str()) {
-                    Ok(pkg) if pkg.version() == version => continue,
-                    _ => (),
-                }
-
-                all_installed = false;
-                break;
+            if !base
+                .packages()
+                .filter_map(|p| repos.pkg(p).ok())
+                .any(|p| base.version() == version)
+            {
+                all_installed = false
             }
         } else {
-            for pkg in &base.pkgs {
-                if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
-                    if pkg.version() == version {
-                        continue;
-                    }
-                }
-
-                all_installed = false;
-                break;
+            if !base
+                .packages()
+                .filter_map(|p| config.alpm.localdb().pkg(p).ok())
+                .any(|p| base.version() == version)
+            {
+                all_installed = false
             }
         }
 
@@ -2049,7 +2197,7 @@ fn needs_build(
                 tr!(
                     "{}-{} is up to date -- skipping",
                     base.package_base(),
-                    base.pkgs[0].pkg.version
+                    base.version()
                 )
             );
             return false;
@@ -2057,14 +2205,13 @@ fn needs_build(
     }
 
     !base
-        .pkgs
-        .iter()
-        .all(|p| Path::new(pkgdest.get(&p.pkg.name).unwrap()).exists())
+        .packages()
+        .all(|p| Path::new(pkgdest.get(p).unwrap()).exists())
 }
 
-fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) -> bool {
+fn needs_install(config: &Config, base: &Base, version: &str, pkg: &str) -> bool {
     if config.args.has_arg("needed", "needed") {
-        if let Ok(pkg) = config.alpm.localdb().pkg(&*pkg.pkg.name) {
+        if let Ok(pkg) = config.alpm.localdb().pkg(pkg) {
             if pkg.version().as_str() == version {
                 let c = config.color;
                 println!(
@@ -2073,7 +2220,7 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) 
                     tr!(
                         "{}-{} is up to date -- skipping install",
                         base.package_base(),
-                        base.pkgs[0].pkg.version
+                        base.version()
                     )
                 );
                 return false;
@@ -2082,6 +2229,80 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &AurPackage) 
     }
 
     true
+}
+
+fn fmt_stack(want: &Want) -> String {
+    match &want.dep {
+        Some(dep) => format!("{} ({})", want.pkg, dep),
+        None => format!("{}", want.pkg),
+    }
+}
+
+fn dep_or_exp<'a>(
+    config: &Config,
+    base: &Base,
+    version: &str,
+    pkg: &'a str,
+    target: bool,
+    exp: &mut Vec<&'a str>,
+    deps: &mut Vec<&'a str>,
+    pkgdest: &mut HashMap<String, String>,
+
+    install_queue: &mut Vec<String>,
+    conflicts: &HashSet<String>,
+    conflict: &mut bool,
+) -> Result<()> {
+    if !needs_install(config, base, version, pkg) {
+        return Ok(());
+    }
+
+    if config.args.has_arg("asexplicit", "asexp") {
+        exp.push(pkg);
+    } else if config.args.has_arg("asdeps", "asdeps") {
+        deps.push(pkg);
+    } else if config.alpm.localdb().pkg(pkg).is_err() {
+        if target {
+            exp.push(pkg)
+        } else {
+            deps.push(pkg)
+        }
+    }
+
+    let path = pkgdest.remove(pkg).with_context(|| {
+        tr!(
+            "could not find package '{pkg}' in package list for '{base}'",
+            pkg = pkg,
+            base = base
+        )
+    })?;
+
+    *conflict |= conflicts.contains(pkg);
+    install_queue.push(path);
+    Ok(())
+}
+
+fn read_srcinfos<P: AsRef<Path>>(path: P, recurse: bool) -> Result<Vec<Srcinfo>> {
+    let mut srcinfos = Vec::new();
+
+    for entry in read_dir(path)? {
+        let entry = entry?;
+
+        if recurse && entry.file_type()?.is_dir() {
+            srcinfos.extend(read_srcinfos(entry.path(), false)?);
+            continue;
+        }
+
+        if entry.file_type()?.is_file() {
+            if let Some(name) = entry.path().file_name() {
+                if name == ".SRCINFO" {
+                    let srcinfo = srcinfo::Srcinfo::parse_file(entry.path())?;
+                    srcinfos.push(srcinfo);
+                }
+            }
+        }
+    }
+
+    Ok(srcinfos)
 }
 
 fn update_aur_list(config: &Config) {

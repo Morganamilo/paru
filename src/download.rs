@@ -15,7 +15,7 @@ use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
-use aur_depends::Base;
+use aur_depends::AurBase;
 use indicatif::{ProgressBar, ProgressStyle};
 use kuchiki::traits::*;
 use raur::{ArcPackage as Package, Raur};
@@ -25,7 +25,7 @@ use url::Url;
 
 #[derive(Debug, Clone, Default)]
 pub struct Bases {
-    pub bases: Vec<Base>,
+    pub bases: Vec<AurBase>,
 }
 
 impl FromIterator<Package> for Bases {
@@ -53,7 +53,7 @@ impl Bases {
             }
         }
 
-        self.bases.push(Base {
+        self.bases.push(AurBase {
             pkgs: vec![aur_depends::AurPackage {
                 pkg,
                 make: false,
