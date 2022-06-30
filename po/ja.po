@@ -8,23 +8,21 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2021-08-15 13:09+0900\n"
+"PO-Revision-Date: 2022-06-30 21:10+0900\n"
 "Last-Translator: livewing.net <dev@livewing.net>\n"
 "Language-Team: \n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
 msgstr "キャッシュから全ての AUR パッケージを削除しますか？"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
 msgstr "キャッシュから他の全ての AUR パッケージを削除しますか？"
 
@@ -262,32 +260,28 @@ msgid "Aur Make"
 msgstr "AUR ビルド"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "リポジトリ"
+msgstr "リポジトリ ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "バージョン"
+msgstr "古いバージョン"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "バージョン"
+msgstr "新しいバージョン"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "Makeのみ"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "yes"
+msgstr "はい"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -295,7 +289,7 @@ msgstr "いいえ"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "テーブル表示するためのカラム数が足りません"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -480,11 +474,11 @@ msgstr "    --searchby  <field>    検索するフィールドを指定"
 #: src/help.rs:54
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
-msgstr ""
+msgstr "    --limit     <limit>    検索で表示されるアイテム数を制限する"
 
 #: src/help.rs:55
 msgid "    -x --regex             Enable regex for aur search"
-msgstr ""
+msgstr "    -x --regex             aur検索に正規表現を使用する"
 
 #: src/help.rs:57
 msgid "    --skipreview           Skip the review process"
@@ -533,6 +527,7 @@ msgstr ""
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
+"    --[no]savechanges      レビュー中にpkgbuilldに加えた変更をコミットする"
 
 #: src/help.rs:68
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
@@ -584,16 +579,15 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           chroot してパッケージをビルド"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild          対象を再ビルド"
+msgstr ""
+"    --[no]failfast         AURパッケージのビルドに失敗した場合直ちに終了する"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild          対象を再ビルド"
+msgstr "    --[no]keepsrc          ビルド完了後にsrc/とpkg/をそのままにする"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -663,9 +657,8 @@ msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         AUR コメントを表示"
 
 #: src/help.rs:94
-#, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --stats            システムパッケージの統計を表示"
+msgstr "    -s --ssh              パッケージをSSHを使用してクローンする"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
@@ -841,7 +834,6 @@ msgid "packages failed to build: {}"
 msgstr "パッケージのビルドに失敗しました: {}"
 
 #: src/install.rs:748
-#, fuzzy
 msgid "could not find .SRCINFO for '{}'"
 msgstr "'{}' の .SRCINFO を見つけられませんでした"
 
@@ -931,7 +923,7 @@ msgstr "パッケージへ署名をしています..."
 
 #: src/install.rs:1457
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "依存関係{deps}が満たされないため、{base}をビルドできませんでした"
 
 #: src/install.rs:1466 src/install.rs:1475
 msgid "failed to download sources for '{}'"
@@ -946,9 +938,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}: パッケージリストを解析しています..."
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "検索に一致するパッケージがありません"
+msgstr "パッケージリストはsrcinfoに一致しません"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -1017,23 +1008,20 @@ msgid "  nothing to do"
 msgstr "  何も行うことがありません"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " 何も行うことがありません"
+msgstr "何も行うことがありません"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "パッケージベース ID"
+msgstr "パッケージ"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "レビューを続行しますか？"
+msgstr "削除を続行しますか？"
 
 #: src/search.rs:34
 msgid "aur search failed"
-msgstr "AUR の検索に失敗しました"
+msgstr "aurの検索に失敗しました"
 
 #: src/search.rs:196
 msgid "[Out-of-date: {}]"
@@ -1088,14 +1076,12 @@ msgid " [installed]"
 msgstr " [インストール済み]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "AUR の更新を確認しています"
+msgstr "AUR の更新を確認しています..."
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "開発の更新を確認しています"
+msgstr "開発の更新を確認しています..."
 
 #: src/upgrade.rs:181
 msgid "warning:"
@@ -1142,7 +1128,6 @@ msgid "can not use chroot builds: devtools is not installed"
 msgstr "chroot してビルドできません: devtools がインストールされていません"
 
 #: src/lib.rs:241
-#, fuzzy
 msgid "no operation specified (use -h for help)"
 msgstr "対象が指定されていません (-h を使ってヘルプを見て下さい)"
 
