@@ -18,7 +18,7 @@ use std::env::var;
 use std::ffi::OsStr;
 use std::fs::{read_dir, read_link, OpenOptions};
 use std::io::{stdin, stdout, BufRead, Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
@@ -51,6 +51,7 @@ struct BuildInfo {
     status: Status,
     build: Vec<aur_depends::Base>,
     srcinfos: HashMap<String, Srcinfo>,
+    custom_paths: HashMap<String, PathBuf>,
     aur_repos: HashMap<String, String>,
     bases: Bases,
     conflicts: HashSet<String>,
@@ -168,7 +169,14 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     config.set_op_args_globals(Op::Sync);
 
     let flags = flags(config);
-    let resolver = resolver(config, &config.alpm, &config.raur, &mut cache, flags);
+    let resolver = resolver(
+        config,
+        &config.alpm,
+        Vec::new(),
+        &config.raur,
+        &mut cache,
+        flags,
+    );
 
     println!(
         "{} {}",
@@ -331,6 +339,16 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
+pub fn download_custom_repos(config: &Config) -> Result<()> {
+    let repos = vec![aur_fetch::Repo {
+        name: "fox".to_string(),
+        url: url::Url::parse("https://github.com/Foxboron/PKGBUILDS").unwrap(),
+    }];
+
+    let fetch = aur_fetch::Handle::with_combined_cache_dir(config.fetch.clone_dir.join("repo"));
+    download::custom_pkgbuilds(config, &fetch, &repos)
+}
+
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
     let mut cache = Cache::new();
     let flags = flags(config);
@@ -403,7 +421,21 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
-    let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, flags);
+    download_custom_repos(config)?;
+    let (custom_paths, pkgs) = read_srcinfos("/home/morganamilo/git/PKGBUILDS", true).unwrap();
+    let custom_repos = vec![aur_depends::Repo {
+        name: "fox".to_string(),
+        pkgs,
+    }];
+
+    let mut resolver = resolver(
+        config,
+        &config.alpm,
+        custom_repos,
+        &config.raur,
+        &mut cache,
+        flags,
+    );
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
         let upgrades = get_upgrades(config, &mut resolver).await?;
@@ -479,6 +511,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     let mut build_info =
         prepare_build(config, upgrades.aur_repos, &mut cache, actions, None).await?;
+    build_info.custom_paths = custom_paths;
 
     if let Status::Stop(ret) = build_info.status {
         return Ok(ret);
@@ -685,6 +718,7 @@ async fn prepare_build(
         status: Status::Ok,
         build: actions.build,
         srcinfos,
+        custom_paths: HashMap::new(),
         aur_repos,
         bases,
         conflicts,
@@ -762,9 +796,8 @@ async fn download_pkgbuilds(config: &Config, bases: &Bases) -> Result<HashMap<St
 fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
     let c = config.color;
     let pkgs = actions
-        .build
-        .iter()
-        .map(|b| b.package_base())
+        .iter_aur_pkgs()
+        .map(|b| b.pkg.package_base.as_str())
         .collect::<Vec<_>>();
 
     if !config.no_confirm {
@@ -1281,6 +1314,7 @@ async fn build_install_pkgbuilds<'a>(config: &mut Config, bi: &mut BuildInfo) ->
             &mut devel_info,
             &mut new_devel_info,
             repo_server,
+            &bi.custom_paths,
         );
 
         match err {
@@ -1553,10 +1587,15 @@ fn build_install_pkgbuild<'a>(
     devel_info: &mut DevelInfo,
     new_devel_info: &mut DevelInfo,
     repo: Option<(&str, &str)>,
+    custom_paths: &HashMap<String, PathBuf>,
 ) -> Result<()> {
     let c = config.color;
     let mut debug_paths = HashMap::new();
-    let dir = config.build_dir.join(base.package_base());
+
+    let dir = match base {
+        Base::Aur(a) => config.build_dir.join(&base.package_base()),
+        Base::Custom(c) => custom_paths.get(c.package_base()).unwrap().clone(),
+    };
 
     if !config.chroot && (!config.batch_install || !deps_not_satisfied(config, base)?.is_empty()) {
         do_install(config, deps, exp, install_queue, *conflict, devel_info)?;
@@ -1988,6 +2027,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
 fn resolver<'a, 'b>(
     config: &Config,
     alpm: &'a Alpm,
+    repos: Vec<aur_depends::Repo>,
     raur: &'b RaurHandle,
     cache: &'b mut Cache,
     flags: Flags,
@@ -1996,7 +2036,7 @@ fn resolver<'a, 'b>(
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    let mut resolver = aur_depends::Resolver::new(alpm, Vec::new(), cache, raur, flags)
+    let mut resolver = aur_depends::Resolver::new(alpm, repos, cache, raur, flags)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
         .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
@@ -2282,14 +2322,20 @@ fn dep_or_exp<'a>(
     Ok(())
 }
 
-fn read_srcinfos<P: AsRef<Path>>(path: P, recurse: bool) -> Result<Vec<Srcinfo>> {
+fn read_srcinfos<P: AsRef<Path>>(
+    path: P,
+    recurse: bool,
+) -> Result<(HashMap<String, PathBuf>, Vec<Srcinfo>)> {
     let mut srcinfos = Vec::new();
+    let mut paths = HashMap::new();
 
-    for entry in read_dir(path)? {
+    for entry in read_dir(&path)? {
         let entry = entry?;
 
         if recurse && entry.file_type()?.is_dir() {
-            srcinfos.extend(read_srcinfos(entry.path(), false)?);
+            let (p, s) = read_srcinfos(entry.path(), false)?;
+            paths.extend(p);
+            srcinfos.extend(s);
             continue;
         }
 
@@ -2297,13 +2343,14 @@ fn read_srcinfos<P: AsRef<Path>>(path: P, recurse: bool) -> Result<Vec<Srcinfo>>
             if let Some(name) = entry.path().file_name() {
                 if name == ".SRCINFO" {
                     let srcinfo = srcinfo::Srcinfo::parse_file(entry.path())?;
+                    paths.insert(srcinfo.base.pkgbase.clone(), path.as_ref().to_path_buf());
                     srcinfos.push(srcinfo);
                 }
             }
         }
     }
 
-    Ok(srcinfos)
+    Ok((paths, srcinfos))
 }
 
 fn update_aur_list(config: &Config) {

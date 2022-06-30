@@ -16,6 +16,7 @@ use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::AurBase;
+use aur_fetch::Repo;
 use indicatif::{ProgressBar, ProgressStyle};
 use kuchiki::traits::*;
 use raur::{ArcPackage as Package, Raur};
@@ -352,6 +353,52 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
 
             pb.inc(1);
             pb.set_prefix(base.to_string());
+        })?;
+
+        pb.finish();
+    }
+
+    Ok(())
+}
+
+pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Handle, repos: &[Repo]) -> Result<()> {
+    if repos.is_empty() {
+        return Ok(());
+    }
+
+    let download = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+
+    let cols = config.cols.unwrap_or(0);
+
+    let action = config.color.action;
+    let bold = config.color.bold;
+
+    println!(
+        "\n{} {}",
+        action.paint("::"),
+        bold.paint(tr!("Downloading PKGBUILD Repos..."))
+    );
+
+    if cols < 80 {
+        fetch.download_cb(&download, |cb| {
+            print_download(config, cb.n, download.len(), cb.pkg);
+        })?;
+    } else {
+        let total = download.len().to_string();
+        let template = format!(
+            " ({{pos:>{}}}/{{len}}) {{prefix:45!}} [{{wide_bar}}]",
+            total.len()
+        );
+        let pb = ProgressBar::new(download.len() as u64);
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template(&template)
+                .progress_chars("-> "),
+        );
+
+        fetch.download_cb(&download, |cb| {
+            pb.inc(1);
+            pb.set_prefix(cb.pkg.to_string());
         })?;
 
         pb.finish();
