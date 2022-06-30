@@ -66,4 +66,5 @@ mock = ["async-trait"]
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
 aur-depends = { path = "../aur-depends" }
+aur-fetch = { path = "../aur-fetch" }
 

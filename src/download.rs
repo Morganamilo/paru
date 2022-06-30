@@ -321,18 +321,15 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     }
 
     if cols < 80 {
-        config
-            .fetch
-            .download_cb(&download, |cb| {
-                let base = bases
-                    .bases
-                    .iter()
-                    .find(|b| b.package_base() == cb.pkg)
-                    .unwrap();
+        config.fetch.download_cb(&download, |cb| {
+            let base = bases
+                .bases
+                .iter()
+                .find(|b| b.package_base() == cb.pkg)
+                .unwrap();
 
-                print_download(config, cb.n, download.len(), &base.to_string());
-            })
-            .await?;
+            print_download(config, cb.n, download.len(), &base.to_string());
+        })?;
     } else {
         let total = download.len().to_string();
         let template = format!(
@@ -346,19 +343,16 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                 .progress_chars("-> "),
         );
 
-        config
-            .fetch
-            .download_cb(&download, |cb| {
-                let base = bases
-                    .bases
-                    .iter()
-                    .find(|b| b.package_base() == cb.pkg)
-                    .unwrap();
+        config.fetch.download_cb(&download, |cb| {
+            let base = bases
+                .bases
+                .iter()
+                .find(|b| b.package_base() == cb.pkg)
+                .unwrap();
 
-                pb.inc(1);
-                pb.set_prefix(base.to_string());
-            })
-            .await?;
+            pb.inc(1);
+            pb.set_prefix(base.to_string());
+        })?;
 
         pb.finish();
     }

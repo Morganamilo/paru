@@ -923,7 +923,8 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
 fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<tempfile::TempDir> {
     let has_diff = config.fetch.has_diff(pkgs)?;
     config.fetch.save_diffs(&has_diff)?;
-    let view = config.fetch.make_view(pkgs, &has_diff)?;
+    let view = tempfile::Builder::new().prefix("aur").tempdir()?;
+    config.fetch.make_view(view.path(), pkgs, &has_diff)?;
 
     let ret = Command::new(fm)
         .args(&config.fm_flags)
