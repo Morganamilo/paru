@@ -284,7 +284,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
             Base::Custom(base) => base
                 .pkgs
                 .iter()
-                .map(|pkg| repo(config, &pkg.pkg.pkgname).len() + 1 + pkg.pkg.pkgname.len())
+                .map(|pkg| base.repo.len() + 1 + pkg.pkg.pkgname.len())
                 .max(),
         })
         .chain(Some(aur.width()))

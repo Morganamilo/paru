@@ -44,7 +44,11 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         } else if config.mode == Mode::Repo {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
-            if repo == config.aur_namespace() {
+            if config.alpm.syncdbs().iter().any(|db| db.name() == repo) {
+                local.push(targ);
+            } else if config.custom_repos.iter().any(|r| r.name == repo) {
+                aur.push(targ);
+            } else if repo == config.aur_namespace() {
                 aur.push(targ);
             } else {
                 local.push(targ);

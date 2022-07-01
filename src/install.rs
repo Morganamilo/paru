@@ -638,7 +638,7 @@ async fn prepare_build(
         false
     };
 
-    if !config.skip_review && !actions.build.is_empty() {
+    if !config.skip_review && !actions.iter_aur_pkgs().next().is_none() {
         if !ask(config, &tr!("Proceed to review?"), true) {
             return Ok(BuildInfo::stop());
         }
