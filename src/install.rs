@@ -868,8 +868,6 @@ async fn download_pkgbuilds(config: &Config, bases: &Bases) -> Result<HashMap<St
 }
 
 fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Result<i32> {
-    let c = config.color;
-
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
             let _view = file_manager(config, fetch, fm, &pkgs)?;
@@ -921,86 +919,8 @@ fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Resu
                 let mut buf = Vec::new();
                 for pkg in &unseen {
                     if !has_diff.contains(pkg) {
-                        let path = fetch.clone_dir.join(pkg);
-
-                        for file in read_dir(&path)
-                            .with_context(|| tr!("failed to read dir: {}", path.display()))?
-                        {
-                            let file = file?;
-
-                            if file.file_type()?.is_dir()
-                                && file.path().file_name() == Some(OsStr::new(".git"))
-                            {
-                                continue;
-                            }
-                            if file.file_type()?.is_file()
-                                && file.path().file_name() == Some(OsStr::new(".SRCINFO"))
-                            {
-                                continue;
-                            }
-                            if file.file_type()?.is_dir() {
-                                let s =
-                                    tr!("{} is a directory\n\n", file.path().display().to_string());
-                                let _ = write!(stdin, "{}", c.bold.paint(s));
-                                continue;
-                            }
-                            if file.file_type()?.is_symlink() {
-                                let s = format!(
-                                    "{} -> {}\n\n\n",
-                                    file.path().display(),
-                                    read_link(file.path())?.display()
-                                );
-                                let _ = write!(stdin, "{}", c.bold.paint(s));
-                                continue;
-                            }
-
-                            let _ = writeln!(
-                                stdin,
-                                "{}",
-                                c.bold.paint(file.path().display().to_string())
-                            );
-                            if bat {
-                                let output = Command::new(&config.bat_bin)
-                                    .arg("-pp")
-                                    .arg("--color=always")
-                                    .arg(file.path())
-                                    .args(&config.bat_flags)
-                                    .output()
-                                    .with_context(|| {
-                                        format!(
-                                            "{} {} {}",
-                                            tr!("failed to run:"),
-                                            config.bat_bin,
-                                            file.path().display()
-                                        )
-                                    })?;
-                                let _ = stdin.write_all(&output.stdout);
-                            } else {
-                                let mut pkgbbuild = OpenOptions::new()
-                                    .read(true)
-                                    .open(&file.path())
-                                    .with_context(|| {
-                                        tr!("failed to open: {}", file.path().display().to_string())
-                                    })?;
-                                buf.clear();
-                                pkgbbuild.read_to_end(&mut buf)?;
-
-                                let _ = match std::str::from_utf8(&buf) {
-                                    Ok(_) => stdin.write_all(&buf),
-                                    Err(_) => {
-                                        write!(
-                                            stdin,
-                                            "{}",
-                                            tr!(
-                                                "binary file: {}",
-                                                file.path().display().to_string()
-                                            )
-                                        )
-                                    }
-                                };
-                            }
-                            let _ = stdin.write_all(b"\n\n");
-                        }
+                        let dir = fetch.clone_dir.join(pkg);
+                        print_dir(config, &dir, fetch, &mut stdin, &mut buf, bat, 1)?;
                     }
                 }
 
@@ -1021,6 +941,98 @@ fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Resu
 
     fetch.mark_seen(&pkgs)?;
     Ok(0)
+}
+
+fn print_dir(
+    config: &Config,
+    path: &Path,
+    fetch: &aur_fetch::Handle,
+    stdin: &mut impl Write,
+    buf: &mut Vec<u8>,
+    bat: bool,
+    recurse: u32,
+) -> Result<()> {
+    {
+        let c = config.color;
+        let has_pkgbuild = path.join("PKGBUILD").exists();
+
+        println!("{:?} {:?}", path, has_pkgbuild);
+
+        for file in
+            read_dir(&path).with_context(|| tr!("failed to read dir: {}", path.display()))?
+        {
+            let file = file?;
+
+            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".git")) {
+                continue;
+            }
+            if file.file_type()?.is_file()
+                && file.path().file_name() == Some(OsStr::new(".SRCINFO"))
+            {
+                continue;
+            }
+            if file.file_type()?.is_dir() {
+                if recurse == 0 {
+                    continue;
+                }
+                print_dir(config, &file.path(), fetch, stdin, buf, bat, recurse - 1)?;
+            }
+            if !has_pkgbuild {
+                continue;
+            }
+            if file.file_type()?.is_symlink() {
+                let s = format!(
+                    "{} -> {}\n\n\n",
+                    file.path().display(),
+                    read_link(file.path())?.display()
+                );
+                let _ = write!(stdin, "{}", c.bold.paint(s));
+                continue;
+            }
+
+            let _ = writeln!(stdin, "{}", c.bold.paint(file.path().display().to_string()));
+            if bat {
+                let output = Command::new(&config.bat_bin)
+                    .arg("-pp")
+                    .arg("--color=always")
+                    .arg(file.path())
+                    .args(&config.bat_flags)
+                    .output()
+                    .with_context(|| {
+                        format!(
+                            "{} {} {}",
+                            tr!("failed to run:"),
+                            config.bat_bin,
+                            file.path().display()
+                        )
+                    })?;
+                let _ = stdin.write_all(&output.stdout);
+            } else {
+                let mut pkgbbuild = OpenOptions::new()
+                    .read(true)
+                    .open(&file.path())
+                    .with_context(|| {
+                        tr!("failed to open: {}", file.path().display().to_string())
+                    })?;
+                buf.clear();
+                pkgbbuild.read_to_end(buf)?;
+
+                let _ = match std::str::from_utf8(&buf) {
+                    Ok(_) => stdin.write_all(&buf),
+                    Err(_) => {
+                        write!(
+                            stdin,
+                            "{}",
+                            tr!("binary file: {}", file.path().display().to_string())
+                        )
+                    }
+                };
+            }
+            let _ = stdin.write_all(b"\n\n");
+        }
+    }
+
+    Ok(())
 }
 
 fn file_manager(
