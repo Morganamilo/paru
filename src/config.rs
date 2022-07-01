@@ -486,13 +486,27 @@ impl Config {
         let cache =
             dirs::cache_dir().ok_or_else(|| anyhow!(tr!("failed to find cache directory")))?;
         let cache = cache.join("paru");
+        
         let config =
             dirs::config_dir().ok_or_else(|| anyhow!(tr!("failed to find config directory")))?;
         let config = config.join("paru");
+        
+        let data = 
+            dirs::data_dir().ok_or_else(|| anyhow!(tr!("failed to find data directory")))?;
+        let data = data.join("paru");
 
         let build_dir = cache.join("clone");
         let config_path = config.join("paru.conf");
-        let devel_path = cache.join("devel.json");
+        
+        if cache.join("devel.json").exists() {
+            if !data.exists() {
+                std::fs::create_dir_all(&data)?;
+            }
+            std::fs::copy(cache.join("devel.json"), data.join("devel.json"))?;
+            std::fs::remove_file(cache.join("devel.json"))?;
+        }
+
+        let devel_path = data.join("devel.json");
         let cache_dir = cache;
 
         let color = Colors::from("never");
