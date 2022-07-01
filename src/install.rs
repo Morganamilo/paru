@@ -16,7 +16,7 @@ use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
-use std::fs::{read_dir, read_link, OpenOptions};
+use std::fs::{read_dir, read_link, File, OpenOptions};
 use std::io::{stdin, stdout, BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -474,6 +474,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
         for repo in &config.custom_repos {
             let (c, p) = read_srcinfos(
+                config,
                 &repo.name,
                 config.fetch.clone_dir.join("repo").join(&repo.name),
                 true,
@@ -2417,22 +2418,40 @@ fn dep_or_exp<'a>(
 }
 
 fn read_srcinfos<P: AsRef<Path>>(
+    config: &Config,
     repo: &str,
     path: P,
     recurse: bool,
 ) -> Result<(HashMap<(String, String), PathBuf>, Vec<Srcinfo>)> {
     let mut srcinfos = Vec::new();
     let mut paths = HashMap::new();
+    let c = config.color;
 
     if !path.as_ref().exists() {
         return Ok((paths, srcinfos));
+    }
+
+    if path.as_ref().join("PKGBUILD").exists() && !path.as_ref().join(".SRCINFO").exists() {
+        println!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint(tr!(
+                "Generating .SRCINFO for {repo}/dir...",
+                repo,
+                path.as_ref().display()
+            ))
+        );
+
+        let output = exec::makepkg_output(config, path.as_ref(), &["--printsrcinfo"])?;
+        let mut file = File::create(path.as_ref().join(".SRCINFO"))?;
+        file.write_all(&output.stdout)?;
     }
 
     for entry in read_dir(&path)? {
         let entry = entry?;
 
         if recurse && entry.file_type()?.is_dir() {
-            let (p, s) = read_srcinfos(repo, entry.path(), false)?;
+            let (p, s) = read_srcinfos(config, repo, entry.path(), false)?;
             paths.extend(p);
             srcinfos.extend(s);
             continue;
