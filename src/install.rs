@@ -347,7 +347,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-pub fn download_custom_repos(config: &Config) -> Result<()> {
+pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Handle) -> Result<i32> {
     let repos = config
         .custom_repos
         .iter()
@@ -359,14 +359,20 @@ pub fn download_custom_repos(config: &Config) -> Result<()> {
         })
         .collect::<Result<Vec<_>>>()?;
 
-    let mut fetch = aur_fetch::Handle::with_combined_cache_dir(config.fetch.clone_dir.join("repo"));
-    fetch.diff_dir = config.fetch.diff_dir.clone();
     download::custom_pkgbuilds(config, &fetch, &repos)?;
+
+    if !config.skip_review {
+        let pkgs = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+        let ret = review(config, fetch, &pkgs)?;
+        if ret != 0 {
+            return Ok(1);
+        }
+    }
 
     let repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
     fetch.merge(&repos)?;
     fetch.mark_seen(&repos)?;
-    Ok(())
+    Ok(0)
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
@@ -441,22 +447,44 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 
     config.init_alpm()?;
 
-    download_custom_repos(config)?;
-    let mut custom_paths = HashMap::new();
     let mut repos = Vec::new();
+    let mut custom_paths = HashMap::new();
 
-    for repo in &config.custom_repos {
-        let (c, p) = read_srcinfos(
-            &repo.name,
-            config.fetch.clone_dir.join("repo").join(&repo.name),
-            true,
-        )?;
-        custom_paths.extend(c);
+    if config.mode != Mode::Repo {
+        let mut fetch = config.fetch.clone();
+        fetch.clone_dir = fetch.clone_dir.join("repo");
+        fetch.diff_dir = fetch.diff_dir.join("repo");
 
-        repos.push(aur_depends::Repo {
-            name: repo.name.clone(),
-            pkgs: p,
-        });
+        if config.args.has_arg("y", "refresh") {
+            let n = download_custom_repos(config, &fetch)?;
+            if n != 0 {
+                return Ok(n);
+            }
+        } else {
+            for repo in &config.custom_repos {
+                if !fetch.is_git_repo(&repo.name) {
+                    println!(
+                        "{} {}",
+                        c.warning.paint("::"),
+                        tr!("repo {} not downloaded (use -Sya to download)", repo.name)
+                    );
+                }
+            }
+        }
+
+        for repo in &config.custom_repos {
+            let (c, p) = read_srcinfos(
+                &repo.name,
+                config.fetch.clone_dir.join("repo").join(&repo.name),
+                true,
+            )?;
+            custom_paths.extend(c);
+
+            repos.push(aur_depends::Repo {
+                name: repo.name.clone(),
+                pkgs: p,
+            });
+        }
     }
 
     let mut resolver = resolver(config, &config.alpm, repos, &config.raur, &mut cache, flags);
@@ -631,9 +659,6 @@ async fn prepare_build(
         return Ok(bi);
     }
 
-    //TODO custom
-    // download custom pkgbuilds
-    // actually this should already be done
     let bases = actions.iter_aur_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
@@ -653,7 +678,11 @@ async fn prepare_build(
     }
 
     if !config.skip_review {
-        let ret = review(config, &actions)?;
+        let pkgs = actions
+            .iter_aur_pkgs()
+            .map(|b| b.pkg.package_base.as_str())
+            .collect::<Vec<_>>();
+        let ret = review(config, &config.fetch, &pkgs)?;
         if ret != 0 {
             let mut bi = BuildInfo::stop();
             bi.status = Status::Stop(ret);
@@ -838,29 +867,25 @@ async fn download_pkgbuilds(config: &Config, bases: &Bases) -> Result<HashMap<St
     Ok(srcinfos)
 }
 
-fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
+fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Result<i32> {
     let c = config.color;
-    let pkgs = actions
-        .iter_aur_pkgs()
-        .map(|b| b.pkg.package_base.as_str())
-        .collect::<Vec<_>>();
 
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
-            let _view = file_manager(config, fm, &pkgs)?;
+            let _view = file_manager(config, fetch, fm, &pkgs)?;
 
-            if !ask(config, &tr!("Proceed with installation?"), true) {
+            if !ask(config, &tr!("Accept changes?"), true) {
                 return Ok(1);
             }
 
             if config.save_changes {
-                config.fetch.commit(&pkgs, "paru save changes")?;
+                fetch.commit(&pkgs, "paru save changes")?;
             }
         } else {
-            let unseen = config.fetch.unseen(&pkgs)?;
-            let has_diff = config.fetch.has_diff(&unseen)?;
+            let unseen = fetch.unseen(&pkgs)?;
+            let has_diff = fetch.has_diff(&unseen)?;
             let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
-            let diffs = config.fetch.diff(&has_diff, config.color.enabled)?;
+            let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
                 let pager = config
@@ -896,7 +921,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                 let mut buf = Vec::new();
                 for pkg in &unseen {
                     if !has_diff.contains(pkg) {
-                        let path = config.build_dir.join(pkg);
+                        let path = fetch.clone_dir.join(pkg);
 
                         for file in read_dir(&path)
                             .with_context(|| tr!("failed to read dir: {}", path.display()))?
@@ -985,7 +1010,7 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
                     .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
                 exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
 
-                if !ask(config, &tr!("Proceed with installation?"), true) {
+                if !ask(config, &tr!("Accept changes?"), true) {
                     return Ok(1);
                 }
             } else {
@@ -994,27 +1019,36 @@ fn review<'a>(config: &Config, actions: &Actions<'a>) -> Result<i32> {
         }
     }
 
-    config.fetch.mark_seen(&pkgs)?;
+    fetch.mark_seen(&pkgs)?;
     Ok(0)
 }
 
-fn file_manager(config: &Config, fm: &str, pkgs: &[&str]) -> Result<tempfile::TempDir> {
-    let has_diff = config.fetch.has_diff(pkgs)?;
-    config.fetch.save_diffs(&has_diff)?;
+fn file_manager(
+    config: &Config,
+    fetch: &aur_fetch::Handle,
+    fm: &str,
+    pkgs: &[&str],
+) -> Result<tempfile::TempDir> {
+    let has_diff = fetch.has_diff(pkgs)?;
+    fetch.save_diffs(&has_diff)?;
     let view = tempfile::Builder::new().prefix("aur").tempdir()?;
-    config.fetch.make_view(view.path(), pkgs, &has_diff)?;
+    fetch.make_view(view.path(), pkgs, &has_diff)?;
+    run_file_manager(config, fm, view.path())?;
+    Ok(view)
+}
 
+fn run_file_manager(config: &Config, fm: &str, dir: &Path) -> Result<()> {
     let ret = Command::new(fm)
         .args(&config.fm_flags)
-        .arg(view.path())
-        .current_dir(view.path())
+        .arg(dir)
+        .current_dir(dir)
         .status()
         .with_context(|| tr!("failed to execute file manager: {}", fm))?;
     ensure!(
         ret.success(),
         tr!("file manager did not execute successfully")
     );
-    Ok(view)
+    Ok(())
 }
 
 fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
@@ -2377,6 +2411,10 @@ fn read_srcinfos<P: AsRef<Path>>(
 ) -> Result<(HashMap<(String, String), PathBuf>, Vec<Srcinfo>)> {
     let mut srcinfos = Vec::new();
     let mut paths = HashMap::new();
+
+    if !path.as_ref().exists() {
+        return Ok((paths, srcinfos));
+    }
 
     for entry in read_dir(&path)? {
         let entry = entry?;
