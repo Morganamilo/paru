@@ -366,8 +366,6 @@ pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Handle, repos: &[Rep
         return Ok(());
     }
 
-    let download = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
-
     let cols = config.cols.unwrap_or(0);
 
     let action = config.color.action;
@@ -380,23 +378,23 @@ pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Handle, repos: &[Rep
     );
 
     if cols < 80 {
-        fetch.download_cb(&download, |cb| {
-            print_download(config, cb.n, download.len(), cb.pkg);
+        fetch.download_repos_cb(repos, |cb| {
+            print_download(config, cb.n, repos.len(), cb.pkg);
         })?;
     } else {
-        let total = download.len().to_string();
+        let total = repos.len().to_string();
         let template = format!(
             " ({{pos:>{}}}/{{len}}) {{prefix:45!}} [{{wide_bar}}]",
             total.len()
         );
-        let pb = ProgressBar::new(download.len() as u64);
+        let pb = ProgressBar::new(repos.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
                 .template(&template)
                 .progress_chars("-> "),
         );
 
-        fetch.download_cb(&download, |cb| {
+        fetch.download_repos_cb(&repos, |cb| {
             pb.inc(1);
             pb.set_prefix(cb.pkg.to_string());
         })?;

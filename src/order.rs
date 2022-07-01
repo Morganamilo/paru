@@ -38,20 +38,27 @@ fn print_install(actions: &Actions) {
 }
 
 fn print_build(actions: &mut Actions) {
-    for build in &mut actions.build {
+    for build in &actions.build {
         let base = build.package_base();
 
-        //TODO
-        /* for b in &build.pkgs {
-            println!("AUR {} {} {}", get_pkg_type(b), base, b.pkg.name);
-        }*/
+        match build {
+            aur_depends::Base::Aur(a) => {
+                for pkg in &a.pkgs {
+                    println!("AUR {} {} {}", get_pkg_type(pkg), base, pkg.pkg.name)
+                }
+            }
+            aur_depends::Base::Custom(_) => todo!(),
+        }
     }
 }
 
 fn print_missing(actions: &Actions) {
-    /*for pk in &actions.missing {
-        println!("MISSING {} {}", pk.dep, pk.stack.join(" "));
-    }*/
+    for pk in &actions.missing {
+        println!("MISSING {}", pk.dep);
+        for pk in &pk.stack {
+            println!(" {}", pk.pkg);
+        }
+    }
 }
 
 fn print_conflicting(conflicts: Vec<Conflict>, type_str: &str) {

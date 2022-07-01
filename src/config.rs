@@ -459,6 +459,20 @@ pub struct Config {
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
     pub assume_installed: Vec<String>,
+
+    pub custom_repos: Vec<CustomRepo>,
+}
+
+#[derive(Default, Debug)]
+pub struct CustomRepo {
+    pub name: String,
+    pub url: Option<String>,
+}
+
+impl CustomRepo {
+    pub fn new(name: String) -> Self {
+        CustomRepo { name, url: None }
+    }
 }
 
 impl Ini for Config {
@@ -469,7 +483,14 @@ impl Ini for Config {
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env") {
-                    eprintln!("{}", tr!("error: unknown section '{}'", section));
+                    if self
+                        .custom_repos
+                        .iter()
+                        .find(|r| r.name == section)
+                        .is_none()
+                    {
+                        self.custom_repos.push(CustomRepo::new(section.to_string()));
+                    }
                 }
                 Ok(())
             }
@@ -787,12 +808,31 @@ impl Config {
             None => bail!(tr!("key '{}' does not belong to a section", key)),
         };
 
-        match section {
+        let section = section.to_string();
+
+        match section.as_str() {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
             "env" => self.parse_env(key, value),
-            _ => Ok(()),
+            repo => self.parse_repo(repo, key, value),
         }
+    }
+
+    fn parse_repo(&mut self, repo: &str, key: &str, value: Option<&str>) -> Result<()> {
+        let value = value.context(tr!("key can not be empty"))?;
+
+        let mut repo = self
+            .custom_repos
+            .iter_mut()
+            .find(|r| r.name == repo)
+            .unwrap();
+
+        match key {
+            "URL" => repo.url = Some(value.to_string()),
+            _ => eprintln!("{}", tr!("error: unknown option '{}' in repo", key)),
+        }
+
+        Ok(())
     }
 
     fn parse_env(&mut self, key: &str, value: Option<&str>) -> Result<()> {

@@ -33,6 +33,7 @@ use args::Args;
 use aur_depends::{Actions, Base, Conflict, Flags, RepoPackage, Resolver, Want};
 use log::debug;
 use raur::Cache;
+use reqwest::Url;
 use srcinfo::{ArchVec, Srcinfo};
 use tr::tr;
 
@@ -51,7 +52,7 @@ struct BuildInfo {
     status: Status,
     build: Vec<aur_depends::Base>,
     srcinfos: HashMap<String, Srcinfo>,
-    custom_paths: HashMap<String, PathBuf>,
+    custom_paths: HashMap<(String, String), PathBuf>,
     aur_repos: HashMap<String, String>,
     bases: Bases,
     conflicts: HashSet<String>,
@@ -186,8 +187,15 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 
     let actions = resolver.resolve_depends(&deps, &make_deps).await?;
     debug!("{:#?}", actions);
-    let mut build_info =
-        prepare_build(config, HashMap::new(), &mut cache, actions, Some(&srcinfo)).await?;
+    let mut build_info = prepare_build(
+        config,
+        HashMap::new(),
+        HashMap::new(),
+        &mut cache,
+        actions,
+        Some(&srcinfo),
+    )
+    .await?;
 
     if let Status::Stop(ret) = build_info.status {
         return Ok(ret);
@@ -340,13 +348,25 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
 }
 
 pub fn download_custom_repos(config: &Config) -> Result<()> {
-    let repos = vec![aur_fetch::Repo {
-        name: "fox".to_string(),
-        url: url::Url::parse("https://github.com/Foxboron/PKGBUILDS").unwrap(),
-    }];
+    let repos = config
+        .custom_repos
+        .iter()
+        .map(|r| {
+            Ok(aur_fetch::Repo {
+                name: r.name.clone(),
+                url: Url::parse(r.url.as_ref().context(tr!("repo {} has no url"))?)?,
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
 
-    let fetch = aur_fetch::Handle::with_combined_cache_dir(config.fetch.clone_dir.join("repo"));
-    download::custom_pkgbuilds(config, &fetch, &repos)
+    let mut fetch = aur_fetch::Handle::with_combined_cache_dir(config.fetch.clone_dir.join("repo"));
+    fetch.diff_dir = config.fetch.diff_dir.clone();
+    download::custom_pkgbuilds(config, &fetch, &repos)?;
+
+    let repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+    fetch.merge(&repos)?;
+    fetch.mark_seen(&repos)?;
+    Ok(())
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32> {
@@ -422,20 +442,24 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
     config.init_alpm()?;
 
     download_custom_repos(config)?;
-    let (custom_paths, pkgs) = read_srcinfos("/home/morganamilo/git/PKGBUILDS", true).unwrap();
-    let custom_repos = vec![aur_depends::Repo {
-        name: "fox".to_string(),
-        pkgs,
-    }];
+    let mut custom_paths = HashMap::new();
+    let mut repos = Vec::new();
 
-    let mut resolver = resolver(
-        config,
-        &config.alpm,
-        custom_repos,
-        &config.raur,
-        &mut cache,
-        flags,
-    );
+    for repo in &config.custom_repos {
+        let (c, p) = read_srcinfos(
+            &repo.name,
+            config.fetch.clone_dir.join("repo").join(&repo.name),
+            true,
+        )?;
+        custom_paths.extend(c);
+
+        repos.push(aur_depends::Repo {
+            name: repo.name.clone(),
+            pkgs: p,
+        });
+    }
+
+    let mut resolver = resolver(config, &config.alpm, repos, &config.raur, &mut cache, flags);
 
     let upgrades = if config.args.has_arg("u", "sysupgrade") {
         let upgrades = get_upgrades(config, &mut resolver).await?;
@@ -509,9 +533,15 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         .map(|p| p.pkg.name().to_string())
         .collect::<Vec<_>>();
 
-    let mut build_info =
-        prepare_build(config, upgrades.aur_repos, &mut cache, actions, None).await?;
-    build_info.custom_paths = custom_paths;
+    let mut build_info = prepare_build(
+        config,
+        upgrades.aur_repos,
+        custom_paths,
+        &mut cache,
+        actions,
+        None,
+    )
+    .await?;
 
     if let Status::Stop(ret) = build_info.status {
         return Ok(ret);
@@ -540,6 +570,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
 async fn prepare_build(
     config: &Config,
     aur_repos: HashMap<String, String>,
+    custom_paths: HashMap<(String, String), PathBuf>,
     cache: &mut Cache,
     mut actions: Actions<'_>,
     srcinfo: Option<&Srcinfo>,
@@ -606,17 +637,18 @@ async fn prepare_build(
     let bases = actions.iter_aur_pkgs().map(|p| p.pkg.clone()).collect();
     let srcinfos = download_pkgbuilds(config, &bases).await?;
 
-    if let Some(ref pb_cmd) = config.pre_build_command {
-        for base in &bases.bases {
-            // TODO custom
-            let dir = config.fetch.clone_dir.join(base.package_base());
-            let mut cmd = Command::new("sh");
-            cmd.env("PKGBASE", base.package_base())
-                .env("VERSION", base.version())
-                .current_dir(dir)
-                .arg("-c")
-                .arg(pb_cmd);
-            exec::command(&mut cmd)?;
+    for pkg in &actions.build {
+        match pkg {
+            Base::Aur(base) => {
+                let dir = config.fetch.clone_dir.join(base.package_base());
+                pre_build_command(config, &dir, base.package_base(), &base.version())?;
+            }
+            Base::Custom(c) => {
+                let dir = custom_paths
+                    .get(&(c.repo.clone(), c.package_base().to_string()))
+                    .unwrap();
+                pre_build_command(config, &dir, c.package_base(), &c.version())?;
+            }
         }
     }
 
@@ -718,7 +750,7 @@ async fn prepare_build(
         status: Status::Ok,
         build: actions.build,
         srcinfos,
-        custom_paths: HashMap::new(),
+        custom_paths,
         aur_repos,
         bases,
         conflicts,
@@ -726,6 +758,19 @@ async fn prepare_build(
         failed: Vec::new(),
         conflict: false,
     })
+}
+
+fn pre_build_command(config: &Config, dir: &Path, base: &str, version: &str) -> Result<()> {
+    if let Some(ref pb_cmd) = config.pre_build_command {
+        let mut cmd = Command::new("sh");
+        cmd.env("PKGBASE", base)
+            .env("VERSION", version)
+            .current_dir(dir)
+            .arg("-c")
+            .arg(pb_cmd);
+        exec::command(&mut cmd)?;
+    }
+    Ok(())
 }
 
 fn build_cleanup(config: &Config, bi: &BuildInfo) -> Result<i32> {
@@ -1587,14 +1632,17 @@ fn build_install_pkgbuild<'a>(
     devel_info: &mut DevelInfo,
     new_devel_info: &mut DevelInfo,
     repo: Option<(&str, &str)>,
-    custom_paths: &HashMap<String, PathBuf>,
+    custom_paths: &HashMap<(String, String), PathBuf>,
 ) -> Result<()> {
     let c = config.color;
     let mut debug_paths = HashMap::new();
 
     let dir = match base {
-        Base::Aur(a) => config.build_dir.join(&base.package_base()),
-        Base::Custom(c) => custom_paths.get(c.package_base()).unwrap().clone(),
+        Base::Aur(_) => config.build_dir.join(&base.package_base()),
+        Base::Custom(c) => custom_paths
+            .get(&(c.repo.clone(), c.package_base().to_string()))
+            .unwrap()
+            .clone(),
     };
 
     if !config.chroot && (!config.batch_install || !deps_not_satisfied(config, base)?.is_empty()) {
@@ -2217,7 +2265,7 @@ fn needs_build(
             if !base
                 .packages()
                 .filter_map(|p| repos.pkg(p).ok())
-                .any(|p| base.version() == version)
+                .any(|_| base.version() == version)
             {
                 all_installed = false
             }
@@ -2225,7 +2273,7 @@ fn needs_build(
             if !base
                 .packages()
                 .filter_map(|p| config.alpm.localdb().pkg(p).ok())
-                .any(|p| base.version() == version)
+                .any(|_| base.version() == version)
             {
                 all_installed = false
             }
@@ -2323,9 +2371,10 @@ fn dep_or_exp<'a>(
 }
 
 fn read_srcinfos<P: AsRef<Path>>(
+    repo: &str,
     path: P,
     recurse: bool,
-) -> Result<(HashMap<String, PathBuf>, Vec<Srcinfo>)> {
+) -> Result<(HashMap<(String, String), PathBuf>, Vec<Srcinfo>)> {
     let mut srcinfos = Vec::new();
     let mut paths = HashMap::new();
 
@@ -2333,7 +2382,7 @@ fn read_srcinfos<P: AsRef<Path>>(
         let entry = entry?;
 
         if recurse && entry.file_type()?.is_dir() {
-            let (p, s) = read_srcinfos(entry.path(), false)?;
+            let (p, s) = read_srcinfos(repo, entry.path(), false)?;
             paths.extend(p);
             srcinfos.extend(s);
             continue;
@@ -2343,8 +2392,17 @@ fn read_srcinfos<P: AsRef<Path>>(
             if let Some(name) = entry.path().file_name() {
                 if name == ".SRCINFO" {
                     let srcinfo = srcinfo::Srcinfo::parse_file(entry.path())?;
-                    paths.insert(srcinfo.base.pkgbase.clone(), path.as_ref().to_path_buf());
-                    srcinfos.push(srcinfo);
+                    let entry = paths.entry((repo.to_string(), srcinfo.base.pkgbase.clone()));
+                    match entry {
+                        Entry::Occupied(_) => eprintln!(
+                            "{}",
+                            tr!("pkgbase {base} already exists in repo {repo} -- skipping)")
+                        ),
+                        Entry::Vacant(v) => {
+                            v.insert(path.as_ref().to_path_buf());
+                            srcinfos.push(srcinfo);
+                        }
+                    }
                 }
             }
         }
