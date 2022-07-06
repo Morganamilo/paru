@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cargo build --release --locked --target-dir target
+CARGO_NET_GIT_FETCH_WITH_CLI=true cargo build --release --locked --target-dir target
 scripts/mkmo locale/
 strip target/release/paru
 tar --zstd -cfparu.tar.zst  man completions paru.conf locale -C target/release paru
