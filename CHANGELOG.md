@@ -1,5 +1,19 @@
 # Changelog
 
+## Paru v1.11.1 (2022-07-06)
+
+### Fixed
+
+- Fix installing split packages that depend on each other 8c24f92
+- Fix man page typos #785
+
+### Localization
+
+- Update ja locale #791
+- Update ca locale #788
+- Update zh_CN locale #786
+- Update zh_TW locale #784
+
 ## Paru v1.11.0 (2022-06-24)
 
 ### Added
