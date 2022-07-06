@@ -23,7 +23,9 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
 use alpm::{Alpm, Depend, Version};
-use alpm_utils::depends::{satisfies_dep, satisfies_provide, satisfies_provide_nover};
+use alpm_utils::depends::{
+    satisfies, satisfies_dep, satisfies_nover, satisfies_provide, satisfies_provide_nover,
+};
 use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
@@ -1444,13 +1446,36 @@ fn build_install_pkgbuild<'a>(
         *conflict = false;
     }
 
-    let missing = if config.args.count("d", "nodeps") > 1 {
+    let mut missing = if config.args.count("d", "nodeps") > 1 {
         Vec::new()
     } else if config.chroot {
         deps_not_satisfied_by_repo(config, base)?
     } else {
         deps_not_satisfied(config, base)?
     };
+
+    if config.args.count("d", "nodeps") > 0 {
+        for pkg in &base.pkgs {
+            missing.retain(|mis| {
+                !satisfies_nover(
+                    Depend::new(mis.as_str()),
+                    &pkg.pkg.name,
+                    pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str())),
+                )
+            })
+        }
+    } else {
+        for pkg in &base.pkgs {
+            missing.retain(|mis| {
+                !satisfies(
+                    Depend::new(mis.as_str()),
+                    &pkg.pkg.name,
+                    Version::new(pkg.pkg.version.as_str()),
+                    pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str())),
+                )
+            })
+        }
+    }
 
     if !missing.is_empty() {
         bail!(tr!(
