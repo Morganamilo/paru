@@ -1,5 +1,7 @@
 use crate::config::{Config, Mode};
-use crate::install::{flags, read_srcinfos};
+use crate::install::read_repos;
+use crate::resolver::flags;
+use alpm_utils::Target;
 use anyhow::Result;
 use aur_depends::{Actions, Conflict, Package, Resolver};
 use log::debug;
@@ -15,30 +17,17 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     let quiet = config.quiet;
 
     if config.mode != Mode::Repo {
-        for repo in &config.custom_repos {
-            let (c, p) = read_srcinfos(
-                config,
-                &repo.name,
-                config.fetch.clone_dir.join("repo").join(&repo.name),
-                true,
-            )?;
-            custom_paths.extend(c);
-            repos.push(aur_depends::Repo {
-                name: repo.name.clone(),
-                pkgs: p,
-            });
-        }
+        read_repos(config, &mut custom_paths, &mut repos)?;
     }
 
     config.alpm.take_raw_question_cb();
-    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags).repos(repos);
+    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags).repos(&repos);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 
-    let conflicts = actions.calculate_conflicts(true);
-    let inner_conflicts = actions.calculate_inner_conflicts(true);
-
     if !quiet {
+        let conflicts = actions.calculate_conflicts(true);
+        let inner_conflicts = actions.calculate_inner_conflicts(true);
         print_missing(&actions);
         print_conflicting(conflicts, "LOCAL");
         print_conflicting(inner_conflicts, "INNER");
@@ -64,7 +53,7 @@ fn print_install(actions: &Actions, quiet: bool) {
     }
 }
 
-fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, String), PathBuf>) {
+fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<Target, PathBuf>) {
     for build in &actions.build {
         let base = build.package_base();
 
@@ -84,7 +73,10 @@ fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, Stri
                         println!("{}", pkg.pkg.pkgname);
                     } else {
                         let path = paths
-                            .get(&(c.repo.clone(), c.package_base().to_string()))
+                            .get(&Target::new(
+                                Some(c.repo.clone()),
+                                c.package_base().to_string(),
+                            ))
                             .unwrap();
                         println!(
                             "SRCINFO {} {} {} {} {}",

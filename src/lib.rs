@@ -27,6 +27,7 @@ mod util;
 
 #[cfg(feature = "mock")]
 mod mock;
+mod resolver;
 
 #[cfg(not(feature = "mock"))]
 type RaurHandle = raur::Handle;
@@ -86,6 +87,10 @@ fn print_error(color: Style, err: Error) {
         return;
     }
 
+    if <dyn StdError>::is::<install::Status>(*iter.peek().unwrap()) {
+        return;
+    }
+
     eprint!("{} ", color.paint(tr!("error:")));
     while let Some(link) = iter.next() {
         eprint!("{}", link);
@@ -122,15 +127,25 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
     let mut config = match Config::new() {
         Ok(config) => config,
         Err(err) => {
+            let code = if let Some(e) = err.downcast_ref::<install::Status>() {
+                e.0
+            } else {
+                1
+            };
             print_error(Style::new(), err);
-            return 1;
+            return code;
         }
     };
 
     match run2(&mut config, args).await {
         Err(err) => {
-            print_error(config.color.error, err);
-            1
+            let code = if let Some(e) = err.downcast_ref::<install::Status>() {
+                e.0
+            } else {
+                1
+            };
+            print_error(Style::new(), err);
+            code
         }
         Ok(ret) => ret,
     }
@@ -179,7 +194,8 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
 
 async fn handle_upgrade(config: &mut Config) -> Result<i32> {
     if config.targets.is_empty() {
-        install::build_pkgbuild(config).await
+        install::build_pkgbuild(config).await?;
+        Ok(0)
     } else {
         Ok(exec::pacman(config, &config.args)?.code())
     }
@@ -271,7 +287,8 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         Ok(exec::pacman(config, &config.args)?.code())
     } else {
         let target = std::mem::take(&mut config.targets);
-        install::install(config, &target).await
+        install::install(config, &target).await?;
+        Ok(0)
     }
 }
 

@@ -48,7 +48,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
                 local.push(targ);
             } else if config.custom_repos.iter().any(|r| r.name == repo) {
                 aur.push(targ);
-            } else if repo == config.aur_namespace() {
+            } else if repo == config.aur_namespace() || repo == "." {
                 aur.push(targ);
             } else {
                 local.push(targ);
@@ -93,7 +93,7 @@ pub fn split_repo_aur_info<'a, T: AsTarg>(
         } else if config.mode == Mode::Repo {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
-            if repo == config.aur_namespace() {
+            if repo == config.aur_namespace() || repo == "." {
                 aur.push(targ);
             } else {
                 local.push(targ);

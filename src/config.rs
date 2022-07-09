@@ -463,15 +463,33 @@ pub struct Config {
     pub custom_repos: Vec<CustomRepo>,
 }
 
+#[derive(Debug)]
+pub enum RepoSource {
+    Url(Url),
+    Path(PathBuf),
+    None,
+}
+
+impl Default for RepoSource {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
 #[derive(Default, Debug)]
 pub struct CustomRepo {
     pub name: String,
-    pub url: Option<String>,
+    pub source: RepoSource,
+    pub depth: u32,
 }
 
 impl CustomRepo {
     pub fn new(name: String) -> Self {
-        CustomRepo { name, url: None }
+        CustomRepo {
+            depth: 2,
+            name,
+            source: RepoSource::None,
+        }
     }
 }
 
@@ -489,7 +507,7 @@ impl Ini for Config {
                         .find(|r| r.name == section)
                         .is_none()
                     {
-                        if matches!(section, "local" | "aur") {
+                        if matches!(section, "local" | "aur" | ".") {
                             bail!(tr!("section can not be called {}", section));
                         }
                         self.custom_repos.push(CustomRepo::new(section.to_string()));
@@ -831,7 +849,8 @@ impl Config {
             .unwrap();
 
         match key {
-            "URL" => repo.url = Some(value.to_string()),
+            "URL" => repo.source = RepoSource::Url(Url::parse(value)?),
+            "Path" => repo.source = RepoSource::Path(PathBuf::from(value.to_string())),
             _ => eprintln!("{}", tr!("error: unknown option '{}' in repo", key)),
         }
 
