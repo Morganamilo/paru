@@ -327,8 +327,8 @@ pub struct Config {
     pub raur: raur::Handle,
     #[cfg(feature = "mock")]
     pub raur: crate::mock::Mock,
-    #[default(aur_fetch::Handle::with_cache_dir(""))]
-    pub fetch: aur_fetch::Handle,
+    #[default(aur_fetch::Fetch::with_cache_dir(""))]
+    pub fetch: aur_fetch::Fetch,
     pub cache: raur::Cache,
     pub need_root: bool,
 
@@ -651,7 +651,7 @@ impl Config {
             self.aur_url.clone()
         };
 
-        self.fetch = aur_fetch::Handle {
+        self.fetch = aur_fetch::Fetch {
             git: self.git_bin.clone().into(),
             git_flags: self.git_flags.clone(),
             clone_dir: self.build_dir.clone(),

@@ -361,7 +361,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     Ok(())
 }
 
-pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Handle, repos: &[Repo]) -> Result<()> {
+pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Fetch, repos: &[Repo]) -> Result<()> {
     if repos.is_empty() {
         return Ok(());
     }

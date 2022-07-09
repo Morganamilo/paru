@@ -347,7 +347,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Handle) -> Result<i32> {
+pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Result<i32> {
     let repos = config
         .custom_repos
         .iter()
@@ -868,7 +868,7 @@ async fn download_pkgbuilds(config: &Config, bases: &Bases) -> Result<HashMap<St
     Ok(srcinfos)
 }
 
-fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Result<i32> {
+fn review<'a>(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<i32> {
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
             let _view = file_manager(config, fetch, fm, &pkgs)?;
@@ -947,7 +947,7 @@ fn review<'a>(config: &Config, fetch: &aur_fetch::Handle, pkgs: &[&str]) -> Resu
 fn print_dir(
     config: &Config,
     path: &Path,
-    fetch: &aur_fetch::Handle,
+    fetch: &aur_fetch::Fetch,
     stdin: &mut impl Write,
     buf: &mut Vec<u8>,
     bat: bool,
@@ -1038,7 +1038,7 @@ fn print_dir(
 
 fn file_manager(
     config: &Config,
-    fetch: &aur_fetch::Handle,
+    fetch: &aur_fetch::Fetch,
     fm: &str,
     pkgs: &[&str],
 ) -> Result<tempfile::TempDir> {
