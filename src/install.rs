@@ -30,7 +30,7 @@ use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use args::Args;
-use aur_depends::{Actions, Base, Conflict, Flags, RepoPackage, Resolver, Want};
+use aur_depends::{Actions, Base, Conflict, DepMissing, Flags, RepoPackage, Resolver};
 use log::debug;
 use raur::Cache;
 use reqwest::Url;
@@ -2146,7 +2146,8 @@ fn resolver<'a, 'b>(
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    let mut resolver = aur_depends::Resolver::new(alpm, repos, cache, raur, flags)
+    let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
+        .repos(repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
         .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
@@ -2382,7 +2383,7 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &str) -> bool
     true
 }
 
-fn fmt_stack(want: &Want) -> String {
+fn fmt_stack(want: &DepMissing) -> String {
     match &want.dep {
         Some(dep) => format!("{} ({})", want.pkg, dep),
         None => format!("{}", want.pkg),

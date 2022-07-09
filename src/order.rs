@@ -10,7 +10,7 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     let flags = flags(config);
 
     config.alpm.take_raw_question_cb();
-    let resolver = Resolver::new(&config.alpm, Vec::new(), &mut cache, &config.raur, flags);
+    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 

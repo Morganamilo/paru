@@ -190,7 +190,7 @@ pub async fn get_upgrades<'a, 'b>(
 
     let mut aur_upgrades = aur_upgrades.updates;
     let mut devel_upgrades =
-        filter_devel_updates(config, resolver.cache(), &devel_upgrades).await?;
+        filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
 
     let repo_upgrades = if config.mode != Mode::Aur && config.combined_upgrade {
         repo_upgrades(config)?
