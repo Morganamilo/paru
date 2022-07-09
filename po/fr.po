@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2022-06-27 23:31+0200\n"
+"PO-Revision-Date: 2022-07-09 21:36+0200\n"
 "Last-Translator: Silejonu <erwan.amans@gmail.com>\n"
 "Language-Team: Paragoumba <paragoumba@gmail.com>, 2021\n"
 "Language: fr\n"
@@ -660,7 +660,7 @@ msgstr ""
 
 #: src/help.rs:86
 msgid "show specific options:"
-msgstr "options spécifiques de show :"
+msgstr "options spécifiques de --show :"
 
 #: src/help.rs:87
 msgid "    -c --complete         Used for completions"
@@ -673,11 +673,11 @@ msgstr ""
 
 #: src/help.rs:89
 msgid "    -w --news             Print arch news"
-msgstr "    -w --news             Afficher les nouvelles arch"
+msgstr "    -w --news             Afficher les nouvelles d'arch"
 
 #: src/help.rs:91
 msgid "getpkgbuild specific options:"
-msgstr "options spécifiques de getpkgbuild :"
+msgstr "options spécifiques de --getpkgbuild :"
 
 #: src/help.rs:92
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -694,7 +694,7 @@ msgstr "    -s --ssh              Clone le paquet via SSH"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
-msgstr "options spécifiques de upgrade :"
+msgstr "options spécifiques de mise à jour :"
 
 #: src/help.rs:97
 msgid "    -i --install          Install package as well as building"
@@ -971,7 +971,7 @@ msgstr "{} : analyse de la liste des paquets..."
 
 #: src/install.rs:1491
 msgid "package list does not match srcinfo"
-msgstr "La liste de paquet ne correspond pas avec le fichier srcinfo"
+msgstr "la liste de paquet ne correspond pas avec le fichier srcinfo"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -1162,7 +1162,6 @@ msgid "can not use chroot builds: devtools is not installed"
 msgstr "impossible d'utiliser chroot : devtools n'est pas installé"
 
 #: src/lib.rs:241
-#, fuzzy
 msgid "no operation specified (use -h for help)"
 msgstr "aucune cible spécifiée (utiliser -h pour l'aide)"
 
