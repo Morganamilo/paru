@@ -489,6 +489,9 @@ impl Ini for Config {
                         .find(|r| r.name == section)
                         .is_none()
                     {
+                        if matches!(section, "local" | "aur") {
+                            bail!(tr!("section can not be called {}", section));
+                        }
                         self.custom_repos.push(CustomRepo::new(section.to_string()));
                     }
                 }

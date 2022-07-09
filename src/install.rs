@@ -463,7 +463,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<i32>
         } else {
             for repo in &config.custom_repos {
                 if !fetch.is_git_repo(&repo.name) {
-                    println!(
+                    eprintln!(
                         "{} {}",
                         c.warning.paint("::"),
                         tr!("repo {} not downloaded (use -Sya to download)", repo.name)
@@ -2433,7 +2433,7 @@ fn dep_or_exp<'a>(
     Ok(())
 }
 
-fn read_srcinfos<P: AsRef<Path>>(
+pub fn read_srcinfos<P: AsRef<Path>>(
     config: &Config,
     repo: &str,
     path: P,
