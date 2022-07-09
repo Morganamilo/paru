@@ -1705,26 +1705,41 @@ fn build_install_pkgbuild<'a>(
         deps_not_satisfied(config, base)?
     };
 
-    if config.args.count("d", "nodeps") > 0 {
-        for pkg in &base.pkgs {
-            missing.retain(|mis| {
-                !satisfies_nover(
-                    Depend::new(mis.as_str()),
-                    &pkg.pkg.name,
-                    pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str())),
-                )
-            })
+    let ver = config.args.count("d", "nodeps") == 0;
+    let arch = config.alpm.architectures().first().unwrap_or_default();
+
+    match &*base {
+        Base::Aur(a) => {
+            for pkg in &a.pkgs {
+                missing.retain(|mis| {
+                    let provides = pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str()));
+                    let v = Version::new(pkg.pkg.version.as_str());
+                    if ver {
+                        !satisfies(Depend::new(*mis), &pkg.pkg.name, v, provides)
+                    } else {
+                        !satisfies_nover(Depend::new(*mis), &pkg.pkg.name, provides)
+                    }
+                })
+            }
         }
-    } else {
-        for pkg in &base.pkgs {
-            missing.retain(|mis| {
-                !satisfies(
-                    Depend::new(mis.as_str()),
-                    &pkg.pkg.name,
-                    Version::new(pkg.pkg.version.as_str()),
-                    pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str())),
-                )
-            })
+        Base::Custom(c) => {
+            for pkg in &c.pkgs {
+                missing.retain(|mis| {
+                    let provides = pkg
+                        .pkg
+                        .provides
+                        .iter()
+                        .filter(|p| p.supports(arch))
+                        .flat_map(|p| &p.vec)
+                        .map(|p| Depend::new(p.as_str()));
+                    let v = Version::new(c.version().as_str());
+                    if ver {
+                        !satisfies(Depend::new(*mis), &pkg.pkg.pkgname, v, provides)
+                    } else {
+                        !satisfies_nover(Depend::new(*mis), &pkg.pkg.pkgname, provides)
+                    }
+                })
+            }
         }
     }
 
