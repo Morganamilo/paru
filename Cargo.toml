@@ -16,7 +16,7 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 [dependencies]
 alpm = "2.2.1"
 alpm-utils = "2.0.0"
-aur-depends = "1.0.3"
+aur-depends = "2.0.0"
 aur-fetch = "0.11.0"
 cini = "1.0.0"
 pacmanconf = "2.0.0"
@@ -65,6 +65,6 @@ mock = ["async-trait"]
 
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
-aur-depends = { path = "../aur-depends" }
+#aur-depends = { path = "../aur-depends" }
 #aur-fetch = { path = "../aur-fetch" }
 
