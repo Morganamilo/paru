@@ -54,6 +54,7 @@ impl Status {
 }
 
 struct Installer {
+    install_targets: bool,
     custom_repos: Vec<Repo>,
     custom_repo_paths: HashMap<Target, PathBuf>,
     custom_repo_fetch: Fetch,
@@ -74,7 +75,9 @@ struct Installer {
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
-    Installer::new(config).install(config, targets_str).await
+    let mut installer = Installer::new(config);
+    installer.install_targets = !config.no_install;
+    installer.install(config, targets_str).await
 }
 
 pub async fn build_pkgbuild(config: &mut Config) -> Result<()> {
@@ -96,6 +99,7 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<()> {
         .collect::<Vec<_>>();
     repo.pkgs.push(srcinfo);
     installer.custom_repos.push(repo);
+    installer.install_targets = config.install;
     installer.install(config, &targets).await
 }
 
@@ -106,6 +110,7 @@ impl Installer {
         fetch.diff_dir = fetch.diff_dir.join("repo");
 
         Self {
+            install_targets: true,
             custom_repos: Vec::new(),
             custom_repo_paths: HashMap::new(),
             custom_repo_fetch: fetch,
@@ -228,14 +233,14 @@ impl Installer {
                 match base {
                     Base::Aur(base) => {
                         for pkg in &base.pkgs {
-                            if pkg.target {
+                            if pkg.target && self.install_targets {
                                 targets.push(pkg.pkg.name.as_str())
                             }
                         }
                     }
                     Base::Custom(base) => {
                         for pkg in &base.pkgs {
-                            if pkg.target && (base.repo != "." || config.install) {
+                            if pkg.target && self.install_targets {
                                 targets.push(pkg.pkg.pkgname.as_str())
                             }
                         }
@@ -650,6 +655,9 @@ impl Installer {
         match &*base {
             Base::Aur(b) => {
                 for pkg in &b.pkgs {
+                    if pkg.target && !self.install_targets {
+                        continue;
+                    }
                     self.dep_or_exp(
                         config,
                         base,
@@ -661,14 +669,10 @@ impl Installer {
                 }
             }
             Base::Custom(b) => {
-                println!(
-                    "---------------------------------------------- {:?}",
-                    b.repo
-                );
-                if b.repo == "." && !config.install {
-                    return Ok(());
-                }
                 for pkg in &b.pkgs {
+                    if pkg.target && !self.install_targets {
+                        continue;
+                    }
                     self.dep_or_exp(
                         config,
                         base,
@@ -887,7 +891,6 @@ impl Installer {
             c.bold.paint(tr!("Resolving dependencies..."))
         );
 
-        println!("{:?}", targets);
         let mut actions = resolver.resolve_targets(&targets).await?;
         debug!("{:#?}", actions);
         let repo_targs = actions
@@ -1626,8 +1629,21 @@ pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Resul
     download::custom_pkgbuilds(config, fetch, &repos)?;
 
     if !config.skip_review {
-        let pkgs = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
-        review(config, fetch, &pkgs)?;
+        let pkgs = repos
+            .iter()
+            .filter(|r| {
+                config
+                    .custom_repos
+                    .iter()
+                    .find(|c| c.name == r.name)
+                    .map(|c| c.skip_review)
+                    .unwrap_or(false)
+            })
+            .map(|r| r.name.as_str())
+            .collect::<Vec<_>>();
+        if !pkgs.is_empty() {
+            review(config, fetch, &pkgs)?;
+        }
     }
 
     let repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
@@ -2012,6 +2028,7 @@ fn read_repo(
     repo_paths: &mut HashMap<Target, PathBuf>,
     path: &Path,
     recurse: u32,
+    force_srcinfo: bool,
 ) -> Result<()> {
     let c = config.color;
 
@@ -2019,20 +2036,27 @@ fn read_repo(
         return Ok(());
     }
 
-    if path.join("PKGBUILD").exists() && !path.join(".SRCINFO").exists() {
+    if path.join("PKGBUILD").exists() && (force_srcinfo || !path.join(".SRCINFO").exists()) {
         println!(
             "{} {}",
             c.action.paint("::"),
             c.bold.paint(tr!(
-                "Generating .SRCINFO for {repo}/dir...",
-                repo.name,
-                path.display()
+                "Generating .SRCINFO for {repo}/{dir}...",
+                repo = repo.name,
+                dir = path.file_name().unwrap().to_string_lossy()
             ))
         );
 
-        let output = exec::makepkg_output(config, path, &["--printsrcinfo"])?;
-        let mut file = File::create(path.join(".SRCINFO"))?;
-        file.write_all(&output.stdout)?;
+        let output = exec::makepkg_output(config, path, &["--printsrcinfo"]);
+        match output {
+            Ok(output) => {
+                let mut file = File::create(path.join(".SRCINFO"))?;
+                file.write_all(&output.stdout)?;
+            }
+            Err(e) => {
+                print_error(config.color.error, e);
+            }
+        }
     }
 
     let entry = read_dir(&path);
@@ -2044,7 +2068,14 @@ fn read_repo(
         let entry = entry?;
 
         if recurse != 0 && entry.file_type()?.is_dir() {
-            read_repo(config, repo, repo_paths, &entry.path(), recurse - 1)?;
+            read_repo(
+                config,
+                repo,
+                repo_paths,
+                &entry.path(),
+                recurse - 1,
+                force_srcinfo,
+            )?;
             continue;
         }
 
@@ -2059,7 +2090,11 @@ fn read_repo(
                     match entry {
                         Entry::Occupied(_) => eprintln!(
                             "{}",
-                            tr!("pkgbase {base} already exists in repo {repo} -- skipping)")
+                            tr!(
+                                "pkgbase {base} already exists in repo {repo} -- skipping)",
+                                base = srcinfo.base.pkgbase,
+                                repo = repo.name
+                            )
                         ),
                         Entry::Vacant(v) => {
                             v.insert(path.to_path_buf());
@@ -2107,7 +2142,14 @@ pub fn read_repos(
             RepoSource::None => bail!(tr!("repo {} does not have a URL or Path")),
         };
         let mut repod = Repo::new(repo.name.clone());
-        read_repo(config, &mut repod, repo_paths, &path, repo.depth)?;
+        read_repo(
+            config,
+            &mut repod,
+            repo_paths,
+            &path,
+            repo.depth,
+            repo.force_srcinfo,
+        )?;
         repos.push(repod);
     }
 

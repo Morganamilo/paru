@@ -269,6 +269,7 @@ impl Config {
             Arg::Long("quiet") | Arg::Short('q') => self.quiet = true,
             Arg::Long("list") | Arg::Short('l') => self.list = true,
             Arg::Long("delete") | Arg::Short('d') => self.delete += 1,
+            Arg::Long("noinstall") => self.no_install = true,
 
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,

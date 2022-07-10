@@ -448,6 +448,7 @@ pub struct Config {
     pub quiet: bool,
     pub list: bool,
     pub delete: u32,
+    pub no_install: bool,
 
     //pacman
     pub db_path: Option<String>,
@@ -481,6 +482,8 @@ pub struct CustomRepo {
     pub name: String,
     pub source: RepoSource,
     pub depth: u32,
+    pub skip_review: bool,
+    pub force_srcinfo: bool,
 }
 
 impl CustomRepo {
@@ -489,6 +492,8 @@ impl CustomRepo {
             depth: 2,
             name,
             source: RepoSource::None,
+            skip_review: false,
+            force_srcinfo: false,
         }
     }
 }
@@ -835,7 +840,7 @@ impl Config {
     }
 
     fn parse_repo(&mut self, repo: &str, key: &str, value: Option<&str>) -> Result<()> {
-        let value = value.context(tr!("key can not be empty"))?;
+        let value = value.context(tr!("key can not be empty"));
 
         let mut repo = self
             .custom_repos
@@ -844,8 +849,11 @@ impl Config {
             .unwrap();
 
         match key {
-            "URL" => repo.source = RepoSource::Url(Url::parse(value)?),
-            "Path" => repo.source = RepoSource::Path(PathBuf::from(value.to_string())),
+            "URL" => repo.source = RepoSource::Url(Url::parse(value?)?),
+            "Path" => repo.source = RepoSource::Path(PathBuf::from(value?.to_string())),
+            "Depth" => repo.depth = value?.parse()?,
+            "SkipReview" => repo.skip_review = true,
+            "GenerateSrcinfo" => repo.force_srcinfo = true,
             _ => eprintln!("{}", tr!("error: unknown option '{}' in repo", key)),
         }
 

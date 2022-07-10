@@ -127,7 +127,11 @@ pub fn command_output(cmd: &mut Command) -> Result<Output> {
     };
 
     if !ret.status.success() {
-        bail!(command_err(cmd));
+        bail!(
+            "{}: {}",
+            command_err(cmd),
+            String::from_utf8_lossy(&ret.stderr).trim()
+        );
     }
 
     Ok(ret)
