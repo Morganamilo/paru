@@ -8,13 +8,14 @@ use std::collections::HashMap;
 
 use alpm_utils::DbListExt;
 use anyhow::Result;
-use aur_depends::{AurUpdates, Resolver};
+use aur_depends::{AurUpdates, CustomUpdates, Resolver};
 use futures::try_join;
 use tr::tr;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
     pub aur_repos: HashMap<String, String>,
+    pub custom_keep: Vec<(String, String)>,
     pub repo_keep: Vec<String>,
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
@@ -168,12 +169,35 @@ pub async fn aur_upgrades<'res, 'conf>(
     )
 }
 
+fn custom_upgrades<'a, 'b>(
+    config: &Config,
+    resolver: &mut Resolver<'a, 'b, RaurHandle>,
+    print: bool,
+) -> Result<CustomUpdates<'a>> {
+    if config.mode != Mode::Repo {
+        if print {
+            let c = config.color;
+            println!(
+                "{} {}",
+                c.action.paint("::"),
+                c.bold.paint(tr!("Looking for SRCINFO upgrades..."))
+            );
+        }
+
+        let updates = resolver.custom_updates()?;
+        Ok(updates)
+    } else {
+        Ok(CustomUpdates::default())
+    }
+}
+
 pub async fn get_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
 ) -> Result<Upgrades> {
     let (aur_upgrades, devel_upgrades) = aur_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
+    let custom_updates = custom_upgrades(config, resolver, true)?;
 
     for pkg in aur_upgrades.ignored {
         eprintln!(
@@ -184,6 +208,19 @@ pub async fn get_upgrades<'a, 'b>(
                 pkg = pkg.local.name(),
                 old = pkg.local.version(),
                 new = pkg.remote.version
+            )
+        );
+    }
+
+    for pkg in custom_updates.ignored {
+        eprintln!(
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
+            tr!(
+                "{pkg}: ignoring package upgrade ({old} => {new})",
+                pkg = pkg.local.name(),
+                old = pkg.local.version(),
+                new = pkg.remote_srcinfo.version(),
             )
         );
     }
@@ -226,6 +263,11 @@ pub async fn get_upgrades<'a, 'b>(
         aur.extend(devel_upgrades);
 
         let upgrades = Upgrades {
+            custom_keep: custom_updates
+                .updates
+                .iter()
+                .map(|u| (u.repo.clone(), u.local.name().to_string()))
+                .collect(),
             aur_repos,
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
             aur_keep: aur,
@@ -375,6 +417,11 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     let upgrades = Upgrades {
+        custom_keep: custom_updates
+            .updates
+            .iter()
+            .map(|u| (u.remote_pkg.pkgname.clone(), u.local.name().to_string()))
+            .collect(),
         aur_repos,
         repo_keep,
         repo_skip,

@@ -865,6 +865,11 @@ impl Installer {
             repo: Some(config.aur_namespace()),
             pkg: p,
         }));
+        targets.extend(self.upgrades.custom_keep.iter().map(|p| Targ {
+            repo: Some(&p.0),
+            pkg: &p.1,
+        }));
+
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
         // No aur stuff, let's just use pacman
