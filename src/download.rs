@@ -394,7 +394,7 @@ pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Fetch, repos: &[Repo
                 .progress_chars("-> "),
         );
 
-        fetch.download_repos_cb(&repos, |cb| {
+        fetch.download_repos_cb(repos, |cb| {
             pb.inc(1);
             pb.set_prefix(cb.pkg.to_string());
         })?;

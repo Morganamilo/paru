@@ -500,18 +500,13 @@ impl Ini for Config {
         let err = match cb.kind {
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
-                if !matches!(section, "options" | "bin" | "env") {
-                    if self
-                        .custom_repos
-                        .iter()
-                        .find(|r| r.name == section)
-                        .is_none()
-                    {
-                        if matches!(section, "local" | "aur" | ".") {
-                            bail!(tr!("section can not be called {}", section));
-                        }
-                        self.custom_repos.push(CustomRepo::new(section.to_string()));
+                if !matches!(section, "options" | "bin" | "env")
+                    && !self.custom_repos.iter().any(|r| r.name == section)
+                {
+                    if matches!(section, "local" | "aur" | ".") {
+                        bail!(tr!("section can not be called {}", section));
                     }
+                    self.custom_repos.push(CustomRepo::new(section.to_string()));
                 }
                 Ok(())
             }

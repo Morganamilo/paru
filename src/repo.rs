@@ -251,7 +251,7 @@ pub fn clean(config: &mut Config) -> Result<i32> {
         4,
         config.cols,
         "  ",
-        rem.iter().flat_map(|r| r).map(|p| p.name()),
+        rem.iter().flatten().map(|p| p.name()),
     );
 
     println!();

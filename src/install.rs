@@ -2,6 +2,7 @@ use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
+use std::fmt::Write as _;
 use std::fs::{read_dir, read_link, File, OpenOptions};
 use std::io::{Read, Write};
 use std::mem::take;
@@ -363,8 +364,8 @@ impl Installer {
                 save_devel_info(config, &self.devel_info)?;
             }
 
-            asdeps(config, &mut self.deps)?;
-            asexp(config, &mut self.exp)?;
+            asdeps(config, &self.deps)?;
+            asexp(config, &self.exp)?;
             self.deps.clear();
             self.exp.clear();
             self.install_queue.clear();
@@ -820,7 +821,7 @@ impl Installer {
         let mut resolver = resolver(
             config,
             &config.alpm,
-            &custom_repos,
+            custom_repos,
             &config.raur,
             &mut cache,
             flags,
@@ -924,16 +925,16 @@ impl Installer {
         &mut self,
         config: &Config,
         cache: &mut Cache,
-        mut actions: &mut Actions<'_>,
+        actions: &mut Actions<'_>,
     ) -> Result<()> {
         if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
             bail!(tr!("can't install AUR package as root"));
         }
 
-        let conflicts = check_actions(config, &mut actions)?;
+        let conflicts = check_actions(config, actions)?;
         let c = config.color;
 
-        print_warnings(config, cache, Some(&actions));
+        print_warnings(config, cache, Some(actions));
 
         if actions.build.is_empty() && actions.install.is_empty() {
             printtr!(" there is nothing to do");
@@ -941,9 +942,9 @@ impl Installer {
         }
 
         if config.pacman.verbose_pkg_lists {
-            print_install_verbose(config, &actions);
+            print_install_verbose(config, actions);
         } else {
-            print_install(config, &actions);
+            print_install(config, actions);
         }
 
         let has_make = if !config.chroot
@@ -962,7 +963,7 @@ impl Installer {
             false
         };
 
-        if !config.skip_review && !actions.iter_aur_pkgs().next().is_none() {
+        if !config.skip_review && actions.iter_aur_pkgs().next().is_some() {
             if !ask(config, &tr!("Proceed to review?"), true) {
                 return Status::err(1);
             }
@@ -994,7 +995,7 @@ impl Installer {
                             c.package_base().to_string(),
                         ))
                         .unwrap();
-                    pre_build_command(config, &dir, c.package_base(), &c.version())?;
+                    pre_build_command(config, dir, c.package_base(), &c.version())?;
                 }
             }
         }
@@ -1047,7 +1048,7 @@ impl Installer {
         }
 
         if config.pgp_fetch {
-            check_pgp_keys(config, &actions, &self.srcinfos)?;
+            check_pgp_keys(config, actions, &self.srcinfos)?;
         }
 
         repo_install(config, &actions.install)?;
@@ -1173,7 +1174,7 @@ fn upgrade_later(config: &Config) -> bool {
 fn fmt_stack(want: &DepMissing) -> String {
     match &want.dep {
         Some(dep) => format!("{} ({})", want.pkg, dep),
-        None => format!("{}", want.pkg),
+        None => want.pkg.to_string(),
     }
 }
 
@@ -1189,7 +1190,7 @@ fn check_actions(config: &Config, actions: &mut Actions) -> Result<(Vec<Conflict
         let mut err = tr!("could not find all required packages:");
         for missing in &actions.missing {
             if missing.stack.is_empty() {
-                err.push_str(&format!("\n    {} (target)", c.error.paint(&missing.dep)));
+                write!(err, "\n    {} (target)", c.error.paint(&missing.dep))?;
             } else {
                 let stack = missing
                     .stack
@@ -1502,8 +1503,8 @@ fn print_dir(
                 buf.clear();
                 pkgbbuild.read_to_end(buf)?;
 
-                let _ = match std::str::from_utf8(&buf) {
-                    Ok(_) => stdin.write_all(&buf),
+                let _ = match std::str::from_utf8(buf) {
+                    Ok(_) => stdin.write_all(buf),
                     Err(_) => {
                         write!(
                             stdin,
@@ -1520,20 +1521,20 @@ fn print_dir(
     Ok(())
 }
 
-fn review<'a>(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
-            let _view = file_manager(config, fetch, fm, &pkgs)?;
+            let _view = file_manager(config, fetch, fm, pkgs)?;
 
             if !ask(config, &tr!("Accept changes?"), true) {
                 return Status::err(1);
             }
 
             if config.save_changes {
-                fetch.commit(&pkgs, "paru save changes")?;
+                fetch.commit(pkgs, "paru save changes")?;
             }
         } else {
-            let unseen = fetch.unseen(&pkgs)?;
+            let unseen = fetch.unseen(pkgs)?;
             let has_diff = fetch.has_diff(&unseen)?;
             let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
@@ -1592,7 +1593,7 @@ fn review<'a>(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
         }
     }
 
-    fetch.mark_seen(&pkgs)?;
+    fetch.mark_seen(pkgs)?;
     Ok(())
 }
 
@@ -1622,7 +1623,7 @@ pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Resul
         })
         .collect::<Vec<_>>();
 
-    download::custom_pkgbuilds(config, &fetch, &repos)?;
+    download::custom_pkgbuilds(config, fetch, &repos)?;
 
     if !config.skip_review {
         let pkgs = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
@@ -1917,14 +1918,12 @@ fn needs_build(
             {
                 all_installed = false
             }
-        } else {
-            if !base
-                .packages()
-                .filter_map(|p| config.alpm.localdb().pkg(p).ok())
-                .any(|_| base.version() == version)
-            {
-                all_installed = false
-            }
+        } else if !base
+            .packages()
+            .filter_map(|p| config.alpm.localdb().pkg(p).ok())
+            .any(|_| base.version() == version)
+        {
+            all_installed = false
         }
 
         if all_installed {
@@ -2031,7 +2030,7 @@ fn read_repo(
             ))
         );
 
-        let output = exec::makepkg_output(config, path.as_ref(), &["--printsrcinfo"])?;
+        let output = exec::makepkg_output(config, path, &["--printsrcinfo"])?;
         let mut file = File::create(path.join(".SRCINFO"))?;
         file.write_all(&output.stdout)?;
     }
