@@ -14,7 +14,9 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAll, YesNoAsk};
+use crate::config::{
+    Config, CustomRepo, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAll, YesNoAsk,
+};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
@@ -28,7 +30,7 @@ use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ, Target};
 use ansi_term::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use aur_depends::{Actions, Base, Conflict, DepMissing, Repo, RepoPackage};
 use aur_fetch::Fetch;
 use log::debug;
@@ -77,6 +79,19 @@ struct Installer {
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
     let mut installer = Installer::new(config);
     installer.install_targets = !config.no_install;
+
+    if targets_str.iter().any(|t| t.starts_with("./")) {
+        let dir = std::env::current_dir()?;
+        let repo = CustomRepo {
+            name: ".".to_string(),
+            source: RepoSource::Path(dir),
+            depth: 3,
+            skip_review: true,
+            force_srcinfo: false,
+        };
+        config.custom_repos.push(repo);
+    }
+
     installer.install(config, targets_str).await
 }
 
@@ -2036,7 +2051,10 @@ fn read_repo(
         return Ok(());
     }
 
-    if path.join("PKGBUILD").exists() && (force_srcinfo || !path.join(".SRCINFO").exists()) {
+    if path.join("PKGBUILD").exists()
+        && ((force_srcinfo && config.args.has_arg("y", "refresh"))
+            || !path.join(".SRCINFO").exists())
+    {
         println!(
             "{} {}",
             c.action.paint("::"),
@@ -2082,7 +2100,20 @@ fn read_repo(
         if entry.file_type()?.is_file() {
             if let Some(name) = entry.path().file_name() {
                 if name == ".SRCINFO" {
-                    let srcinfo = srcinfo::Srcinfo::parse_file(entry.path())?;
+                    let srcinfo = srcinfo::Srcinfo::parse_file(entry.path());
+                    let srcinfo = match srcinfo {
+                        Ok(srcinfo) => srcinfo,
+                        Err(err) => {
+                            print_error(
+                                config.color.error,
+                                anyhow!(err).context(tr!(
+                                    "failed to parse srcinfo \"{}\"",
+                                    entry.path().display().to_string()
+                                )),
+                            );
+                            continue;
+                        }
+                    };
                     let entry = repo_paths.entry(Target::new(
                         Some(repo.name.clone()),
                         srcinfo.base.pkgbase.clone(),
