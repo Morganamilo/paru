@@ -754,7 +754,12 @@ impl Installer {
             if !self.chroot.exists() {
                 self.chroot.create(config, &["base-devel"])?;
             } else {
-                self.chroot.update()?;
+                if config.refresh {
+                    self.chroot.run(&["pacman", "-Sy", "--noconfirm"])?;
+                }
+                if config.sysupgrade {
+                    self.chroot.run(&["pacman", "-Su", "--noconfirm"])?;
+                }
             }
         }
 
