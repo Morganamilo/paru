@@ -60,6 +60,7 @@ impl Bases {
                 make: false,
                 target: false,
             }],
+            build: true,
         })
     }
 

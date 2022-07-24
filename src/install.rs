@@ -433,91 +433,19 @@ impl Installer {
         }
     }
 
-    fn build_install_pkgbuild<'a>(
+    fn build_pkgbuild<'a>(
         &mut self,
         config: &mut Config,
         base: &'a mut Base,
         repo: Option<(&str, &str)>,
-    ) -> Result<()> {
-        let c = config.color;
+        dir: &Path,
+    ) -> Result<(HashMap<String, String>, String)> {
         let mut debug_paths = HashMap::new();
-
-        let dir = match base {
-            Base::Aur(_) => config.build_dir.join(&base.package_base()),
-            Base::Custom(c) => self
-                .custom_repo_paths
-                .get(&Target::new(
-                    Some(c.repo.clone()),
-                    c.package_base().to_string(),
-                ))
-                .unwrap()
-                .clone(),
-        };
-
-        if !config.chroot
-            && (!config.batch_install || !deps_not_satisfied(config, base)?.is_empty())
-        {
-            self.do_install(config)?;
-            self.conflict = false;
-        }
-
-        let mut missing = if config.args.count("d", "nodeps") > 1 {
-            Vec::new()
-        } else if config.chroot {
-            deps_not_satisfied_by_repo(config, base)?
-        } else {
-            deps_not_satisfied(config, base)?
-        };
-
-        let ver = config.args.count("d", "nodeps") == 0;
-        let arch = config.alpm.architectures().first().unwrap_or_default();
-
-        match &*base {
-            Base::Aur(a) => {
-                for pkg in &a.pkgs {
-                    missing.retain(|mis| {
-                        let provides = pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str()));
-                        let v = Version::new(pkg.pkg.version.as_str());
-                        if ver {
-                            !satisfies(Depend::new(*mis), &pkg.pkg.name, v, provides)
-                        } else {
-                            !satisfies_nover(Depend::new(*mis), &pkg.pkg.name, provides)
-                        }
-                    })
-                }
-            }
-            Base::Custom(c) => {
-                for pkg in &c.pkgs {
-                    missing.retain(|mis| {
-                        let provides = pkg
-                            .pkg
-                            .provides
-                            .iter()
-                            .filter(|p| p.supports(arch))
-                            .flat_map(|p| &p.vec)
-                            .map(|p| Depend::new(p.as_str()));
-                        let v = Version::new(c.version().as_str());
-                        if ver {
-                            !satisfies(Depend::new(*mis), &pkg.pkg.pkgname, v, provides)
-                        } else {
-                            !satisfies_nover(Depend::new(*mis), &pkg.pkg.pkgname, provides)
-                        }
-                    })
-                }
-            }
-        }
-
-        if !missing.is_empty() {
-            bail!(tr!(
-                "can't build {base}, deps not satisfied: {deps}",
-                base = base,
-                deps = missing.join("  ")
-            ));
-        }
+        let c = config.color;
 
         if config.chroot {
             self.chroot
-                .build(&dir, &["-c"], &["-ofA"])
+                .build(dir, &["-c"], &["-ofA"])
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
@@ -525,7 +453,7 @@ impl Installer {
             if !config.keep_src {
                 args.push("-Cc");
             }
-            exec::makepkg(config, &dir, &args)?
+            exec::makepkg(config, dir, &args)?
                 .success()
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
@@ -534,13 +462,13 @@ impl Installer {
             if !config.keep_src {
                 args.push("-C");
             }
-            exec::makepkg(config, &dir, &args)?
+            exec::makepkg(config, dir, &args)?
                 .success()
                 .with_context(|| tr!("failed to build '{}'", base))?;
         }
 
         printtr!("{}: parsing pkg list...", base);
-        let (mut pkgdest, version) = parse_package_list(config, &dir)?;
+        let (pkgdest, version) = parse_package_list(config, dir)?;
 
         if !base.packages().all(|p| pkgdest.contains_key(p)) {
             bail!(tr!("package list does not match srcinfo"));
@@ -593,7 +521,7 @@ impl Installer {
             if config.chroot {
                 self.chroot
                     .build(
-                        &dir,
+                        dir,
                         &[],
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
                     )
@@ -603,7 +531,7 @@ impl Installer {
                 if !config.keep_src {
                     args.push("-c");
                 }
-                exec::makepkg(config, &dir, &args)?
+                exec::makepkg(config, dir, &args)?
                     .success()
                     .with_context(|| tr!("failed to build '{}'", base))?;
             }
@@ -666,6 +594,95 @@ impl Installer {
                 save_devel_info(config, &self.devel_info)?;
             }
         }
+        Ok((pkgdest, version))
+    }
+
+    fn build_install_pkgbuild<'a>(
+        &mut self,
+        config: &mut Config,
+        base: &'a mut Base,
+        repo: Option<(&str, &str)>,
+    ) -> Result<()> {
+        let dir = match base {
+            Base::Aur(_) => config.build_dir.join(&base.package_base()),
+            Base::Custom(c) => self
+                .custom_repo_paths
+                .get(&Target::new(
+                    Some(c.repo.clone()),
+                    c.package_base().to_string(),
+                ))
+                .unwrap()
+                .clone(),
+        };
+
+        let build = base.build();
+
+        if !config.chroot
+            && (!config.batch_install || !deps_not_satisfied(config, base)?.is_empty())
+        {
+            self.do_install(config)?;
+            self.conflict = false;
+        }
+
+        let mut missing = if config.args.count("d", "nodeps") > 1 {
+            Vec::new()
+        } else if config.chroot {
+            deps_not_satisfied_by_repo(config, base)?
+        } else {
+            deps_not_satisfied(config, base)?
+        };
+
+        let ver = config.args.count("d", "nodeps") == 0;
+        let arch = config.alpm.architectures().first().unwrap_or_default();
+
+        match &*base {
+            Base::Aur(a) => {
+                for pkg in &a.pkgs {
+                    missing.retain(|mis| {
+                        let provides = pkg.pkg.provides.iter().map(|p| Depend::new(p.as_str()));
+                        let v = Version::new(pkg.pkg.version.as_str());
+                        if ver {
+                            !satisfies(Depend::new(*mis), &pkg.pkg.name, v, provides)
+                        } else {
+                            !satisfies_nover(Depend::new(*mis), &pkg.pkg.name, provides)
+                        }
+                    })
+                }
+            }
+            Base::Custom(c) => {
+                for pkg in &c.pkgs {
+                    missing.retain(|mis| {
+                        let provides = pkg
+                            .pkg
+                            .provides
+                            .iter()
+                            .filter(|p| p.supports(arch))
+                            .flat_map(|p| &p.vec)
+                            .map(|p| Depend::new(p.as_str()));
+                        let v = Version::new(c.version().as_str());
+                        if ver {
+                            !satisfies(Depend::new(*mis), &pkg.pkg.pkgname, v, provides)
+                        } else {
+                            !satisfies_nover(Depend::new(*mis), &pkg.pkg.pkgname, provides)
+                        }
+                    })
+                }
+            }
+        }
+
+        if !missing.is_empty() {
+            bail!(tr!(
+                "can't build {base}, deps not satisfied: {deps}",
+                base = base,
+                deps = missing.join("  ")
+            ));
+        }
+
+        let (mut pkgdest, version) = if build {
+            self.build_pkgbuild(config, base, repo, &dir)?
+        } else {
+            parse_package_list(config, &dir)?
+        };
 
         match &*base {
             Base::Aur(b) => {
