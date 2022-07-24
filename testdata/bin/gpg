@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/gpg --faked-system-time 20220101T000000 "$@"
