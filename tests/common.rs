@@ -62,10 +62,15 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
     ];
     args.extend(run_args);
 
-    std::env::set_var("PACMAN", testdata.join("pacman"));
+    let mut path = std::env::var("PATH").unwrap();
+    path.push(':');
+    path.push_str(testdata.join("bin").to_str().unwrap());
+
+    std::env::set_var("PACMAN", testdata.join("bin/pacman"));
     std::env::set_var("PACMAN_CONF", dir.join("pacman.conf"));
     std::env::set_var("DBPATH", dir.join("db"));
     std::env::set_var("PARU_CONF", testdata.join("paru.conf"));
+    std::env::set_var("PATH", path);
 
     let ret = paru::run(&args).await;
     Ok((tmp, ret))
