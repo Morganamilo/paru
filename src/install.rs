@@ -2170,7 +2170,7 @@ pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
             download_custom_repos(config, fetch)?;
         } else {
             for repo in &config.custom_repos {
-                if !fetch.is_git_repo(&repo.name) {
+                if matches!(repo.source, RepoSource::Url(_)) && !fetch.is_git_repo(&repo.name) {
                     eprintln!(
                         "{} {}",
                         c.warning.paint("::"),
