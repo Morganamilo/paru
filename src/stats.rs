@@ -7,6 +7,7 @@ use alpm::PackageReason;
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
+use std::process::Command;
 
 use anyhow::Result;
 use indicatif::HumanBytes;
@@ -17,6 +18,37 @@ struct Info<'a> {
     explicit_packages: usize,
     total_size: i64,
     max_packages: Vec<(i64, &'a str)>,
+}
+
+fn to_string(v: Vec<u8>) -> String {
+    let mut string = String::with_capacity(v.len());
+    for i in v {
+        string.push(i as char);
+    }
+    string
+}
+fn cache() {
+    let cmd = Command::new("/bin/sh")
+        .arg("-c")
+        .arg("du -shc0 /var/cache/pacman ~/.cache/paru")
+        .output()
+        .expect("paru: Err: unwrap failed in the cache function.");
+    let cmd = to_string(cmd.stdout);
+    let cmd = cmd.split_whitespace();
+    let cmd = {
+        let mut v = Vec::with_capacity(3);
+        for i in cmd {
+            v.push(i);
+        }
+        v
+    };
+
+    println!(
+        "Total cache size: {}\nParu cache size: {}\nPacman cache size: {}",
+        cmd[2].split_once("paru").unwrap().1,
+        cmd[1].split_once("pacman").unwrap().1,
+        cmd[0]
+    );
 }
 
 async fn collect_info(config: &Config, max_n: usize) -> Result<Info<'_>> {
@@ -102,7 +134,8 @@ pub async fn stats(config: &Config) -> Result<i32> {
     );
 
     print_line_separator(config);
-
+    cache();
+    print_line_separator(config);
     println!("{}", c.bold.paint(tr!("Ten biggest packages:")));
     for (size, name) in info.max_packages {
         println!(
