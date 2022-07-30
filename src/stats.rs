@@ -27,7 +27,7 @@ fn to_string(v: Vec<u8>) -> String {
     }
     string
 }
-fn cache() {
+fn cache_display() {
     let cmd = Command::new("/bin/sh")
         .arg("-c")
         .arg("du -shc0 /var/cache/pacman ~/.cache/paru")
@@ -134,7 +134,7 @@ pub async fn stats(config: &Config) -> Result<i32> {
     );
 
     print_line_separator(config);
-    cache();
+    cache_display();
     print_line_separator(config);
     println!("{}", c.bold.paint(tr!("Ten biggest packages:")));
     for (size, name) in info.max_packages {
