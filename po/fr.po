@@ -2,30 +2,29 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 #
+# Previous translators
+# Silejonu <erwan.amans@gmail.com> , 2021\n"
+# Cedric Brisson <cedric@cedricbrisson.ca>, 2021\n"
 msgid ""
 msgstr ""
-"Project-Id-Version: paru v1.8.1\n"
+"Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2021-08-17 12:31+0200\n"
+"PO-Revision-Date: 2022-07-09 21:36+0200\n"
 "Last-Translator: Silejonu <erwan.amans@gmail.com>\n"
 "Language-Team: Paragoumba <paragoumba@gmail.com>, 2021\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Silejonu <erwan.amans@gmail.com> , 2021\n"
-"Cedric Brisson <cedric@cedricbrisson.ca>, 2021\n"
-"X-Generator: Poedit 3.0\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
 msgstr "Voulez-vous supprimer TOUS les paquets AUR du cache ?"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
 msgstr "Voulez-vous supprimer tous les autres paquets AUR du cache ?"
 
@@ -261,32 +260,29 @@ msgid "Aur Make"
 msgstr "AUR (compilation)"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "Dépôt"
+msgstr "Dépôt ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "Version"
+msgstr "Ancienne Version"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "Version"
+msgstr "Nouvelle Version"
 
 #: src/fmt.rs:221
+#, fuzzy
 msgid "Make Only"
-msgstr ""
+msgstr "Make Uniquement"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "oui"
+msgstr "Oui"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -294,7 +290,7 @@ msgstr "Non"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "nombre insuffisant de colonnes disponibles pour l'affichage du tableau"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -487,10 +483,13 @@ msgstr ""
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
+"    --limit     <limit>    Limite le nombre d'éléments retournés dans une "
+"recherche"
 
 #: src/help.rs:55
 msgid "    -x --regex             Enable regex for aur search"
 msgstr ""
+"    -x --regex             Activer les regex pour la recherche dans l'aur"
 
 #: src/help.rs:57
 msgid "    --skipreview           Skip the review process"
@@ -515,7 +514,8 @@ msgstr ""
 #: src/help.rs:61
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr ""
-"    --[no]cleanafter       Enlève les paquets sources après installation"
+"    --[no]cleanafter       Supprime les sources des paquets après "
+"installation"
 
 #: src/help.rs:62
 msgid "    --[no]rebuild          Always build target packages"
@@ -544,6 +544,8 @@ msgstr ""
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
+"    --[no]savechanges      Valider les changements apportés aux pkgbuilds "
+"pendant la révision"
 
 #: src/help.rs:68
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
@@ -601,16 +603,18 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           Compile les paquets dans un chroot"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild          Toujours recompiler les paquets cibles"
+msgstr ""
+"    --[no]failfast         S'arrêter dès que la construction d'un paquet AUR "
+"échoue"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild          Toujours recompiler les paquets cibles"
+msgstr ""
+"    --[no]keepsrc          Conserver src/ et pkg/ après la construction des "
+"paquets"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -656,7 +660,7 @@ msgstr ""
 
 #: src/help.rs:86
 msgid "show specific options:"
-msgstr "options spécifiques de show :"
+msgstr "options spécifiques de --show :"
 
 #: src/help.rs:87
 msgid "    -c --complete         Used for completions"
@@ -669,11 +673,11 @@ msgstr ""
 
 #: src/help.rs:89
 msgid "    -w --news             Print arch news"
-msgstr "    -w --news             Afficher les nouvelles arch"
+msgstr "    -w --news             Afficher les nouvelles d'arch"
 
 #: src/help.rs:91
 msgid "getpkgbuild specific options:"
-msgstr "options spécifiques de getpkgbuild :"
+msgstr "options spécifiques de --getpkgbuild :"
 
 #: src/help.rs:92
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -682,17 +686,15 @@ msgstr "    -p --print            Affiche le pkgbuild sur la sortie standard"
 #: src/help.rs:93
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr ""
-"    -c --comments         Affiche les commentaire de l'AUR pour le pkgbuild"
+"    -c --comments         Affiche les commentaires de l'AUR pour le pkgbuild"
 
 #: src/help.rs:94
-#, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
-msgstr ""
-"    -s --stats            Affiche des statistiques sur les paquets du système"
+msgstr "    -s --ssh              Clone le paquet via SSH"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
-msgstr "options spécifiques de upgrade :"
+msgstr "options spécifiques de mise à jour :"
 
 #: src/help.rs:97
 msgid "    -i --install          Install package as well as building"
@@ -864,7 +866,6 @@ msgid "packages failed to build: {}"
 msgstr "la compilation des paquets suivants a échouée : {}"
 
 #: src/install.rs:748
-#, fuzzy
 msgid "could not find .SRCINFO for '{}'"
 msgstr "impossible de trouver le .SRCINFO pour '{}'"
 
@@ -954,7 +955,7 @@ msgstr "Signature des paquets..."
 
 #: src/install.rs:1457
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "impossible de construire {base}, dépendances non satisfaites: {deps}"
 
 #: src/install.rs:1466 src/install.rs:1475
 msgid "failed to download sources for '{}'"
@@ -969,9 +970,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{} : analyse de la liste des paquets..."
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "aucun paquet ne correspond à la recherche"
+msgstr "la liste de paquet ne correspond pas avec le fichier srcinfo"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -1041,14 +1041,12 @@ msgid "  nothing to do"
 msgstr "  rien à faire"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " il n'y a rien à faire"
+msgstr "il n'y a rien à faire"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "ID de base du paquet"
+msgstr "Paquets"
 
 #: src/repo.rs:258
 #, fuzzy
@@ -1112,14 +1110,12 @@ msgid " [installed]"
 msgstr " [installé]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "Recherche des mises à jour pour les paquets de l'AUR"
+msgstr "Recherche des mises à jour pour les paquets de l'AUR..."
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "Recherche de mises à jour pour les paquets devel"
+msgstr "Recherche de mises à jour pour les paquets devel..."
 
 #: src/upgrade.rs:181
 msgid "warning:"
@@ -1155,7 +1151,7 @@ msgstr "Entrez un nombre (défaut=1) : "
 
 #: src/util.rs:347
 msgid "invalid number: {}"
-msgstr "nombre invalid : {}"
+msgstr "nombre invalide : {}"
 
 #: src/util.rs:357
 msgid "invalid value: {n} is not between 1 and {max}"
@@ -1166,16 +1162,9 @@ msgid "can not use chroot builds: devtools is not installed"
 msgstr "impossible d'utiliser chroot : devtools n'est pas installé"
 
 #: src/lib.rs:241
-#, fuzzy
 msgid "no operation specified (use -h for help)"
 msgstr "aucune cible spécifiée (utiliser -h pour l'aide)"
 
 #: src/lib.rs:415
 msgid " [installed: {}]"
 msgstr " [installés : {}]"
-
-#~ msgid "n"
-#~ msgstr "n"
-
-#~ msgid "no"
-#~ msgstr "non"
