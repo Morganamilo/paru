@@ -531,10 +531,23 @@ impl Config {
         let config =
             dirs::config_dir().ok_or_else(|| anyhow!(tr!("failed to find config directory")))?;
         let config = config.join("paru");
+        let state =
+            dirs::state_dir().ok_or_else(|| anyhow!(tr!("failed to find state directory")))?;
+        let state = state.join("paru");
 
         let build_dir = cache.join("clone");
         let config_path = config.join("paru.conf");
-        let devel_path = cache.join("devel.json");
+
+        // Check if devel.json is present in cache dir & move to state dir if true
+        if cache.join("devel.json").exists() {
+            if !state.exists() {
+                std::fs::create_dir(&state)?;
+            }
+            std::fs::copy(cache.join("devel.json"), state.join("devel.json"))?;
+            std::fs::remove_file(cache.join("devel.json"))?;
+        }
+
+        let devel_path = state.join("devel.json");
         let cache_dir = cache;
 
         let color = Colors::from("never");
