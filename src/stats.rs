@@ -30,7 +30,7 @@ fn to_string(v: Vec<u8>) -> String {
 fn cache_display() {
     let cmd = Command::new("/bin/sh")
         .arg("-c")
-        .arg("du -shc0 /var/cache/pacman ~/.cache/paru")
+        .arg("mkdir ~/.cache/paru ; du -shc0 /var/cache/pacman ~/.cache/paru")
         .output()
         .expect("paru: Err: unwrap failed in the cache function.");
     let cmd = to_string(cmd.stdout);
