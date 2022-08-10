@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: paru 1.9.3\n"
+"Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2022-03-25 20:14+0000\n"
+"PO-Revision-Date: 2022-08-10 12:13+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <hugokarvalho@hotmail.com>\n"
 "Language: pt\n"
@@ -19,14 +19,12 @@ msgstr ""
 "X-Generator: Poedit 3.0.1\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Deseja remover todos os pacotes AUR da cache?"
+msgstr "Deseja limpar TODOS os pacotes AUR do cache?"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "Deseja remover todos os outros pacotes AUR da cache?"
+msgstr "Deseja limpar todos os outros pacotes AUR do cache?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -261,32 +259,28 @@ msgid "Aur Make"
 msgstr "Aur Make"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "Repo"
+msgstr "Repo ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "Versão"
+msgstr "Versão antiga"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "Versão"
+msgstr "Versão nova"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "Apenas compilar"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "sim"
+msgstr "Sim"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -294,7 +288,7 @@ msgstr "Não"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "colunas insuficientes disponíveis para exibição de tabela"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -516,11 +510,11 @@ msgstr ""
 
 #: src/help.rs:62
 msgid "    --[no]rebuild          Always build target packages"
-msgstr "    --[no]rebuild          Compila sempre pacotes-alvo"
+msgstr "    --[no]rebuild          Compilar sempre os pacotes destinados"
 
 #: src/help.rs:63
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr "    --[no]redownload       Transferir sempre PKGBUILDs dos alvos"
+msgstr "    --[no]redownload       Transferir sempre PKGBUILDs dos destinos"
 
 #: src/help.rs:65
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
@@ -595,16 +589,18 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           Compila pacotes em chroot"
 
 #: src/help.rs:76
-#, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]rebuild          Compila sempre pacotes-alvo"
+msgstr ""
+"    --[no]failfast         Sair assim que a compilação de um pacote AUR "
+"falhar"
 
 #: src/help.rs:77
-#, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]rebuild          Compila sempre pacotes-alvo"
+msgstr ""
+"    --[no]keepsrc          Manter diretórios src/ e pkg/ após a compilação "
+"de pacotes"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
@@ -943,7 +939,7 @@ msgstr "A assinar os pacotes..."
 
 #: src/install.rs:1457
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "não foi possível compilar {base}, dependências não satisfeitas: {deps}"
 
 #: src/install.rs:1466 src/install.rs:1475
 msgid "failed to download sources for '{}'"
@@ -958,9 +954,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}: a analisar lista pkg..."
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "nenhum resultado"
+msgstr "a lista de pacotes não corresponde ao srcinfo"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -1030,19 +1025,16 @@ msgid "  nothing to do"
 msgstr "  nada a fazer"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " nada a fazer"
+msgstr "não há nada para fazer"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "ID Base do pacote"
+msgstr "Pacotes"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "Continuar para análise?"
+msgstr "Prosseguir com a remoção?"
 
 #: src/search.rs:34
 msgid "aur search failed"
@@ -1101,14 +1093,12 @@ msgid " [installed]"
 msgstr " [instalado]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "A procurar atualizações no AUR"
+msgstr "A procurar atualizações no AUR..."
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "A procurar atualizações de desenvolvimento"
+msgstr "A procurar atualizações de desenvolvimento..."
 
 #: src/upgrade.rs:181
 msgid "warning:"
