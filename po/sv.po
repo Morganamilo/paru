@@ -2,30 +2,29 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # filiphe <filip@hesslund.org>, 2021.
+# Luna Jernberg <droidbittin@gmail.com>, 2022.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-06-24 23:23+0000\n"
-"PO-Revision-Date: 2021-07-06 14:05+0200\n"
-"Last-Translator: filiphe <filip@hesslund.org>\n"
+"PO-Revision-Date: 2022-08-13 21:30+0200\n"
+"Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.1\n"
 
 #: src/clean.rs:32
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Vill du ta bort ALLA AUR paket från cachen?"
+msgstr "Vill du rensa ALLA AUR paket från cache?"
 
 #: src/clean.rs:34
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "Vill du ta bort alla andra AUR paket från cachen?"
+msgstr "Vill du rensa alla andra AUR paket från cache?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -84,9 +83,8 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "ogiltigt värde '{val}' för nyckel '{key}', förväntade sig: {exp}"
 
 #: src/config.rs:472
-#, fuzzy
 msgid "error: unknown section '{}'"
-msgstr "okänd sektion '{}'"
+msgstr "fel: okänd sektion '{}'"
 
 #: src/config.rs:487
 msgid "failed to find cache directory"
@@ -126,11 +124,11 @@ msgstr "nyckeln får inte vara tom"
 
 #: src/config.rs:802
 msgid "key can not contain null bytes"
-msgstr ""
+msgstr "nyckel kan inte innehålla null bytes"
 
 #: src/config.rs:805
 msgid "value can not contain null bytes"
-msgstr ""
+msgstr "värde kan inte innehålla null bytes"
 
 #: src/config.rs:838
 msgid "error: unknown option '{}' in section [bin]"
@@ -260,32 +258,28 @@ msgid "Aur Make"
 msgstr "Aur Make"
 
 #: src/fmt.rs:217
-#, fuzzy
 msgid "Repo ({})"
-msgstr "Förvar"
+msgstr "Förvar ({})"
 
 #: src/fmt.rs:218
 msgid "Aur ({})"
-msgstr ""
+msgstr "Aur ({})"
 
 #: src/fmt.rs:219
-#, fuzzy
 msgid "Old Version"
-msgstr "Version"
+msgstr "Gammal version"
 
 #: src/fmt.rs:220
-#, fuzzy
 msgid "New Version"
-msgstr "Version"
+msgstr "Ny version"
 
 #: src/fmt.rs:221
 msgid "Make Only"
-msgstr ""
+msgstr "Make endast"
 
 #: src/fmt.rs:222
-#, fuzzy
 msgid "Yes"
-msgstr "ja"
+msgstr "Ja"
 
 #: src/fmt.rs:223 src/info.rs:94
 msgid "No"
@@ -293,168 +287,174 @@ msgstr "Nej"
 
 #: src/fmt.rs:283
 msgid "insufficient columns available for table display"
-msgstr ""
+msgstr "otillräckligt med kolumner tillgängliga för tabellvisning"
 
 #: src/help.rs:4
 msgid "Usage:"
-msgstr ""
+msgstr "Användning:"
 
 #: src/help.rs:5
 msgid "    paru"
-msgstr ""
+msgstr "    paru"
 
 #: src/help.rs:6
 msgid "    paru <operation> [...]"
-msgstr ""
+msgstr "    paru <operation> [...]"
 
 #: src/help.rs:7
 msgid "    paru <package(s)>"
-msgstr ""
+msgstr "    paru <paket>"
 
 #: src/help.rs:9
 msgid "Pacman operations:"
-msgstr ""
+msgstr "Pacman operationer:"
 
 #: src/help.rs:10
 msgid "    paru {-h --help}"
-msgstr ""
+msgstr "    paru {-h --help}"
 
 #: src/help.rs:11
 msgid "    paru {-V --version}"
-msgstr ""
+msgstr "    paru {-V --version}"
 
 #: src/help.rs:12
 msgid "    paru {-D --database}    <options> <package(s)>"
-msgstr ""
+msgstr "    paru {-D --database}    <alternativ> <paket>"
 
 #: src/help.rs:13
 msgid "    paru {-F --files}       [options] [package(s)]"
-msgstr ""
+msgstr "    paru {-F --files}       [alternativ] [paket]"
 
 #: src/help.rs:14
 msgid "    paru {-Q --query}       [options] [package(s)]"
-msgstr ""
+msgstr "    paru {-Q --query}       [alternativ] [paket]"
 
 #: src/help.rs:15
 msgid "    paru {-R --remove}      [options] <package(s)>"
-msgstr ""
+msgstr "    paru {-R --remove}      [alternativ] <paket>"
 
 #: src/help.rs:16
 msgid "    paru {-S --sync}        [options] [package(s)]"
-msgstr ""
+msgstr "    paru {-S --sync}        [alternativ] [paket]"
 
 #: src/help.rs:17
 msgid "    paru {-T --deptest}     [options] [package(s)]"
-msgstr ""
+msgstr "    paru {-T --deptest}     [alternativ] [paket]"
 
 #: src/help.rs:18
 msgid "    paru {-U --upgrade}     [options] [file(s)]"
-msgstr ""
+msgstr "    paru {-U --upgrade}     [alternativ] [filer]"
 
 #: src/help.rs:20
 msgid "New operations:"
-msgstr ""
+msgstr "Nya operationer:"
 
 #: src/help.rs:21
 msgid "    paru {-P --show}        [options]"
-msgstr ""
+msgstr "    paru {-P --show}        [alternativ]"
 
 #: src/help.rs:22
 msgid "    paru {-G --getpkgbuild} [package(s)]"
-msgstr ""
+msgstr "    paru {-G --getpkgbuild} [paket]"
 
 #: src/help.rs:24
 msgid "If no arguments are provided 'paru -Syu' will be performed"
-msgstr ""
+msgstr "Om inga argument tillhandahålls kommer 'paru -Syu' att utföras"
 
 #: src/help.rs:26
 msgid "Options without operation:"
-msgstr ""
+msgstr "Alternativ utan operationer:"
 
 #: src/help.rs:27
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr ""
+msgstr "    -c --clean            Ta bort onödiga beroenden"
 
 #: src/help.rs:28
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
+"       --gendb            Genererar utvecklingspaket DB som används för "
+"uppdatering"
 
 #: src/help.rs:30
 msgid "New options:"
-msgstr ""
+msgstr "Nya alternativ:"
 
 #: src/help.rs:31
 msgid "       --repo              Assume targets are from the repositories"
-msgstr ""
+msgstr "       --repo              Anta att målen kommer från förvaren"
 
 #: src/help.rs:32
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr ""
+msgstr "    -a --aur               Anta att målen kommer från AUR"
 
 #: src/help.rs:33
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr ""
+msgstr "    --aururl    <url>      Ställ in en alternativ AUR URL"
 
 #: src/help.rs:34
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
+"    --clonedir  <kat>      Katalog som används för att ladda ner och köra "
+"PKGBUILDs"
 
 #: src/help.rs:36
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr ""
+msgstr "    --makepkg   <fil>     makepkg kommando att använda"
 
 #: src/help.rs:37
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr ""
+msgstr "    --mflags    <flaggor>    Skicka argument till makepkg"
 
 #: src/help.rs:38
 msgid "    --pacman    <file>     pacman command to use"
-msgstr ""
+msgstr "    --pacman    <fil>     pacman kommando att använda"
 
 #: src/help.rs:39
 msgid "    --git       <file>     git command to use"
-msgstr ""
+msgstr "    --git       <fil>     git kommando att använda"
 
 #: src/help.rs:40
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr ""
+msgstr "    --gitflags  <flaggor>    Skicka argument till git"
 
 #: src/help.rs:41
 msgid "    --sudo      <file>     sudo command to use"
-msgstr ""
+msgstr "    --sudo      <fil>     sudo kommando att använda"
 
 #: src/help.rs:42
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr ""
+msgstr "    --sudoflags <flaggor>    Skicka argument till sudo"
 
 #: src/help.rs:43
 msgid "    --asp       <file>     asp command to use"
-msgstr ""
+msgstr "    --asp       <fil>     asp kommando att använda"
 
 #: src/help.rs:44
 msgid "    --bat       <file>     bat command to use"
-msgstr ""
+msgstr "    --bat       <fil>    bat kommando att använda"
 
 #: src/help.rs:45
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr ""
+msgstr "    --batflags  <flaggor>    Skicka argument to bat"
 
 #: src/help.rs:46
 msgid "    --gpg       <file>     gpg command to use"
-msgstr ""
+msgstr "    --gpg        <fil>      gpg kommando att använda"
 
 #: src/help.rs:47
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr ""
+msgstr "    --gpgflags  <flaggor>    Skicka argument till gpg"
 
 #: src/help.rs:48
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
+"    --fm         <fil>      Filhanterare att använda för granskning av "
+"PKGBUILD"
 
 #: src/help.rs:49
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
-msgstr ""
+msgstr "    --fmflags  <flaggor>     Skicka argument till filhanteraren"
 
 #: src/help.rs:51
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
@@ -464,19 +464,23 @@ msgstr ""
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
+"    --sortby    <fält>     Sortera AUR-resultat efter ett specifikt fält "
+"under sökning"
 
 #: src/help.rs:53
 msgid "    --searchby  <field>    Search for packages using a specified field"
-msgstr ""
+msgstr "    --searchby  <field>    Sök efter paket med ett specificerat fält"
 
 #: src/help.rs:54
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
+"    --limit     <limit>    Begränsar antalet objekt som returneras i en "
+"sökning"
 
 #: src/help.rs:55
 msgid "    -x --regex             Enable regex for aur search"
-msgstr ""
+msgstr "    -x --regex             Aktivera regex för aur sök"
 
 #: src/help.rs:57
 msgid "    --skipreview           Skip the review process"
@@ -489,27 +493,29 @@ msgstr ""
 #: src/help.rs:59
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
+"    --[no]upgrademenu      Visa interaktiv meny för att hoppa över "
+"uppgraderingar"
 
 #: src/help.rs:60
-#, fuzzy
 msgid "    --[no]removemake       Remove makedepends after install"
-msgstr "Ta bort make-beroenden efter installation?"
+msgstr "    --[no]removemake       Ta bort makedepends efter installationen"
 
 #: src/help.rs:61
 msgid "    --[no]cleanafter       Remove package sources after install"
-msgstr ""
+msgstr "    --[no]cleanafter       Ta bort paketkällor efter installationen"
 
 #: src/help.rs:62
 msgid "    --[no]rebuild          Always build target packages"
-msgstr ""
+msgstr "    --[no]rebuild          Bygg alltid målpaket"
 
 #: src/help.rs:63
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr ""
+msgstr "    --[no]redownload       Ladda alltid ner PKGBUILDs av mål"
 
 #: src/help.rs:65
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr ""
+"    --[no]pgpfetch         Fråga om att importera PGP-nycklar från PKGBUILDs"
 
 #: src/help.rs:66
 msgid ""
@@ -521,38 +527,49 @@ msgstr ""
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
+"    --[no]savechanges      Bekräfta ändringar av pkgbuilds som gjordes under "
+"granskning"
 
 #: src/help.rs:68
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
-msgstr ""
+msgstr "    --[no]newsonupgrade    Skriv ut nya nyheter under sysupgrade"
 
 #: src/help.rs:69
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
+"    --[no]combinedupgrade  Uppdatera och utför sedan repo och AUR-"
+"uppgraderingen tillsammans"
 
 #: src/help.rs:70
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
+"    --[no]batchinstall     Bygg flera AUR-paket och installera dem sedan "
+"tillsammans"
 
 #: src/help.rs:71
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
+"    --[no]provides        Leta efter matchande leverantörer när du söker "
+"efter paket"
 
 #: src/help.rs:72
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
+"    --[no]devel            Kontrollera utvecklingspaket under sysupgrade"
 
 #: src/help.rs:73
 msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
+"    --[no]installdebug     Installera även felsökningspaket när ett paket "
+"tillhandahåller dem"
 
 #: src/help.rs:74
 msgid ""
@@ -561,7 +578,7 @@ msgstr ""
 
 #: src/help.rs:75
 msgid "    --[no]chroot           Build packages in a chroot"
-msgstr ""
+msgstr "    --[no]chroot           Bygg paket i ett chroot"
 
 #: src/help.rs:76
 msgid ""
@@ -572,18 +589,20 @@ msgstr ""
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
 msgstr ""
+"    --[no]keepsrc          Behåll src/ och pkg/ katalogerna efter att ha "
+"byggt paket"
 
 #: src/help.rs:78
 msgid "    --[no]sign             Sign packages with gpg"
-msgstr ""
+msgstr "    --[no]sign             Signera paket med gpg"
 
 #: src/help.rs:79
 msgid "    --[no]signdb           Sign databases with gpg"
-msgstr ""
+msgstr "    --[no]signdb           Signera databaser med gpg"
 
 #: src/help.rs:80
 msgid "    --localrepo            Build packages into a local repo"
-msgstr ""
+msgstr "    --localrepo            Bygg paket till ett lokalt förvar"
 
 #: src/help.rs:81
 msgid ""
@@ -596,56 +615,58 @@ msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr ""
+"    --develsuffixes        Suffix används för att avgöra om ett paket är ett "
+"utvecklingspaket"
 
 #: src/help.rs:83
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
-msgstr ""
+msgstr "    --bottomup             Visar först AURs paket och sedan förvarets"
 
 #: src/help.rs:84
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
-msgstr ""
+msgstr "    --topdown              Visar förvarets paket först och sedan AUR:s"
 
 #: src/help.rs:86
 msgid "show specific options:"
-msgstr ""
+msgstr "visa specifika alternativ:"
 
 #: src/help.rs:87
 msgid "    -c --complete         Used for completions"
-msgstr ""
+msgstr "    -c --complete         Används för kompletteringar"
 
 #: src/help.rs:88
 msgid "    -s --stats            Display system package statistics"
-msgstr ""
+msgstr "    -s --stats            Visa systempaketstatistik"
 
 #: src/help.rs:89
 msgid "    -w --news             Print arch news"
-msgstr ""
+msgstr "    -w --news             Skriv ut arch nyheter"
 
 #: src/help.rs:91
 msgid "getpkgbuild specific options:"
-msgstr ""
+msgstr "getpkgbuild specifika alternativ:"
 
 #: src/help.rs:92
 msgid "    -p --print            Print pkgbuild to stdout"
-msgstr ""
+msgstr "    -p --print            Skriv pkgbuild till stdout"
 
 #: src/help.rs:93
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr ""
+msgstr "    -c --comments         Visar AUR-kommentarer för pkgbuild"
 
 #: src/help.rs:94
 msgid "    -s --ssh              Clone package using SSH"
-msgstr ""
+msgstr "    -s --ssh              Klona paket med SSH"
 
 #: src/help.rs:96
 msgid "upgrade specific options:"
-msgstr ""
+msgstr "uppgraderings specifika alternativ:"
 
 #: src/help.rs:97
 msgid "    -i --install          Install package as well as building"
-msgstr ""
+msgstr "    -i --install          Installera paket samt bygg"
 
 #: src/info.rs:31 src/query.rs:51
 msgid "package '{}' was not found"
@@ -813,9 +834,8 @@ msgid "packages failed to build: {}"
 msgstr "bygge misslyckat för paket: {}"
 
 #: src/install.rs:748
-#, fuzzy
 msgid "could not find .SRCINFO for '{}'"
-msgstr "kunde inte hitta .SRINFO för '{}'"
+msgstr "kunde inte hitta .SRCINFO för '{}'"
 
 #: src/install.rs:816
 msgid "failed to read dir: {}"
@@ -918,9 +938,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}: analyserar pkg-lista..."
 
 #: src/install.rs:1491
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "inga paket motsvarar sökningen"
+msgstr "paketlistan matchar inte srcinfo"
 
 #: src/install.rs:1553
 msgid "adding {} to the install list"
@@ -989,19 +1008,16 @@ msgid "  nothing to do"
 msgstr "  inget att göra"
 
 #: src/repo.rs:239
-#, fuzzy
 msgid "there is nothing to do"
-msgstr " det finns inget att göra"
+msgstr "det finns inget att göra"
 
 #: src/repo.rs:245
-#, fuzzy
 msgid "Packages"
-msgstr "Paket Bas ID"
+msgstr "Paket"
 
 #: src/repo.rs:258
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "Gå vidare till granskning?"
+msgstr "Fortsätt med borttagning?"
 
 #: src/search.rs:34
 msgid "aur search failed"
@@ -1060,14 +1076,12 @@ msgid " [installed]"
 msgstr " [installerad]"
 
 #: src/upgrade.rs:124
-#, fuzzy
 msgid "Looking for AUR upgrades..."
-msgstr "Letar efter AUR-uppgraderingar"
+msgstr "Letar efter AUR-uppgraderingar..."
 
 #: src/upgrade.rs:150
-#, fuzzy
 msgid "Looking for devel upgrades..."
-msgstr "Letar efter devel-upgraderingar"
+msgstr "Letar efter devel-upgraderingar..."
 
 #: src/upgrade.rs:181
 msgid "warning:"
@@ -1114,9 +1128,8 @@ msgid "can not use chroot builds: devtools is not installed"
 msgstr "kan inte använda chroot-byggen: devtools är inte installerat"
 
 #: src/lib.rs:241
-#, fuzzy
 msgid "no operation specified (use -h for help)"
-msgstr "inga mål specificerade (använd -h för hjälp)"
+msgstr "ingen operation specificerad (använd -h för hjälp)"
 
 #: src/lib.rs:415
 msgid " [installed: {}]"
