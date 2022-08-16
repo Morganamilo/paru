@@ -536,18 +536,19 @@ impl Config {
         let state = state.join("paru");
 
         let build_dir = cache.join("clone");
+        let old_devel_path = cache.join("devel.json");
+        let devel_path = state.join("devel.json");
         let config_path = config.join("paru.conf");
 
         // Check if devel.json is present in cache dir & move to state dir if true
-        if cache.join("devel.json").exists() {
+        if old_devel_path.exists() {
             if !state.exists() {
                 std::fs::create_dir(&state)?;
             }
-            std::fs::copy(cache.join("devel.json"), state.join("devel.json"))?;
-            std::fs::remove_file(cache.join("devel.json"))?;
+            std::fs::copy(&old_devel_path, &devel_path)?;
+            std::fs::remove_file(&old_devel_path)?;
         }
 
-        let devel_path = state.join("devel.json");
         let cache_dir = cache;
 
         let color = Colors::from("never");
