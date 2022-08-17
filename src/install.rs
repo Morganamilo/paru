@@ -445,7 +445,7 @@ impl Installer {
 
         if config.chroot {
             self.chroot
-                .build(dir, &["-c"], &["-ofA"])
+                .build(dir, &["-cu"], &["-ofA"])
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
