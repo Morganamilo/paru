@@ -153,7 +153,8 @@ fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
 fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
     let mut cmd = Command::new(sudo);
     cmd.args(flags);
-    command_status(&mut cmd)?;
+    let status = command_status(&mut cmd)?;
+    status.success()?;
     Ok(())
 }
 
