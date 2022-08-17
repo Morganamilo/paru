@@ -1091,7 +1091,12 @@ impl Installer {
             check_pgp_keys(config, actions, &self.srcinfos)?;
         }
 
-        repo_install(config, &actions.install)?;
+        if !config.chroot {
+            repo_install(config, &actions.install)?;
+        } else {
+            return Ok(());
+        }
+
         update_aur_list(config);
 
         self.conflicts = conflicts
