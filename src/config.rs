@@ -541,7 +541,7 @@ impl Config {
         let config_path = config.join("paru.conf");
 
         // Check if devel.json is present in cache dir & move to state dir if true
-        if old_devel_path.exists() {
+        if !devel_path.exists() && old_devel_path.exists() {
             if !state.exists() {
                 std::fs::create_dir(&state)?;
             }
