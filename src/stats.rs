@@ -1,5 +1,4 @@
 use crate::config::{version, Config};
-n/.paint(HumanBytes(info.total_size as u64).to_string())
 use crate::download::cache_info_with_warnings;
 use crate::printtr;
 use crate::util::repo_aur_pkgs;
