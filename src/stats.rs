@@ -1,4 +1,5 @@
 use crate::config::{version, Config};
+n/.paint(HumanBytes(info.total_size as u64).to_string())
 use crate::download::cache_info_with_warnings;
 use crate::printtr;
 use crate::util::repo_aur_pkgs;
@@ -27,7 +28,9 @@ fn to_string(v: Vec<u8>) -> String {
     }
     string
 }
-fn cache_display() {
+
+fn cache_display(config: &Config) {
+    let c = config.color;
     let cmd = Command::new("/bin/sh")
         .arg("-c")
         .arg("mkdir ~/.cache/paru ; du -shc0 /var/cache/pacman ~/.cache/paru")
@@ -45,9 +48,9 @@ fn cache_display() {
 
     println!(
         "Total cache size: {}\nParu cache size: {}\nPacman cache size: {}",
-        cmd[2].split_once("paru").unwrap().1,
-        cmd[1].split_once("pacman").unwrap().1,
-        cmd[0]
+        c.stats_value.paint(cmd[2].split_once("paru").unwrap().1),
+        c.stats_value.paint(cmd[1].split_once("pacman").unwrap().1),
+        c.stats_value.paint(cmd[0])
     );
 }
 
@@ -134,7 +137,7 @@ pub async fn stats(config: &Config) -> Result<i32> {
     );
 
     print_line_separator(config);
-    cache_display();
+    cache_display(config);
     print_line_separator(config);
     println!("{}", c.bold.paint(tr!("Ten biggest packages:")));
     for (size, name) in info.max_packages {
