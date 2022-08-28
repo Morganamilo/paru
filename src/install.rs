@@ -1041,10 +1041,12 @@ impl Installer {
         }
 
         if !config.skip_review {
-            let pkgs = actions
+            let mut pkgs = actions
                 .iter_aur_pkgs()
                 .map(|b| b.pkg.package_base.as_str())
                 .collect::<Vec<_>>();
+            pkgs.sort_unstable();
+            pkgs.dedup();
             review(config, &config.fetch, &pkgs)?;
         }
 
