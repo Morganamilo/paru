@@ -1042,8 +1042,13 @@ impl Installer {
 
         if !config.skip_review {
             let pkgs = actions
-                .iter_aur_pkgs()
-                .map(|b| b.pkg.package_base.as_str())
+                .build
+                .iter()
+                .filter(|b| b.build())
+                .filter_map(|b| match b {
+                    Base::Aur(pkg) => Some(pkg.package_base()),
+                    Base::Custom(_) => None,
+                })
                 .collect::<Vec<_>>();
             review(config, &config.fetch, &pkgs)?;
         }
