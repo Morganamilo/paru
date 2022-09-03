@@ -312,6 +312,23 @@ impl ConfigEnum for YesNoAsk {
         &[("yes", Self::Yes), ("no", Self::No), ("ask", Self::Ask)];
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum YesNoAllTree {
+    Yes,
+    No,
+    All,
+    Tree,
+}
+
+impl ConfigEnum for YesNoAllTree {
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("yes", Self::Yes),
+        ("no", Self::No),
+        ("all", Self::All),
+        ("tree", Self::Tree),
+    ];
+}
+
 #[derive(SmartDefault, Debug)]
 pub struct Config {
     section: Option<String>,
@@ -353,8 +370,8 @@ pub struct Config {
 
     #[default(YesNoAll::No)]
     pub redownload: YesNoAll,
-    #[default(YesNoAll::No)]
-    pub rebuild: YesNoAll,
+    #[default(YesNoAllTree::No)]
+    pub rebuild: YesNoAllTree,
     #[default(YesNoAsk::No)]
     pub remove_make: YesNoAsk,
     #[default(SortBy::Votes)]
@@ -934,8 +951,8 @@ impl Config {
             "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
             "InstallDebug" => self.install_debug = true,
-            "Redownload" => self.redownload = YesNoAll::All.default_or(key, value)?,
-            "Rebuild" => self.rebuild = YesNoAll::All.default_or(key, value)?,
+            "Redownload" => self.redownload = YesNoAll::Yes.default_or(key, value)?,
+            "Rebuild" => self.rebuild = YesNoAllTree::Yes.default_or(key, value)?,
             "RemoveMake" => self.remove_make = YesNoAsk::Yes.default_or(key, value)?,
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),

@@ -15,7 +15,7 @@ use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
 use crate::config::{
-    Config, CustomRepo, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAll, YesNoAsk,
+    Config, CustomRepo, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAllTree, YesNoAsk,
 };
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
@@ -1963,7 +1963,8 @@ fn needs_build(
     pkgdest: &HashMap<String, String>,
     version: &str,
 ) -> bool {
-    if (config.rebuild == YesNoAll::Yes && base.target()) || config.rebuild == YesNoAll::All {
+    if (config.rebuild == YesNoAllTree::Yes && base.target()) || config.rebuild != YesNoAllTree::No
+    {
         return true;
     }
 

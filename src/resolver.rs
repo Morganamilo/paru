@@ -1,4 +1,4 @@
-use crate::config::{Alpm, Config, LocalRepos, Mode, Op};
+use crate::config::{Alpm, Config, LocalRepos, Mode, Op, YesNoAllTree};
 use crate::fmt::color_repo;
 use crate::util::{get_provider, NumberMenu};
 use crate::RaurHandle;
@@ -43,6 +43,9 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
     }
     if config.repos != LocalRepos::None {
         flags |= Flags::LOCAL_REPO;
+    }
+    if dbg!(config.rebuild) == YesNoAllTree::Tree {
+        flags |= Flags::RESOLVE_SATISFIED_PKGBUILDS;
     }
 
     flags

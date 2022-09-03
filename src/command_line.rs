@@ -1,6 +1,7 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
 use crate::config::{
-    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, Sign, SortMode, YesNoAll, YesNoAsk,
+    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, Sign, SortMode, YesNoAll, YesNoAllTree,
+    YesNoAsk,
 };
 
 use std::fmt;
@@ -221,8 +222,10 @@ impl Config {
                 self.redownload = YesNoAll::Yes.default_or(argkey, value.ok())?
             }
             Arg::Long("noredownload") => self.redownload = YesNoAll::No,
-            Arg::Long("rebuild") => self.rebuild = YesNoAll::Yes.default_or(argkey, value.ok())?,
-            Arg::Long("norebuild") => self.rebuild = YesNoAll::No,
+            Arg::Long("rebuild") => {
+                self.rebuild = YesNoAllTree::Yes.default_or(argkey, value.ok())?
+            }
+            Arg::Long("norebuild") => self.rebuild = YesNoAllTree::No,
             Arg::Long("topdown") => self.sort_mode = SortMode::TopDown,
             Arg::Long("bottomup") => self.sort_mode = SortMode::BottomUp,
             Arg::Long("aur") | Arg::Short('a') => {
