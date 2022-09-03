@@ -1,13 +1,19 @@
-use crate::config::{Colors, Config};
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+use crate::config::{Colors, Config, Mode};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
 use crate::fmt::{date, opt, print_indent};
+use crate::install::read_repos;
 use crate::util::split_repo_aur_info;
 
-use alpm_utils::Targ;
+use alpm_utils::{Targ, Target};
 use ansi_term::Style;
 use anyhow::Error;
+use aur_depends::Repo;
 use raur::ArcPackage as Package;
+use srcinfo::{ArchVec, Srcinfo};
 use term_size::dimensions_stdout;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
@@ -18,6 +24,28 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
 
     let (repo, aur) = split_repo_aur_info(conf, &targets)?;
     let mut ret = 0;
+
+    let mut repo_paths = HashMap::new();
+    let mut repos = Vec::new();
+
+    if conf.mode != Mode::Repo {
+        read_repos(conf, &mut repo_paths, &mut repos)?;
+    }
+
+    let longest = longest(&repos) + 3;
+
+    let (custom, aur) = aur.into_iter().partition::<Vec<_>, _>(|t| {
+        t.repo.map_or_else(
+            || {
+                repos
+                    .iter()
+                    .flat_map(|r| &r.pkgs)
+                    .flat_map(|p| p.names())
+                    .any(|p| p == t.pkg)
+            },
+            |t| repos.iter().any(|r| r.name == t),
+        )
+    });
 
     let aur = if !aur.is_empty() {
         let color = conf.color;
@@ -46,14 +74,18 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     }
 
     if !aur.is_empty() {
-        print_aur_info(conf, verbose, &aur)?;
+        print_aur_info(conf, verbose, &aur, longest)?;
+    }
+
+    if !custom.is_empty() {
+        print_custom_info(conf, verbose, &repos, &repo_paths, &custom, longest)?;
     }
 
     Ok(ret)
 }
 
-fn longest() -> usize {
-    [
+fn longest(repos: &[Repo]) -> usize {
+    let longest = [
         tr!("Repository"),
         tr!("Name"),
         tr!("Version"),
@@ -76,17 +108,135 @@ fn longest() -> usize {
         tr!("Package Base ID"),
         tr!("Keywords"),
         tr!("Snapshot URL"),
+        tr!("Path"),
         "URL".to_string(),
         "AUR URL".to_string(),
     ]
     .iter()
     .map(|s| s.width())
     .max()
-    .unwrap()
+    .unwrap();
+
+    let mut longest_a = 0;
+
+    for repo in repos {
+        for base in &repo.pkgs {
+            longest_a = longest_a
+                .max(arch_len(&base.base.makedepends))
+                .max(arch_len(&base.base.checkdepends));
+
+            for pkg in &base.pkgs {
+                longest_a = longest_a
+                    .max(arch_len(&pkg.depends))
+                    .max(arch_len(&pkg.optdepends))
+                    .max(arch_len(&pkg.provides))
+                    .max(arch_len(&pkg.conflicts));
+            }
+        }
+    }
+
+    longest + longest_a
 }
 
-pub fn print_aur_info(conf: &mut Config, verbose: bool, pkgs: &[Package]) -> Result<(), Error> {
-    let len = longest() + 3;
+fn arch_len(vec: &[ArchVec]) -> usize {
+    vec.into_iter()
+        .filter_map(|v| v.arch.as_ref())
+        .map(|a| a.len() + 1)
+        .max()
+        .unwrap_or(0)
+}
+
+fn find_cusom_pkg<'a>(
+    name: &str,
+    repos: impl IntoIterator<Item = &'a Repo>,
+) -> Option<(&'a str, &'a Srcinfo, &'a srcinfo::Package)> {
+    for repo in repos {
+        for base in &repo.pkgs {
+            for pkg in &base.pkgs {
+                if pkg.pkgname == name {
+                    return Some((&repo.name, base, pkg));
+                }
+            }
+        }
+    }
+
+    None
+}
+
+pub fn print_custom_info(
+    conf: &mut Config,
+    _verbose: bool,
+    repos: &[Repo],
+    paths: &HashMap<Target, PathBuf>,
+    pkgs: &[Targ],
+    len: usize,
+) -> Result<(), Error> {
+    let color = conf.color;
+    let cols = dimensions_stdout().map(|x| x.0);
+    let print = |k: &str, v: &str| print(color, len, cols, k, v);
+    let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
+    let print_arch_list = |k: &str, v: &[ArchVec]| {
+        if v.is_empty() {
+            print_list(k, &[]);
+        }
+        v.into_iter().for_each(|v| match &v.arch {
+            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.vec),
+            None => print_list(k, &v.vec),
+        })
+    };
+    for targ in pkgs {
+        let pkg = if let Some(repo) = targ.repo {
+            find_cusom_pkg(&targ.pkg, repos.into_iter().find(|r| r.name == repo))
+        } else {
+            find_cusom_pkg(&targ.pkg, repos)
+        };
+
+        let (repo, srcinfo, pkg) = match pkg {
+            Some(pkg) => pkg,
+            None => {
+                eprintln!(
+                    "{} {}",
+                    color.error.paint("error:"),
+                    tr!("package '{}' was not found", targ.pkg),
+                );
+                continue;
+            }
+        };
+
+        let path = paths
+            .get(&Target {
+                repo: Some(repo.to_string()),
+                pkg: targ.pkg.to_string(),
+            })
+            .unwrap();
+
+        print(&tr!("Repository"), repo);
+        print(&tr!("Name"), &pkg.pkgname);
+        print(&tr!("Version"), &srcinfo.version());
+        print(&tr!("Description"), &opt(&pkg.pkgdesc));
+        print("URL", &opt(&pkg.url));
+        print_list(&tr!("Groups"), &pkg.groups);
+        print_list(&tr!("Licenses"), &pkg.license);
+        print_arch_list(&tr!("Provides"), &pkg.provides);
+        print_arch_list(&tr!("Depends On"), &pkg.depends);
+        print_arch_list(&tr!("Make Deps"), &srcinfo.base.makedepends);
+        print_arch_list(&tr!("Check Deps"), &srcinfo.base.checkdepends);
+        print_arch_list(&tr!("Optional Deps"), &pkg.optdepends);
+        print_arch_list(&tr!("Conflicts With"), &pkg.conflicts);
+        print(&tr!("Path"), &path.display().to_string());
+
+        println!();
+    }
+
+    Ok(())
+}
+
+pub fn print_aur_info(
+    conf: &mut Config,
+    verbose: bool,
+    pkgs: &[Package],
+    len: usize,
+) -> Result<(), Error> {
     let color = conf.color;
     let cols = dimensions_stdout().map(|x| x.0);
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
