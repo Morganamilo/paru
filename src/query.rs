@@ -87,9 +87,16 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
             'a: for repo in &repos {
                 for pkg in &repo.pkgs {
-                    if let Some(name) = pkg.names().find(|n| n == &target) && alpm::Version::new(&*pkg.version()) > local_pkg.version() {
-                        print_upgrade(config, name, local_pkg.version().as_str(), &pkg.version());
-                        continue 'a;
+                    if let Some(name) = pkg.names().find(|n| n == &target) {
+                        if alpm::Version::new(&*pkg.version()) > local_pkg.version() {
+                            print_upgrade(
+                                config,
+                                name,
+                                local_pkg.version().as_str(),
+                                &pkg.version(),
+                            );
+                            continue 'a;
+                        }
                     }
                 }
             }
