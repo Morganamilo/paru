@@ -1,8 +1,9 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::config::{Config, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::exec;
+use crate::install::read_repos;
 use crate::util::split_repo_aur_pkgs;
 
 use anyhow::Result;
@@ -39,9 +40,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() && config.mode != Mode::Repo {
-        let bold = config.color.bold;
         let error = config.color.error;
-        let upgrade = config.color.upgrade;
 
         for &pkg in &aur {
             if db.pkg(pkg).is_err() {
@@ -78,9 +77,24 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
         let devel = filter_devel_updates(config, &mut cache, &devel).await?;
 
+        let mut repo_paths = HashMap::new();
+        let mut repos = Vec::new();
+
+        read_repos(config, &mut repo_paths, &mut repos)?;
+
         for target in aur {
+            let local_pkg = db.pkg(target).unwrap();
+
+            'a: for repo in &repos {
+                for pkg in &repo.pkgs {
+                    if let Some(name) = pkg.names().find(|n| n == &target) && alpm::Version::new(&*pkg.version()) > local_pkg.version() {
+                        print_upgrade(config, name, local_pkg.version().as_str(), &pkg.version());
+                        continue 'a;
+                    }
+                }
+            }
+
             if let Some(pkg) = cache.get(target) {
-                let local_pkg = db.pkg(target).unwrap();
                 let devel = devel.iter().any(|d| *d == pkg.name);
 
                 if alpm::Version::new(&*pkg.version) > local_pkg.version() || devel {
@@ -92,20 +106,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                         pkg.version.as_str()
                     };
 
-                    if config.args.has_arg("q", "quiet") {
-                        println!("{}", pkg.name);
-                    } else {
-                        print!(
-                            "{} {} -> {}",
-                            bold.paint(&pkg.name),
-                            upgrade.paint(local_pkg.version().as_str()),
-                            upgrade.paint(version)
-                        );
-                        if config.alpm.localdb().pkg(target).unwrap().should_ignore() {
-                            print!("{}", tr!(" [ignored]"));
-                        }
-                        println!();
-                    }
+                    print_upgrade(config, &pkg.name, local_pkg.version().as_str(), version);
                 }
             }
         }
@@ -115,5 +116,25 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         Ok(1)
     } else {
         Ok(0)
+    }
+}
+
+fn print_upgrade(config: &Config, name: &str, local_ver: &str, new_ver: &str) {
+    let bold = config.color.bold;
+    let upgrade = config.color.upgrade;
+
+    if config.args.has_arg("q", "quiet") {
+        println!("{}", name);
+    } else {
+        print!(
+            "{} {} -> {}",
+            bold.paint(name),
+            upgrade.paint(local_ver),
+            upgrade.paint(new_ver)
+        );
+        if config.alpm.localdb().pkg(name).unwrap().should_ignore() {
+            print!("{}", tr!(" [ignored]"));
+        }
+        println!();
     }
 }

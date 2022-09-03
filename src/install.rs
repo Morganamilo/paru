@@ -2195,7 +2195,7 @@ pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
 }
 
 pub fn read_repos(
-    config: &mut Config,
+    config: &Config,
     repo_paths: &mut HashMap<Target, PathBuf>,
     repos: &mut Vec<Repo>,
 ) -> Result<()> {
