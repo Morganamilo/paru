@@ -43,10 +43,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         .await
         .context(tr!("aur search failed"))?;
 
-    if config.sort_mode == SortMode::TopDown {
-        for pkg in &repo_pkgs {
-            print_alpm_pkg(config, pkg, quiet);
-        }
+    let print_custom = || {
         for (repo, srcinfo, pkg) in &custom_pkgs {
             let path = paths
                 .get(&Target {
@@ -56,6 +53,13 @@ pub async fn search(config: &Config) -> Result<i32> {
                 .unwrap();
             print_custom_pkg(config, repo, path, srcinfo, pkg, quiet);
         }
+    };
+
+    if config.sort_mode == SortMode::TopDown {
+        for pkg in &repo_pkgs {
+            print_alpm_pkg(config, pkg, quiet);
+        }
+        print_custom();
         for pkg in &pkgs {
             print_pkg(config, pkg, quiet)
         }
@@ -63,6 +67,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         for pkg in pkgs.iter().rev() {
             print_pkg(config, pkg, quiet)
         }
+        print_custom();
         for pkg in repo_pkgs.iter().rev() {
             print_alpm_pkg(config, pkg, quiet);
         }
