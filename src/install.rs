@@ -1572,7 +1572,7 @@ fn print_dir(
 }
 
 fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
-    if !config.no_confirm {
+    if !config.no_confirm || !config.skip_review {
         if let Some(ref fm) = config.fm {
             let _view = file_manager(config, fetch, fm, pkgs)?;
 
