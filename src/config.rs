@@ -569,7 +569,7 @@ impl Config {
         let cache_dir = cache;
 
         let color = Colors::from("never");
-        let cols = term_size::dimensions_stdout().map(|v| v.0);
+        let cols = terminal_size::terminal_size().map(|(w, _)| w.0 as usize);
 
         let mut config = Self {
             cols,

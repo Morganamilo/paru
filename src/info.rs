@@ -14,7 +14,7 @@ use anyhow::Error;
 use aur_depends::Repo;
 use raur::ArcPackage as Package;
 use srcinfo::{ArchVec, Srcinfo};
-use term_size::dimensions_stdout;
+use terminal_size::terminal_size;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
 
@@ -172,7 +172,8 @@ pub fn print_custom_info(
     len: usize,
 ) -> Result<(), Error> {
     let color = conf.color;
-    let cols = dimensions_stdout().map(|x| x.0);
+    let cols = terminal_size().map(|(w, _)| w.0 as usize);
+
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
     let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
     let print_arch_list = |k: &str, v: &[ArchVec]| {
@@ -238,7 +239,7 @@ pub fn print_aur_info(
     len: usize,
 ) -> Result<(), Error> {
     let color = conf.color;
-    let cols = dimensions_stdout().map(|x| x.0);
+    let cols = terminal_size().map(|(w, _)| w.0 as usize);
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
     let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
     let no = tr!("No");
