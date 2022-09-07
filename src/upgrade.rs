@@ -184,7 +184,15 @@ fn custom_upgrades<'a, 'b>(
             );
         }
 
-        let updates = resolver.custom_updates()?;
+        let updates = match config.repos {
+            LocalRepos::None => resolver.custom_updates()?,
+            _ => {
+                let (_, dbs) = repo::repo_aur_dbs(config);
+                let dbs = dbs.iter().map(|db| db.name()).collect::<Vec<_>>();
+                resolver.local_custom_updates(&dbs)?
+            }
+        };
+
         Ok(updates)
     } else {
         Ok(CustomUpdates::default())
@@ -251,7 +259,11 @@ pub async fn get_upgrades<'a, 'b>(
         }
     }
 
-    if devel_upgrades.is_empty() && aur_upgrades.is_empty() && repo_upgrades.is_empty() && custom_updates.updates.is_empty()  {
+    if devel_upgrades.is_empty()
+        && aur_upgrades.is_empty()
+        && repo_upgrades.is_empty()
+        && custom_updates.updates.is_empty()
+    {
         return Ok(Upgrades::default());
     }
 
