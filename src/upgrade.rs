@@ -6,6 +6,7 @@ use crate::{repo, RaurHandle};
 
 use std::collections::HashMap;
 
+use alpm::{AlpmList, Db};
 use alpm_utils::DbListExt;
 use anyhow::Result;
 use aur_depends::{AurUpdates, CustomUpdates, Resolver};
@@ -251,6 +252,7 @@ pub async fn get_upgrades<'a, 'b>(
     let mut repo_keep = Vec::new();
     let mut aur_skip = Vec::new();
     let mut aur_keep = Vec::new();
+    let mut custom_keep = Vec::new();
 
     let mut aur_repos = HashMap::new();
     for pkg in &aur_upgrades {
@@ -292,28 +294,26 @@ pub async fn get_upgrades<'a, 'b>(
     let db = config.alpm.localdb();
     let n_max = repo_upgrades.len() + aur_upgrades.len() + devel_upgrades.len();
     let n_max = n_max.to_string().len();
+    let mut index = repo_upgrades.len()
+        + aur_upgrades.len()
+        + devel_upgrades.len()
+        + custom_updates.updates.len();
 
     let db_pkg_max = repo_upgrades
         .iter()
         .map(|u| u.name().len() + u.db().unwrap().name().len())
-        .chain(aur_upgrades.iter().map(|u| {
-            u.local.name().len()
-                + aurdbs
-                    .pkg(u.local.name())
-                    .ok()
-                    .and_then(|pkg| pkg.db())
-                    .map(|db| db.name().len())
-                    .unwrap_or(3)
-        }))
-        .chain(devel_upgrades.iter().map(|u| {
-            u.len()
-                + aurdbs
-                    .pkg(u.as_str())
-                    .ok()
-                    .and_then(|pkg| pkg.db())
-                    .map(|db| db.name().len() + 6)
-                    .unwrap_or(5)
-        }))
+        .chain(
+            aur_upgrades
+                .iter()
+                .map(|u| db_len(u.local.name(), "aur", &aurdbs)),
+        )
+        .chain(devel_upgrades.iter().map(|u| db_len(u, "devel", &aurdbs)))
+        .chain(
+            custom_updates
+                .updates
+                .iter()
+                .map(|u| db_len(u.local.name(), &u.repo, &aurdbs)),
+        )
         .max()
         .unwrap_or(0);
 
@@ -327,14 +327,20 @@ pub async fn get_upgrades<'a, 'b>(
                 .filter_map(|p| db.pkg(p.as_str()).ok())
                 .map(|p| p.version().len()),
         )
+        .chain(
+            custom_updates
+                .updates
+                .iter()
+                .map(|p| p.local.version().len()),
+        )
         .max()
         .unwrap_or(0);
 
-    for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
+    for pkg in repo_upgrades.iter().rev().rev() {
         let local_pkg = config.alpm.localdb().pkg(pkg.name())?;
         print_upgrade(
             config,
-            n + aur_upgrades.len() + devel_upgrades.len() + 1,
+            index,
             n_max,
             pkg.name(),
             pkg.db().unwrap().name(),
@@ -343,27 +349,29 @@ pub async fn get_upgrades<'a, 'b>(
             old_max,
             pkg.version(),
         );
+        index -= 1;
     }
 
-    for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
+    for pkg in aur_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.local.name())
-            .map(|p| p.db().unwrap().name())
-            .unwrap_or("aur");
+            .map(|p| format!("{}-aur", p.db().unwrap().name()));
+        let remote = remote.as_deref().unwrap_or("aur");
         print_upgrade(
             config,
-            n + devel_upgrades.len() + 1,
+            index,
             n_max,
             pkg.local.name(),
-            remote,
+            &remote,
             db_pkg_max,
             pkg.local.version(),
             old_max,
             &pkg.remote.version,
         );
+        index -= 1;
     }
 
-    for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
+    for pkg in devel_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.as_str())
             .map(|p| p.db().unwrap().name())
@@ -376,7 +384,7 @@ pub async fn get_upgrades<'a, 'b>(
         let ver = current.version();
         print_upgrade(
             config,
-            n + 1,
+            index,
             n_max,
             pkg,
             remote,
@@ -385,55 +393,89 @@ pub async fn get_upgrades<'a, 'b>(
             old_max,
             "latest-commit",
         );
+        index -= 1;
+    }
+
+    for pkg in custom_updates.updates.iter().rev().rev() {
+        let remote = aurdbs
+            .pkg(pkg.local.name())
+            .map(|p| format!("{}-{}", p.db().unwrap().name(), pkg.repo));
+        let remote = remote.as_deref().unwrap_or("aur");
+        print_upgrade(
+            config,
+            index,
+            n_max,
+            pkg.local.name(),
+            &remote,
+            db_pkg_max,
+            pkg.local.version(),
+            old_max,
+            &pkg.remote_srcinfo.version(),
+        );
+        index -= 1;
     }
 
     let input = input(config, &tr!("Packages to exclude (eg: 1 2 3, 1-3):"));
     let input = input.trim();
     let number_menu = NumberMenu::new(input);
+    let mut index = repo_upgrades.len()
+        + aur_upgrades.len()
+        + devel_upgrades.len()
+        + custom_updates.updates.len();
 
-    for (n, pkg) in repo_upgrades.iter().rev().enumerate().rev() {
-        let n = n + devel_upgrades.len() + aur_upgrades.len();
+    for pkg in repo_upgrades.iter().rev().rev() {
         let remote = syncdbs.pkg(pkg.name()).unwrap();
         let db = remote.db().unwrap();
-        if !number_menu.contains(n + 1, db.name()) || input.is_empty() {
+        if !number_menu.contains(index, db.name()) || input.is_empty() {
             repo_keep.push(pkg.name().to_string());
         } else {
             repo_skip.push(pkg.name().to_string());
         }
+        index -= 1;
     }
 
-    for (n, pkg) in aur_upgrades.iter().rev().enumerate().rev() {
+    for pkg in aur_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| p.db().unwrap().name())
             .unwrap_or("aur");
-        let n = n + devel_upgrades.len();
-        if !number_menu.contains(n + 1, remote) || input.is_empty() {
+        if !number_menu.contains(index, remote) || input.is_empty() {
             aur_keep.push(pkg.local.name().to_string());
         } else {
             aur_skip.push(pkg.local.name().to_string());
         }
+        index -= 1;
     }
 
-    for (n, pkg) in devel_upgrades.iter().rev().enumerate().rev() {
+    for pkg in devel_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.as_str())
             .map(|p| p.db().unwrap().name())
             .map(|p| format!("{}-devel", p));
         let remote = remote.as_deref().unwrap_or("devel");
-        if !number_menu.contains(n + 1, &format!("{}-devel", remote)) || input.is_empty() {
+        if !number_menu.contains(index, &format!("{}-devel", remote)) || input.is_empty() {
             aur_keep.push(pkg.to_string());
         } else {
             aur_skip.push(pkg.to_string());
         }
+        index -= 1;
+    }
+
+    for pkg in custom_updates.updates.iter().rev().rev() {
+        let remote = aurdbs
+            .pkg(pkg.local.name())
+            .map(|p| p.db().unwrap().name())
+            .unwrap_or(&pkg.repo);
+        if !number_menu.contains(index, remote) || input.is_empty() {
+            custom_keep.push((pkg.repo.clone(), pkg.local.name().to_string()));
+        } else {
+            //
+        }
+        index -= 1;
     }
 
     let upgrades = Upgrades {
-        custom_keep: custom_updates
-            .updates
-            .iter()
-            .map(|u| (u.remote_pkg.pkgname.clone(), u.local.name().to_string()))
-            .collect(),
+        custom_keep,
         aur_repos,
         repo_keep,
         repo_skip,
@@ -442,4 +484,14 @@ pub async fn get_upgrades<'a, 'b>(
     };
 
     Ok(upgrades)
+}
+
+fn db_len(name: &str, repo_name: &str, aurdbs: &AlpmList<Db>) -> usize {
+    name.len()
+        + aurdbs
+            .pkg(name)
+            .ok()
+            .and_then(|pkg| pkg.db())
+            .map(|db| db.name().len() + repo_name.len() + 1)
+            .unwrap_or(repo_name.len())
 }
