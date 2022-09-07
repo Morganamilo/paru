@@ -251,7 +251,7 @@ pub async fn get_upgrades<'a, 'b>(
         }
     }
 
-    if devel_upgrades.is_empty() && aur_upgrades.is_empty() && repo_upgrades.is_empty() {
+    if devel_upgrades.is_empty() && aur_upgrades.is_empty() && repo_upgrades.is_empty() && custom_updates.updates.is_empty()  {
         return Ok(Upgrades::default());
     }
 
