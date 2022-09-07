@@ -413,6 +413,10 @@ pub async fn new_aur_pkgbuilds(
 ) -> Result<()> {
     let mut pkgs = Vec::new();
 
+    if bases.bases.is_empty() {
+        return Ok(());
+    }
+
     let all_pkgs = bases
         .bases
         .iter()
