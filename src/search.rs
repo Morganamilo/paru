@@ -23,6 +23,7 @@ use tr::tr;
 enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
     AurPkg(&'a raur::Package),
+    Custom(&'a str, &'a Srcinfo, &'a srcinfo::Package),
 }
 
 pub async fn search(config: &Config) -> Result<i32> {
@@ -390,13 +391,14 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
 
     let repo_pkgs = search_repos(config, &config.targets)?;
     let custom_pkgs = search_custom(config, &mut repos, &mut paths, &config.targets)?;
-    let _ = custom_pkgs;
     let aur_pkgs = search_aur(config, &config.targets).await?;
     let mut all_pkgs = Vec::new();
-    let c = config.color;
 
     for pkg in repo_pkgs {
         all_pkgs.push(AnyPkg::RepoPkg(pkg));
+    }
+    for (repo, base, pkg) in custom_pkgs {
+        all_pkgs.push(AnyPkg::Custom(repo, base, pkg));
     }
     for pkg in &aur_pkgs {
         all_pkgs.push(AnyPkg::AurPkg(pkg));
@@ -416,6 +418,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
             let name = match pkg {
                 AnyPkg::RepoPkg(pkg) => pkg.name(),
                 AnyPkg::AurPkg(pkg) => pkg.name.as_str(),
+                AnyPkg::Custom(_, _, pkg) => pkg.pkgname.as_str(),
             };
 
             if config.targets.iter().any(|targ| targ == name) {
@@ -433,33 +436,11 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
 
     if config.sort_mode == SortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
-            match pkg {
-                AnyPkg::RepoPkg(pkg) => {
-                    let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{} ", c.number_menu.paint(n));
-                    print_alpm_pkg(config, pkg, false)
-                }
-                AnyPkg::AurPkg(pkg) => {
-                    let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{} ", c.number_menu.paint(n));
-                    print_pkg(config, pkg, false)
-                }
-            };
+            print_any_pkg(config, n, pad, pkg, &paths)
         }
     } else {
         for (n, pkg) in all_pkgs.iter().enumerate().rev() {
-            match pkg {
-                AnyPkg::RepoPkg(pkg) => {
-                    let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{} ", c.number_menu.paint(n));
-                    print_alpm_pkg(config, pkg, false)
-                }
-                AnyPkg::AurPkg(pkg) => {
-                    let n = format!("{:>pad$}", n + 1, pad = pad);
-                    print!("{} ", c.number_menu.paint(n));
-                    print_pkg(config, pkg, false)
-                }
-            };
+            print_any_pkg(config, n, pad, pkg, &paths)
         }
     }
 
@@ -483,6 +464,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                     AnyPkg::AurPkg(pkg) => {
                         pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name))
                     }
+                    AnyPkg::Custom(repo, _, pkg) => pkgs.push(format!("{}/{}", repo, pkg.pkgname)),
                 }
             }
         }
@@ -496,6 +478,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
                     AnyPkg::AurPkg(pkg) => {
                         pkgs.push(format!("{}/{}", config.aur_namespace(), pkg.name))
                     }
+                    AnyPkg::Custom(repo, _, pkg) => pkgs.push(format!("{}/{}", repo, pkg.pkgname)),
                 }
             }
         }
@@ -509,4 +492,37 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
     }
 
     Ok(0)
+}
+
+fn print_any_pkg(
+    config: &Config,
+    n: usize,
+    pad: usize,
+    pkg: &AnyPkg,
+    paths: &HashMap<Target, PathBuf>,
+) {
+    let c = config.color;
+    match pkg {
+        AnyPkg::RepoPkg(pkg) => {
+            let n = format!("{:>pad$}", n + 1, pad = pad);
+            print!("{} ", c.number_menu.paint(n));
+            print_alpm_pkg(config, pkg, false)
+        }
+        AnyPkg::AurPkg(pkg) => {
+            let n = format!("{:>pad$}", n + 1, pad = pad);
+            print!("{} ", c.number_menu.paint(n));
+            print_pkg(config, pkg, false)
+        }
+        AnyPkg::Custom(repo, base, pkg) => {
+            let n = format!("{:>pad$}", n + 1, pad = pad);
+            print!("{} ", c.number_menu.paint(n));
+            let path = paths
+                .get(&Target {
+                    repo: Some(repo.to_string()),
+                    pkg: pkg.pkgname.to_string(),
+                })
+                .unwrap();
+            print_custom_pkg(config, repo, path, base, pkg, false)
+        }
+    };
 }
