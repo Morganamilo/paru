@@ -299,8 +299,8 @@ impl Installer {
             }
 
             if !args.targets.is_empty()
-                || config.args.has_arg("u", "sysupgrade")
-                || config.args.has_arg("y", "refresh")
+                || args.has_arg("u", "sysupgrade")
+                || args.has_arg("y", "refresh")
             {
                 exec::pacman(config, &args)?.success()?;
             }
