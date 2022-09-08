@@ -686,12 +686,12 @@ impl Config {
                 .user_agent(format!("paru/{}", ver))
                 .build()?;
 
-            let rpc_url = self
-                .aur_rpc_url
-                .clone()
-                .or_else(|| Some(self.aur_url.join("rpc").unwrap()))
-                .unwrap();
-            self.raur = raur::Handle::new_with_settings(client, rpc_url.to_string());
+            let rpc_url = match &self.aur_rpc_url {
+                Some(rpc) => rpc.to_string(),
+                None => self.aur_url.join("rpc")?.to_string(),
+            };
+
+            self.raur = raur::Handle::new_with_settings(client, rpc_url);
         }
 
         #[cfg(feature = "mock")]
