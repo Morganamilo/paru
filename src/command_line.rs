@@ -171,7 +171,7 @@ impl Config {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
             Arg::Long("version") | Arg::Short('V') => self.version = true,
             Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
-            Arg::Long("aurrpcurl") => self.aur_rpc_url = Url::parse(value?)?,
+            Arg::Long("aurrpcurl") => self.aur_rpc_url = Some(Url::parse(value?)?),
             Arg::Long("makepkg") => self.makepkg_bin = value?.to_string(),
             Arg::Long("pacman") => self.pacman_bin = value?.to_string(),
             Arg::Long("git") => self.git_bin = value?.to_string(),
