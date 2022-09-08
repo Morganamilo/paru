@@ -356,6 +356,7 @@ pub struct Config {
 
     #[default(Url::parse("https://aur.archlinux.org").unwrap())]
     pub aur_url: Url,
+    pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
     pub build_dir: PathBuf,
@@ -685,7 +686,12 @@ impl Config {
                 .user_agent(format!("paru/{}", ver))
                 .build()?;
 
-            self.raur = raur::Handle::new_with_settings(client, self.aur_url.join("rpc")?.as_str());
+            let rpc_url = match &self.aur_rpc_url {
+                Some(rpc) => rpc.to_string(),
+                None => self.aur_url.join("rpc")?.to_string(),
+            };
+
+            self.raur = raur::Handle::new_with_settings(client, rpc_url);
         }
 
         #[cfg(feature = "mock")]
@@ -1009,6 +1015,7 @@ impl Config {
 
         match key {
             "AurUrl" => self.aur_url = value?.parse()?,
+            "AurRpcUrl" => self.aur_rpc_url = Some(value?.parse()?),
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
             "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
             "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,
