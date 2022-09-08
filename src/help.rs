@@ -31,6 +31,7 @@ pub fn help() {
     printtr!("       --repo              Assume targets are from the repositories");
     printtr!("    -a --aur               Assume targets are from the AUR");
     printtr!("    --aururl    <url>      Set an alternative AUR URL");
+    printtr!("    --aurrpcurl    <url>      Set an alternative URL for the AUR /rpc endpoint");
     printtr!("    --clonedir  <dir>      Directory used to download and run PKGBUILDs");
     println!();
     printtr!("    --makepkg   <file>     makepkg command to use");

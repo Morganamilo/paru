@@ -49,6 +49,7 @@ _pacman_opts_common=(
 	'--repo[Assume targets are from the repositories]'
 	{-a,--aur}'[Assume targets are from the AUR]'
 	'--aururl[Set an alternative AUR URL]:url'
+	'--aurrpcurl[Set an alternative URL for the AUR /rpc endpoint]:url'
 
 	'--clonedir[Directory used to download and run PKGBUILDs]:build dir:_files -/'
 	'--makepkg[makepkg command to use]:makepkg:_files'

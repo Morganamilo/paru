@@ -189,6 +189,7 @@ complete -c $progname -n "$chrootctl" -s u -l sysupgrade -d 'Upgrade the chroot'
 complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the repositories' -f
 complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the AUR' -f
 complete -c $progname -n "not $noopt" -l aururl -d 'Set an alternative AUR URL' -f
+complete -c $progname -n "not $noopt" -l aurrpcurl -d 'Set an alternative URL for the AUR /rpc endpoint' -f
 complete -c $progname -n "not $noopt" -l clonedir -d 'Directory used to download and run PKGBUILDs' -r
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
 complete -c $progname -n "not $noopt" -l pacman -d 'Pacman command to use' -f

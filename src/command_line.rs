@@ -171,6 +171,7 @@ impl Config {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
             Arg::Long("version") | Arg::Short('V') => self.version = true,
             Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
+            Arg::Long("aurrpcurl") => self.aur_rpc_url = Url::parse(value?)?,
             Arg::Long("makepkg") => self.makepkg_bin = value?.to_string(),
             Arg::Long("pacman") => self.pacman_bin = value?.to_string(),
             Arg::Long("git") => self.git_bin = value?.to_string(),
@@ -365,6 +366,7 @@ fn split_whitespace(s: &str) -> Vec<String> {
 fn takes_value(arg: Arg) -> TakesValue {
     match arg {
         Arg::Long("aururl") => TakesValue::Required,
+        Arg::Long("aurrpcurl") => TakesValue::Required,
         Arg::Long("editor") => TakesValue::Required,
         Arg::Long("makepkg") => TakesValue::Required,
         Arg::Long("pacman") => TakesValue::Required,
