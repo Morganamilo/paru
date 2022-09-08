@@ -127,7 +127,9 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
     let mut missing = Vec::new();
     let mut ood = Vec::new();
     let mut orphaned = Vec::new();
-    let aur_pkgs = raur.cache_info(cache, pkgs).await?;
+    let mut aur_pkgs = raur.cache_info(cache, pkgs).await?;
+
+    aur_pkgs.retain(|pkg1| pkgs.iter().any(|pkg2| pkg1.name == pkg2.as_ref()));
 
     for pkg in pkgs {
         if !ignore.iter().any(|p| p == pkg.as_ref()) && !cache.contains(pkg.as_ref()) {
