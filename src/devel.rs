@@ -473,7 +473,14 @@ pub async fn fetch_devel_info(
 
 pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
     let file = match OpenOptions::new().read(true).open(&config.devel_path) {
-        Ok(file) => file,
+        Ok(file) => {
+            if let Ok(metadata) = file.metadata() {
+                if metadata.len() == 0 {
+                    return Ok(None)
+                }
+            }
+            file
+        },
         _ => return Ok(None),
     };
     let devel_info = serde_json::from_reader(file)
