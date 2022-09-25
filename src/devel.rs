@@ -199,16 +199,39 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 }
 
 pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
-    create_dir_all(&config.cache_dir)
-        .with_context(|| format!("mkdir: {}", config.cache_dir.display()))?;
+    create_dir_all(&config.cache_dir).with_context(|| {
+        tr!(
+            "failed to create cache directory: {}",
+            config.cache_dir.display()
+        )
+    })?;
+
+    let mut temp = config.devel_path.to_owned();
+    temp.set_extension("json.tmp");
+
     let file = OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
-        .open(&config.devel_path);
-    let mut file = file.with_context(|| format!("open: {}", config.devel_path.display()))?;
+        .open(&temp);
+
+    let mut file =
+        file.with_context(|| tr!("failed to create temporary file: {}", temp.display()))?;
+
     let json = serde_json::to_string_pretty(&devel_info).unwrap();
-    file.write_all(json.as_bytes())?;
+
+    file.write_all(json.as_bytes())
+        .with_context(|| tr!("failed to write to temporary file: {}", temp.display()))?;
+
+    drop(file);
+
+    std::fs::rename(&temp, &config.devel_path).with_context(|| {
+        tr!(
+            "failed to rename '{temp}' to '{devel_json}",
+            temp = temp.display(),
+            devel_json = config.devel_path.display()
+        )
+    })?;
 
     Ok(())
 }
