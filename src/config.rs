@@ -280,8 +280,7 @@ impl SortMode {
                 true => SortMode::BottomUp,
                 false => SortMode::TopDown,
             }
-        }
-        else {
+        } else {
             *self
         }
     }
@@ -291,7 +290,7 @@ impl ConfigEnum for SortMode {
     const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
         ("bottomup", Self::BottomUp),
         ("topdown", Self::TopDown),
-        ("auto", Self::Auto)
+        ("auto", Self::Auto),
     ];
 }
 
