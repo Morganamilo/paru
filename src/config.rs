@@ -274,7 +274,7 @@ pub enum SortMode {
 
 impl SortMode {
     //! Turns [SortMode::Auto] into one of the other variants.
-    fn resolve(&self) -> Self {
+    pub fn resolve(&self) -> Self {
         if matches!(self, SortMode::Auto) {
             match isatty(stdout().as_raw_fd()).unwrap_or(false) {
                 true => SortMode::BottomUp,
@@ -282,7 +282,7 @@ impl SortMode {
             }
         }
         else {
-            self.clone()
+            *self
         }
     }
 }
