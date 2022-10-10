@@ -272,6 +272,21 @@ pub enum SortMode {
     Auto,
 }
 
+impl SortMode {
+    //! Turns [SortMode::Auto] into one of the other variants.
+    fn resolve(&self) -> Self {
+        if matches!(self, SortMode::Auto) {
+            match isatty(stdout().as_raw_fd()).unwrap_or(false) {
+                true => SortMode::BottomUp,
+                false => SortMode::TopDown,
+            }
+        }
+        else {
+            self.clone()
+        }
+    }
+}
+
 impl ConfigEnum for SortMode {
     const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
         ("bottomup", Self::BottomUp),
