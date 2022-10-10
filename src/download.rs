@@ -488,7 +488,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 
         let iter = titles.zip(comments).collect::<Vec<_>>();
 
-        if config.sort_mode == SortMode::TopDown {
+        if config.sort_mode.resolve() == SortMode::TopDown {
             for (title, comment) in iter.into_iter() {
                 print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
 

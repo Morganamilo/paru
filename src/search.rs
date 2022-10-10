@@ -56,7 +56,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         }
     };
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.resolve() == SortMode::TopDown {
         for pkg in &repo_pkgs {
             print_alpm_pkg(config, pkg, quiet);
         }
@@ -434,7 +434,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         all_pkgs.insert(0, pkg);
     }
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.resolve() == SortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             print_any_pkg(config, n, pad, pkg, &paths)
         }
@@ -454,7 +454,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
     let menu = NumberMenu::new(&input);
     let mut pkgs = Vec::new();
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.resolve() == SortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
                 match pkg {
