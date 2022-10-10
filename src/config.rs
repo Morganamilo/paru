@@ -276,7 +276,7 @@ impl SortMode {
     //! Turns [SortMode::Auto] into one of the other variants.
     pub fn resolve(&self) -> Self {
         if matches!(self, SortMode::Auto) {
-            match isatty(stdout().as_raw_fd()){
+            match isatty(stdout().as_raw_fd()) {
                 Ok(true) => SortMode::BottomUp,
                 _ => SortMode::TopDown,
             }
