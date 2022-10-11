@@ -256,11 +256,11 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<i32> {
                 .build(
                     &dir,
                     &[],
-                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                    &["-fe", "-A", "--noconfirm", "--noprepare", "--holdver"],
                 )
                 .context(tr!("failed to build"))?;
         } else {
-            let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
+            let mut args = vec!["-fe", "-A", "--noconfirm", "--noprepare", "--holdver"];
             if !config.keep_src {
                 args.push("-c");
             }
@@ -1547,11 +1547,11 @@ fn build_install_pkgbuild<'a>(
                 .build(
                     &dir,
                     &[],
-                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                    &["-fe", "-A", "--noconfirm", "--noprepare", "--holdver"],
                 )
                 .with_context(|| tr!("failed to build '{}'", base))?;
         } else {
-            let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
+            let mut args = vec!["-fe", "-A", "--noconfirm", "--noprepare", "--holdver"];
             if !config.keep_src {
                 args.push("-c");
             }
