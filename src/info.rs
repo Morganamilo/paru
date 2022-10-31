@@ -186,9 +186,9 @@ pub fn print_custom_info(
     };
     for targ in pkgs {
         let pkg = if let Some(repo) = targ.repo {
-            find_cusom_pkg(&targ.pkg, repos.into_iter().find(|r| r.name == repo))
+            find_cusom_pkg(targ.pkg, repos.into_iter().find(|r| r.name == repo))
         } else {
-            find_cusom_pkg(&targ.pkg, repos)
+            find_cusom_pkg(targ.pkg, repos)
         };
 
         let (repo, srcinfo, pkg) = match pkg {

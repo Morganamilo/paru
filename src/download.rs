@@ -577,7 +577,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         for pkg in repo {
             let ret = Command::new(asp)
                 .arg("update")
-                .arg(&pkg.pkg)
+                .arg(pkg.pkg)
                 .output()
                 .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
 
@@ -590,7 +590,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
             if bat {
                 let output = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg.pkg)
+                    .arg(pkg.pkg)
                     .output()
                     .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 
@@ -604,7 +604,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
             } else {
                 let ret = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg.pkg)
+                    .arg(pkg.pkg)
                     .status()
                     .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 

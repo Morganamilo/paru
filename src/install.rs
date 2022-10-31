@@ -604,7 +604,7 @@ impl Installer {
         repo: Option<(&str, &str)>,
     ) -> Result<()> {
         let dir = match base {
-            Base::Aur(_) => config.build_dir.join(&base.package_base()),
+            Base::Aur(_) => config.build_dir.join(base.package_base()),
             Base::Custom(c) => self
                 .custom_repo_paths
                 .get(&Target::new(
@@ -1494,9 +1494,7 @@ fn print_dir(
 
         println!("{:?} {:?}", path, has_pkgbuild);
 
-        for file in
-            read_dir(&path).with_context(|| tr!("failed to read dir: {}", path.display()))?
-        {
+        for file in read_dir(path).with_context(|| tr!("failed to read dir: {}", path.display()))? {
             let file = file?;
 
             if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".git")) {
@@ -1546,7 +1544,7 @@ fn print_dir(
             } else {
                 let mut pkgbbuild = OpenOptions::new()
                     .read(true)
-                    .open(&file.path())
+                    .open(file.path())
                     .with_context(|| {
                         tr!("failed to open: {}", file.path().display().to_string())
                     })?;
@@ -2110,7 +2108,7 @@ fn read_repo(
         }
     }
 
-    let entry = read_dir(&path);
+    let entry = read_dir(path);
     let entry = match entry {
         Ok(entry) => entry,
         Err(_) => return Ok(()),

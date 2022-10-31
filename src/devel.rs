@@ -224,7 +224,7 @@ async fn ls_remote_intenral(
         .args(flags)
         .env("GIT_TERMINAL_PROMPT", "0")
         .arg("ls-remote")
-        .arg(&remote)
+        .arg(remote)
         .arg(branch.unwrap_or("HEAD"));
 
     debug!("git ls-remote {} {}", remote, branch.unwrap_or("HEAD"));
