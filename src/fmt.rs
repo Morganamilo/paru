@@ -99,7 +99,7 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
     let mut col: u32 = 5;
 
     for &b in name.as_bytes() {
-        col = (b as u32).wrapping_add(((col as u32) << 4).wrapping_add(col as u32));
+        col = (b as u32).wrapping_add((col << 4).wrapping_add(col));
     }
 
     col = (col % 6) + 9;
