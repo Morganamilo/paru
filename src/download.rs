@@ -343,7 +343,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
         let pb = ProgressBar::new(download.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
-                .template(&template)
+                .template(&template)?
                 .progress_chars("-> "),
         );
 
@@ -393,7 +393,7 @@ pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Fetch, repos: &[Repo
         let pb = ProgressBar::new(repos.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
-                .template(&template)
+                .template(&template)?
                 .progress_chars("-> "),
         );
 
