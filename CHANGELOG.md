@@ -1,5 +1,9 @@
 # Changelog
 
+## Paru v1.11.2 (2022-11-05)
+
+Rebuild for openssl 3
+
 ## Paru v1.11.1 (2022-07-06)
 
 ### Fixed
