@@ -139,7 +139,7 @@ fn longest(repos: &[Repo]) -> usize {
 }
 
 fn arch_len(vec: &[ArchVec]) -> usize {
-    vec.into_iter()
+    vec.iter()
         .filter_map(|v| v.arch.as_ref())
         .map(|a| a.len() + 1)
         .max()
@@ -179,16 +179,16 @@ pub fn print_custom_info(
         if v.is_empty() {
             print_list(k, &[]);
         }
-        v.into_iter().for_each(|v| match &v.arch {
+        v.iter().for_each(|v| match &v.arch {
             Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.vec),
             None => print_list(k, &v.vec),
         })
     };
     for targ in pkgs {
         let pkg = if let Some(repo) = targ.repo {
-            find_cusom_pkg(&targ.pkg, repos.into_iter().find(|r| r.name == repo))
+            find_cusom_pkg(targ.pkg, repos.iter().find(|r| r.name == repo))
         } else {
-            find_cusom_pkg(&targ.pkg, repos)
+            find_cusom_pkg(targ.pkg, repos)
         };
 
         let (repo, srcinfo, pkg) = match pkg {

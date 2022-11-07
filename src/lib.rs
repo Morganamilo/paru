@@ -149,7 +149,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
     };
 
     if args.is_empty() {
-        config.parse_args(&["-Syu"])?;
+        config.parse_args(["-Syu"])?;
     } else {
         config.parse_args(args)?;
     }
