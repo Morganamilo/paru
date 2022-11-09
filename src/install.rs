@@ -967,8 +967,11 @@ impl Installer {
         cache: &mut Cache,
         actions: &mut Actions<'_>,
     ) -> Result<()> {
-        if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
-            bail!(tr!("can't install AUR package as root"));
+        #[cfg(not(feature = "container"))]
+        {
+            if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
+                bail!(tr!("can't install AUR package as root"));
+            }
         }
 
         let conflicts = check_actions(config, actions)?;
