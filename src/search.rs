@@ -9,7 +9,6 @@ use crate::install::{install, read_repos};
 use crate::printtr;
 use crate::util::{input, NumberMenu};
 
-use alpm_utils::Target;
 use ansi_term::Style;
 use anyhow::{ensure, Context, Result};
 use aur_depends::Repo;
@@ -47,10 +46,7 @@ pub async fn search(config: &Config) -> Result<i32> {
     let print_custom = || {
         for (repo, srcinfo, pkg) in &custom_pkgs {
             let path = paths
-                .get(&Target {
-                    repo: Some(repo.to_string()),
-                    pkg: pkg.pkgname.to_string(),
-                })
+                .get(&(repo.to_string(), pkg.pkgname.to_string()))
                 .unwrap();
             print_custom_pkg(config, repo, path, srcinfo, pkg, quiet);
         }
@@ -80,7 +76,7 @@ pub async fn search(config: &Config) -> Result<i32> {
 fn search_custom<'a>(
     config: &Config,
     repos: &'a mut Vec<Repo>,
-    paths: &mut HashMap<Target, PathBuf>,
+    paths: &mut HashMap<(String, String), PathBuf>,
     targets: &[String],
 ) -> Result<Vec<(&'a str, &'a Srcinfo, &'a srcinfo::Package)>> {
     if targets.is_empty() || config.mode == Mode::Repo {
@@ -499,7 +495,7 @@ fn print_any_pkg(
     n: usize,
     pad: usize,
     pkg: &AnyPkg,
-    paths: &HashMap<Target, PathBuf>,
+    paths: &HashMap<(String, String), PathBuf>,
 ) {
     let c = config.color;
     match pkg {
@@ -517,10 +513,7 @@ fn print_any_pkg(
             let n = format!("{:>pad$}", n + 1, pad = pad);
             print!("{} ", c.number_menu.paint(n));
             let path = paths
-                .get(&Target {
-                    repo: Some(repo.to_string()),
-                    pkg: pkg.pkgname.to_string(),
-                })
+                .get(&(repo.to_string(), pkg.pkgname.to_string()))
                 .unwrap();
             print_custom_pkg(config, repo, path, base, pkg, false)
         }

@@ -1,7 +1,6 @@
 use crate::config::{Config, Mode};
 use crate::install::read_repos;
 use crate::resolver::flags;
-use alpm_utils::Target;
 use anyhow::Result;
 use aur_depends::{Actions, Conflict, Package, Resolver};
 use log::debug;
@@ -53,7 +52,7 @@ fn print_install(actions: &Actions, quiet: bool) {
     }
 }
 
-fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<Target, PathBuf>) {
+fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, String), PathBuf>) {
     for build in &actions.build {
         let base = build.package_base();
 
@@ -73,10 +72,7 @@ fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<Target, PathB
                         println!("{}", pkg.pkg.pkgname);
                     } else {
                         let path = paths
-                            .get(&Target::new(
-                                Some(c.repo.clone()),
-                                c.package_base().to_string(),
-                            ))
+                            .get(&(c.repo.clone(), c.package_base().to_string()))
                             .unwrap();
                         println!(
                             "SRCINFO {} {} {} {} {}",

@@ -8,7 +8,7 @@ use crate::fmt::{date, opt, print_indent};
 use crate::install::read_repos;
 use crate::util::split_repo_aur_info;
 
-use alpm_utils::{Targ, Target};
+use alpm_utils::Targ;
 use ansi_term::Style;
 use anyhow::Error;
 use aur_depends::Repo;
@@ -167,7 +167,7 @@ pub fn print_custom_info(
     conf: &mut Config,
     _verbose: bool,
     repos: &[Repo],
-    paths: &HashMap<Target, PathBuf>,
+    paths: &HashMap<(String, String), PathBuf>,
     pkgs: &[Targ],
     len: usize,
 ) -> Result<(), Error> {
@@ -204,10 +204,7 @@ pub fn print_custom_info(
         };
 
         let path = paths
-            .get(&Target {
-                repo: Some(repo.to_string()),
-                pkg: targ.pkg.to_string(),
-            })
+            .get(&(repo.to_string(), targ.pkg.to_string()))
             .unwrap();
 
         print(&tr!("Repository"), repo);

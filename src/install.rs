@@ -28,7 +28,7 @@ use crate::{args, exec, news, print_error, printtr, repo};
 
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
-use alpm_utils::{DbListExt, Targ, Target};
+use alpm_utils::{DbListExt, Targ};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use aur_depends::{Actions, Base, Conflict, DepMissing, Repo, RepoPackage};
@@ -58,7 +58,7 @@ impl Status {
 struct Installer {
     install_targets: bool,
     custom_repos: Vec<Repo>,
-    custom_repo_paths: HashMap<Target, PathBuf>,
+    custom_repo_paths: HashMap<(String, String), PathBuf>,
     custom_repo_fetch: Fetch,
     done_something: bool,
     ran_pacman: bool,
@@ -103,10 +103,9 @@ pub async fn build_pkgbuild(config: &mut Config) -> Result<()> {
 
     let mut installer = Installer::new(config);
     let mut repo = Repo::new(".".to_string());
-    installer.custom_repo_paths.insert(
-        Target::new(Some(".".to_string()), srcinfo.base.pkgbase.clone()),
-        dir,
-    );
+    installer
+        .custom_repo_paths
+        .insert((".".to_string(), srcinfo.base.pkgbase.clone()), dir);
     let targets = srcinfo
         .pkgs
         .iter()
@@ -607,10 +606,7 @@ impl Installer {
             Base::Aur(_) => config.build_dir.join(base.package_base()),
             Base::Custom(c) => self
                 .custom_repo_paths
-                .get(&Target::new(
-                    Some(c.repo.clone()),
-                    c.package_base().to_string(),
-                ))
+                .get(&(c.repo.clone(), c.package_base().to_string()))
                 .unwrap()
                 .clone(),
         };
@@ -1030,10 +1026,7 @@ impl Installer {
                 Base::Custom(c) => {
                     let dir = self
                         .custom_repo_paths
-                        .get(&Target::new(
-                            Some(c.repo.clone()),
-                            c.package_base().to_string(),
-                        ))
+                        .get(&(c.repo.clone(), c.package_base().to_string()))
                         .unwrap();
                     pre_build_command(config, dir, c.package_base(), &c.version())?;
                 }
@@ -2071,7 +2064,7 @@ fn is_ver_char(c: char) -> bool {
 fn read_repo(
     config: &Config,
     repo: &mut Repo,
-    repo_paths: &mut HashMap<Target, PathBuf>,
+    repo_paths: &mut HashMap<(String, String), PathBuf>,
     path: &Path,
     recurse: u32,
     force_srcinfo: bool,
@@ -2145,10 +2138,7 @@ fn read_repo(
                             continue;
                         }
                     };
-                    let entry = repo_paths.entry(Target::new(
-                        Some(repo.name.clone()),
-                        srcinfo.base.pkgbase.clone(),
-                    ));
+                    let entry = repo_paths.entry((repo.name.clone(), srcinfo.base.pkgbase.clone()));
                     match entry {
                         Entry::Occupied(_) => eprintln!(
                             "{}",
@@ -2194,7 +2184,7 @@ pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
 
 pub fn read_repos(
     config: &Config,
-    repo_paths: &mut HashMap<Target, PathBuf>,
+    repo_paths: &mut HashMap<(String, String), PathBuf>,
     repos: &mut Vec<Repo>,
 ) -> Result<()> {
     for repo in &config.custom_repos {
