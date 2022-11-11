@@ -1475,7 +1475,6 @@ fn run_file_manager(config: &Config, fm: &str, dir: &Path) -> Result<()> {
 fn print_dir(
     config: &Config,
     path: &Path,
-    fetch: &aur_fetch::Fetch,
     stdin: &mut impl Write,
     buf: &mut Vec<u8>,
     bat: bool,
@@ -1502,7 +1501,7 @@ fn print_dir(
                 if recurse == 0 {
                     continue;
                 }
-                print_dir(config, &file.path(), fetch, stdin, buf, bat, recurse - 1)?;
+                print_dir(config, &file.path(), stdin, buf, bat, recurse - 1)?;
             }
             if !has_pkgbuild {
                 continue;
@@ -1615,7 +1614,7 @@ fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()
                 for pkg in &unseen {
                     if !has_diff.contains(pkg) {
                         let dir = fetch.clone_dir.join(pkg);
-                        print_dir(config, &dir, fetch, &mut stdin, &mut buf, bat, 1)?;
+                        print_dir(config, &dir, &mut stdin, &mut buf, bat, 1)?;
                     }
                 }
 
