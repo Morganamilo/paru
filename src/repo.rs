@@ -36,7 +36,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     };
 
     let path = path.as_ref();
-    let file = path.join(&name);
+    let file = path.join(name);
 
     let user = unistd::getuid();
     let group = unistd::getgid();
@@ -105,7 +105,7 @@ pub fn remove<P: AsRef<Path>, S: AsRef<OsStr>>(
     }
 
     let name = read_link(db)?;
-    let file = path.join(&name);
+    let file = path.join(name);
 
     let mut cmd = Command::new("repo-remove");
     cmd.arg(file);

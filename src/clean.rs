@@ -182,7 +182,7 @@ pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
     let output = Command::new(&config.git_bin)
         .args(&config.git_flags)
         .current_dir(path)
-        .args(&["reset", "--hard", "HEAD"])
+        .args(["reset", "--hard", "HEAD"])
         .output()
         .with_context(|| {
             format!(

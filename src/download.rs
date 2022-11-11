@@ -343,7 +343,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
         let pb = ProgressBar::new(download.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
-                .template(&template)
+                .template(&template)?
                 .progress_chars("-> "),
         );
 
@@ -393,7 +393,7 @@ pub fn custom_pkgbuilds(config: &Config, fetch: &aur_fetch::Fetch, repos: &[Repo
         let pb = ProgressBar::new(repos.len() as u64);
         pb.set_style(
             ProgressStyle::default_bar()
-                .template(&template)
+                .template(&template)?
                 .progress_chars("-> "),
         );
 
@@ -577,7 +577,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         for pkg in repo {
             let ret = Command::new(asp)
                 .arg("update")
-                .arg(&pkg.pkg)
+                .arg(pkg.pkg)
                 .output()
                 .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
 
@@ -590,7 +590,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
             if bat {
                 let output = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg.pkg)
+                    .arg(pkg.pkg)
                     .output()
                     .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 
@@ -604,7 +604,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
             } else {
                 let ret = Command::new(asp)
                     .arg("show")
-                    .arg(&pkg.pkg)
+                    .arg(pkg.pkg)
                     .status()
                     .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
 
