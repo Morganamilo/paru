@@ -1,2 +1,3 @@
 #!/bin/sh
+echo /usr/bin/pacman --config "$PACMAN_CONF" --dbpath "$DBPATH" "$@"
 /usr/bin/pacman --config "$PACMAN_CONF" --dbpath "$DBPATH" "$@"

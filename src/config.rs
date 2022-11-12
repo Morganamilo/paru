@@ -202,6 +202,7 @@ pub enum Op {
     Show,
     Sync,
     Upgrade,
+    Build,
     Yay,
 }
 
@@ -218,6 +219,7 @@ impl ConfigEnum for Op {
         ("show", Self::Show),
         ("sync", Self::Sync),
         ("upgrade", Self::Upgrade),
+        ("build", Self::Build),
         ("yay", Self::Yay),
     ];
 }
@@ -836,7 +838,7 @@ impl Config {
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
                 || (args.has_arg("c", "clean") && self.mode == Mode::Aur));
-        } else if self.op == Op::Upgrade {
+        } else if self.op == Op::Upgrade || self.op == Op::Build {
             return true;
         }
 

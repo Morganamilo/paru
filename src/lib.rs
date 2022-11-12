@@ -40,7 +40,7 @@ use crate::config::{Config, Op};
 use crate::query::print_upgrade_list;
 
 use std::collections::HashMap;
-use std::env;
+use std::env::{self, current_dir};
 use std::error::Error as StdError;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
@@ -167,6 +167,7 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
     let ret = match config.op {
         Op::Database | Op::Files => exec::pacman(config, &config.args)?.code(),
         Op::Upgrade => handle_upgrade(config).await?,
+        Op::Build => handle_build(config).await?,
         Op::Query => handle_query(config).await?,
         Op::Sync => handle_sync(config).await?,
         Op::Remove => handle_remove(config)?,
@@ -184,11 +185,22 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
 
 async fn handle_upgrade(config: &mut Config) -> Result<i32> {
     if config.targets.is_empty() {
-        install::build_pkgbuild(config).await?;
+        let dir = current_dir()?;
+        install::build_pkgbuilds(config, vec![dir]).await?;
         Ok(0)
     } else {
         Ok(exec::pacman(config, &config.args)?.code())
     }
+}
+
+async fn handle_build(config: &mut Config) -> Result<i32> {
+    if config.targets.is_empty() {
+        bail!(tr!("no targets specified (use -h for help)"));
+    } else {
+        let dirs = config.targets.iter().map(PathBuf::from).collect();
+        install::build_pkgbuilds(config, dirs).await?;
+    }
+    Ok(0)
 }
 
 async fn handle_query(config: &mut Config) -> Result<i32> {

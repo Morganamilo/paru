@@ -292,6 +292,7 @@ impl Config {
             Arg::Long("sync") | Arg::Short('S') => set_op(Op::Sync),
             Arg::Long("deptest") | Arg::Short('T') => set_op(Op::DepTest),
             Arg::Long("upgrade") | Arg::Short('U') => set_op(Op::Upgrade),
+            Arg::Long("build") | Arg::Short('B') => set_op(Op::Build),
             Arg::Long("show") | Arg::Short('P') => set_op(Op::Show),
             Arg::Long("getpkgbuild") | Arg::Short('G') => set_op(Op::GetPkgBuild),
             Arg::Long("repoctl") | Arg::Short('L') => set_op(Op::RepoCtl),

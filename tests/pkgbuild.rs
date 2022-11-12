@@ -7,8 +7,7 @@ use common::*;
 
 #[tokio::test]
 async fn pkgbuild() {
-    std::env::set_current_dir("testdata/clone/pkg").unwrap();
-    let (tmp, ret) = run(&["-Ui"]).await.unwrap();
+    let (tmp, ret) = run(&["-Bi", "testdata/clone/pkg"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
 
