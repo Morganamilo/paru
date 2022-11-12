@@ -333,6 +333,7 @@ impl Installer {
         version: &str,
         pkg: &'a str,
         target: bool,
+        make: bool,
         pkgdest: &mut HashMap<String, String>,
     ) -> Result<()> {
         if !needs_install(config, base, version, pkg) {
@@ -360,7 +361,10 @@ impl Installer {
         })?;
 
         self.conflict |= self.conflicts.contains(pkg);
-        self.install_queue.push(path);
+
+        if !config.chroot || !make {
+            self.install_queue.push(path);
+        }
         Ok(())
     }
 
@@ -746,6 +750,7 @@ impl Installer {
                         &version,
                         &pkg.pkg.name,
                         pkg.target,
+                        pkg.make,
                         &mut pkgdest,
                     )?
                 }
@@ -761,6 +766,7 @@ impl Installer {
                         &version,
                         &pkg.pkg.pkgname,
                         pkg.target,
+                        pkg.make,
                         &mut pkgdest,
                     )?
                 }
