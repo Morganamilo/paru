@@ -648,13 +648,7 @@ impl Installer {
             Base::Custom(c) => {
                 for pkg in &c.pkgs {
                     missing.retain(|mis| {
-                        let provides = pkg
-                            .pkg
-                            .provides
-                            .iter()
-                            .filter(|p| p.supports(arch))
-                            .flat_map(|p| &p.vec)
-                            .map(|p| Depend::new(p.as_str()));
+                        let provides = ArchVec::supported(&pkg.pkg.provides, arch).map(Depend::new);
                         let v = Version::new(c.version().as_str());
                         if ver {
                             !satisfies(Depend::new(*mis), &pkg.pkg.pkgname, v, provides)
@@ -1756,10 +1750,7 @@ fn check_deps_sync<'a>(
 
 fn supported_deps<'a>(config: &'a Config, deps: &'a [ArchVec]) -> impl Iterator<Item = &'a str> {
     let arch = config.alpm.architectures().first().unwrap_or_default();
-    deps.iter()
-        .filter(move |v| v.supports(arch))
-        .flat_map(|v| &v.vec)
-        .map(|s| s.as_str())
+    ArchVec::supported(deps, arch)
 }
 
 fn deps_not_satisfied<'a>(config: &'a Config, base: &'a Base) -> Result<Vec<&'a str>> {

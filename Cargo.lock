@@ -1922,9 +1922,9 @@ dependencies = [
 
 [[package]]
 name = "srcinfo"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a69c538e89460803500fca8d5f54a82f5ae1b3b2fc0661462ee41d8641a3571a"
+checksum = "ceaee0d48949e3aa5365945de3e467e797b30b4f8636c2e580121a293fd77519"
 
 [[package]]
 name = "stable_deref_trait"

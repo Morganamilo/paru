@@ -21,7 +21,7 @@ aur-fetch = "0.11.0"
 cini = "1.0.0"
 pacmanconf = "2.0.0"
 raur = "6.0.0"
-srcinfo = "1.0.0"
+srcinfo = "1.1.0"
 
 
 ansi_term = "0.12.1"
