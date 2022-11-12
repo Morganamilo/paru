@@ -406,6 +406,7 @@ pub struct Config {
     pub use_ask: bool,
     pub save_changes: bool,
     pub clean: usize,
+    pub optional: bool,
     pub complete: bool,
     pub print: bool,
     pub news_on_upgrade: bool,

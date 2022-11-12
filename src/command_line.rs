@@ -210,7 +210,11 @@ impl Config {
                 self.stats = true;
                 self.ssh = true;
             }
-            Arg::Long("order") | Arg::Short('o') => self.order = true,
+            Arg::Long("order") => self.order = true,
+            Arg::Short('o') => {
+                self.order = true;
+                self.optional = true;
+            }
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
             }
@@ -261,6 +265,7 @@ impl Config {
             }
             Arg::Long("nosudoloop") => self.sudo_loop.clear(),
             Arg::Long("clean") => self.clean += 1,
+            Arg::Long("optional") => self.optional = true,
             Arg::Long("complete") => self.complete = true,
             Arg::Short('c') => {
                 self.complete = true;

@@ -57,6 +57,7 @@ pub static PACMAN_FLAGS: &[&str] = &[
     "recursive",
     "unneeded",
     "clean",
+    "optional",
     "sysupgrade",
     "w",
     "downloadonly",

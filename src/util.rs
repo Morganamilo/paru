@@ -167,7 +167,7 @@ enum State {
     Keep,
 }
 
-pub fn unneeded_pkgs(config: &Config, optional: bool) -> Vec<&str> {
+pub fn unneeded_pkgs(config: &Config, keep_make: bool, keep_optional: bool) -> Vec<&str> {
     let mut states = HashMap::new();
     let mut remove = Vec::new();
     let mut providers = HashMap::<_, Vec<_>>::new();
@@ -221,11 +221,11 @@ pub fn unneeded_pkgs(config: &Config, optional: bool) -> Vec<&str> {
                 state.set(State::Keep);
                 check_deps(pkg.depends());
 
-                if optional {
+                if keep_optional {
                     check_deps(pkg.optdepends());
                 }
 
-                if config.clean > 1 {
+                if keep_make {
                     continue;
                 }
 
