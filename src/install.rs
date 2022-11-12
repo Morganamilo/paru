@@ -1752,7 +1752,7 @@ pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Resul
 }
 
 fn chroot(config: &Config) -> Chroot {
-    Chroot {
+    let mut chroot = Chroot {
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf
@@ -1768,7 +1768,13 @@ fn chroot(config: &Config) -> Chroot {
 
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
+    };
+
+    if config.args.count("d", "nodeps") > 1 {
+        chroot.mflags.push("-d".to_string());
     }
+
+    chroot
 }
 
 fn trim_dep_ver(dep: &str, trim: bool) -> &str {
