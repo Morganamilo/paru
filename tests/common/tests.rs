@@ -1,13 +1,9 @@
-#![cfg(feature = "mock")]
-
-mod common;
-
+use crate::common::*;
 use alpm::PackageReason;
-use common::*;
 
 #[tokio::test]
 async fn pacaur() {
-    let (tmp, ret) = run_combined(&["-S", "pacaur"]).await.unwrap();
+    let (tmp, ret) = run(&["-S", "pacaur"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
 
@@ -37,7 +33,7 @@ async fn pacaur_ignore() {
 
 #[tokio::test]
 async fn pacaur_as_deps() {
-    let (tmp, ret) = run_combined(&["-S", "pacaur", "--asdeps"]).await.unwrap();
+    let (tmp, ret) = run(&["-S", "pacaur", "--asdeps"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
 
@@ -52,9 +48,7 @@ async fn pacaur_as_deps() {
 
 #[tokio::test]
 async fn pacaur_as_exp() {
-    let (tmp, ret) = run_combined(&["-S", "pacaur", "--asexplicit"])
-        .await
-        .unwrap();
+    let (tmp, ret) = run(&["-S", "pacaur", "--asexplicit"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
 
@@ -69,7 +63,7 @@ async fn pacaur_as_exp() {
 
 #[tokio::test]
 async fn pacaur_no_deps() {
-    let (tmp, ret) = run_combined(&["-Sdd", "pacaur"]).await.unwrap();
+    let (tmp, ret) = run(&["-Sdd", "pacaur"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
     let db = alpm.localdb();
@@ -79,7 +73,7 @@ async fn pacaur_no_deps() {
 
 #[tokio::test]
 async fn pacaur_assume() {
-    let (tmp, ret) = run_combined(&["-S", "--assume-installed=auracle-git", "pacaur"])
+    let (tmp, ret) = run(&["-S", "--assume-installed=auracle-git", "pacaur"])
         .await
         .unwrap();
     assert_eq!(ret, 0);
@@ -91,7 +85,7 @@ async fn pacaur_assume() {
 
 #[tokio::test]
 async fn update() {
-    let (tmp, ret) = run_combined(&["-Sua"]).await.unwrap();
+    let (tmp, ret) = run(&["-Sua"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
     let db = alpm.localdb();
@@ -101,7 +95,7 @@ async fn update() {
 
 #[tokio::test]
 async fn update_ignore() {
-    let (tmp, ret) = run_combined(&["-Sua", "--ignore=polybar"]).await.unwrap();
+    let (tmp, ret) = run(&["-Sua", "--ignore=polybar"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
     let db = alpm.localdb();
@@ -111,7 +105,7 @@ async fn update_ignore() {
 
 #[tokio::test]
 async fn update_repo() {
-    let (tmp, ret) = run_combined(&["-Su", "--repo"]).await.unwrap();
+    let (tmp, ret) = run(&["-Su", "--repo"]).await.unwrap();
     assert_eq!(ret, 0);
     let alpm = alpm(&tmp).unwrap();
     let db = alpm.localdb();
@@ -121,19 +115,19 @@ async fn update_repo() {
 
 #[tokio::test]
 async fn no_exist() {
-    let (_, ret) = run_combined(&["-S", "aaaaaaaaaa"]).await.unwrap();
+    let (_, ret) = run(&["-S", "aaaaaaaaaa"]).await.unwrap();
     assert_eq!(ret, 1);
 }
 
 #[tokio::test]
 async fn no_exist_r() {
-    let (_, ret) = run_combined(&["-S", "--repo", "pacaur"]).await.unwrap();
+    let (_, ret) = run(&["-S", "--repo", "pacaur"]).await.unwrap();
     assert_eq!(ret, 1);
 }
 
 #[tokio::test]
 async fn no_exist_a() {
-    let (_, ret) = run_combined(&["-Sa", "pacman"]).await.unwrap();
+    let (_, ret) = run(&["-Sa", "pacman"]).await.unwrap();
     assert_eq!(ret, 1);
 }
 
@@ -144,4 +138,21 @@ async fn repo_ignore() {
     let alpm = alpm(&tmp).unwrap();
     let db = alpm.localdb();
     db.pkg("i3-wm").unwrap();
+}
+
+#[tokio::test]
+async fn pkgbuild() {
+    let (tmp, ret) = run(&["-Bi", "testdata/clone/pkg"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+
+    let pacaur = db.pkg("pacaur").unwrap();
+    let auracle = db.pkg("auracle-git").unwrap();
+    let pkg = db.pkg("pkg").unwrap();
+
+    assert_eq!(pkg.reason(), PackageReason::Explicit);
+    assert_eq!(auracle.reason(), PackageReason::Depend);
+    assert_eq!(pacaur.reason(), PackageReason::Depend);
 }

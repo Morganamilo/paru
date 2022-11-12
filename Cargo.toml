@@ -66,6 +66,7 @@ backtrace = []
 generate = ["alpm/generate"]
 static = ["alpm/static"]
 mock = ["async-trait"]
+mock_chroot = ["mock"]
 
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }

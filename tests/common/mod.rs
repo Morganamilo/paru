@@ -9,7 +9,7 @@ use std::path::Path;
 use std::process::Command;
 use tempfile::TempDir;
 
-pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
+pub async fn run_normal(run_args: &[&str]) -> Result<(TempDir, i32)> {
     let tmp = TempDir::new().unwrap();
     let dir = tmp.path();
     let testdata = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata");
@@ -79,7 +79,13 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
 pub async fn run_combined(run_args: &[&str]) -> Result<(TempDir, i32)> {
     let mut args = run_args.to_vec();
     args.push("--combinedupgrade");
-    run(&args).await
+    run_normal(&args).await
+}
+
+pub async fn run_chroot(run_args: &[&str]) -> Result<(TempDir, i32)> {
+    let mut args = run_args.to_vec();
+    args.push("--chroot");
+    run_normal(&args).await
 }
 
 pub fn alpm(tmp: &TempDir) -> Result<Alpm> {

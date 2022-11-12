@@ -18,7 +18,7 @@ pub struct Chroot {
 
 fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     let mut tmp = tempfile::NamedTempFile::new()?;
-    let conf = pacmanconf::Config::expand_from_file(pacman_conf)?;
+    let conf = pacmanconf::Config::expand_with_opts(None, Some(pacman_conf), Some("/"))?;
 
     // Bug with dbpath in pacstrap
     let conf = conf
