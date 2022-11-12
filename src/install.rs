@@ -74,6 +74,7 @@ struct Installer {
     conflict: bool,
     devel_info: DevelInfo,
     new_devel_info: DevelInfo,
+    built: Vec<String>,
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
@@ -158,6 +159,7 @@ impl Installer {
             conflict: false,
             devel_info: DevelInfo::default(),
             new_devel_info: DevelInfo::default(),
+            built: Vec::new(),
         }
     }
 
@@ -305,7 +307,7 @@ impl Installer {
             args.targets = targets;
 
             if !self.conflict
-                && !build.is_empty()
+                && !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
                     || config.combined_upgrade
                     || config.mode == Mode::Aur)
@@ -459,8 +461,12 @@ impl Installer {
         let c = config.color;
 
         if config.chroot {
+            let mut extra = Vec::new();
+            if config.repos == LocalRepos::None {
+                extra.extend(self.built.iter().map(|s| s.as_str()));
+            }
             self.chroot
-                .build(dir, &["-cu"], &["-ofA"])
+                .build(dir, &extra, &["-cu"], &["-ofA"])
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
@@ -497,6 +503,9 @@ impl Installer {
                     Base::Aur(base) => {
                         let mut debug = Vec::new();
                         for pkg in &base.pkgs {
+                            if pkg.make {
+                                continue;
+                            }
                             let debug_pkg = format!("{}-debug-", pkg.pkg.name);
 
                             if file.starts_with(&debug_pkg) {
@@ -514,6 +523,9 @@ impl Installer {
                     Base::Custom(base) => {
                         let mut debug = Vec::new();
                         for pkg in &base.pkgs {
+                            if pkg.make {
+                                continue;
+                            }
                             let debug_pkg = format!("{}-debug-", pkg.pkg.pkgname);
 
                             if file.starts_with(&debug_pkg) {
@@ -534,9 +546,14 @@ impl Installer {
         if needs_build {
             // actual build
             if config.chroot {
+                let mut extra = Vec::new();
+                if config.repos == LocalRepos::None {
+                    extra.extend(self.built.iter().map(|s| s.as_str()));
+                }
                 self.chroot
                     .build(
                         dir,
+                        &extra,
                         &[],
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
                     )
@@ -609,6 +626,28 @@ impl Installer {
                 save_devel_info(config, &self.devel_info)?;
             }
         }
+        let to_install: Vec<_> = match base {
+            Base::Aur(a) => a
+                .pkgs
+                .iter()
+                .filter(|a| !a.make)
+                .map(|a| a.pkg.name.as_str())
+                .collect(),
+            Base::Custom(c) => c
+                .pkgs
+                .iter()
+                .filter(|c| !c.make)
+                .map(|a| a.pkg.pkgname.as_str())
+                .collect(),
+        };
+
+        let to_install = to_install
+            .iter()
+            .filter_map(|p| pkgdest.get(*p))
+            .chain(debug_paths.values())
+            .cloned();
+
+        self.built.extend(to_install);
         Ok((pkgdest, version))
     }
 
@@ -639,7 +678,12 @@ impl Installer {
         let mut missing = if config.args.count("d", "nodeps") > 1 {
             Vec::new()
         } else if config.chroot {
-            deps_not_satisfied_by_repo(config, base)?
+            if config.repos == LocalRepos::None {
+                // todo
+                Vec::new()
+            } else {
+                deps_not_satisfied_by_repo(config, base)?
+            }
         } else {
             deps_not_satisfied(config, base)?
         };
@@ -960,7 +1004,12 @@ impl Installer {
         }
 
         if err.is_ok() && config.chroot {
-            err = self.chroot_install(config, &build, &repo_targs);
+            if config.repos == LocalRepos::None {
+                err = self.chroot_install(config, &[], &repo_targs);
+                self.do_install(config)?;
+            } else {
+                err = self.chroot_install(config, &build, &repo_targs);
+            }
         }
 
         self.build_cleanup(config, &build)?;

@@ -323,9 +323,6 @@ impl Config {
             Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("chroot") => {
                 self.chroot = true;
-                if self.repos == LocalRepos::None {
-                    self.repos = LocalRepos::Default;
-                }
                 if let Ok(p) = value {
                     self.chroot_dir = p.into();
                 }

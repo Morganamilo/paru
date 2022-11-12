@@ -88,13 +88,23 @@ impl Chroot {
         self.run(&["pacman", "-Syu", "--noconfirm"])
     }
 
-    pub fn build(&self, pkgbuild: &Path, chroot_flags: &[&str], flags: &[&str]) -> Result<()> {
+    pub fn build(
+        &self,
+        pkgbuild: &Path,
+        pkgs: &[&str],
+        chroot_flags: &[&str],
+        flags: &[&str],
+    ) -> Result<()> {
         let mut cmd = Command::new("makechrootpkg");
 
         cmd.current_dir(pkgbuild)
             .args(chroot_flags)
             .arg("-r")
             .arg(&self.path);
+
+        for pkg in pkgs {
+            cmd.arg("-I").arg(pkg);
+        }
 
         for file in &self.ro {
             cmd.arg("-D").arg(file);

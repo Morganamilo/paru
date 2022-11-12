@@ -980,9 +980,6 @@ impl Config {
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
-                if self.repos == LocalRepos::None {
-                    self.repos = LocalRepos::Default;
-                }
                 self.chroot = true;
                 if let Some(p) = value {
                     self.chroot_dir = p.into();
