@@ -1562,6 +1562,9 @@ fn print_dir(
 }
 
 fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+    if pkgs.is_empty() {
+        return Ok(());
+    }
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
             let _view = file_manager(config, fetch, fm, pkgs)?;
