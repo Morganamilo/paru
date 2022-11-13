@@ -340,6 +340,21 @@ impl Installer {
             return Ok(());
         }
 
+        let assume = if config.chroot {
+            // TODO handle nover
+            config
+                .assume_installed
+                .iter()
+                .map(|a| Depend::new(a.as_str()))
+                .any(|assume| satisfies_provide(Depend::new(pkg), assume))
+        } else {
+            false
+        };
+
+        if config.chroot && (make || assume) {
+            return Ok(());
+        }
+
         if config.args.has_arg("asexplicit", "asexp") {
             self.exp.push(pkg.to_string());
         } else if config.args.has_arg("asdeps", "asdeps") {
@@ -361,10 +376,7 @@ impl Installer {
         })?;
 
         self.conflict |= self.conflicts.contains(pkg);
-
-        if !config.chroot || !make {
-            self.install_queue.push(path);
-        }
+        self.install_queue.push(path);
         Ok(())
     }
 
