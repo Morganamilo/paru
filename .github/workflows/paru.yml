@@ -1,4 +1,4 @@
-name: Paru
+name: Test
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       image: archlinux
     steps:
       - name: Install Packages
-        run: pacman -Syu rust clang gcc libarchive pkgconf sudo fakeroot --noconfirm --needed
+        run: pacman -Syu rust clang gcc libarchive pkgconf sudo fakeroot devtools --noconfirm --needed
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,7 +36,9 @@ jobs:
         run: cargo build --locked --features generate
 
       - name: Test
-        run: sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --test-threads=1
+        run: |
+          echo "nobody    ALL=NOPASSWD: ALL" >> /etc/sudo.conf
+          sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock_chroot --target-dir=/tmp -- --test-threads=1
 
   test-git:
     runs-on: ubuntu-latest
@@ -44,7 +46,7 @@ jobs:
       image: archlinux
     steps:
       - name: Install Packages
-        run: pacman -Syu rust curl clang git base-devel libarchive meson asciidoc doxygen fakechroot pkgconf --noconfirm --needed
+        run: pacman -Syu rust curl clang git base-devel libarchive meson asciidoc doxygen fakechroot pkgconf devtools --noconfirm --needed
 
       - name: Install Pacman-git
         run: |
@@ -65,4 +67,6 @@ jobs:
         run: cargo build --locked --features git,generate
 
       - name: Test
-        run: sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --test-threads=1
+        run: |
+          echo "nobody    ALL=NOPASSWD: ALL" >> /etc/sudo.conf
+          sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock_chroot --target-dir=/tmp -- --test-threads=1
