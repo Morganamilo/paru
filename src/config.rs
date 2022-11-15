@@ -271,11 +271,29 @@ impl ConfigEnum for raur::SearchBy {
 pub enum SortMode {
     BottomUp,
     TopDown,
+    Auto,
+}
+
+impl SortMode {
+    //! Turns [SortMode::Auto] into one of the other variants.
+    pub fn resolve(&self) -> Self {
+        if matches!(self, SortMode::Auto) {
+            match isatty(stdout().as_raw_fd()) {
+                Ok(true) => SortMode::BottomUp,
+                _ => SortMode::TopDown,
+            }
+        } else {
+            *self
+        }
+    }
 }
 
 impl ConfigEnum for SortMode {
-    const VALUE_LOOKUP: ConfigEnumValues<Self> =
-        &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("bottomup", Self::BottomUp),
+        ("topdown", Self::TopDown),
+        ("auto", Self::Auto),
+    ];
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -953,7 +971,7 @@ impl Config {
 
         match key {
             "SkipReview" => self.skip_review = true,
-            "BottomUp" => self.sort_mode = SortMode::BottomUp,
+            "BottomUp" => self.sort_mode = SortMode::BottomUp.default_or(key, value)?,
             "AurOnly" => self.mode = Mode::Aur,
             "RepoOnly" => self.mode = Mode::Repo,
             "SudoLoop" => {
@@ -1017,6 +1035,7 @@ impl Config {
             "AurUrl" => self.aur_url = value?.parse()?,
             "AurRpcUrl" => self.aur_rpc_url = Some(value?.parse()?),
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
+            "BottomUp" => self.sort_mode = ConfigEnum::from_str(key, value?.as_str())?,
             "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
             "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,
             "RemoveMake" => self.remove_make = ConfigEnum::from_str(key, value?.as_str())?,
