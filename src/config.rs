@@ -8,7 +8,7 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::File;
-use std::io::{stdin, stdout, BufRead};
+use std::io::{stdin, stdout, BufRead, Write};
 use std::path::{Path, PathBuf};
 
 use alpm::{
@@ -562,12 +562,20 @@ impl Config {
         let config_path = config.join("paru.conf");
 
         // Check if devel.json is present in cache dir & move to state dir if true
-        if !devel_path.exists() && old_devel_path.exists() {
+        if !devel_path.exists() {
             if !state.exists() {
                 std::fs::create_dir(&state)?;
             }
-            std::fs::copy(&old_devel_path, &devel_path)?;
-            std::fs::remove_file(&old_devel_path)?;
+            if old_devel_path.exists() {
+                std::fs::copy(&old_devel_path, &devel_path)?;
+                std::fs::remove_file(&old_devel_path)?;
+            } else {
+                let mut f = std::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&devel_path)?;
+                write!(f, "{{}}")?;
+            }
         }
 
         let cache_dir = cache;
