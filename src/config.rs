@@ -8,7 +8,7 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::File;
-use std::io::{stdin, stdout, BufRead, Write};
+use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
 
 use alpm::{
@@ -363,6 +363,7 @@ pub struct Config {
     pub arch_url: Url,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
+    pub state_dir: PathBuf,
     pub devel_path: PathBuf,
     pub config_path: Option<PathBuf>,
 
@@ -562,23 +563,17 @@ impl Config {
         let config_path = config.join("paru.conf");
 
         // Check if devel.json is present in cache dir & move to state dir if true
-        if !devel_path.exists() {
+        if !devel_path.exists() && old_devel_path.exists() {
             if !state.exists() {
-                std::fs::create_dir(&state)?;
+                std::fs::create_dir_all(&state)
+                    .with_context(|| format!("mkdir: {}", state.display()))?;
             }
-            if old_devel_path.exists() {
-                std::fs::copy(&old_devel_path, &devel_path)?;
-                std::fs::remove_file(&old_devel_path)?;
-            } else {
-                let mut f = std::fs::OpenOptions::new()
-                    .write(true)
-                    .create_new(true)
-                    .open(&devel_path)?;
-                write!(f, "{{}}")?;
-            }
+            std::fs::copy(&old_devel_path, &devel_path)?;
+            std::fs::remove_file(&old_devel_path)?;
         }
 
         let cache_dir = cache;
+        let state_dir = state;
 
         let color = Colors::from("never");
         let cols = term_size::dimensions_stdout().map(|v| v.0);
@@ -588,6 +583,7 @@ impl Config {
             color,
             build_dir,
             cache_dir,
+            state_dir,
             devel_path,
             ..Self::default()
         };
