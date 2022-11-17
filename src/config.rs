@@ -1129,6 +1129,10 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
 }
 
 fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
+    if filename.ends_with(".sig") {
+        return;
+    }
+
     match event.event() {
         DownloadEvent::Init(_) => println!("  syncing {}...", filename),
         DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {
