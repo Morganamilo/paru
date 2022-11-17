@@ -363,6 +363,7 @@ pub struct Config {
     pub arch_url: Url,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
+    pub state_dir: PathBuf,
     pub devel_path: PathBuf,
     pub config_path: Option<PathBuf>,
 
@@ -564,13 +565,15 @@ impl Config {
         // Check if devel.json is present in cache dir & move to state dir if true
         if !devel_path.exists() && old_devel_path.exists() {
             if !state.exists() {
-                std::fs::create_dir(&state)?;
+                std::fs::create_dir_all(&state)
+                    .with_context(|| format!("mkdir: {}", state.display()))?;
             }
             std::fs::copy(&old_devel_path, &devel_path)?;
             std::fs::remove_file(&old_devel_path)?;
         }
 
         let cache_dir = cache;
+        let state_dir = state;
 
         let color = Colors::from("never");
         let cols = term_size::dimensions_stdout().map(|v| v.0);
@@ -580,6 +583,7 @@ impl Config {
             color,
             build_dir,
             cache_dir,
+            state_dir,
             devel_path,
             ..Self::default()
         };

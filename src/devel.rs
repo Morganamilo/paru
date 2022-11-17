@@ -199,8 +199,8 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 }
 
 pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
-    create_dir_all(&config.cache_dir)
-        .with_context(|| format!("mkdir: {}", config.cache_dir.display()))?;
+    create_dir_all(&config.state_dir)
+        .with_context(|| format!("mkdir: {}", config.state_dir.display()))?;
     let file = OpenOptions::new()
         .create(true)
         .write(true)
