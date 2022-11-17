@@ -778,17 +778,19 @@ impl Config {
     }
 
     pub fn new_alpm(&self) -> Result<alpm::Alpm> {
-        let mut alpm = alpm_utils::alpm_with_conf(&self.pacman).with_context(|| {
-            tr!(
-                "failed to initialize alpm: root={} dbpath={}",
-                self.pacman.root_dir,
-                self.pacman.db_path
-            )
-        })?;
+        let mut alpm = alpm::Alpm::new(self.pacman.root_dir.as_str(), self.pacman.db_path.as_str())
+            .with_context(|| {
+                tr!(
+                    "failed to initialize alpm: root={} dbpath={}",
+                    self.pacman.root_dir,
+                    self.pacman.db_path
+                )
+            })?;
 
         alpm.set_question_cb((self.no_confirm, self.color), question);
         alpm.set_dl_cb((), download);
         alpm.set_log_cb(self.color, log);
+        alpm_utils::configure_alpm(&mut alpm, &self.pacman)?;
 
         if !self.chroot {
             for dep in &self.assume_installed {
