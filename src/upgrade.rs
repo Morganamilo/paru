@@ -1,4 +1,4 @@
-use crate::config::{Config, LocalRepos, Mode};
+use crate::config::{Config, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::util::{input, NumberMenu};
@@ -117,7 +117,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
 ) -> Result<AurUpdates<'a>> {
-    if config.mode != Mode::Repo {
+    if config.mode.aur() {
         if print {
             let c = config.color;
             println!(
@@ -143,7 +143,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
 }
 
 async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
-    if config.devel && config.mode != Mode::Repo {
+    if config.devel && config.mode.aur() {
         let c = config.color;
         if print {
             println!(
@@ -175,13 +175,13 @@ fn custom_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
 ) -> Result<CustomUpdates<'a>> {
-    if config.mode != Mode::Repo {
+    if config.mode.pkgbuild() {
         if print {
             let c = config.color;
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint(tr!("Looking for SRCINFO upgrades..."))
+                c.bold.paint(tr!("Looking for PKGBUILD upgrades..."))
             );
         }
 
@@ -238,7 +238,7 @@ pub async fn get_upgrades<'a, 'b>(
     let mut devel_upgrades =
         filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
 
-    let repo_upgrades = if config.mode != Mode::Aur && config.combined_upgrade {
+    let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?
     } else {
         Vec::new()

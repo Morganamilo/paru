@@ -1,4 +1,4 @@
-use crate::config::{Alpm, Config, LocalRepos, Mode, Op, YesNoAllTree};
+use crate::config::{Alpm, Config, LocalRepos, Op, YesNoAllTree};
 use crate::fmt::color_repo;
 use crate::util::{get_provider, NumberMenu};
 use crate::RaurHandle;
@@ -29,11 +29,11 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         flags.remove(Flags::CHECK_DEPENDS);
         config.mflags.push("--nocheck".into());
     }
-    if config.mode == Mode::Aur {
-        flags &= !Flags::NATIVE_REPO;
-    }
-    if config.mode == Mode::Repo {
+    if !config.mode.aur() {
         flags &= !Flags::AUR;
+    }
+    if !config.mode.repo() {
+        flags &= !Flags::NATIVE_REPO;
     }
     if !config.provides {
         flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);

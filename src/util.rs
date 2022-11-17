@@ -1,4 +1,4 @@
-use crate::config::{Config, LocalRepos, Mode};
+use crate::config::{Config, LocalRepos};
 use crate::repo;
 
 use std::cell::Cell;
@@ -39,9 +39,9 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode == Mode::Aur {
+        if !config.mode.repo() {
             aur.push(targ);
-        } else if config.mode == Mode::Repo {
+        } else if !config.mode.aur() && !config.mode.pkgbuild() {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
             if config.alpm.syncdbs().iter().any(|db| db.name() == repo) {
@@ -89,9 +89,9 @@ pub fn split_repo_aur_info<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode == Mode::Aur {
+        if !config.mode.repo() {
             aur.push(targ);
-        } else if config.mode == Mode::Repo {
+        } else if !config.mode.aur() && !config.mode.pkgbuild() {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
             if repo == config.aur_namespace() || repo == "." {

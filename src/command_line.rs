@@ -234,10 +234,12 @@ impl Config {
             Arg::Long("topdown") => self.sort_mode = SortMode::TopDown,
             Arg::Long("bottomup") => self.sort_mode = SortMode::BottomUp,
             Arg::Long("aur") | Arg::Short('a') => {
-                self.mode = Mode::Aur;
+                self.mode = Mode::AUR;
                 self.aur_filter = true;
             }
-            Arg::Long("repo") => self.mode = Mode::Repo,
+            Arg::Long("repo") => self.mode = Mode::REPO,
+            Arg::Long("pkgbuilds") => self.mode = Mode::PKGBUILD,
+            Arg::Long("mode") => self.mode = value?.parse()?,
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
@@ -419,6 +421,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("overwrite") => TakesValue::Required,
         Arg::Long("sign") => TakesValue::Optional,
         Arg::Long("signdb") => TakesValue::Optional,
+        Arg::Long("mode") => TakesValue::Required,
         _ => TakesValue::No,
     }
 }

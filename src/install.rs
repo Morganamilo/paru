@@ -14,9 +14,7 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{
-    Config, CustomRepo, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAllTree, YesNoAsk,
-};
+use crate::config::{Config, CustomRepo, LocalRepos, Op, RepoSource, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
@@ -295,7 +293,7 @@ impl Installer {
                 args.arg("asdeps");
             }
 
-            if config.mode != Mode::Aur {
+            if config.mode.repo() {
                 for _ in 0..config.args.count("y", "refresh") {
                     args.arg("y");
                 }
@@ -310,7 +308,7 @@ impl Installer {
                 && !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
                     || config.combined_upgrade
-                    || config.mode == Mode::Aur)
+                    || !config.mode.repo())
             {
                 args.arg("noconfirm");
             }
@@ -877,16 +875,15 @@ impl Installer {
             bail!(tr!("no targets specified (use -h for help)"));
         }
 
-        if config.mode != Mode::Repo {
+        if config.mode.aur() {
             if config.combined_upgrade {
                 if config.args.has_arg("y", "refresh") {
                     self.early_refresh(config)?;
                 }
             } else if !config.chroot
-                && ((config.args.has_arg("y", "refresh")
+                && (config.args.has_arg("y", "refresh")
                     || config.args.has_arg("u", "sysupgrade")
                     || !repo_targets.is_empty())
-                    || config.mode == Mode::Repo)
             {
                 let targets = repo_targets.iter().map(|t| t.to_string()).collect();
                 repo_targets.clear();
@@ -904,8 +901,13 @@ impl Installer {
         }
 
         config.init_alpm()?;
-        refresh_custom_repos(config, &self.custom_repo_fetch)?;
-        read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
+        if config.mode.pkgbuild() {
+            refresh_custom_repos(config, &self.custom_repo_fetch)?;
+            if config.args.has_arg("y", "refresh") {
+                self.done_something = true;
+            }
+            read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
+        }
         let custom_repos = take(&mut self.custom_repos);
         self.resolve_targets(config, &custom_repos, &repo_targets, &aur_targets)
             .await
@@ -958,7 +960,8 @@ impl Installer {
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
         // No aur stuff, let's just use pacman
-        if config.mode != Mode::Aur
+        if !config.mode.aur()
+            && !config.mode.pkgbuild()
             && aur_targets.is_empty()
             && self.upgrades.aur_keep.is_empty()
             && !self.ran_pacman
@@ -1222,11 +1225,11 @@ fn is_debug(pkg: alpm::Package) -> bool {
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     let mut warnings = crate::download::Warnings::default();
 
-    if config.mode == Mode::Repo {
+    if !config.mode.aur() && !config.mode.pkgbuild() {
         return;
     }
 
-    if config.args.has_arg("u", "sysupgrade") {
+    if config.args.has_arg("u", "sysupgrade") && config.mode.aur() {
         let (_, pkgs) = repo_aur_pkgs(config);
 
         warnings.missing = pkgs
@@ -1286,7 +1289,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
 }
 
 fn upgrade_later(config: &Config) -> bool {
-    config.mode != Mode::Aur
+    config.mode.repo()
         && config.chroot
         && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
 }
@@ -1445,7 +1448,7 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .remove("refresh");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
-    if !config.combined_upgrade || config.mode == Mode::Aur {
+    if !config.combined_upgrade || !config.mode.repo() {
         args.remove("u").remove("sysupgrade");
     }
 
@@ -2246,18 +2249,16 @@ fn read_repo(
 pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
     let c = config.color;
 
-    if config.mode != Mode::Repo {
-        if config.args.has_arg("y", "refresh") {
-            download_custom_repos(config, fetch)?;
-        } else {
-            for repo in &config.custom_repos {
-                if matches!(repo.source, RepoSource::Url(_)) && !fetch.is_git_repo(&repo.name) {
-                    eprintln!(
-                        "{} {}",
-                        c.warning.paint("::"),
-                        tr!("repo {} not downloaded (use -Sya to download)", repo.name)
-                    );
-                }
+    if config.args.has_arg("y", "refresh") {
+        download_custom_repos(config, fetch)?;
+    } else {
+        for repo in &config.custom_repos {
+            if matches!(repo.source, RepoSource::Url(_)) && !fetch.is_git_repo(&repo.name) {
+                eprintln!(
+                    "{} {}",
+                    c.warning.paint("::"),
+                    tr!("repo {} not downloaded (use -Sya to download)", repo.name)
+                );
             }
         }
     }

@@ -1,4 +1,4 @@
-use crate::config::{Colors, Config, Mode, SortMode, YesNoAll};
+use crate::config::{Colors, Config, SortMode, YesNoAll};
 use crate::fmt::print_indent;
 use crate::printtr;
 use crate::RaurHandle;
@@ -526,9 +526,9 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode == Mode::Aur {
+        if !config.mode.repo() {
             aur.push(targ);
-        } else if config.mode == Mode::Repo {
+        } else if !config.mode.aur() && !config.mode.pkgbuild() {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
             if matches!(

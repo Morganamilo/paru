@@ -10,6 +10,7 @@ use std::fmt;
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use alpm::{
     AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, LogLevel, Question,
@@ -17,6 +18,7 @@ use alpm::{
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use nix::unistd::{dup2, isatty};
@@ -278,16 +280,59 @@ impl ConfigEnum for SortMode {
         &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Mode {
-    Any,
-    Aur,
-    Repo,
+bitflags! {
+    pub struct Mode: u32 {
+        const AUR =  1 << 0;
+        const REPO = 1 << 1;
+        const PKGBUILD = 1 << 2;
+    }
 }
 
-impl ConfigEnum for Mode {
-    const VALUE_LOOKUP: ConfigEnumValues<Self> =
-        &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
+impl Mode {
+    pub fn aur(self) -> bool {
+        self.contains(Self::AUR)
+    }
+
+    pub fn repo(self) -> bool {
+        self.contains(Self::REPO)
+    }
+
+    pub fn pkgbuild(self) -> bool {
+        self.contains(Self::PKGBUILD)
+    }
+}
+
+impl FromStr for Mode {
+    type Err = Error;
+
+    fn from_str(input: &str) -> Result<Self> {
+        let mut mode = Mode::empty();
+
+        for part in input.split(",") {
+            match part {
+                "all" => mode = Mode::all(),
+                "aur" => mode |= Mode::AUR,
+                "repo" => mode |= Mode::REPO,
+                "pkgbuilds" => mode |= Mode::PKGBUILD,
+                _ => {
+                    let mut sub_mode = Mode::empty();
+                    let mut matched = true;
+                    for c in part.chars() {
+                        match c {
+                            'a' => sub_mode |= Mode::AUR,
+                            'r' => sub_mode |= Mode::REPO,
+                            'p' => sub_mode |= Mode::PKGBUILD,
+                            _ => matched = false,
+                        }
+                    }
+                    ensure!(matched, tr!("unknown mode {}", part));
+                    mode |= sub_mode;
+                }
+            }
+        }
+
+        Ok(mode)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -385,7 +430,7 @@ pub struct Config {
     pub limit: usize,
     #[default(SortMode::TopDown)]
     pub sort_mode: SortMode,
-    #[default(Mode::Any)]
+    #[default(Mode::empty())]
     pub mode: Mode,
     pub aur_filter: bool,
 
@@ -760,6 +805,10 @@ impl Config {
             remove_var("PKGEXT");
         }
 
+        if self.mode == Mode::empty() {
+            self.mode = Mode::all();
+        }
+
         Ok(())
     }
 
@@ -844,7 +893,7 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode == Mode::Aur));
+                || (args.has_arg("c", "clean") && self.mode != Mode::REPO));
         } else if self.op == Op::Upgrade || self.op == Op::Build {
             return true;
         }
@@ -960,8 +1009,9 @@ impl Config {
         match key {
             "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = SortMode::BottomUp,
-            "AurOnly" => self.mode = Mode::Aur,
-            "RepoOnly" => self.mode = Mode::Repo,
+            "AurOnly" => self.mode = Mode::AUR,
+            "PkgbuildsOnly" => self.mode = Mode::PKGBUILD,
+            "RepoOnly" => self.mode = Mode::REPO,
             "SudoLoop" => {
                 self.sudo_loop = value
                     .unwrap_or("-v")
@@ -1041,6 +1091,7 @@ impl Config {
                     self.no_warn_builder.add(Glob::new(word)?);
                 }
             }
+            "Mode" => self.mode = value?.parse()?,
             _ => ok2 = false,
         };
 

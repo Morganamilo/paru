@@ -1,4 +1,4 @@
-use crate::config::{Config, Mode};
+use crate::config::Config;
 
 use crate::exec;
 use crate::print_error;
@@ -17,26 +17,26 @@ use srcinfo::Srcinfo;
 use tr::tr;
 
 pub fn clean(config: &Config) -> Result<()> {
-    if config.mode != Mode::Aur {
+    if config.mode.repo() {
         exec::pacman(config, &config.args)?;
     }
 
-    if config.mode != Mode::Repo {
+    if config.mode.aur() {
         let rm = config.delete >= 1;
         let remove_all = config.clean >= 2;
         let clean_method = &config.pacman.clean_method;
         let keep_installed = clean_method.iter().any(|a| a == "KeepInstalled");
         let keep_current = clean_method.iter().any(|a| a == "KeepCurrent");
 
+        if config.mode.repo() {
+            println!();
+        }
+
         let question = if remove_all {
             tr!("Do you want to clean ALL AUR packages from cache?")
         } else {
             tr!("Do you want to clean all other AUR packages from cache?")
         };
-
-        if config.mode == Mode::Any {
-            println!();
-        }
 
         printtr!("Clone Directory: {}", config.fetch.clone_dir.display());
 
