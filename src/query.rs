@@ -90,7 +90,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                         }
                     }
                 }
-                return true;
+                true
             });
         }
 

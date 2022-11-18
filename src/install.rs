@@ -324,6 +324,7 @@ impl Installer {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn dep_or_exp<'a>(
         &mut self,
         config: &Config,

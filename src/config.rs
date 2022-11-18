@@ -308,7 +308,7 @@ impl FromStr for Mode {
     fn from_str(input: &str) -> Result<Self> {
         let mut mode = Mode::empty();
 
-        for part in input.split(",") {
+        for part in input.split(',') {
             match part {
                 "all" => mode = Mode::all(),
                 "aur" => mode |= Mode::AUR,
