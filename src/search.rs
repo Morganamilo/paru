@@ -484,6 +484,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         printtr!(" there is nothing to do")
     } else {
         config.need_root = true;
+        config.args.remove("x").remove("regex");
         install(config, &pkgs).await?;
     }
 
