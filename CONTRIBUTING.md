@@ -22,7 +22,7 @@ To run paru use:
 
 Paru has a couple of feature flags which you may want to enable:
 
-- backtrace: generate backtraces when errors occur (requires nightly)
+- backtrace: does nothing, kept around for backwards compatibility
 - git: target the libalpm-git API
 - generate: generate the libalpm bindings at build time (requires clang)
 
