@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "backtrace", feature(backtrace))]
+
 mod args;
 mod chroot;
 mod clean;
@@ -68,6 +70,14 @@ fn alpm_debug_enabled() -> bool {
 }
 
 fn print_error(color: Style, err: Error) {
+    #[cfg(feature = "backtrace")]
+    {
+        let backtrace = err.backtrace();
+
+        if backtrace.status() == std::backtrace::BacktraceStatus::Captured {
+            eprint!("{}", backtrace);
+        }
+    }
     let mut iter = err.chain().peekable();
 
     if <dyn StdError>::is::<exec::PacmanError>(*iter.peek().unwrap())

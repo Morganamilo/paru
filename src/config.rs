@@ -1124,6 +1124,8 @@ pub fn version() {
     print!("paru v{}", ver);
     #[cfg(feature = "git")]
     print!(" +git");
+    #[cfg(feature = "backtrace")]
+    print!(" +backtrace");
     println!(" - libalpm v{}", alpm::version());
 }
 
