@@ -1059,9 +1059,9 @@ impl Installer {
         }
 
         if config.pacman.verbose_pkg_lists {
-            print_install_verbose(config, actions);
+            print_install_verbose(config, actions, &self.upgrades.devel);
         } else {
-            print_install(config, actions);
+            print_install(config, actions, &self.upgrades.devel);
         }
 
         let has_make = if !config.chroot

@@ -4,7 +4,7 @@ use crate::fmt::color_repo;
 use crate::util::{input, NumberMenu};
 use crate::{repo, RaurHandle};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use alpm::{AlpmList, Db};
 use alpm_utils::DbListExt;
@@ -21,6 +21,7 @@ pub struct Upgrades {
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
     pub aur_skip: Vec<String>,
+    pub devel: HashSet<String>,
 }
 
 pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
@@ -274,7 +275,7 @@ pub async fn get_upgrades<'a, 'b>(
             .iter()
             .map(|p| p.remote.name.clone())
             .collect::<Vec<_>>();
-        aur.extend(devel_upgrades);
+        aur.extend(devel_upgrades.clone());
 
         let upgrades = Upgrades {
             custom_keep: custom_updates
@@ -287,6 +288,7 @@ pub async fn get_upgrades<'a, 'b>(
             aur_keep: aur,
             aur_skip,
             repo_skip,
+            devel: devel_upgrades.into_iter().collect(),
         };
         return Ok(upgrades);
     }
@@ -481,6 +483,7 @@ pub async fn get_upgrades<'a, 'b>(
         repo_skip,
         aur_keep,
         aur_skip,
+        devel: devel_upgrades.into_iter().collect(),
     };
 
     Ok(upgrades)

@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::config::Config;
 use crate::repo;
 
@@ -107,7 +109,23 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
     col.paint(name).to_string()
 }
 
-fn to_install(actions: &Actions) -> ToInstall {
+fn base_ver(base: &Base, devel: &HashSet<String>) -> String {
+    if base.packages().any(|p| devel.contains(p)) {
+        let mut s = String::new();
+        Base::write_base(
+            &mut s,
+            base.package_base(),
+            "latest-commit",
+            base.packages(),
+        )
+        .unwrap();
+        s
+    } else {
+        base.to_string()
+    }
+}
+
+fn to_install(actions: &Actions, devel: &HashSet<String>) -> ToInstall {
     let install = actions
         .install
         .iter()
@@ -129,7 +147,7 @@ fn to_install(actions: &Actions) -> ToInstall {
         }
     }
     build.retain(|b| b.package_count() != 0);
-    let build = build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
+    let build = build.iter().map(|p| base_ver(p, devel)).collect::<Vec<_>>();
 
     let mut make_build = actions.build.clone();
     for base in &mut make_build {
@@ -139,7 +157,10 @@ fn to_install(actions: &Actions) -> ToInstall {
         }
     }
     make_build.retain(|b| b.package_count() != 0);
-    let make_build = make_build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
+    let make_build = make_build
+        .iter()
+        .map(|p| base_ver(p, devel))
+        .collect::<Vec<_>>();
 
     ToInstall {
         install,
@@ -149,12 +170,12 @@ fn to_install(actions: &Actions) -> ToInstall {
     }
 }
 
-pub fn print_install(config: &Config, actions: &Actions) {
+pub fn print_install(config: &Config, actions: &Actions, devel: &HashSet<String>) {
     let c = config.color;
 
     println!();
 
-    let to = to_install(actions);
+    let to = to_install(actions, devel);
 
     if !to.install.is_empty() {
         let fmt = format!("{} ({}) ", tr!("Repo"), to.install.len());
@@ -226,7 +247,7 @@ fn old_ver<'a>(config: &'a Config, pkg: &str) -> Option<&'a Ver> {
         .map(|p| p.version())
 }
 
-pub fn print_install_verbose(config: &Config, actions: &Actions) {
+pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet<String>) {
     let c = config.color;
     let bold = c.bold;
     let db = config.alpm.localdb();
@@ -269,6 +290,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
         .chain(Some(new.width()))
         .max()
         .unwrap_or_default();
+    let new_len = new_len.max("latest-commit".len());
 
     let make_len = yes.width().max(no.width()).max(make.width());
 
@@ -333,7 +355,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
                 tr!("insufficient columns available for table display")
             );
 
-            print_install(config, actions);
+            print_install(config, actions, devel);
             return;
         }
     }
@@ -397,26 +419,37 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
             match pkg {
                 Base::Aur(base) => {
                     for pkg in &base.pkgs {
+                        let ver = if devel.contains(&pkg.pkg.name) {
+                            "latest-commit"
+                        } else {
+                            &pkg.pkg.version
+                        };
                         println!(
                             "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
                             format!("{}/{}", repo(config, &pkg.pkg.name), pkg.pkg.name),
                             old_ver(config, &pkg.pkg.name)
                                 .map(|v| v.as_str())
                                 .unwrap_or_default(),
-                            pkg.pkg.version,
+                            ver,
                             if pkg.make { &yes } else { &no }
                         );
                     }
                 }
                 Base::Custom(base) => {
                     for pkg in &base.pkgs {
+                        let ver = base.srcinfo.version();
+                        let ver = if devel.contains(&pkg.pkg.pkgname) {
+                            "latest-commit"
+                        } else {
+                            &ver
+                        };
                         println!(
                             "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
                             format!("{}/{}", base.repo, pkg.pkg.pkgname),
                             old_ver(config, &pkg.pkg.pkgname)
                                 .map(|v| v.as_str())
                                 .unwrap_or_default(),
-                            base.srcinfo.version(),
+                            ver,
                             if pkg.make { &yes } else { &no }
                         );
                     }
