@@ -306,31 +306,24 @@ impl FromStr for Mode {
     type Err = Error;
 
     fn from_str(input: &str) -> Result<Self> {
-        let mut mode = Mode::empty();
-
-        for part in input.split(',') {
-            match part {
-                "all" => mode = Mode::all(),
-                "aur" => mode |= Mode::AUR,
-                "repo" => mode |= Mode::REPO,
-                "pkgbuilds" => mode |= Mode::PKGBUILD,
-                _ => {
-                    let mut sub_mode = Mode::empty();
-                    let mut matched = true;
-                    for c in part.chars() {
-                        match c {
-                            'a' => sub_mode |= Mode::AUR,
-                            'r' => sub_mode |= Mode::REPO,
-                            'p' => sub_mode |= Mode::PKGBUILD,
-                            _ => matched = false,
-                        }
+        let mode = match input {
+            "all" => Mode::all(),
+            "aur" => Mode::AUR,
+            "repo" => Mode::REPO,
+            "pkgbuilds" => Mode::PKGBUILD,
+            _ => {
+                let mut mode = Mode::empty();
+                for c in input.chars() {
+                    match c {
+                        'a' => mode |= Mode::AUR,
+                        'r' => mode |= Mode::REPO,
+                        'p' => mode |= Mode::PKGBUILD,
+                        _ => bail!(tr!("unknown mode {}", input)),
                     }
-                    ensure!(matched, tr!("unknown mode {}", part));
-                    mode |= sub_mode;
                 }
+                mode
             }
-        }
-
+        };
         Ok(mode)
     }
 }
@@ -1101,7 +1094,11 @@ impl Config {
                     self.no_warn_builder.add(Glob::new(word)?);
                 }
             }
-            "Mode" => self.mode = value?.parse()?,
+            "Mode" => {
+                for word in value?.split_whitespace() {
+                    self.mode |= word.parse()?;
+                }
+            }
             _ => ok2 = false,
         };
 

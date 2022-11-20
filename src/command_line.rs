@@ -240,7 +240,11 @@ impl Config {
             }
             Arg::Long("repo") => self.mode = Mode::REPO,
             Arg::Long("pkgbuilds") => self.mode = Mode::PKGBUILD,
-            Arg::Long("mode") => self.mode = value?.parse()?,
+            Arg::Long("mode") => {
+                for word in value?.split(',') {
+                    self.mode |= word.parse()?;
+                }
+            }
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
