@@ -526,6 +526,10 @@ pub struct Config {
 
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
+    #[default(GlobSet::empty())]
+    pub ignore_devel: GlobSet,
+    #[default(GlobSetBuilder::new())]
+    pub ignore_devel_builder: GlobSetBuilder,
     pub assume_installed: Vec<String>,
 
     pub custom_repos: Vec<CustomRepo>,
@@ -796,6 +800,7 @@ impl Config {
             }
         }
         self.no_warn = self.no_warn_builder.build()?;
+        self.ignore_devel = self.ignore_devel_builder.build()?;
 
         if !self.assume_installed.is_empty() && !self.chroot {
             self.mflags.push("-d".to_string());
@@ -1085,6 +1090,11 @@ impl Config {
             "DevelSuffixes" => {
                 self.devel_suffixes
                     .extend(value?.split_whitespace().map(|s| s.to_string()));
+            }
+            "IgnoreDevel" => {
+                for word in value?.split_whitespace() {
+                    self.ignore_devel_builder.add(Glob::new(word)?);
+                }
             }
             "NoWarn" => {
                 for word in value?.split_whitespace() {

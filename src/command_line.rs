@@ -7,6 +7,7 @@ use crate::config::{
 use std::fmt;
 
 use anyhow::{anyhow, bail, Context, Result};
+use globset::Glob;
 use tr::tr;
 use url::Url;
 
@@ -319,6 +320,11 @@ impl Config {
             Arg::Long("ignoregroup") => self
                 .ignore_group
                 .extend(value?.split(',').map(|s| s.to_string())),
+            Arg::Long("ignoredevel") => {
+                for word in value?.split(',') {
+                    self.ignore_devel_builder.add(Glob::new(word)?);
+                }
+            }
             Arg::Long("assume-installed") => self.assume_installed.push(value?.to_string()),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
@@ -416,6 +422,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("sysroot") => TakesValue::Required,
         Arg::Long("ignore") => TakesValue::Required,
         Arg::Long("ignoregroup") => TakesValue::Required,
+        Arg::Long("ignoredevel") => TakesValue::Required,
         Arg::Long("assume-installed") => TakesValue::Required,
         Arg::Long("print-format") => TakesValue::Required,
         Arg::Long("overwrite") => TakesValue::Required,

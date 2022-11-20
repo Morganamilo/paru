@@ -315,6 +315,10 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
             if pkgs.iter().all(|p| p.should_ignore()) {
                 continue;
             }
+
+            if pkgs.iter().all(|p| config.ignore_devel.is_match(p.name())) {
+                continue;
+            }
         }
 
         if config.repos != LocalRepos::None {
@@ -372,6 +376,7 @@ pub async fn filter_devel_updates(
         .iter()
         .flatten()
         .filter(|p| !p.should_ignore())
+        .filter(|p| !config.ignore_devel.is_match(p.name()))
         .map(|p| p.name().to_string())
         .filter(|p| cache.contains(p.as_str()))
         .collect();
