@@ -181,14 +181,14 @@ pub fn print_install(config: &Config, actions: &Actions, devel: &HashSet<String>
         let fmt = format!("{} ({}) ", tr!("Repo"), to.install.len());
         let start = 17 + to.install.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.install);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.install);
     }
 
     if !to.make_install.is_empty() {
         let fmt = format!("{} ({}) ", tr!("Repo Make"), to.make_install.len());
         let start = 22 + to.make_install.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.make_install);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.make_install);
     }
 
     if !to.aur.is_empty() {
@@ -200,7 +200,7 @@ pub fn print_install(config: &Config, actions: &Actions, devel: &HashSet<String>
         let fmt = format!("{} ({}) ", aur, to.aur.len());
         let start = 16 + to.aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.aur);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.aur);
     }
 
     if !to.make_aur.is_empty() {
@@ -213,7 +213,7 @@ pub fn print_install(config: &Config, actions: &Actions, devel: &HashSet<String>
         let fmt = format!("{} ({}) ", aur, to.make_aur.len());
         let start = 16 + to.make_aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.make_aur);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.make_aur);
     }
 
     println!();
