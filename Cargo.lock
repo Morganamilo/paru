@@ -121,9 +121,9 @@ dependencies = [
 
 [[package]]
 name = "aur-fetch"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "783c68c4e4e2c11caa84576a5347c4d2d354900267912b94bbb39bcb9f759a3b"
+checksum = "b3a34f46003cfac97808c0200c3338152275029ffc59e296611eef27de61074e"
 dependencies = [
  "crossbeam",
  "log",
