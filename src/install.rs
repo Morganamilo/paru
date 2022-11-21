@@ -1483,32 +1483,28 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
 }
 
 fn asdeps<S: AsRef<str>>(config: &Config, pkgs: &[S]) -> Result<()> {
-    if pkgs.is_empty() {
-        return Ok(());
-    }
-
-    let mut args = config.pacman_globals();
-    args.op("database")
-        .arg("asdeps")
-        .targets(pkgs.iter().map(|s| s.as_ref()));
-    let output = exec::pacman_output(config, &args)?;
-    ensure!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    Ok(())
+    set_install_reason(config, "asdeps", pkgs)
 }
 
 fn asexp<S: AsRef<str>>(config: &Config, pkgs: &[S]) -> Result<()> {
-    if pkgs.is_empty() {
+    set_install_reason(config, "asexplicit", pkgs)
+}
+
+fn set_install_reason<S: AsRef<str>>(config: &Config, reason: &str, pkgs: &[S]) -> Result<()> {
+    let alpm = config.new_alpm()?;
+    let db = alpm.localdb();
+
+    let pkgs = pkgs
+        .iter()
+        .map(|s| s.as_ref())
+        .filter(|p| db.pkg(*p).is_ok());
+
+    let mut args = config.pacman_globals();
+    args.op("database").arg(reason).targets(pkgs);
+    if args.targets.is_empty() {
         return Ok(());
     }
 
-    let mut args = config.pacman_globals();
-    args.op("database")
-        .arg("asexplicit")
-        .targets(pkgs.iter().map(|s| s.as_ref()));
     let output = exec::pacman_output(config, &args)?;
     ensure!(
         output.status.success(),
