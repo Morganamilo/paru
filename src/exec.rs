@@ -11,6 +11,7 @@ use std::thread;
 use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
+use log::debug;
 use once_cell::sync::Lazy;
 use signal_hook::consts::signal::*;
 use signal_hook::flag as signal_flag;
@@ -89,6 +90,7 @@ fn command_err(cmd: &Command) -> String {
 }
 
 fn command_status(cmd: &mut Command) -> Result<Status> {
+    debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
 
     DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
@@ -107,6 +109,7 @@ fn command_status(cmd: &mut Command) -> Result<Status> {
 }
 
 pub fn command(cmd: &mut Command) -> Result<()> {
+    debug!("running command: {:?}", cmd);
     command_status(cmd)?
         .success()
         .with_context(|| command_err(cmd))?;
@@ -114,6 +117,7 @@ pub fn command(cmd: &mut Command) -> Result<()> {
 }
 
 pub fn command_output(cmd: &mut Command) -> Result<Output> {
+    debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
 
     DEFAULT_SIGNALS.store(false, Ordering::Relaxed);
