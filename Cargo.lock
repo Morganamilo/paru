@@ -109,7 +109,7 @@ dependencies = [
 [[package]]
 name = "aur-depends"
 version = "2.1.0"
-source = "git+https://github.com/Morganamilo/aur-depends?rev=86f1fb#86f1fb42018be12233a2962bc48f786c478decde"
+source = "git+https://github.com/Morganamilo/aur-depends?rev=108dfd#108dfd6e7593db483af48b490b4de1ec0b22a983"
 dependencies = [
  "alpm",
  "alpm-utils",
