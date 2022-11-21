@@ -1050,6 +1050,9 @@ impl Installer {
         if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
             bail!(tr!("can't install AUR package as root"));
         }
+        if !actions.build.is_empty() && config.args.has_arg("w", "downloadonly") {
+            bail!(tr!("--downloadonly can't be used for AUR packages"));
+        }
 
         let conflicts = check_actions(config, actions)?;
         let c = config.color;
