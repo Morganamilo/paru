@@ -160,6 +160,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse_args(args)?;
     }
 
+    log::debug!("{:#?}", config);
     handle_cmd(config).await
 }
 

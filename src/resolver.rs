@@ -51,6 +51,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         flags |= Flags::RESOLVE_SATISFIED_PKGBUILDS;
     }
 
+    log::debug!("AUR depends flags: {:?}", flags);
     flags
 }
 
