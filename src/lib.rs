@@ -467,6 +467,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
 
 fn handle_chroot(config: &Config) -> Result<i32> {
     let chroot = Chroot {
+        sudo: config.sudo_bin.clone(),
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf

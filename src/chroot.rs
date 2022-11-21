@@ -8,6 +8,7 @@ use std::process::Command;
 
 #[derive(Debug)]
 pub struct Chroot {
+    pub sudo: String,
     pub path: PathBuf,
     pub pacman_conf: String,
     pub makepkg_conf: String,
@@ -45,8 +46,9 @@ impl Chroot {
         let tmp = pacman_conf(&self.pacman_conf)?;
         let dir = self.path.join("root");
 
-        let mut cmd = Command::new("mkarchroot");
-        cmd.arg("-C")
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("mkarchroot")
+            .arg("-C")
             .arg(tmp.path())
             .arg("-M")
             .arg(&self.makepkg_conf)
@@ -61,8 +63,9 @@ impl Chroot {
         let dir = self.path.join("root");
         let tmp = pacman_conf(&self.pacman_conf)?;
 
-        let mut cmd = Command::new("arch-nspawn");
-        cmd.arg("-C")
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("arch-nspawn")
+            .arg("-C")
             .arg(tmp.path())
             .arg("-M")
             .arg(&self.makepkg_conf)

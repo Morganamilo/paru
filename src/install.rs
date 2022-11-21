@@ -1781,6 +1781,10 @@ pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Resul
 
 fn chroot(config: &Config) -> Chroot {
     let mut chroot = Chroot {
+        #[cfg(not(feature = "mock_chroot"))]
+        sudo: config.sudo_bin.clone(),
+        #[cfg(feature = "mock_chroot")]
+        sudo: "sudo".to_string(),
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf
