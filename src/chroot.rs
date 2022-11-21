@@ -88,6 +88,16 @@ impl Chroot {
     }
 
     pub fn update(&self) -> Result<()> {
+        let conf = pacmanconf::Config::with_opts(None, Some(self.pacman_conf.as_str()), Some("/"))?;
+        let db = Path::new(&conf.db_path).join("sync");
+        let dir = self.path.join("root");
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("cp")
+            .arg("-auT")
+            .arg(&db)
+            .arg(dir.join(db.strip_prefix("/")?));
+        let _ = exec::command(&mut cmd);
+
         self.run(&["pacman", "-Syu", "--noconfirm"])
     }
 
