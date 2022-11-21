@@ -14,7 +14,9 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, CustomRepo, LocalRepos, Op, RepoSource, Sign, YesNoAllTree, YesNoAsk};
+use crate::config::{
+    Config, CustomRepo, LocalRepos, Mode, Op, RepoSource, Sign, YesNoAllTree, YesNoAsk,
+};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
@@ -876,7 +878,7 @@ impl Installer {
             bail!(tr!("no targets specified (use -h for help)"));
         }
 
-        if config.mode.aur() {
+        if config.mode.repo() {
             if config.combined_upgrade {
                 if config.args.has_arg("y", "refresh") {
                     self.early_refresh(config)?;
@@ -884,7 +886,8 @@ impl Installer {
             } else if !config.chroot
                 && (config.args.has_arg("y", "refresh")
                     || config.args.has_arg("u", "sysupgrade")
-                    || !repo_targets.is_empty())
+                    || !repo_targets.is_empty()
+                    || config.mode == Mode::REPO)
             {
                 let targets = repo_targets.iter().map(|t| t.to_string()).collect();
                 repo_targets.clear();
