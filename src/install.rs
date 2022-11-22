@@ -1101,7 +1101,7 @@ impl Installer {
             return Ok(());
         }
 
-        let bases = actions.iter_aur_pkgs().map(|p| p.pkg.clone()).collect();
+        let bases = actions.iter_aur_pkgs().cloned().collect();
         self.download_pkgbuilds(config, &bases).await?;
 
         for pkg in &actions.build {

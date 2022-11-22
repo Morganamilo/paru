@@ -37,31 +37,43 @@ impl FromIterator<Package> for Bases {
     }
 }
 
+impl FromIterator<aur_depends::AurPackage> for Bases {
+    fn from_iter<T: IntoIterator<Item = aur_depends::AurPackage>>(iter: T) -> Self {
+        let mut bases = Bases::new();
+        bases.extend_aur(iter);
+        bases
+    }
+}
+
 impl Bases {
     pub fn new() -> Self {
         Self { bases: Vec::new() }
     }
 
     pub fn push(&mut self, pkg: Package) {
+        self.push_aur(aur_depends::AurPackage {
+            pkg,
+            make: false,
+            target: false,
+        })
+    }
+
+    pub fn push_aur(&mut self, pkg: aur_depends::AurPackage) {
         for base in &mut self.bases {
-            if base.package_base() == pkg.package_base {
-                base.pkgs.push(aur_depends::AurPackage {
-                    pkg,
-                    make: false,
-                    target: false,
-                });
+            if base.package_base() == pkg.pkg.package_base {
+                base.pkgs.push(pkg);
                 return;
             }
         }
 
         self.bases.push(AurBase {
-            pkgs: vec![aur_depends::AurPackage {
-                pkg,
-                make: false,
-                target: false,
-            }],
+            pkgs: vec![pkg],
             build: true,
         })
+    }
+
+    pub fn extend_aur<I: IntoIterator<Item = aur_depends::AurPackage>>(&mut self, iter: I) {
+        iter.into_iter().for_each(|p| self.push_aur(p))
     }
 
     pub fn extend<I: IntoIterator<Item = Package>>(&mut self, iter: I) {
@@ -432,6 +444,10 @@ pub async fn new_aur_pkgbuilds(
     }
 
     for base in &bases.bases {
+        if config.redownload == YesNoAll::Yes && base.pkgs.iter().any(|p| p.target) {
+            pkgs.push(base.clone());
+            continue;
+        }
         if let Some(pkg) = srcinfos.get(base.package_base()) {
             let upstream_ver = base.version();
             if Version::new(pkg.version()) < Version::new(&*upstream_ver) {
