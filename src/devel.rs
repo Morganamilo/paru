@@ -227,7 +227,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
 
     std::fs::rename(&temp, &config.devel_path).with_context(|| {
         tr!(
-            "failed to rename '{temp}' to '{devel_json}",
+            "failed to rename '{temp}' to '{devel_json}'",
             temp = temp.display(),
             devel_json = config.devel_path.display()
         )
