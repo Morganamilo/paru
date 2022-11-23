@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-22 23:58+0000\n"
+"POT-Creation-Date: 2022-11-23 00:27+0000\n"
 "PO-Revision-Date: 2021-06-28 20:07+0200\n"
 "Last-Translator: Ícar N. S. <icar.nin@protonmail.com>\n"
 "Language-Team: \n"
@@ -188,15 +188,34 @@ msgstr "Buscant repositoris de desenvolupament..."
 msgid "failed to save devel info"
 msgstr "no s'ha pogut desar la informació de desenvolupament"
 
-#: src/devel.rs:416
+#: src/devel.rs:204
+#, fuzzy
+msgid "failed to create state directory: {}"
+msgstr "no s'ha pogut trobar el directori de la memòria cau"
+
+#: src/devel.rs:219
+#, fuzzy
+msgid "failed to create temporary file: {}"
+msgstr "no s'ha pogut executar el gestor de fitxers: {}"
+
+#: src/devel.rs:224
+#, fuzzy
+msgid "failed to write to temporary file: {}"
+msgstr "no s'ha pogut llegir el directori: {}"
+
+#: src/devel.rs:230
+msgid "failed to rename '{temp}' to '{devel_json}"
+msgstr ""
+
+#: src/devel.rs:439
 msgid "package does not have an update"
 msgstr "el paquet no té cap actualització"
 
-#: src/devel.rs:457
+#: src/devel.rs:480
 msgid "failed to lookup: {}"
 msgstr "no s'ha pogut cercar: {}"
 
-#: src/devel.rs:485
+#: src/devel.rs:508
 msgid "invalid json: {}"
 msgstr "json no vàlid: {}"
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-22 23:58+0000\n"
+"POT-Creation-Date: 2022-11-23 00:27+0000\n"
 "PO-Revision-Date: 2022-07-09 21:36+0200\n"
 "Last-Translator: Silejonu <erwan.amans@gmail.com>\n"
 "Language-Team: Paragoumba <paragoumba@gmail.com>, 2021\n"
@@ -188,15 +188,34 @@ msgstr "Recherche des dépôts devel..."
 msgid "failed to save devel info"
 msgstr "échec de l'enregistrement des informations devel"
 
-#: src/devel.rs:416
+#: src/devel.rs:204
+#, fuzzy
+msgid "failed to create state directory: {}"
+msgstr "dossier de cache introuvable"
+
+#: src/devel.rs:219
+#, fuzzy
+msgid "failed to create temporary file: {}"
+msgstr "échec de l’exécution du gestionnaire de fichier : {}"
+
+#: src/devel.rs:224
+#, fuzzy
+msgid "failed to write to temporary file: {}"
+msgstr "échec de la lecture du dossier : {}"
+
+#: src/devel.rs:230
+msgid "failed to rename '{temp}' to '{devel_json}"
+msgstr ""
+
+#: src/devel.rs:439
 msgid "package does not have an update"
 msgstr "le paquet n'a pas de mise à jour"
 
-#: src/devel.rs:457
+#: src/devel.rs:480
 msgid "failed to lookup: {}"
 msgstr "erreur lors de la recherche : {}"
 
-#: src/devel.rs:485
+#: src/devel.rs:508
 msgid "invalid json: {}"
 msgstr "json invalide : {}"
 

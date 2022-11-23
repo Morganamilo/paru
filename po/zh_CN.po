@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.9.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-22 23:58+0000\n"
+"POT-Creation-Date: 2022-11-23 00:27+0000\n"
 "PO-Revision-Date: 2022-10-27 18:40+0800\n"
 "Last-Translator: Yumeoto Zorin <zorin@zorin.icu>\n"
 "Language-Team: \n"
@@ -185,15 +185,34 @@ msgstr "正在搜寻开发版仓库..."
 msgid "failed to save devel info"
 msgstr "未能保存开发版信息"
 
-#: src/devel.rs:416
+#: src/devel.rs:204
+#, fuzzy
+msgid "failed to create state directory: {}"
+msgstr "未能找到缓存目录"
+
+#: src/devel.rs:219
+#, fuzzy
+msgid "failed to create temporary file: {}"
+msgstr "未能运行文件管理器: {}"
+
+#: src/devel.rs:224
+#, fuzzy
+msgid "failed to write to temporary file: {}"
+msgstr "未能读取目录: {}"
+
+#: src/devel.rs:230
+msgid "failed to rename '{temp}' to '{devel_json}"
+msgstr ""
+
+#: src/devel.rs:439
 msgid "package does not have an update"
 msgstr "软件包无可用更新"
 
-#: src/devel.rs:457
+#: src/devel.rs:480
 msgid "failed to lookup: {}"
 msgstr "未能查找: {}"
 
-#: src/devel.rs:485
+#: src/devel.rs:508
 msgid "invalid json: {}"
 msgstr "不合法的 json: {}"
 
