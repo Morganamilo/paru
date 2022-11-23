@@ -37,7 +37,7 @@ nix = "0.25.0"
 reqwest = { version = "0.11.13", features = ["gzip", "socks"] }
 rss = { version = "2.0.1", default-features = false }
 serde = { version = "1.0.147", features = ["derive"] }
-serde_json = "1.0.88"
+serde_json = "1.0.89"
 smart-default = "0.6.0"
 tempfile = "3.3.0"
 term_size = "0.3.2"
