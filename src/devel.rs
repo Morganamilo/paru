@@ -208,7 +208,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
 
     let mut temp = config.devel_path.to_owned();
     temp.set_extension("json.tmp");
-    
+
     let file = OpenOptions::new()
         .create(true)
         .write(true)
