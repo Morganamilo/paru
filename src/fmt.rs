@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+use std::fmt::Write;
+
 use crate::config::Config;
 use crate::repo;
 
@@ -21,15 +24,30 @@ pub fn opt(opt: &Option<String>) -> String {
 }
 
 pub fn date(date: i64) -> String {
-    let date = NaiveDateTime::from_timestamp(date, 0);
+    let date = NaiveDateTime::from_timestamp_opt(date, 0).unwrap();
     let date = DateTime::<chrono::Utc>::from_utc(date, chrono::Utc);
     date.to_rfc2822()
 }
 
 pub fn ymd(date: i64) -> String {
-    let date = NaiveDateTime::from_timestamp(date, 0);
+    let date = NaiveDateTime::from_timestamp_opt(date, 0).unwrap();
     let date = DateTime::<chrono::Utc>::from_utc(date, chrono::Utc);
     date.format("%Y-%m-%d").to_string()
+}
+
+fn word_len(s: &str) -> usize {
+    let mut len = 0;
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            chars.by_ref().take_while(|c| c != &'m').count();
+        } else {
+            len += 1;
+        }
+    }
+
+    len
 }
 
 pub fn print_indent<S: AsRef<str>>(
@@ -50,7 +68,7 @@ pub fn print_indent<S: AsRef<str>>(
 
             if let Some(word) = iter.next() {
                 print!("{}", color.paint(word.as_ref()));
-                pos += word.as_ref().len();
+                pos += word_len(word.as_ref());
             }
 
             if iter.peek().is_some() && pos + sep.len() < cols {
@@ -60,14 +78,15 @@ pub fn print_indent<S: AsRef<str>>(
 
             while let Some(word) = iter.next() {
                 let word = word.as_ref();
+                let len = word_len(word);
 
-                if pos + word.len() > cols {
+                if pos + len > cols {
                     print!("\n{:>padding$}", "", padding = indent);
                     pos = indent;
                 }
 
                 print!("{}", color.paint(word));
-                pos += word.len();
+                pos += len;
 
                 if iter.peek().is_some() && pos + sep.len() < cols {
                     print!("{}", sep);
@@ -107,18 +126,63 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
     col.paint(name).to_string()
 }
 
-fn to_install(actions: &Actions) -> ToInstall {
+fn base_string(config: &Config, base: &Base, devel: &HashSet<String>) -> String {
+    let c = config.color;
+    let mut s = String::new();
+    write!(
+        &mut s,
+        "{}{}",
+        base.package_base(),
+        c.install_version.paint("-"),
+    )
+    .unwrap();
+    if base.packages().any(|p| devel.contains(p)) {
+        write!(&mut s, "{}", c.install_version.paint("latest-commit")).unwrap();
+    } else {
+        write!(&mut s, "{}", c.install_version.paint(base.version())).unwrap();
+    }
+
+    if !Base::base_is_pkg(base.package_base(), base.packages()) {
+        write!(&mut s, "(").unwrap();
+        let mut pkgs = base.packages();
+        write!(&mut s, "{}", pkgs.next().unwrap()).unwrap();
+        for pkg in pkgs {
+            write!(&mut s, " {}", pkg).unwrap();
+        }
+        write!(&mut s, ")").unwrap();
+    }
+    s
+}
+
+fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> ToInstall {
+    let c = config.color;
+    let dash = c.install_version.paint("-");
+
     let install = actions
         .install
         .iter()
         .filter(|p| !p.make)
-        .map(|p| format!("{}-{}", p.pkg.name(), p.pkg.version()))
+        .map(|p| {
+            format!(
+                "{}{}{}",
+                p.pkg.name(),
+                dash,
+                c.install_version.paint(p.pkg.version().to_string())
+            )
+        })
         .collect::<Vec<_>>();
     let make_install = actions
         .install
         .iter()
         .filter(|p| p.make)
-        .map(|p| format!("{}-{}", p.pkg.name(), p.pkg.version()))
+        .map(|p| {
+            format!(
+                "{}{}{}",
+                p.pkg.name(),
+                dash,
+                c.install_version.paint(p.pkg.version().to_string())
+            )
+        })
         .collect::<Vec<_>>();
 
     let mut build = actions.build.clone();
@@ -129,7 +193,10 @@ fn to_install(actions: &Actions) -> ToInstall {
         }
     }
     build.retain(|b| b.package_count() != 0);
-    let build = build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
+    let build = build
+        .iter()
+        .map(|p| base_string(config, p, devel))
+        .collect::<Vec<_>>();
 
     let mut make_build = actions.build.clone();
     for base in &mut make_build {
@@ -139,7 +206,10 @@ fn to_install(actions: &Actions) -> ToInstall {
         }
     }
     make_build.retain(|b| b.package_count() != 0);
-    let make_build = make_build.iter().map(|p| p.to_string()).collect::<Vec<_>>();
+    let make_build = make_build
+        .iter()
+        .map(|p| base_string(config, p, devel))
+        .collect::<Vec<_>>();
 
     ToInstall {
         install,
@@ -149,25 +219,25 @@ fn to_install(actions: &Actions) -> ToInstall {
     }
 }
 
-pub fn print_install(config: &Config, actions: &Actions) {
+pub fn print_install(config: &Config, actions: &Actions, devel: &HashSet<String>) {
     let c = config.color;
 
     println!();
 
-    let to = to_install(actions);
+    let to = to_install(config, actions, devel);
 
     if !to.install.is_empty() {
         let fmt = format!("{} ({}) ", tr!("Repo"), to.install.len());
         let start = 17 + to.install.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.install);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.install);
     }
 
     if !to.make_install.is_empty() {
         let fmt = format!("{} ({}) ", tr!("Repo Make"), to.make_install.len());
         let start = 22 + to.make_install.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.make_install);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.make_install);
     }
 
     if !to.aur.is_empty() {
@@ -179,7 +249,7 @@ pub fn print_install(config: &Config, actions: &Actions) {
         let fmt = format!("{} ({}) ", aur, to.aur.len());
         let start = 16 + to.aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.aur);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.aur);
     }
 
     if !to.make_aur.is_empty() {
@@ -192,7 +262,7 @@ pub fn print_install(config: &Config, actions: &Actions) {
         let fmt = format!("{} ({}) ", aur, to.make_aur.len());
         let start = 16 + to.make_aur.len().to_string().len();
         print!("{}", c.bold.paint(fmt));
-        print_indent(Style::new(), start, 4, config.cols, "  ", to.make_aur);
+        print_indent(Style::new(), start, 8, config.cols, "  ", to.make_aur);
     }
 
     println!();
@@ -226,7 +296,7 @@ fn old_ver<'a>(config: &'a Config, pkg: &str) -> Option<&'a Ver> {
         .map(|p| p.version())
 }
 
-pub fn print_install_verbose(config: &Config, actions: &Actions) {
+pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet<String>) {
     let c = config.color;
     let bold = c.bold;
     let db = config.alpm.localdb();
@@ -269,6 +339,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
         .chain(Some(new.width()))
         .max()
         .unwrap_or_default();
+    let new_len = new_len.max("latest-commit".len());
 
     let make_len = yes.width().max(no.width()).max(make.width());
 
@@ -333,7 +404,7 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
                 tr!("insufficient columns available for table display")
             );
 
-            print_install(config, actions);
+            print_install(config, actions, devel);
             return;
         }
     }
@@ -397,26 +468,37 @@ pub fn print_install_verbose(config: &Config, actions: &Actions) {
             match pkg {
                 Base::Aur(base) => {
                     for pkg in &base.pkgs {
+                        let ver = if devel.contains(&pkg.pkg.name) {
+                            "latest-commit"
+                        } else {
+                            &pkg.pkg.version
+                        };
                         println!(
                             "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
                             format!("{}/{}", repo(config, &pkg.pkg.name), pkg.pkg.name),
                             old_ver(config, &pkg.pkg.name)
                                 .map(|v| v.as_str())
                                 .unwrap_or_default(),
-                            pkg.pkg.version,
+                            ver,
                             if pkg.make { &yes } else { &no }
                         );
                     }
                 }
                 Base::Custom(base) => {
                     for pkg in &base.pkgs {
+                        let ver = base.srcinfo.version();
+                        let ver = if devel.contains(&pkg.pkg.pkgname) {
+                            "latest-commit"
+                        } else {
+                            &ver
+                        };
                         println!(
                             "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
                             format!("{}/{}", base.repo, pkg.pkg.pkgname),
                             old_ver(config, &pkg.pkg.pkgname)
                                 .map(|v| v.as_str())
                                 .unwrap_or_default(),
-                            base.srcinfo.version(),
+                            ver,
                             if pkg.make { &yes } else { &no }
                         );
                     }

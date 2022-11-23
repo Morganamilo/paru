@@ -8,6 +8,7 @@ use std::process::Command;
 
 #[derive(Debug)]
 pub struct Chroot {
+    pub sudo: String,
     pub path: PathBuf,
     pub pacman_conf: String,
     pub makepkg_conf: String,
@@ -18,7 +19,7 @@ pub struct Chroot {
 
 fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     let mut tmp = tempfile::NamedTempFile::new()?;
-    let conf = pacmanconf::Config::expand_from_file(pacman_conf)?;
+    let conf = pacmanconf::Config::expand_with_opts(None, Some(pacman_conf), Some("/"))?;
 
     // Bug with dbpath in pacstrap
     let conf = conf
@@ -45,8 +46,9 @@ impl Chroot {
         let tmp = pacman_conf(&self.pacman_conf)?;
         let dir = self.path.join("root");
 
-        let mut cmd = Command::new("mkarchroot");
-        cmd.arg("-C")
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("mkarchroot")
+            .arg("-C")
             .arg(tmp.path())
             .arg("-M")
             .arg(&self.makepkg_conf)
@@ -61,8 +63,9 @@ impl Chroot {
         let dir = self.path.join("root");
         let tmp = pacman_conf(&self.pacman_conf)?;
 
-        let mut cmd = Command::new("arch-nspawn");
-        cmd.arg("-C")
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("arch-nspawn")
+            .arg("-C")
             .arg(tmp.path())
             .arg("-M")
             .arg(&self.makepkg_conf)
@@ -85,16 +88,36 @@ impl Chroot {
     }
 
     pub fn update(&self) -> Result<()> {
+        let conf = pacmanconf::Config::with_opts(None, Some(self.pacman_conf.as_str()), Some("/"))?;
+        let db = Path::new(&conf.db_path).join("sync");
+        let dir = self.path.join("root");
+        let mut cmd = Command::new(&self.sudo);
+        cmd.arg("cp")
+            .arg("-auT")
+            .arg(&db)
+            .arg(dir.join(db.strip_prefix("/")?));
+        let _ = exec::command(&mut cmd);
+
         self.run(&["pacman", "-Syu", "--noconfirm"])
     }
 
-    pub fn build(&self, pkgbuild: &Path, chroot_flags: &[&str], flags: &[&str]) -> Result<()> {
+    pub fn build(
+        &self,
+        pkgbuild: &Path,
+        pkgs: &[&str],
+        chroot_flags: &[&str],
+        flags: &[&str],
+    ) -> Result<()> {
         let mut cmd = Command::new("makechrootpkg");
 
         cmd.current_dir(pkgbuild)
             .args(chroot_flags)
             .arg("-r")
             .arg(&self.path);
+
+        for pkg in pkgs {
+            cmd.arg("-I").arg(pkg);
+        }
 
         for file in &self.ro {
             cmd.arg("-D").arg(file);

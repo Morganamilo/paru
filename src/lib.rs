@@ -68,6 +68,12 @@ fn alpm_debug_enabled() -> bool {
 }
 
 fn print_error(color: Style, err: Error) {
+    // TODO: re add when stable
+    /*let backtrace = err.backtrace();
+
+    if backtrace.status() == std::backtrace::BacktraceStatus::Captured {
+        eprint!("{}", backtrace);
+    }*/
     let mut iter = err.chain().peekable();
 
     if <dyn StdError>::is::<exec::PacmanError>(*iter.peek().unwrap())
@@ -154,6 +160,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse_args(args)?;
     }
 
+    log::debug!("{:#?}", config);
     handle_cmd(config).await
 }
 
@@ -242,10 +249,11 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
-        let unneeded = util::unneeded_pkgs(config, config.clean == 1);
+        let unneeded = util::unneeded_pkgs(config, config.clean == 1, !config.optional);
         if !unneeded.is_empty() {
             let mut args = config.pacman_args();
             args.remove("c").remove("clean");
+            args.remove("o");
             args.targets = unneeded;
             args.op = "remove";
             Ok(exec::pacman(config, &args)?.code())
@@ -459,6 +467,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
 
 fn handle_chroot(config: &Config) -> Result<i32> {
     let chroot = Chroot {
+        sudo: config.sudo_bin.clone(),
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf

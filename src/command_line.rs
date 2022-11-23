@@ -7,6 +7,7 @@ use crate::config::{
 use std::fmt;
 
 use anyhow::{anyhow, bail, Context, Result};
+use globset::Glob;
 use tr::tr;
 use url::Url;
 
@@ -210,7 +211,11 @@ impl Config {
                 self.stats = true;
                 self.ssh = true;
             }
-            Arg::Long("order") | Arg::Short('o') => self.order = true,
+            Arg::Long("order") => self.order = true,
+            Arg::Short('o') => {
+                self.order = true;
+                self.optional = true;
+            }
             Arg::Long("removemake") => {
                 self.remove_make = YesNoAsk::Yes.default_or(argkey, value.ok())?
             }
@@ -230,10 +235,16 @@ impl Config {
             Arg::Long("topdown") => self.sort_mode = SortMode::TopDown,
             Arg::Long("bottomup") => self.sort_mode = SortMode::BottomUp,
             Arg::Long("aur") | Arg::Short('a') => {
-                self.mode = Mode::Aur;
+                self.mode = Mode::AUR;
                 self.aur_filter = true;
             }
-            Arg::Long("repo") => self.mode = Mode::Repo,
+            Arg::Long("repo") => self.mode = Mode::REPO,
+            Arg::Long("pkgbuilds") => self.mode = Mode::PKGBUILD,
+            Arg::Long("mode") => {
+                for word in value?.split(',') {
+                    self.mode |= word.parse()?;
+                }
+            }
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
@@ -261,6 +272,7 @@ impl Config {
             }
             Arg::Long("nosudoloop") => self.sudo_loop.clear(),
             Arg::Long("clean") => self.clean += 1,
+            Arg::Long("optional") => self.optional = true,
             Arg::Long("complete") => self.complete = true,
             Arg::Short('c') => {
                 self.complete = true;
@@ -312,15 +324,17 @@ impl Config {
             Arg::Long("ignoregroup") => self
                 .ignore_group
                 .extend(value?.split(',').map(|s| s.to_string())),
+            Arg::Long("ignoredevel") => {
+                for word in value?.split(',') {
+                    self.ignore_devel_builder.add(Glob::new(word)?);
+                }
+            }
             Arg::Long("assume-installed") => self.assume_installed.push(value?.to_string()),
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
             Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
             Arg::Long("chroot") => {
                 self.chroot = true;
-                if self.repos == LocalRepos::None {
-                    self.repos = LocalRepos::Default;
-                }
                 if let Ok(p) = value {
                     self.chroot_dir = p.into();
                 }
@@ -412,11 +426,13 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("sysroot") => TakesValue::Required,
         Arg::Long("ignore") => TakesValue::Required,
         Arg::Long("ignoregroup") => TakesValue::Required,
+        Arg::Long("ignoredevel") => TakesValue::Required,
         Arg::Long("assume-installed") => TakesValue::Required,
         Arg::Long("print-format") => TakesValue::Required,
         Arg::Long("overwrite") => TakesValue::Required,
         Arg::Long("sign") => TakesValue::Optional,
         Arg::Long("signdb") => TakesValue::Optional,
+        Arg::Long("mode") => TakesValue::Required,
         _ => TakesValue::No,
     }
 }

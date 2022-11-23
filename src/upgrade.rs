@@ -1,10 +1,10 @@
-use crate::config::{Config, LocalRepos, Mode};
+use crate::config::{Config, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::util::{input, NumberMenu};
 use crate::{repo, RaurHandle};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use alpm::{AlpmList, Db};
 use alpm_utils::DbListExt;
@@ -21,6 +21,7 @@ pub struct Upgrades {
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
     pub aur_skip: Vec<String>,
+    pub devel: HashSet<String>,
 }
 
 pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
@@ -117,7 +118,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
 ) -> Result<AurUpdates<'a>> {
-    if config.mode != Mode::Repo {
+    if config.mode.aur() {
         if print {
             let c = config.color;
             println!(
@@ -143,7 +144,7 @@ async fn get_aur_only_upgrades<'a, 'b>(
 }
 
 async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
-    if config.devel && config.mode != Mode::Repo {
+    if config.devel && config.mode.aur() {
         let c = config.color;
         if print {
             println!(
@@ -175,13 +176,13 @@ fn custom_upgrades<'a, 'b>(
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
 ) -> Result<CustomUpdates<'a>> {
-    if config.mode != Mode::Repo {
+    if config.mode.pkgbuild() {
         if print {
             let c = config.color;
             println!(
                 "{} {}",
                 c.action.paint("::"),
-                c.bold.paint(tr!("Looking for SRCINFO upgrades..."))
+                c.bold.paint(tr!("Looking for PKGBUILD upgrades..."))
             );
         }
 
@@ -238,7 +239,7 @@ pub async fn get_upgrades<'a, 'b>(
     let mut devel_upgrades =
         filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
 
-    let repo_upgrades = if config.mode != Mode::Aur && config.combined_upgrade {
+    let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?
     } else {
         Vec::new()
@@ -274,7 +275,7 @@ pub async fn get_upgrades<'a, 'b>(
             .iter()
             .map(|p| p.remote.name.clone())
             .collect::<Vec<_>>();
-        aur.extend(devel_upgrades);
+        aur.extend(devel_upgrades.clone());
 
         let upgrades = Upgrades {
             custom_keep: custom_updates
@@ -287,6 +288,7 @@ pub async fn get_upgrades<'a, 'b>(
             aur_keep: aur,
             aur_skip,
             repo_skip,
+            devel: devel_upgrades.into_iter().collect(),
         };
         return Ok(upgrades);
     }
@@ -481,6 +483,7 @@ pub async fn get_upgrades<'a, 'b>(
         repo_skip,
         aur_keep,
         aur_skip,
+        devel: devel_upgrades.into_iter().collect(),
     };
 
     Ok(upgrades)

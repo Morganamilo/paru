@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use crate::config::SortBy;
-use crate::config::{Config, Mode, SortMode};
+use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, print_indent};
 use crate::info;
 use crate::install::{install, read_repos};
@@ -79,7 +79,7 @@ fn search_custom<'a>(
     paths: &mut HashMap<(String, String), PathBuf>,
     targets: &[String],
 ) -> Result<Vec<(&'a str, &'a Srcinfo, &'a srcinfo::Package)>> {
-    if targets.is_empty() || config.mode == Mode::Repo {
+    if targets.is_empty() || !config.mode.pkgbuild() {
         return Ok(Vec::new());
     }
 
@@ -111,7 +111,7 @@ fn search_custom<'a>(
 }
 
 fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
-    if targets.is_empty() || config.mode == Mode::Aur {
+    if targets.is_empty() || !config.mode.repo() {
         return Ok(Vec::new());
     }
 
@@ -172,7 +172,7 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
 }
 
 async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
-    if targets.is_empty() || config.mode == Mode::Repo {
+    if targets.is_empty() || !config.mode.aur() {
         return Ok(Vec::new());
     }
 
@@ -484,6 +484,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         printtr!(" there is nothing to do")
     } else {
         config.need_root = true;
+        config.args.remove("x").remove("regex");
         install(config, &pkgs).await?;
     }
 

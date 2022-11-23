@@ -1,4 +1,4 @@
-use crate::config::{Config, Mode};
+use crate::config::Config;
 use crate::install::read_repos;
 use crate::resolver::flags;
 use anyhow::Result;
@@ -15,7 +15,7 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     let mut custom_paths = HashMap::new();
     let quiet = config.quiet;
 
-    if config.mode != Mode::Repo {
+    if config.mode.pkgbuild() {
         read_repos(config, &mut custom_paths, &mut repos)?;
     }
 

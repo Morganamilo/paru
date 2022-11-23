@@ -10,6 +10,7 @@ use std::fmt;
 use std::fs::File;
 use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use alpm::{
     AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, LogLevel, Question,
@@ -17,6 +18,7 @@ use alpm::{
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use nix::unistd::{dup2, isatty};
@@ -90,6 +92,7 @@ pub struct Colors {
     pub news_date: Style,
     pub old_version: Style,
     pub new_version: Style,
+    pub install_version: Style,
     pub number_menu: Style,
     pub group: Style,
     pub stats_line_separator: Style,
@@ -131,6 +134,7 @@ impl Colors {
             code: Style::new().fg(Cyan),
             news_date: Style::new().fg(Cyan).bold(),
             old_version: Style::new().fg(Red),
+            install_version: Style::new().fg(ansi_term::Color::Fixed(243)),
             new_version: Style::new().fg(Green),
             number_menu: Style::new().fg(Purple),
             group: Style::new().fg(Blue).bold(),
@@ -278,16 +282,52 @@ impl ConfigEnum for SortMode {
         &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Mode {
-    Any,
-    Aur,
-    Repo,
+bitflags! {
+    pub struct Mode: u32 {
+        const AUR =  1 << 0;
+        const REPO = 1 << 1;
+        const PKGBUILD = 1 << 2;
+    }
 }
 
-impl ConfigEnum for Mode {
-    const VALUE_LOOKUP: ConfigEnumValues<Self> =
-        &[("any", Self::Any), ("aur", Self::Aur), ("repo", Self::Repo)];
+impl Mode {
+    pub fn aur(self) -> bool {
+        self.contains(Self::AUR)
+    }
+
+    pub fn repo(self) -> bool {
+        self.contains(Self::REPO)
+    }
+
+    pub fn pkgbuild(self) -> bool {
+        self.contains(Self::PKGBUILD)
+    }
+}
+
+impl FromStr for Mode {
+    type Err = Error;
+
+    fn from_str(input: &str) -> Result<Self> {
+        let mode = match input {
+            "all" => Mode::all(),
+            "aur" => Mode::AUR,
+            "repo" => Mode::REPO,
+            "pkgbuilds" => Mode::PKGBUILD,
+            _ => {
+                let mut mode = Mode::empty();
+                for c in input.chars() {
+                    match c {
+                        'a' => mode |= Mode::AUR,
+                        'r' => mode |= Mode::REPO,
+                        'p' => mode |= Mode::PKGBUILD,
+                        _ => bail!(tr!("unknown mode {}", input)),
+                    }
+                }
+                mode
+            }
+        };
+        Ok(mode)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -363,6 +403,7 @@ pub struct Config {
     pub arch_url: Url,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
+    pub state_dir: PathBuf,
     pub devel_path: PathBuf,
     pub config_path: Option<PathBuf>,
 
@@ -384,7 +425,7 @@ pub struct Config {
     pub limit: usize,
     #[default(SortMode::TopDown)]
     pub sort_mode: SortMode,
-    #[default(Mode::Any)]
+    #[default(Mode::empty())]
     pub mode: Mode,
     pub aur_filter: bool,
 
@@ -406,6 +447,7 @@ pub struct Config {
     pub use_ask: bool,
     pub save_changes: bool,
     pub clean: usize,
+    pub optional: bool,
     pub complete: bool,
     pub print: bool,
     pub news_on_upgrade: bool,
@@ -479,6 +521,10 @@ pub struct Config {
 
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
+    #[default(GlobSet::empty())]
+    pub ignore_devel: GlobSet,
+    #[default(GlobSetBuilder::new())]
+    pub ignore_devel_builder: GlobSetBuilder,
     pub assume_installed: Vec<String>,
 
     pub custom_repos: Vec<CustomRepo>,
@@ -563,13 +609,15 @@ impl Config {
         // Check if devel.json is present in cache dir & move to state dir if true
         if !devel_path.exists() && old_devel_path.exists() {
             if !state.exists() {
-                std::fs::create_dir(&state)?;
+                std::fs::create_dir_all(&state)
+                    .with_context(|| format!("mkdir: {}", state.display()))?;
             }
             std::fs::copy(&old_devel_path, &devel_path)?;
             std::fs::remove_file(&old_devel_path)?;
         }
 
         let cache_dir = cache;
+        let state_dir = state;
 
         let color = Colors::from("never");
         let cols = term_size::dimensions_stdout().map(|v| v.0);
@@ -579,6 +627,7 @@ impl Config {
             color,
             build_dir,
             cache_dir,
+            state_dir,
             devel_path,
             ..Self::default()
         };
@@ -746,6 +795,7 @@ impl Config {
             }
         }
         self.no_warn = self.no_warn_builder.build()?;
+        self.ignore_devel = self.ignore_devel_builder.build()?;
 
         if !self.assume_installed.is_empty() && !self.chroot {
             self.mflags.push("-d".to_string());
@@ -753,6 +803,10 @@ impl Config {
 
         if self.chroot {
             remove_var("PKGEXT");
+        }
+
+        if self.mode == Mode::empty() {
+            self.mode = Mode::all();
         }
 
         Ok(())
@@ -773,17 +827,19 @@ impl Config {
     }
 
     pub fn new_alpm(&self) -> Result<alpm::Alpm> {
-        let mut alpm = alpm_utils::alpm_with_conf(&self.pacman).with_context(|| {
-            tr!(
-                "failed to initialize alpm: root={} dbpath={}",
-                self.pacman.root_dir,
-                self.pacman.db_path
-            )
-        })?;
+        let mut alpm = alpm::Alpm::new(self.pacman.root_dir.as_str(), self.pacman.db_path.as_str())
+            .with_context(|| {
+                tr!(
+                    "failed to initialize alpm: root={} dbpath={}",
+                    self.pacman.root_dir,
+                    self.pacman.db_path
+                )
+            })?;
 
         alpm.set_question_cb((self.no_confirm, self.color), question);
         alpm.set_dl_cb((), download);
         alpm.set_log_cb(self.color, log);
+        alpm_utils::configure_alpm(&mut alpm, &self.pacman)?;
 
         if !self.chroot {
             for dep in &self.assume_installed {
@@ -837,7 +893,7 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode == Mode::Aur));
+                || (args.has_arg("c", "clean") && self.mode != Mode::REPO));
         } else if self.op == Op::Upgrade || self.op == Op::Build {
             return true;
         }
@@ -953,8 +1009,9 @@ impl Config {
         match key {
             "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = SortMode::BottomUp,
-            "AurOnly" => self.mode = Mode::Aur,
-            "RepoOnly" => self.mode = Mode::Repo,
+            "AurOnly" => self.mode = Mode::AUR,
+            "PkgbuildsOnly" => self.mode = Mode::PKGBUILD,
+            "RepoOnly" => self.mode = Mode::REPO,
             "SudoLoop" => {
                 self.sudo_loop = value
                     .unwrap_or("-v")
@@ -979,9 +1036,6 @@ impl Config {
             "UpgradeMenu" => self.upgrade_menu = true,
             "LocalRepo" => self.repos = LocalRepos::new(value),
             "Chroot" => {
-                if self.repos == LocalRepos::None {
-                    self.repos = LocalRepos::Default;
-                }
                 self.chroot = true;
                 if let Some(p) = value {
                     self.chroot_dir = p.into();
@@ -1032,9 +1086,19 @@ impl Config {
                 self.devel_suffixes
                     .extend(value?.split_whitespace().map(|s| s.to_string()));
             }
+            "IgnoreDevel" => {
+                for word in value?.split_whitespace() {
+                    self.ignore_devel_builder.add(Glob::new(word)?);
+                }
+            }
             "NoWarn" => {
                 for word in value?.split_whitespace() {
                     self.no_warn_builder.add(Glob::new(word)?);
+                }
+            }
+            "Mode" => {
+                for word in value?.split_whitespace() {
+                    self.mode |= word.parse()?;
                 }
             }
             _ => ok2 = false,
@@ -1125,6 +1189,10 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
 }
 
 fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
+    if filename.ends_with(".sig") {
+        return;
+    }
+
     match event.event() {
         DownloadEvent::Init(_) => println!("  syncing {}...", filename),
         DownloadEvent::Completed(c) if c.result == DownloadResult::Failed => {

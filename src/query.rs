@@ -17,9 +17,9 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let args = &config.args;
 
     if args.has_arg("n", "native") {
-        config.mode = Mode::Repo;
+        config.mode = Mode::REPO;
     } else if args.has_arg("m", "foreign") {
-        config.mode = Mode::Aur;
+        config.mode = Mode::AUR | Mode::PKGBUILD;
     }
 
     let targets: Vec<_> = if config.targets.is_empty() {
@@ -33,13 +33,13 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     let mut repo_ret = 1;
     let mut aur_ret = 1;
 
-    if !repo.is_empty() && config.mode != Mode::Aur {
+    if !repo.is_empty() && config.mode.repo() {
         let mut args = config.pacman_args();
         args.targets = repo.into_iter().collect();
         repo_ret = exec::pacman(config, &args)?.code();
     }
 
-    if !aur.is_empty() && config.mode != Mode::Repo {
+    if !aur.is_empty() {
         let error = config.color.error;
 
         for &pkg in &aur {
@@ -58,62 +58,76 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let output = exec::pacman_output(config, &args)?;
         let aur = String::from_utf8(output.stdout)?;
 
-        let aur = aur.trim().lines().collect::<Vec<_>>();
-
-        async fn devel_up(config: &Config) -> Result<Vec<String>> {
-            if config.devel {
-                let updates = possible_devel_updates(config).await?;
-                Ok(updates)
-            } else {
-                Ok(Vec::new())
-            }
-        }
-
-        async fn aur_up(config: &Config, cache: &mut Cache, pkgs: &[&str]) -> Result<()> {
-            config.raur.cache_info(cache, pkgs).await?;
-            Ok(())
-        }
-
-        let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
-        let devel = filter_devel_updates(config, &mut cache, &devel).await?;
+        let mut aur = aur.trim().lines().collect::<Vec<_>>();
 
         let mut repo_paths = HashMap::new();
         let mut repos = Vec::new();
 
-        read_repos(config, &mut repo_paths, &mut repos)?;
+        if config.mode.pkgbuild() {
+            read_repos(config, &mut repo_paths, &mut repos)?;
 
-        for target in aur {
-            let local_pkg = db.pkg(target).unwrap();
+            aur.retain(|&target| {
+                if !config.mode.aur() {
+                    return false;
+                }
+                if !config.mode.pkgbuild() {
+                    return true;
+                }
+                let local_pkg = db.pkg(target).unwrap();
 
-            'a: for repo in &repos {
-                for pkg in &repo.pkgs {
-                    if let Some(name) = pkg.names().find(|n| n == &target) {
-                        if alpm::Version::new(&*pkg.version()) > local_pkg.version() {
-                            print_upgrade(
-                                config,
-                                name,
-                                local_pkg.version().as_str(),
-                                &pkg.version(),
-                            );
-                            continue 'a;
+                for repo in &repos {
+                    for pkg in &repo.pkgs {
+                        if let Some(name) = pkg.names().find(|n| n == &target) {
+                            if alpm::Version::new(&*pkg.version()) > local_pkg.version() {
+                                print_upgrade(
+                                    config,
+                                    name,
+                                    local_pkg.version().as_str(),
+                                    &pkg.version(),
+                                );
+                                return false;
+                            }
                         }
                     }
                 }
+                true
+            });
+        }
+
+        if config.mode.aur() {
+            async fn devel_up(config: &Config) -> Result<Vec<String>> {
+                if config.devel {
+                    let updates = possible_devel_updates(config).await?;
+                    Ok(updates)
+                } else {
+                    Ok(Vec::new())
+                }
             }
 
-            if let Some(pkg) = cache.get(target) {
-                let devel = devel.iter().any(|d| *d == pkg.name);
+            async fn aur_up(config: &Config, cache: &mut Cache, pkgs: &[&str]) -> Result<()> {
+                config.raur.cache_info(cache, pkgs).await?;
+                Ok(())
+            }
 
-                if alpm::Version::new(&*pkg.version) > local_pkg.version() || devel {
-                    aur_ret = 0;
+            let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
+            let devel = filter_devel_updates(config, &mut cache, &devel).await?;
 
-                    let version = if devel {
-                        "latest-commit"
-                    } else {
-                        pkg.version.as_str()
-                    };
+            for target in aur {
+                let local_pkg = db.pkg(target).unwrap();
+                if let Some(pkg) = cache.get(target) {
+                    let devel = devel.iter().any(|d| *d == pkg.name);
 
-                    print_upgrade(config, &pkg.name, local_pkg.version().as_str(), version);
+                    if alpm::Version::new(&*pkg.version) > local_pkg.version() || devel {
+                        aur_ret = 0;
+
+                        let version = if devel {
+                            "latest-commit"
+                        } else {
+                            pkg.version.as_str()
+                        };
+
+                        print_upgrade(config, &pkg.name, local_pkg.version().as_str(), version);
+                    }
                 }
             }
         }

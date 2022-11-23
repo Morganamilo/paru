@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::config::{Colors, Config, Mode};
+use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
 use crate::fmt::{date, opt, print_indent};
@@ -28,13 +28,19 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let mut repo_paths = HashMap::new();
     let mut repos = Vec::new();
 
-    if conf.mode != Mode::Repo {
+    if conf.mode.pkgbuild() {
         read_repos(conf, &mut repo_paths, &mut repos)?;
     }
 
     let longest = longest(&repos) + 3;
 
     let (custom, aur) = aur.into_iter().partition::<Vec<_>, _>(|t| {
+        if !conf.mode.aur() {
+            return true;
+        }
+        if !conf.mode.pkgbuild() {
+            return false;
+        }
         t.repo.map_or_else(
             || {
                 repos

@@ -170,7 +170,8 @@ pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
 pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32> {
     let exe = current_exe().context(tr!("failed to get current exe"))?;
     let c = config.color;
-    if !nix::unistd::getuid().is_root() {
+
+    if !nix::unistd::getuid().is_root() && !cfg!(feature = "mock") {
         let mut cmd = Command::new(&config.sudo_bin);
 
         cmd.arg(exe);

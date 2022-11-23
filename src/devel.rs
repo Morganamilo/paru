@@ -199,16 +199,16 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 }
 
 pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
-    create_dir_all(&config.cache_dir).with_context(|| {
+    create_dir_all(&config.state_dir).with_context(|| {
         tr!(
-            "failed to create cache directory: {}",
+            "failed to create state directory: {}",
             config.cache_dir.display()
         )
     })?;
 
     let mut temp = config.devel_path.to_owned();
     temp.set_extension("json.tmp");
-
+    
     let file = OpenOptions::new()
         .create(true)
         .write(true)
@@ -338,6 +338,10 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
             if pkgs.iter().all(|p| p.should_ignore()) {
                 continue;
             }
+
+            if pkgs.iter().all(|p| config.ignore_devel.is_match(p.name())) {
+                continue;
+            }
         }
 
         if config.repos != LocalRepos::None {
@@ -395,6 +399,7 @@ pub async fn filter_devel_updates(
         .iter()
         .flatten()
         .filter(|p| !p.should_ignore())
+        .filter(|p| !config.ignore_devel.is_match(p.name()))
         .map(|p| p.name().to_string())
         .filter(|p| cache.contains(p.as_str()))
         .collect();

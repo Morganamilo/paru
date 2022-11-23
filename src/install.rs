@@ -74,6 +74,7 @@ struct Installer {
     conflict: bool,
     devel_info: DevelInfo,
     new_devel_info: DevelInfo,
+    built: Vec<String>,
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
@@ -158,6 +159,7 @@ impl Installer {
             conflict: false,
             devel_info: DevelInfo::default(),
             new_devel_info: DevelInfo::default(),
+            built: Vec::new(),
         }
     }
 
@@ -293,7 +295,7 @@ impl Installer {
                 args.arg("asdeps");
             }
 
-            if config.mode != Mode::Aur {
+            if config.mode.repo() {
                 for _ in 0..config.args.count("y", "refresh") {
                     args.arg("y");
                 }
@@ -305,10 +307,10 @@ impl Installer {
             args.targets = targets;
 
             if !self.conflict
-                && !build.is_empty()
+                && !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
                     || config.combined_upgrade
-                    || config.mode == Mode::Aur)
+                    || !config.mode.repo())
             {
                 args.arg("noconfirm");
             }
@@ -324,6 +326,7 @@ impl Installer {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn dep_or_exp<'a>(
         &mut self,
         config: &Config,
@@ -331,9 +334,25 @@ impl Installer {
         version: &str,
         pkg: &'a str,
         target: bool,
+        make: bool,
         pkgdest: &mut HashMap<String, String>,
     ) -> Result<()> {
         if !needs_install(config, base, version, pkg) {
+            return Ok(());
+        }
+
+        let assume = if config.chroot {
+            // TODO handle nover
+            config
+                .assume_installed
+                .iter()
+                .map(|a| Depend::new(a.as_str()))
+                .any(|assume| satisfies_provide(Depend::new(pkg), assume))
+        } else {
+            false
+        };
+
+        if config.chroot && (make || assume) {
             return Ok(());
         }
 
@@ -459,8 +478,12 @@ impl Installer {
         let c = config.color;
 
         if config.chroot {
+            let mut extra = Vec::new();
+            if config.repos == LocalRepos::None {
+                extra.extend(self.built.iter().map(|s| s.as_str()));
+            }
             self.chroot
-                .build(dir, &["-cu"], &["-ofA"])
+                .build(dir, &extra, &["-cu"], &["-ofA"])
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
@@ -497,6 +520,9 @@ impl Installer {
                     Base::Aur(base) => {
                         let mut debug = Vec::new();
                         for pkg in &base.pkgs {
+                            if pkg.make {
+                                continue;
+                            }
                             let debug_pkg = format!("{}-debug-", pkg.pkg.name);
 
                             if file.starts_with(&debug_pkg) {
@@ -514,6 +540,9 @@ impl Installer {
                     Base::Custom(base) => {
                         let mut debug = Vec::new();
                         for pkg in &base.pkgs {
+                            if pkg.make {
+                                continue;
+                            }
                             let debug_pkg = format!("{}-debug-", pkg.pkg.pkgname);
 
                             if file.starts_with(&debug_pkg) {
@@ -534,9 +563,14 @@ impl Installer {
         if needs_build {
             // actual build
             if config.chroot {
+                let mut extra = Vec::new();
+                if config.repos == LocalRepos::None {
+                    extra.extend(self.built.iter().map(|s| s.as_str()));
+                }
                 self.chroot
                     .build(
                         dir,
+                        &extra,
                         &[],
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
                     )
@@ -609,6 +643,28 @@ impl Installer {
                 save_devel_info(config, &self.devel_info)?;
             }
         }
+        let to_install: Vec<_> = match base {
+            Base::Aur(a) => a
+                .pkgs
+                .iter()
+                .filter(|a| !a.make)
+                .map(|a| a.pkg.name.as_str())
+                .collect(),
+            Base::Custom(c) => c
+                .pkgs
+                .iter()
+                .filter(|c| !c.make)
+                .map(|a| a.pkg.pkgname.as_str())
+                .collect(),
+        };
+
+        let to_install = to_install
+            .iter()
+            .filter_map(|p| pkgdest.get(*p))
+            .chain(debug_paths.values())
+            .cloned();
+
+        self.built.extend(to_install);
         Ok((pkgdest, version))
     }
 
@@ -639,7 +695,12 @@ impl Installer {
         let mut missing = if config.args.count("d", "nodeps") > 1 {
             Vec::new()
         } else if config.chroot {
-            deps_not_satisfied_by_repo(config, base)?
+            if config.repos == LocalRepos::None {
+                // todo
+                Vec::new()
+            } else {
+                deps_not_satisfied_by_repo(config, base)?
+            }
         } else {
             deps_not_satisfied(config, base)?
         };
@@ -702,6 +763,7 @@ impl Installer {
                         &version,
                         &pkg.pkg.name,
                         pkg.target,
+                        pkg.make,
                         &mut pkgdest,
                     )?
                 }
@@ -717,6 +779,7 @@ impl Installer {
                         &version,
                         &pkg.pkg.pkgname,
                         pkg.target,
+                        pkg.make,
                         &mut pkgdest,
                     )?
                 }
@@ -815,16 +878,16 @@ impl Installer {
             bail!(tr!("no targets specified (use -h for help)"));
         }
 
-        if config.mode != Mode::Repo {
+        if config.mode.repo() {
             if config.combined_upgrade {
                 if config.args.has_arg("y", "refresh") {
                     self.early_refresh(config)?;
                 }
             } else if !config.chroot
-                && ((config.args.has_arg("y", "refresh")
+                && (config.args.has_arg("y", "refresh")
                     || config.args.has_arg("u", "sysupgrade")
-                    || !repo_targets.is_empty())
-                    || config.mode == Mode::Repo)
+                    || !repo_targets.is_empty()
+                    || config.mode == Mode::REPO)
             {
                 let targets = repo_targets.iter().map(|t| t.to_string()).collect();
                 repo_targets.clear();
@@ -842,8 +905,13 @@ impl Installer {
         }
 
         config.init_alpm()?;
-        refresh_custom_repos(config, &self.custom_repo_fetch)?;
-        read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
+        if config.mode.pkgbuild() {
+            refresh_custom_repos(config, &self.custom_repo_fetch)?;
+            if config.args.has_arg("y", "refresh") {
+                self.done_something = true;
+            }
+            read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
+        }
         let custom_repos = take(&mut self.custom_repos);
         self.resolve_targets(config, &custom_repos, &repo_targets, &aur_targets)
             .await
@@ -896,7 +964,8 @@ impl Installer {
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
         // No aur stuff, let's just use pacman
-        if config.mode != Mode::Aur
+        if !config.mode.aur()
+            && !config.mode.pkgbuild()
             && aur_targets.is_empty()
             && self.upgrades.aur_keep.is_empty()
             && !self.ran_pacman
@@ -960,7 +1029,12 @@ impl Installer {
         }
 
         if err.is_ok() && config.chroot {
-            err = self.chroot_install(config, &build, &repo_targs);
+            if config.repos == LocalRepos::None {
+                err = self.chroot_install(config, &[], &repo_targs);
+                self.do_install(config)?;
+            } else {
+                err = self.chroot_install(config, &build, &repo_targs);
+            }
         }
 
         self.build_cleanup(config, &build)?;
@@ -976,6 +1050,9 @@ impl Installer {
         if !actions.build.is_empty() && nix::unistd::getuid().is_root() {
             bail!(tr!("can't install AUR package as root"));
         }
+        if !actions.build.is_empty() && config.args.has_arg("w", "downloadonly") {
+            bail!(tr!("--downloadonly can't be used for AUR packages"));
+        }
 
         let conflicts = check_actions(config, actions)?;
         let c = config.color;
@@ -988,9 +1065,9 @@ impl Installer {
         }
 
         if config.pacman.verbose_pkg_lists {
-            print_install_verbose(config, actions);
+            print_install_verbose(config, actions, &self.upgrades.devel);
         } else {
-            print_install(config, actions);
+            print_install(config, actions, &self.upgrades.devel);
         }
 
         let has_make = if !config.chroot
@@ -1024,7 +1101,7 @@ impl Installer {
             return Ok(());
         }
 
-        let bases = actions.iter_aur_pkgs().map(|p| p.pkg.clone()).collect();
+        let bases = actions.iter_aur_pkgs().cloned().collect();
         self.download_pkgbuilds(config, &bases).await?;
 
         for pkg in &actions.build {
@@ -1155,11 +1232,11 @@ fn is_debug(pkg: alpm::Package) -> bool {
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     let mut warnings = crate::download::Warnings::default();
 
-    if config.mode == Mode::Repo {
+    if !config.mode.aur() && !config.mode.pkgbuild() {
         return;
     }
 
-    if config.args.has_arg("u", "sysupgrade") {
+    if config.args.has_arg("u", "sysupgrade") && config.mode.aur() {
         let (_, pkgs) = repo_aur_pkgs(config);
 
         warnings.missing = pkgs
@@ -1219,7 +1296,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
 }
 
 fn upgrade_later(config: &Config) -> bool {
-    config.mode != Mode::Aur
+    config.mode.repo()
         && config.chroot
         && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
 }
@@ -1378,7 +1455,7 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .remove("refresh");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
-    if !config.combined_upgrade || config.mode == Mode::Aur {
+    if !config.combined_upgrade || !config.mode.repo() {
         args.remove("u").remove("sysupgrade");
     }
 
@@ -1406,32 +1483,28 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
 }
 
 fn asdeps<S: AsRef<str>>(config: &Config, pkgs: &[S]) -> Result<()> {
-    if pkgs.is_empty() {
-        return Ok(());
-    }
-
-    let mut args = config.pacman_globals();
-    args.op("database")
-        .arg("asdeps")
-        .targets(pkgs.iter().map(|s| s.as_ref()));
-    let output = exec::pacman_output(config, &args)?;
-    ensure!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    Ok(())
+    set_install_reason(config, "asdeps", pkgs)
 }
 
 fn asexp<S: AsRef<str>>(config: &Config, pkgs: &[S]) -> Result<()> {
-    if pkgs.is_empty() {
+    set_install_reason(config, "asexplicit", pkgs)
+}
+
+fn set_install_reason<S: AsRef<str>>(config: &Config, reason: &str, pkgs: &[S]) -> Result<()> {
+    let alpm = config.new_alpm()?;
+    let db = alpm.localdb();
+
+    let pkgs = pkgs
+        .iter()
+        .map(|s| s.as_ref())
+        .filter(|p| db.pkg(*p).is_ok());
+
+    let mut args = config.pacman_globals();
+    args.op("database").arg(reason).targets(pkgs);
+    if args.targets.is_empty() {
         return Ok(());
     }
 
-    let mut args = config.pacman_globals();
-    args.op("database")
-        .arg("asexplicit")
-        .targets(pkgs.iter().map(|s| s.as_ref()));
     let output = exec::pacman_output(config, &args)?;
     ensure!(
         output.status.success(),
@@ -1703,7 +1776,11 @@ pub fn download_custom_repos(config: &Config, fetch: &aur_fetch::Fetch) -> Resul
 }
 
 fn chroot(config: &Config) -> Chroot {
-    Chroot {
+    let mut chroot = Chroot {
+        #[cfg(not(feature = "mock_chroot"))]
+        sudo: config.sudo_bin.clone(),
+        #[cfg(feature = "mock_chroot")]
+        sudo: "sudo".to_string(),
         path: config.chroot_dir.clone(),
         pacman_conf: config
             .pacman_conf
@@ -1719,7 +1796,13 @@ fn chroot(config: &Config) -> Chroot {
 
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
+    };
+
+    if config.args.count("d", "nodeps") > 1 {
+        chroot.mflags.push("-d".to_string());
     }
+
+    chroot
 }
 
 fn trim_dep_ver(dep: &str, trim: bool) -> &str {
@@ -2173,18 +2256,16 @@ fn read_repo(
 pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
     let c = config.color;
 
-    if config.mode != Mode::Repo {
-        if config.args.has_arg("y", "refresh") {
-            download_custom_repos(config, fetch)?;
-        } else {
-            for repo in &config.custom_repos {
-                if matches!(repo.source, RepoSource::Url(_)) && !fetch.is_git_repo(&repo.name) {
-                    eprintln!(
-                        "{} {}",
-                        c.warning.paint("::"),
-                        tr!("repo {} not downloaded (use -Sya to download)", repo.name)
-                    );
-                }
+    if config.args.has_arg("y", "refresh") {
+        download_custom_repos(config, fetch)?;
+    } else {
+        for repo in &config.custom_repos {
+            if matches!(repo.source, RepoSource::Url(_)) && !fetch.is_git_repo(&repo.name) {
+                eprintln!(
+                    "{} {}",
+                    c.warning.paint("::"),
+                    tr!("repo {} not downloaded (use -Sya to download)", repo.name)
+                );
             }
         }
     }

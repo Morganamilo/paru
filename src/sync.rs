@@ -1,4 +1,4 @@
-use crate::config::{Config, Mode};
+use crate::config::Config;
 use crate::install::read_repos;
 use crate::{exec, print_error};
 
@@ -31,13 +31,13 @@ pub async fn list(config: &Config) -> Result<i32> {
     let mut ret = 0;
 
     if args.targets.is_empty() {
-        if config.mode != Mode::Aur {
+        if config.mode.repo() {
             if let Err(e) = exec::pacman(config, &args) {
                 print_error(c.error, e);
                 ret = 1
             }
         }
-        if config.mode != Mode::Repo {
+        if config.mode.pkgbuild() {
             let mut repo_paths = HashMap::new();
             let mut repos = Vec::new();
             read_repos(config, &mut repo_paths, &mut repos)?;
@@ -45,6 +45,8 @@ pub async fn list(config: &Config) -> Result<i32> {
             for repo in &repos {
                 list_custom(config, &repos, &repo.name);
             }
+        }
+        if config.mode.aur() {
             if let Err(e) = list_aur(config).await {
                 print_error(c.error, e);
                 ret = 1
@@ -55,8 +57,7 @@ pub async fn list(config: &Config) -> Result<i32> {
         let mut repos = Vec::new();
         let mut loaded = false;
         for &target in &args.targets {
-            if config.alpm.syncdbs().iter().any(|r| r.name() == target) && config.mode != Mode::Aur
-            {
+            if config.alpm.syncdbs().iter().any(|r| r.name() == target) && config.mode.repo() {
                 let mut args = args.clone();
                 args.targets.clear();
                 args.target(target);
@@ -64,15 +65,14 @@ pub async fn list(config: &Config) -> Result<i32> {
                     print_error(c.error, e);
                     ret = 1;
                 }
-            } else if config.custom_repos.iter().any(|r| r.name == target)
-                && config.mode != Mode::Repo
+            } else if config.custom_repos.iter().any(|r| r.name == target) && config.mode.pkgbuild()
             {
                 if !loaded {
                     read_repos(config, &mut repo_paths, &mut repos)?;
                     loaded = true;
                 }
                 list_custom(config, &repos, target);
-            } else if target == config.aur_namespace() && config.mode != Mode::Repo {
+            } else if target == config.aur_namespace() && config.mode.aur() {
                 if let Err(e) = list_aur(config).await {
                     print_error(c.error, e);
                     ret = 1;

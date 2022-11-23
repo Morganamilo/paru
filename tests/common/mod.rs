@@ -9,7 +9,7 @@ use std::path::Path;
 use std::process::Command;
 use tempfile::TempDir;
 
-pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
+async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     let tmp = TempDir::new().unwrap();
     let dir = tmp.path();
     let testdata = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata");
@@ -28,6 +28,15 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
         .status()?;
     assert!(status.success());
 
+    if repo {
+        let status = Command::new("cp")
+            .arg("-r")
+            .arg(testdata.join("repo"))
+            .arg(dir.join("repo"))
+            .status()?;
+        assert!(status.success());
+    }
+
     let mut file = fs::OpenOptions::new()
         .write(true)
         .append(true)
@@ -35,9 +44,24 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
 
     writeln!(
         file,
-        "[options]\nDBPath = {}",
-        dir.join("db").to_str().unwrap()
+        "[options]
+        DBPath = {}
+        CacheDir = {}",
+        dir.join("db").to_str().unwrap(),
+        testdata.join("pkg").to_str().unwrap()
     )?;
+
+    if repo {
+        writeln!(
+            file,
+            "[repo]
+            Server = file://{0:}/repo
+            SigLevel = Never
+            [options]
+            CacheDir = {0:}/repo",
+            dir.display()
+        )?;
+    }
 
     let pconf = dir.join("pacman.conf");
     let pconf = pconf.to_str();
@@ -60,7 +84,10 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
         "--config",
         pconf.unwrap(),
     ];
-    args.extend(run_args);
+
+    if repo {
+        args.push("--localrepo");
+    }
 
     let mut path = std::env::var("PATH").unwrap();
     path.push(':');
@@ -72,14 +99,43 @@ pub async fn run(run_args: &[&str]) -> Result<(TempDir, i32)> {
     std::env::set_var("PARU_CONF", testdata.join("paru.conf"));
     std::env::set_var("PATH", path);
 
+    if repo {
+        let mut args = args.clone();
+        args.push("-Ly");
+        let ret = paru::run(&args).await;
+        assert_eq!(ret, 0);
+    }
+
+    args.extend(run_args);
     let ret = paru::run(&args).await;
     Ok((tmp, ret))
+}
+
+pub async fn run_normal(run_args: &[&str]) -> Result<(TempDir, i32)> {
+    run(run_args, false).await
 }
 
 pub async fn run_combined(run_args: &[&str]) -> Result<(TempDir, i32)> {
     let mut args = run_args.to_vec();
     args.push("--combinedupgrade");
-    run(&args).await
+    run(&args, false).await
+}
+
+pub async fn run_chroot(run_args: &[&str]) -> Result<(TempDir, i32)> {
+    let mut args = run_args.to_vec();
+    args.push("--chroot");
+    run(&args, false).await
+}
+
+pub async fn run_repo(run_args: &[&str]) -> Result<(TempDir, i32)> {
+    let args = run_args.to_vec();
+    run(&args, true).await
+}
+
+pub async fn run_repo_chroot(run_args: &[&str]) -> Result<(TempDir, i32)> {
+    let mut args = run_args.to_vec();
+    args.push("--chroot");
+    run(&args, true).await
 }
 
 pub fn alpm(tmp: &TempDir) -> Result<Alpm> {
