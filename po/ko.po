@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-23 00:27+0000\n"
+"POT-Creation-Date: 2022-11-24 02:00+0000\n"
 "PO-Revision-Date: 2022-02-18 00:00+1100\n"
 "Last-Translator: ponte-vecchio <zkogdxdkur@p.monash.edu>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -409,187 +409,201 @@ msgstr "    paru {-P --show}        [추가 옵션]"
 msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [꾸러미]"
 
-#: src/help.rs:24
+#: src/help.rs:23
+#, fuzzy
+msgid "    paru {-B --build}       [dir(s)]"
+msgstr "    paru {-P --show}        [추가 옵션]"
+
+#: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
 msgstr "특정한 명령어가 사용되지 않을 시 'paru -Syu'가 기본적으로 적용됩니다."
 
-#: src/help.rs:26
+#: src/help.rs:27
 msgid "Options without operation:"
 msgstr "명령어가 필요하지 않은 옵션: "
 
-#: src/help.rs:27
+#: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
 msgstr "    -c --clean            필요 없는 의존 요소 삭제"
 
-#: src/help.rs:28
+#: src/help.rs:29
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr "       --gendb            업데이트용 개발자 꾸러미 데이터베이스 생성"
 
-#: src/help.rs:30
+#: src/help.rs:31
 msgid "New options:"
 msgstr "새로운 옵션: "
 
-#: src/help.rs:31
+#: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo              지정된 저장소에서만 조회"
 
-#: src/help.rs:32
+#: src/help.rs:33
+#, fuzzy
+msgid ""
+"       --pkgbuilds         Assume targets are from pkgbuild repositories"
+msgstr "       --repo              지정된 저장소에서만 조회"
+
+#: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
 msgstr "    -a --aur               AUR에서만 조회"
 
-#: src/help.rs:33
+#: src/help.rs:35
+msgid "    --mode      <mode>     Sets where paru looks for targets"
+msgstr ""
+
+#: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <주소>     대체로 쓰일 AUR 주소 지정하기"
 
-#: src/help.rs:34
+#: src/help.rs:37
 #, fuzzy
 msgid ""
-"    --aurrpcurl    <url>      Set an alternative URL for the AUR /rpc "
-"endpoint"
+"    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr "    --aururl    <주소>     대체로 쓰일 AUR 주소 지정하기"
 
-#: src/help.rs:35
+#: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr "    --clonedir  <디렉터리> PKGBUILD를 내려 받고 실행할 디렉터리"
 
-#: src/help.rs:37
+#: src/help.rs:40
 msgid "    --makepkg   <file>     makepkg command to use"
 msgstr "    --makepkg   <파일>     사용할 makepkg 명령어"
 
-#: src/help.rs:38
+#: src/help.rs:41
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
 msgstr "    --mflags    <플래그>   makepkg에 사용할 플래그"
 
-#: src/help.rs:39
+#: src/help.rs:42
 msgid "    --pacman    <file>     pacman command to use"
 msgstr "    --pacman    <파일>     사용할 Pacman 명령어"
 
-#: src/help.rs:40
+#: src/help.rs:43
 msgid "    --git       <file>     git command to use"
 msgstr "    --git       <파일>     사용할 깃(git) 명령어"
 
-#: src/help.rs:41
+#: src/help.rs:44
 msgid "    --gitflags  <flags>    Pass arguments to git"
 msgstr "    --gitflags  <플래그>   깃(git)에 사용할 플래그"
 
-#: src/help.rs:42
+#: src/help.rs:45
 msgid "    --sudo      <file>     sudo command to use"
 msgstr "    --sudo      <파일>     사용할 관리자(sudo) 명령어"
 
-#: src/help.rs:43
+#: src/help.rs:46
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
 msgstr "    --sudoflags <플래그>   sudo에 사용할 플래그"
 
-#: src/help.rs:44
+#: src/help.rs:47
 msgid "    --asp       <file>     asp command to use"
 msgstr "    --asp       <파일>     사용할 asp 명령어"
 
-#: src/help.rs:45
+#: src/help.rs:48
 msgid "    --bat       <file>     bat command to use"
 msgstr "    --bat       <파일>     사용할 bat 명령어"
 
-#: src/help.rs:46
+#: src/help.rs:49
 msgid "    --batflags  <flags>    Pass arguments to bat"
 msgstr "    --batflags  <플래그>   bat에 사용할 플래그"
 
-#: src/help.rs:47
+#: src/help.rs:50
 msgid "    --gpg       <file>     gpg command to use"
 msgstr "    --gpg       <파일>     사용할 gpg 명령어"
 
-#: src/help.rs:48
+#: src/help.rs:51
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
 msgstr "    --gpgflags  <플래그>   gpg에 사용할 플래그"
 
-#: src/help.rs:49
+#: src/help.rs:52
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr "    --fm        <파일>     PKGBUILD 리뷰에 사용할 파일 관리자"
 
-#: src/help.rs:50
+#: src/help.rs:53
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
 msgstr "    --fmflags   <플래그>   파일 관리자에 사용할 플래그"
 
-#: src/help.rs:52
+#: src/help.rs:55
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr "    --completioninterval   <n> 캐시를 갱신할 주기 (단위: 일)"
 
-#: src/help.rs:53
+#: src/help.rs:56
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr "    --sortby    <필드명>   AUR 검색 결과를 특정 필드에 따라 정렬"
 
-#: src/help.rs:54
+#: src/help.rs:57
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr "    --searchby  <필드명>   특정 필드를 사용해 꾸러미 검색"
 
-#: src/help.rs:55
+#: src/help.rs:58
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr "    --limit     <개수>     검색 결과를 특정 개수로 한정"
 
-#: src/help.rs:56
+#: src/help.rs:59
 msgid "    -x --regex             Enable regex for aur search"
 msgstr "    -x --regex             AUR 검색용 정규식 활성화"
 
-#: src/help.rs:58
+#: src/help.rs:61
 msgid "    --skipreview           Skip the review process"
 msgstr "    --skipreview           리뷰 건너뛰기"
 
-#: src/help.rs:59
+#: src/help.rs:62
 msgid "    --review               Don't skip the review process"
 msgstr "    --review               리뷰 건너뛰지 않기"
 
-#: src/help.rs:60
+#: src/help.rs:63
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
 "    --[no]upgrademenu      업그레이드 건너뛰기에 관련된 대화식 메뉴 보이[지"
 "않]기"
 
-#: src/help.rs:61
+#: src/help.rs:64
 msgid "    --[no]removemake       Remove makedepends after install"
 msgstr "    --[no]removemake       설치 후 의존 요소 제거하[지않]기"
 
-#: src/help.rs:62
+#: src/help.rs:65
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr "    --[no]cleanafter       설치 후 꾸러미 소스 제거하[지않]기"
 
-#: src/help.rs:63
+#: src/help.rs:66
 msgid "    --[no]rebuild          Always build target packages"
 msgstr "    --[no]rebuild          조회된 꾸러미 빌드하[지않]기"
 
-#: src/help.rs:64
+#: src/help.rs:67
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
 msgstr "    --[no]redownload       조회된 PKGBUILD 항상 내려 받[지않]기"
 
-#: src/help.rs:66
+#: src/help.rs:69
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr "    --[no]pgpfetch         PKGBUILD에서 PGP키 가져오[지않]기"
 
-#: src/help.rs:67
+#: src/help.rs:70
 msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
 "    --[no]useask           Pacman의 ask 플래그로 충돌 자동 해결하[지않]기"
 
-#: src/help.rs:68
+#: src/help.rs:71
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
 "    --[no]savechanges      리뷰 중 pkgbuild에 만든 변경사항 커밋하[지않]기"
 
-#: src/help.rs:69
+#: src/help.rs:72
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
 "    --[no]newsonupgrade    시스템 업그레이드 중 새로운 소식 출력하[지않]기"
 
-#: src/help.rs:70
+#: src/help.rs:73
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr "    --[no]combinedupgrade  저장소와 AUR 같이 업그레이드 하[지않]기"
 
-#: src/help.rs:71
+#: src/help.rs:74
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
@@ -597,18 +611,18 @@ msgstr ""
 "    --[no]batchinstall     여러 AUR 꾸러미를 빌드한 뒤에 다 같이 설치하[지않]"
 "기"
 
-#: src/help.rs:72
+#: src/help.rs:75
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr "    --[no]provides         "
 
-#: src/help.rs:73
+#: src/help.rs:76
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
 "    --[no]devel            시스템 업그레이드 시 개발자 꾸러미 확인하[지않]기"
 
-#: src/help.rs:74
+#: src/help.rs:77
 msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
@@ -616,99 +630,105 @@ msgstr ""
 "    --[no]installdebug     꾸러미 설치 시 디버깅용 꾸러미도 같이 설치하[지않]"
 "기"
 
-#: src/help.rs:75
+#: src/help.rs:78
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr "    --[no]sudoloop         타임아웃 예방 용 sudo 루프 사용하[지않]기"
 
-#: src/help.rs:76
+#: src/help.rs:79
 msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           루트(관리자)로 꾸러기 빌드하[지않]기"
 
-#: src/help.rs:77
+#: src/help.rs:80
 #, fuzzy
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr "    --[no]rebuild          조회된 꾸러미 빌드하[지않]기"
 
-#: src/help.rs:78
+#: src/help.rs:81
 #, fuzzy
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
 msgstr "    --[no]rebuild          조회된 꾸러미 빌드하[지않]기"
 
-#: src/help.rs:79
+#: src/help.rs:82
 msgid "    --[no]sign             Sign packages with gpg"
 msgstr "    --[no]sign             gpg로 꾸러미 서명하[지않]기"
 
-#: src/help.rs:80
+#: src/help.rs:83
 msgid "    --[no]signdb           Sign databases with gpg"
 msgstr "    --[no]signdb           gpg로 데이터베이스 서명하[지않]기"
 
-#: src/help.rs:81
+#: src/help.rs:84
 msgid "    --localrepo            Build packages into a local repo"
 msgstr "    --localrepo            꾸러미를 로컬 저장소로 빌드하기"
 
-#: src/help.rs:82
+#: src/help.rs:85
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr "    --nocheck              의존성 검사를 하[지않]기"
 
-#: src/help.rs:83
+#: src/help.rs:86
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr "    --develsuffixes        개발자용 꾸러미를 지정할 접두어"
 
-#: src/help.rs:84
+#: src/help.rs:87
+#, fuzzy
+msgid "    --ignoredevel          Ignore devel uprades for specified packages"
+msgstr "    --[no]provides         "
+
+#: src/help.rs:88
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr "    --bottomup             AUR -> 저장소 순으로 꾸러미 보이기"
 
-#: src/help.rs:85
+#: src/help.rs:89
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr "    --topdown              저장소 -> AUR 순으로 꾸러미 보이기"
 
-#: src/help.rs:87
+#: src/help.rs:91
 msgid "show specific options:"
 msgstr "세세한 옵션: "
 
-#: src/help.rs:88
+#: src/help.rs:92
 msgid "    -c --complete         Used for completions"
 msgstr "    -c --complete         완성 기능"
 
-#: src/help.rs:89
+#: src/help.rs:93
 msgid "    -s --stats            Display system package statistics"
 msgstr "    -s --stats            시스템 꾸러미 통계 보이기"
 
-#: src/help.rs:90
+#: src/help.rs:94
 msgid "    -w --news             Print arch news"
 msgstr "    -w --news             새로운 아치(Arch) 소식 출력하기"
 
-#: src/help.rs:92
+#: src/help.rs:96
 msgid "getpkgbuild specific options:"
 msgstr "getpkgbuild 옵션: "
 
-#: src/help.rs:93
+#: src/help.rs:97
 msgid "    -p --print            Print pkgbuild to stdout"
 msgstr "    -p --print            pkgbuild를 표준출력으로 보이기"
 
-#: src/help.rs:94
+#: src/help.rs:98
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         해당 pkgbuild에 대한 AUR 댓글 출력하기"
 
-#: src/help.rs:95
+#: src/help.rs:99
 #, fuzzy
 msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --stats            시스템 꾸러미 통계 보이기"
 
-#: src/help.rs:97
-msgid "upgrade specific options:"
-msgstr "세세한 업그레이드 옵션: "
+#: src/help.rs:101
+#, fuzzy
+msgid "Build specific options:"
+msgstr "getpkgbuild 옵션: "
 
-#: src/help.rs:98
+#: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install          꾸러미 설치 및 빌드하기"
 
@@ -1206,6 +1226,9 @@ msgstr "지정된 대상이 없음. (도움말을 보려면 -h)"
 #: src/lib.rs:442
 msgid " [installed: {}]"
 msgstr " [설치됨: {}]"
+
+#~ msgid "upgrade specific options:"
+#~ msgstr "세세한 업그레이드 옵션: "
 
 #~ msgid "error: unknown section '{}'"
 #~ msgstr "오류: 알 수 없는 섹션 '{}'"

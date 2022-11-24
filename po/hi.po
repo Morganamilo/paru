@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-23 00:27+0000\n"
+"POT-Creation-Date: 2022-11-24 02:00+0000\n"
 "PO-Revision-Date: 2021-07-03 20:07+0600\n"
 "Last-Translator: Atharva Amritkar <atharvaamritkar@protonmail.com>\n"
 "Language-Team: \n"
@@ -410,293 +410,309 @@ msgstr ""
 msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr ""
 
-#: src/help.rs:24
+#: src/help.rs:23
+msgid "    paru {-B --build}       [dir(s)]"
+msgstr ""
+
+#: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
 msgstr ""
 
-#: src/help.rs:26
+#: src/help.rs:27
 msgid "Options without operation:"
 msgstr ""
 
-#: src/help.rs:27
+#: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
 msgstr ""
 
-#: src/help.rs:28
+#: src/help.rs:29
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
 
-#: src/help.rs:30
+#: src/help.rs:31
 msgid "New options:"
 msgstr ""
 
-#: src/help.rs:31
+#: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
 msgstr ""
 
-#: src/help.rs:32
-msgid "    -a --aur               Assume targets are from the AUR"
-msgstr ""
-
 #: src/help.rs:33
-msgid "    --aururl    <url>      Set an alternative AUR URL"
+msgid ""
+"       --pkgbuilds         Assume targets are from pkgbuild repositories"
 msgstr ""
 
 #: src/help.rs:34
-msgid ""
-"    --aurrpcurl    <url>      Set an alternative URL for the AUR /rpc "
-"endpoint"
+msgid "    -a --aur               Assume targets are from the AUR"
 msgstr ""
 
 #: src/help.rs:35
-msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
+msgid "    --mode      <mode>     Sets where paru looks for targets"
+msgstr ""
+
+#: src/help.rs:36
+msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr ""
 
 #: src/help.rs:37
-msgid "    --makepkg   <file>     makepkg command to use"
+msgid ""
+"    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr ""
 
 #: src/help.rs:38
-msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr ""
-
-#: src/help.rs:39
-msgid "    --pacman    <file>     pacman command to use"
+msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
 
 #: src/help.rs:40
-msgid "    --git       <file>     git command to use"
+msgid "    --makepkg   <file>     makepkg command to use"
 msgstr ""
 
 #: src/help.rs:41
-msgid "    --gitflags  <flags>    Pass arguments to git"
+msgid "    --mflags    <flags>    Pass arguments to makepkg"
 msgstr ""
 
 #: src/help.rs:42
-msgid "    --sudo      <file>     sudo command to use"
+msgid "    --pacman    <file>     pacman command to use"
 msgstr ""
 
 #: src/help.rs:43
-msgid "    --sudoflags <flags>    Pass arguments to sudo"
+msgid "    --git       <file>     git command to use"
 msgstr ""
 
 #: src/help.rs:44
-msgid "    --asp       <file>     asp command to use"
+msgid "    --gitflags  <flags>    Pass arguments to git"
 msgstr ""
 
 #: src/help.rs:45
-msgid "    --bat       <file>     bat command to use"
+msgid "    --sudo      <file>     sudo command to use"
 msgstr ""
 
 #: src/help.rs:46
-msgid "    --batflags  <flags>    Pass arguments to bat"
+msgid "    --sudoflags <flags>    Pass arguments to sudo"
 msgstr ""
 
 #: src/help.rs:47
-msgid "    --gpg       <file>     gpg command to use"
+msgid "    --asp       <file>     asp command to use"
 msgstr ""
 
 #: src/help.rs:48
-msgid "    --gpgflags  <flags>    Pass arguments to gpg"
+msgid "    --bat       <file>     bat command to use"
 msgstr ""
 
 #: src/help.rs:49
-msgid "    --fm        <file>     File manager to use for PKGBUILD review"
+msgid "    --batflags  <flags>    Pass arguments to bat"
 msgstr ""
 
 #: src/help.rs:50
-msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgid "    --gpg       <file>     gpg command to use"
+msgstr ""
+
+#: src/help.rs:51
+msgid "    --gpgflags  <flags>    Pass arguments to gpg"
 msgstr ""
 
 #: src/help.rs:52
-msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
 
 #: src/help.rs:53
+msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgstr ""
+
+#: src/help.rs:55
+msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgstr ""
+
+#: src/help.rs:56
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
 
-#: src/help.rs:54
+#: src/help.rs:57
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr ""
 
-#: src/help.rs:55
+#: src/help.rs:58
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
 
-#: src/help.rs:56
+#: src/help.rs:59
 msgid "    -x --regex             Enable regex for aur search"
 msgstr ""
 
-#: src/help.rs:58
+#: src/help.rs:61
 msgid "    --skipreview           Skip the review process"
 msgstr ""
 
-#: src/help.rs:59
+#: src/help.rs:62
 msgid "    --review               Don't skip the review process"
 msgstr ""
 
-#: src/help.rs:60
+#: src/help.rs:63
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
 
-#: src/help.rs:61
+#: src/help.rs:64
 #, fuzzy
 msgid "    --[no]removemake       Remove makedepends after install"
 msgstr "इंस्टॉल करने के बाद मेक डिपेंडेंसी हटाएं?"
 
-#: src/help.rs:62
+#: src/help.rs:65
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr ""
 
-#: src/help.rs:63
+#: src/help.rs:66
 msgid "    --[no]rebuild          Always build target packages"
 msgstr ""
 
-#: src/help.rs:64
+#: src/help.rs:67
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
 msgstr ""
 
-#: src/help.rs:66
+#: src/help.rs:69
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr ""
 
-#: src/help.rs:67
+#: src/help.rs:70
 msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
 
-#: src/help.rs:68
+#: src/help.rs:71
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
 
-#: src/help.rs:69
+#: src/help.rs:72
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
 
-#: src/help.rs:70
+#: src/help.rs:73
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
 
-#: src/help.rs:71
+#: src/help.rs:74
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
 
-#: src/help.rs:72
+#: src/help.rs:75
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
 
-#: src/help.rs:73
+#: src/help.rs:76
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
 
-#: src/help.rs:74
+#: src/help.rs:77
 msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
 
-#: src/help.rs:75
+#: src/help.rs:78
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
 
-#: src/help.rs:76
+#: src/help.rs:79
 msgid "    --[no]chroot           Build packages in a chroot"
 msgstr ""
 
-#: src/help.rs:77
+#: src/help.rs:80
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
 
-#: src/help.rs:78
+#: src/help.rs:81
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
 msgstr ""
 
-#: src/help.rs:79
+#: src/help.rs:82
 msgid "    --[no]sign             Sign packages with gpg"
 msgstr ""
 
-#: src/help.rs:80
+#: src/help.rs:83
 msgid "    --[no]signdb           Sign databases with gpg"
 msgstr ""
 
-#: src/help.rs:81
+#: src/help.rs:84
 msgid "    --localrepo            Build packages into a local repo"
 msgstr ""
 
-#: src/help.rs:82
+#: src/help.rs:85
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
 
-#: src/help.rs:83
+#: src/help.rs:86
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr ""
 
-#: src/help.rs:84
+#: src/help.rs:87
+msgid "    --ignoredevel          Ignore devel uprades for specified packages"
+msgstr ""
+
+#: src/help.rs:88
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
 
-#: src/help.rs:85
+#: src/help.rs:89
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
 
-#: src/help.rs:87
+#: src/help.rs:91
 msgid "show specific options:"
 msgstr ""
 
-#: src/help.rs:88
+#: src/help.rs:92
 msgid "    -c --complete         Used for completions"
 msgstr ""
 
-#: src/help.rs:89
+#: src/help.rs:93
 msgid "    -s --stats            Display system package statistics"
 msgstr ""
 
-#: src/help.rs:90
+#: src/help.rs:94
 msgid "    -w --news             Print arch news"
 msgstr ""
 
-#: src/help.rs:92
+#: src/help.rs:96
 msgid "getpkgbuild specific options:"
 msgstr ""
 
-#: src/help.rs:93
+#: src/help.rs:97
 msgid "    -p --print            Print pkgbuild to stdout"
 msgstr ""
 
-#: src/help.rs:94
+#: src/help.rs:98
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr ""
 
-#: src/help.rs:95
+#: src/help.rs:99
 msgid "    -s --ssh              Clone package using SSH"
 msgstr ""
 
-#: src/help.rs:97
-msgid "upgrade specific options:"
+#: src/help.rs:101
+msgid "Build specific options:"
 msgstr ""
 
-#: src/help.rs:98
+#: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
 msgstr ""
 
