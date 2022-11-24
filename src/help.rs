@@ -20,6 +20,7 @@ pub fn help() {
     printtr!("New operations:");
     printtr!("    paru {-P --show}        [options]");
     printtr!("    paru {-G --getpkgbuild} [package(s)]");
+    printtr!("    paru {-B --build}       [dir(s)]");
     println!();
     printtr!("If no arguments are provided 'paru -Syu' will be performed");
     println!();
@@ -29,9 +30,11 @@ pub fn help() {
     println!();
     printtr!("New options:");
     printtr!("       --repo              Assume targets are from the repositories");
+    printtr!("       --pkgbuilds         Assume targets are from pkgbuild repositories");
     printtr!("    -a --aur               Assume targets are from the AUR");
+    printtr!("    --mode      <mode>     Sets where paru looks for targets");
     printtr!("    --aururl    <url>      Set an alternative AUR URL");
-    printtr!("    --aurrpcurl    <url>      Set an alternative URL for the AUR /rpc endpoint");
+    printtr!("    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint");
     printtr!("    --clonedir  <dir>      Directory used to download and run PKGBUILDs");
     println!();
     printtr!("    --makepkg   <file>     makepkg command to use");
@@ -81,6 +84,7 @@ pub fn help() {
     printtr!("    --localrepo            Build packages into a local repo");
     printtr!("    --nocheck              Don't resolve checkdepends or run the check function");
     printtr!("    --develsuffixes        Suffixes used to decide if a package is a devel package");
+    printtr!("    --ignoredevel          Ignore devel uprades for specified packages");
     printtr!("    --bottomup             Shows AUR's packages first and then repository's");
     printtr!("    --topdown              Shows repository's packages first and then AUR's");
     println!();
@@ -94,6 +98,6 @@ pub fn help() {
     printtr!("    -c --comments         Print AUR comments for pkgbuild");
     printtr!("    -s --ssh              Clone package using SSH");
     println!();
-    printtr!("upgrade specific options:");
+    printtr!("Build specific options:");
     printtr!("    -i --install          Install package as well as building");
 }
