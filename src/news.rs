@@ -67,10 +67,8 @@ pub async fn news(config: &Config) -> Result<i32> {
 
     if !printed {
         eprintln!("{}", tr!("no new news"));
-        Ok(1)
-    } else {
-        Ok(0)
     }
+    Ok(0)
 }
 
 fn parse_html(config: &Config, html: &str) {
