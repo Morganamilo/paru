@@ -109,7 +109,7 @@ dependencies = [
 [[package]]
 name = "aur-depends"
 version = "2.1.0"
-source = "git+https://github.com/Morganamilo/aur-depends?rev=4aeaf7#4aeaf730990665881c60b38fee1d14ab80e700bd"
+source = "git+https://github.com/Morganamilo/aur-depends?rev=258afa#258afa060f6d4a953d86b93fdb2e56037777e878"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -1620,9 +1620,9 @@ dependencies = [
 
 [[package]]
 name = "raur"
-version = "6.0.0"
+version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86e7cb15e8c14377d8d2f8bea32a8b135a5c9d64c5ec4a3ea7cf5d703a4bd227"
+checksum = "dafb3f375eedbb68b8c57a79cb220171ad1b716196fa35d4ab059f5fda21cc17"
 dependencies = [
  "async-trait",
  "reqwest",

@@ -267,7 +267,12 @@ impl ConfigEnum for raur::SearchBy {
         ("makedepends", Self::MakeDepends),
         ("name-desc", Self::NameDesc),
         ("name", Self::Name),
-        ("optdepends", Self::OptDepends),
+        ("submitter", Self::Submitter),
+        ("provides", Self::Provides),
+        ("replaces", Self::Replaces),
+        ("groups", Self::Groups),
+        ("keywords", Self::Keywords),
+        ("comaintainers", Self::CoMaintainers),
     ];
 }
 

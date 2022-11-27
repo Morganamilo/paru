@@ -41,13 +41,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
     if config.op == Op::Yay {
         flags.remove(Flags::TARGET_PROVIDES);
     }
-    if config.repos != LocalRepos::None {
-        flags |= Flags::LOCAL_REPO;
-    }
-    if config.rebuild == YesNoAllTree::Tree {
-        flags |= Flags::RESOLVE_SATISFIED_PKGBUILDS;
-    }
-    if config.chroot && config.repos == LocalRepos::None {
+    if config.repos != LocalRepos::None || config.rebuild == YesNoAllTree::Tree || config.chroot {
         flags |= Flags::RESOLVE_SATISFIED_PKGBUILDS;
     }
 
