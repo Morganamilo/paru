@@ -73,6 +73,8 @@ impl Mock {
                     provides: vec![],
                     license: vec![],
                     keywords: vec![],
+                    co_maintainers: vec![],
+                    submitter: None,
                 };
 
                 mock.pkgs.insert(name, pkg);
