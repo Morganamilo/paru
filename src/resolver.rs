@@ -1,4 +1,4 @@
-use crate::config::{Alpm, Config, LocalRepos, Op, YesNoAllTree};
+use crate::config::{Alpm, Config, LocalRepos, Op, YesNoAll, YesNoAllTree};
 use crate::fmt::color_repo;
 use crate::util::{get_provider, NumberMenu};
 use crate::RaurHandle;
@@ -35,8 +35,15 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
     if !config.mode.repo() {
         flags &= !Flags::NATIVE_REPO;
     }
-    if !config.provides {
-        flags.remove(Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES);
+    match config.provides {
+        YesNoAll::Yes => flags |= Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES,
+        YesNoAll::No => flags.remove(
+            Flags::PROVIDES
+                | Flags::MISSING_PROVIDES
+                | Flags::TARGET_PROVIDES
+                | Flags::NON_TARGET_PROVIDES,
+        ),
+        YesNoAll::All => flags |= Flags::PROVIDES,
     }
     if config.op == Op::Yay {
         flags.remove(Flags::TARGET_PROVIDES);

@@ -251,8 +251,10 @@ impl Config {
             Arg::Long("nocheck") => self.no_check = true,
             Arg::Long("devel") => self.devel = true,
             Arg::Long("nodevel") => self.devel = false,
-            Arg::Long("provides") => self.provides = true,
-            Arg::Long("noprovides") => self.provides = false,
+            Arg::Long("provides") => {
+                self.provides = YesNoAll::Yes.default_or(argkey, value.ok())?
+            }
+            Arg::Long("noprovides") => self.provides = YesNoAll::No,
             Arg::Long("pgpfetch") => self.pgp_fetch = true,
             Arg::Long("nopgpfetch") => self.pgp_fetch = false,
             Arg::Long("useask") => self.use_ask = true,
@@ -411,6 +413,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("localrepo") => TakesValue::Optional,
         Arg::Long("chroot") => TakesValue::Optional,
         Arg::Long("builddir") => TakesValue::Required,
+        Arg::Long("provides") => TakesValue::Optional,
         Arg::Long("clonedir") => TakesValue::Required,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,

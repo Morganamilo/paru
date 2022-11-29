@@ -445,7 +445,8 @@ pub struct Config {
     pub no_confirm: bool,
     pub devel: bool,
     pub clean_after: bool,
-    pub provides: bool,
+    #[default(YesNoAll::No)]
+    pub provides: YesNoAll,
     pub pgp_fetch: bool,
     pub combined_upgrade: bool,
     pub batch_install: bool,
@@ -1027,7 +1028,7 @@ impl Config {
             "Devel" => self.devel = true,
             "NoCheck" => self.no_check = true,
             "CleanAfter" => self.clean_after = true,
-            "Provides" => self.provides = true,
+            "Provides" => self.provides = YesNoAll::Yes.default_or(key, value)?,
             "PgpFetch" => self.pgp_fetch = true,
             "CombinedUpgrade" => self.combined_upgrade = true,
             "BatchInstall" => self.batch_install = true,
