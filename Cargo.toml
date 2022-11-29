@@ -20,7 +20,7 @@ aur-depends = "2.1.0"
 aur-fetch = "0.11.2"
 cini = "1.0.0"
 pacmanconf = "2.0.0"
-raur = "6.0.0"
+raur = "7.0.0"
 srcinfo = "1.1.0"
 
 
@@ -72,5 +72,5 @@ mock_chroot = ["mock"]
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
 #aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "4aeaf7" }
+aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "258afa" }
 #aur-fetch = { path = "../aur-fetch" }
