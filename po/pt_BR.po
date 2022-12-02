@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-24 02:00+0000\n"
+"POT-Creation-Date: 2022-12-02 18:27+0000\n"
 "PO-Revision-Date: 2022-04-17 22:11-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
@@ -86,91 +86,91 @@ msgstr "não foi possível atualizar o cache do AUR"
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "valor inválido '{val}' para chave '{key}', espera-se: {exp}"
 
-#: src/config.rs:323
+#: src/config.rs:328
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "opção desconhecida -{}"
 
-#: src/config.rs:578
+#: src/config.rs:583
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:595
+#: src/config.rs:600
 msgid "failed to find cache directory"
 msgstr "falha ao procurar diretório de cache"
 
-#: src/config.rs:598
+#: src/config.rs:603
 msgid "failed to find config directory"
 msgstr "falha ao procurar diretório de configuração"
 
-#: src/config.rs:601
+#: src/config.rs:606
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "falha ao procurar diretório de cache"
 
-#: src/config.rs:639
+#: src/config.rs:644
 msgid "config file '{}' does not exist"
 msgstr "arquivo de configuração '{}' não existe"
 
-#: src/config.rs:688
+#: src/config.rs:693
 msgid "only one operation may be used at a time"
 msgstr "apenas uma operação pode ser feita por vez"
 
-#: src/config.rs:791
+#: src/config.rs:796
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "não foi possível encontrar o repositório local '{}' no pacman.conf"
 
-#: src/config.rs:833
+#: src/config.rs:838
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "falha ao inicializar alpm: root={} dbpath={}"
 
-#: src/config.rs:908 src/config.rs:1070
+#: src/config.rs:913 src/config.rs:1075
 msgid "value can not be empty for key '{}'"
 msgstr "valor para a chave '{}' não pode ser vazio"
 
-#: src/config.rs:924
+#: src/config.rs:929
 msgid "key '{}' does not belong to a section"
 msgstr "chave '{}' não pertence a seção"
 
-#: src/config.rs:938 src/config.rs:959 src/config.rs:961 src/config.rs:975
+#: src/config.rs:943 src/config.rs:964 src/config.rs:966 src/config.rs:980
 msgid "key can not be empty"
 msgstr "chave não pode estar vazia"
 
-#: src/config.rs:952
+#: src/config.rs:957
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "erro: opção desconhecida '{}' na seção [bin]"
 
-#: src/config.rs:962
+#: src/config.rs:967
 msgid "key can not contain null bytes"
 msgstr "chave não pode conter bytes nulos"
 
-#: src/config.rs:965
+#: src/config.rs:970
 msgid "value can not contain null bytes"
 msgstr "valor não pode conter bytes nulos"
 
-#: src/config.rs:998
+#: src/config.rs:1003
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "erro: opção desconhecida '{}' na seção [bin]"
 
-#: src/config.rs:1110
+#: src/config.rs:1115
 msgid "error: unknown option '{}' in section [options]"
 msgstr "erro: opção desconhecida '{}' na seção [opções]"
 
-#: src/config.rs:1115
+#: src/config.rs:1120
 msgid "option '{}' does not take a value"
 msgstr "a opção '{}' não aceita valores"
 
-#: src/config.rs:1159 src/resolver.rs:133
+#: src/config.rs:1164 src/resolver.rs:127
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Há {n} provedores disponíveis para {pkg}:"
 
-#: src/config.rs:1173 src/info.rs:95 src/info.rs:216 src/info.rs:250
-#: src/resolver.rs:92 src/resolver.rs:141
+#: src/config.rs:1178 src/info.rs:95 src/info.rs:216 src/info.rs:250
+#: src/resolver.rs:86 src/resolver.rs:135
 msgid "Repository"
 msgstr "Repositório"
 
-#: src/config.rs:1199
+#: src/config.rs:1204
 msgid "  failed to sync {}"
 msgstr "  falha ao sincronizar '{}'"
 
@@ -1231,11 +1231,11 @@ msgstr "número inválido: {}"
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "valor inválido: {n} não está entre 1 e {max}"
 
-#: src/resolver.rs:80
+#: src/resolver.rs:74
 msgid "There are {} members in group"
 msgstr "Há {} membros no grupo"
 
-#: src/resolver.rs:105
+#: src/resolver.rs:99
 msgid ""
 "\n"
 "\n"
