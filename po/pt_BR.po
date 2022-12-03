@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-12-02 18:27+0000\n"
-"PO-Revision-Date: 2022-12-03 18:49-0300\n"
+"PO-Revision-Date: 2022-12-03 18:58-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -436,7 +436,8 @@ msgstr ""
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
 msgstr ""
-"       --pkgbuilds         Assume que os alvos sejam de repositórios pkgbuild"
+"       --pkgbuilds              Assume que os alvos sejam de repositórios "
+"pkgbuild"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -444,7 +445,7 @@ msgstr "    -a --aur                    Assume que os alvos sejam do AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr "    --mode      <modo>     Define aonde paru procura por alvos"
+msgstr "    --mode      <modo>          Define aonde paru procura por alvos"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -454,8 +455,8 @@ msgstr "    --aururl    <url>           Define uma URL alternativa do AUR"
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr ""
-"    --aurrpcur  <url>      Define uma URL alternativa para o endpoint /rpc "
-"do AUR"
+"    --aurrpcur  <url>           Define uma URL alternativa para o endpoint /"
+"rpc do AUR"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
