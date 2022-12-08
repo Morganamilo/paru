@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-11-24 02:00+0000\n"
-"PO-Revision-Date: 2021-06-28 20:07+0200\n"
+"PO-Revision-Date: 2022-12-08 01:06+0100\n"
 "Last-Translator: Ícar N. S. <icar.nin@protonmail.com>\n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -16,15 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: src/clean.rs:36
-#, fuzzy
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Voleu eliminar tots els paquets de l'AUR de la memòria cau?"
+msgstr "Voleu eliminar TOTS els paquets de l'AUR de la memòria cau?"
 
 #: src/clean.rs:38
-#, fuzzy
 msgid "Do you want to clean all other AUR packages from cache?"
 msgstr "Voleu eliminar tots els altres paquets de l'AUR de la memòria cau?"
 
@@ -85,13 +83,12 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "valor '{val}' no vàlid per a la clau '{key}', s'esperava: {exp}"
 
 #: src/config.rs:323
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "opció desconeguda -{}"
+msgstr "mode desconegut {}"
 
 #: src/config.rs:578
 msgid "section can not be called {}"
-msgstr ""
+msgstr "la secció no pot ser cridada {}"
 
 #: src/config.rs:595
 msgid "failed to find cache directory"
@@ -102,9 +99,8 @@ msgid "failed to find config directory"
 msgstr "no s'ha pogut trobar el directori de configuració"
 
 #: src/config.rs:601
-#, fuzzy
 msgid "failed to find state directory"
-msgstr "no s'ha pogut trobar el directori de la memòria cau"
+msgstr "no s'ha pogut trobar el directori d'estat"
 
 #: src/config.rs:639
 msgid "config file '{}' does not exist"
@@ -135,9 +131,8 @@ msgid "key can not be empty"
 msgstr "la clau no pot estar buida"
 
 #: src/config.rs:952
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
-msgstr "error: opció desconeguda '{}' a la secció [bin]"
+msgstr "error: opció desconeguda '{}' al dipòsit"
 
 #: src/config.rs:962
 msgid "key can not contain null bytes"
@@ -189,23 +184,20 @@ msgid "failed to save devel info"
 msgstr "no s'ha pogut desar la informació de desenvolupament"
 
 #: src/devel.rs:204
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "no s'ha pogut trobar el directori de la memòria cau"
+msgstr "no s'ha pogut crear el directori d'estat {}"
 
 #: src/devel.rs:219
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "no s'ha pogut executar el gestor de fitxers: {}"
+msgstr "no s'ha pogut crear el fitxer temporal {}"
 
 #: src/devel.rs:224
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "no s'ha pogut llegir el directori: {}"
+msgstr "no s'ha pogut escriure al fitxer temporal {}"
 
 #: src/devel.rs:230
 msgid "failed to rename '{temp}' to '{devel_json}"
-msgstr ""
+msgstr "ha fallat reanomenar '{temp}' a '{devel_json}'"
 
 #: src/devel.rs:439
 msgid "package does not have an update"
@@ -266,9 +258,8 @@ msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs al dia"
 
 #: src/download.rs:392
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "S'estan baixant els PKGBUILDs..."
+msgstr "S'estan baixant els dipòsits amb els PKGBUILDs..."
 
 #: src/download.rs:588
 msgid "{} is not installed: can not get repo packages"
@@ -296,16 +287,15 @@ msgstr "Construcció del repositori"
 
 #: src/fmt.rs:257
 msgid "Pkgbuilds Make"
-msgstr ""
+msgstr "Construcció dels PKGBUILD"
 
 #: src/fmt.rs:259
 msgid "Aur Make"
 msgstr "Construcció de l'AUR"
 
 #: src/fmt.rs:304
-#, fuzzy
 msgid "Repo ({})"
-msgstr "Repo"
+msgstr "Dipòsit ({})"
 
 #: src/fmt.rs:309
 msgid "Aur ({})"
@@ -313,15 +303,13 @@ msgstr "AUR ({})"
 
 #: src/fmt.rs:310
 msgid "Pkgbuilds ({})"
-msgstr ""
+msgstr "PKGBUILDs ({})"
 
 #: src/fmt.rs:312
-#, fuzzy
 msgid "Old Version"
 msgstr "Versió antiga"
 
 #: src/fmt.rs:313
-#, fuzzy
 msgid "New Version"
 msgstr "Versió nova"
 
@@ -330,7 +318,6 @@ msgid "Make Only"
 msgstr "Només construeix"
 
 #: src/fmt.rs:315
-#, fuzzy
 msgid "Yes"
 msgstr "Sí"
 
@@ -411,9 +398,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [paquet(s)]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [opcions]"
+msgstr "    paru {-B --build}       [dir(s)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -444,11 +430,11 @@ msgstr ""
 "       --repo              Assumeix que els paquets són dels repositoris"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
 msgstr ""
-"       --repo              Assumeix que els paquets són dels repositoris"
+"       --pkgbuilds         Assumeix que els objectius són de dipòsits de "
+"PKGBUILDs"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -456,17 +442,18 @@ msgstr "    -a --aur               Assumeix que els paquets són de l'AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>     Indica on el paru busca objectius"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      Especifica una URL alternativa per l'AUR"
 
 #: src/help.rs:37
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>      Especifica una URL alternativa per l'AUR"
+msgstr ""
+"    --aurrpcur  <url>      Indica una URL alternativa per l'endpoint /rpc de "
+"l'AUR"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -573,10 +560,9 @@ msgstr ""
 "actualitzacions"
 
 #: src/help.rs:64
-#, fuzzy
 msgid "    --[no]removemake       Remove makedepends after install"
 msgstr ""
-"    --[no]removemake       Elimina les dependències de construcció després "
+"    --[no]removemake       Esborra les dependències de construcció després "
 "de la instal·lació"
 
 #: src/help.rs:65
@@ -710,11 +696,10 @@ msgstr ""
 "paquet de desenvolupament"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel uprades for specified packages"
 msgstr ""
-"    --[no]provides         Busca proveïdors que coincideixin quan es busquin "
-"paquets"
+"    --ignoredevel          Ignora les actualitzacions dels paquets de "
+"desenvolupament pels paquets especificats"
 
 #: src/help.rs:88
 msgid ""
@@ -762,9 +747,8 @@ msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              Clona el paquet usant SSH"
 
 #: src/help.rs:101
-#, fuzzy
 msgid "Build specific options:"
-msgstr "opcions específiques de «getpkgbuild»:"
+msgstr "Opcions específiques de construcció:"
 
 #: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
@@ -860,12 +844,11 @@ msgstr "URL de la instantània"
 
 #: src/info.rs:117 src/info.rs:229
 msgid "Path"
-msgstr ""
+msgstr "Camí"
 
 #: src/install.rs:109
-#, fuzzy
 msgid "Generating .SRCINFO for {dir}..."
-msgstr "no s'ha pogut trobar .SRINFO per a '{}'"
+msgstr "Generant .SRCINFO per {dir}..."
 
 #: src/install.rs:118
 msgid "failed to parse srcinfo generated by makepkg"
@@ -884,7 +867,6 @@ msgid "Proceed with installation?"
 msgstr "Voleu continuar amb la instal·lació?"
 
 #: src/install.rs:243
-#, fuzzy
 msgid "could not find .SRCINFO for '{}'"
 msgstr "no s'ha pogut trobar .SRINFO per a '{}'"
 
@@ -910,9 +892,8 @@ msgid "{}: parsing pkg list..."
 msgstr "{}: s'està analitzant la llista de paquets..."
 
 #: src/install.rs:512
-#, fuzzy
 msgid "package list does not match srcinfo"
-msgstr "no hi ha cap paquet que coincideixi amb la cerca"
+msgstr "la llista de paquets no coincideix amb srcinfo"
 
 #: src/install.rs:592
 msgid "{}-{} is up to date -- skipping build"
@@ -924,7 +905,7 @@ msgstr "s'està afegint {} a la llista d'instal·lació"
 
 #: src/install.rs:742
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr "No es pot construir {base}, dependències no satisfetes: {deps}"
+msgstr "no es pot construir {base}, les dependències no satisfetes són: {deps}"
 
 #: src/install.rs:809
 msgid "fetching devel info..."
@@ -949,7 +930,7 @@ msgstr "no es pot instal·lar el paquet de l'AUR com a root"
 
 #: src/install.rs:1054
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly no pot ser usat per a paquets de l'AUR"
 
 #: src/install.rs:1079
 msgid "Remove make dependencies after install?"
@@ -1038,7 +1019,7 @@ msgstr "fitxer binari: {}"
 
 #: src/install.rs:1655 src/install.rs:1713
 msgid "Accept changes?"
-msgstr ""
+msgstr "Accepteu els canvis?"
 
 #: src/install.rs:1717
 msgid " nothing new to review"
@@ -1058,25 +1039,24 @@ msgstr "{}-{} està actualitzat -- s'està ometent la instal·lació"
 
 #: src/install.rs:2178
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ""
+msgstr "Generant .SRCINFO per {repo}/{dir}..."
 
 #: src/install.rs:2226
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
-msgstr "no s'ha pogut analitzar «srcinfo» per a «{}»"
+msgstr "no s'ha pogut analitzar «srcinfo»"
 
 #: src/install.rs:2238
 msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-msgstr ""
+msgstr "el pkgbase {base} ja existeix al dipòsit {repo} -- s'omet) "
 
 #: src/install.rs:2267
 msgid "repo {} not downloaded (use -Sya to download)"
 msgstr ""
+"el dipòsit {} no s'ha descarregat (utilitzeu -Sya per a descarregar-lo)"
 
 #: src/install.rs:2284
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "l'opció '{}' no pren cap valor"
+msgstr "el dipòsit {} no disposa d'una URL o camí"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
@@ -1115,17 +1095,14 @@ msgid "  nothing to do"
 msgstr "  res a fer"
 
 #: src/repo.rs:240
-#, fuzzy
 msgid "there is nothing to do"
-msgstr "No hi ha res a fer"
+msgstr "no hi ha res a fer"
 
 #: src/repo.rs:246
-#, fuzzy
 msgid "Packages"
 msgstr "Paquets"
 
 #: src/repo.rs:259
-#, fuzzy
 msgid "Proceed with removal?"
 msgstr "Voleu continuar amb l'eliminació?"
 
@@ -1186,19 +1163,16 @@ msgid " [installed]"
 msgstr " [instal·lat]"
 
 #: src/upgrade.rs:127
-#, fuzzy
 msgid "Looking for AUR upgrades..."
 msgstr "Buscant actualitzacions a l'AUR..."
 
 #: src/upgrade.rs:153
-#, fuzzy
 msgid "Looking for devel upgrades..."
 msgstr "Buscant actualitzacions de paquets de desenvolupament..."
 
 #: src/upgrade.rs:185
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "Buscant actualitzacions a l'AUR..."
+msgstr "Buscant actualitzacions dels PKGBUILD..."
 
 #: src/upgrade.rs:215 src/upgrade.rs:228
 msgid "warning:"
@@ -1261,7 +1235,6 @@ msgstr ""
 "instal·lat"
 
 #: src/lib.rs:267
-#, fuzzy
 msgid "no operation specified (use -h for help)"
 msgstr "no s'ha especificat cap operació (useu -h per l'ajuda)"
 
