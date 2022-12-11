@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  1.11.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-11-24 02:00+0000\n"
-"PO-Revision-Date: 2022-12-04 13:11+0800\n"
+"PO-Revision-Date: 2022-12-11 23:08+0800\n"
 "Last-Translator: Puqns67 <me@puqns67.icu>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -428,7 +428,7 @@ msgstr "       --repo               假设目标来自存储库"
 #: src/help.rs:33
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --pkgbuilds         假设目标来自 pkgbuild 存储库"
+msgstr "       --pkgbuilds          假设目标来自 pkgbuild 存储库"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -436,7 +436,7 @@ msgstr "    -a --aur                假设目标来自AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr "    --mode      <mode>     设置 paru 寻找目标的位置"
+msgstr "    --mode      <mode>      设置 paru 寻找目标的位置"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -445,7 +445,7 @@ msgstr "    --aururl    <url>       设置备用 AUR 地址"
 #: src/help.rs:37
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aurrpcur  <url>      设置备用 AUR 地址或 RPC 端点"
+msgstr "    --aurrpcur  <url>       设置备用 AUR 地址或 RPC 端点"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -649,7 +649,7 @@ msgstr "    --develsuffixes         用于确定软件包是否为开发包的�
 
 #: src/help.rs:87
 msgid "    --ignoredevel          Ignore devel uprades for specified packages"
-msgstr "    --ignoredevel          忽略指定软件包的开发版更新"
+msgstr "    --ignoredevel           忽略指定软件包的开发版更新"
 
 #: src/help.rs:88
 msgid ""
@@ -1185,3 +1185,38 @@ msgstr "不适用的选项 (使用 -h 获取帮助)"
 #: src/lib.rs:442
 msgid " [installed: {}]"
 msgstr " [已安装: {}]"
+
+#~ msgid "upgrade specific options:"
+#~ msgstr "升级特定选项:"
+
+#, fuzzy
+#~ msgid "Looking for SRCINFO upgrades..."
+#~ msgstr "正在查找 SRCINFO 更新..."
+
+#~ msgid "error: unknown section '{}'"
+#~ msgstr "错误:未知的选项节 '{}'"
+
+#~ msgid "can't build package as root"
+#~ msgstr "无法以 root 身份构建软件包"
+
+#~ msgid "failed to download sources"
+#~ msgstr "未能下载源码"
+
+#~ msgid "failed to build"
+#~ msgstr "未能构建"
+
+#~ msgid "parsing pkg list..."
+#~ msgstr "正在解析软件包列表..."
+
+#~ msgid ""
+#~ "{} is a directory\n"
+#~ "\n"
+#~ msgstr ""
+#~ "{} 是一个目录\n"
+#~ "\n"
+
+#~ msgid "n"
+#~ msgstr "n"
+
+#~ msgid "no"
+#~ msgstr "no"
