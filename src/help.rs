@@ -84,7 +84,7 @@ pub fn help() {
     printtr!("    --localrepo            Build packages into a local repo");
     printtr!("    --nocheck              Don't resolve checkdepends or run the check function");
     printtr!("    --develsuffixes        Suffixes used to decide if a package is a devel package");
-    printtr!("    --ignoredevel          Ignore devel uprades for specified packages");
+    printtr!("    --ignoredevel          Ignore devel upgrades for specified packages");
     printtr!("    --bottomup             Shows AUR's packages first and then repository's");
     printtr!("    --topdown              Shows repository's packages first and then AUR's");
     println!();
