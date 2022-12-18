@@ -773,6 +773,10 @@ impl Config {
             aur_url,
         };
 
+        if self.mode == Mode::empty() {
+            self.mode = Mode::all();
+        }
+
         self.need_root = self.need_root();
 
         if self.repos != LocalRepos::None {
@@ -808,10 +812,6 @@ impl Config {
 
         if self.chroot {
             remove_var("PKGEXT");
-        }
-
-        if self.mode == Mode::empty() {
-            self.mode = Mode::all();
         }
 
         Ok(())
@@ -898,7 +898,7 @@ impl Config {
                 || args.has_arg("l", "list")
                 || args.has_arg("g", "groups")
                 || args.has_arg("i", "info")
-                || (args.has_arg("c", "clean") && self.mode != Mode::REPO));
+                || (args.has_arg("c", "clean") && !self.mode.repo()));
         } else if self.op == Op::Upgrade || self.op == Op::Build {
             return true;
         }
