@@ -212,7 +212,7 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-fn repo_pkgbuilds<'a>(config: &Config, pkgs: &[Targ<'a>]) -> Result<i32> {
+fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
     let db = config.alpm.syncdbs();
     let c = config.color;
     let mut r = 0;

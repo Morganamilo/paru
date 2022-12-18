@@ -327,12 +327,12 @@ impl Installer {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn dep_or_exp<'a>(
+    fn dep_or_exp(
         &mut self,
         config: &Config,
         base: &Base,
         version: &str,
-        pkg: &'a str,
+        pkg: &str,
         target: bool,
         make: bool,
         pkgdest: &mut HashMap<String, String>,
@@ -467,10 +467,10 @@ impl Installer {
         }
     }
 
-    fn build_pkgbuild<'a>(
+    fn build_pkgbuild(
         &mut self,
         config: &mut Config,
-        base: &'a mut Base,
+        base: &mut Base,
         repo: Option<(&str, &str)>,
         dir: &Path,
     ) -> Result<(HashMap<String, String>, String)> {
@@ -668,10 +668,10 @@ impl Installer {
         Ok((pkgdest, version))
     }
 
-    fn build_install_pkgbuild<'a>(
+    fn build_install_pkgbuild(
         &mut self,
         config: &mut Config,
-        base: &'a mut Base,
+        base: &mut Base,
         repo: Option<(&str, &str)>,
     ) -> Result<()> {
         let dir = match base {

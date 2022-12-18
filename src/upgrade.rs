@@ -171,9 +171,9 @@ pub async fn aur_upgrades<'res, 'conf>(
     )
 }
 
-fn custom_upgrades<'a, 'b>(
+fn custom_upgrades<'a>(
     config: &Config,
-    resolver: &mut Resolver<'a, 'b, RaurHandle>,
+    resolver: &mut Resolver<'a, '_, RaurHandle>,
     print: bool,
 ) -> Result<CustomUpdates<'a>> {
     if config.mode.pkgbuild() {
