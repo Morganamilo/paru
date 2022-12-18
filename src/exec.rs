@@ -218,12 +218,18 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
 
 pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
     let mut cmd = Command::new(&config.makepkg_bin);
+    if let Some(mconf) = &config.makepkg_conf {
+        cmd.arg("--config").arg(mconf);
+    }
     cmd.args(&config.mflags).args(args).current_dir(dir);
     command_status(&mut cmd)
 }
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
     let mut cmd = Command::new(&config.makepkg_bin);
+    if let Some(mconf) = &config.makepkg_conf {
+        cmd.arg("--config").arg(mconf);
+    }
     cmd.args(&config.mflags).args(args).current_dir(dir);
     command_output(&mut cmd)
 }
