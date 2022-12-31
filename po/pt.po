@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: paru  1.10.0\n"
+"Project-Id-Version: paru  1.11.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-11-24 02:00+0000\n"
-"PO-Revision-Date: 2022-08-10 12:13+0100\n"
+"PO-Revision-Date: 2022-12-31 22:26+0000\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <hugokarvalho@hotmail.com>\n"
 "Language: pt\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -83,13 +83,12 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "valor inválido '{val}' para chave '{key}', é esperado: {exp}"
 
 #: src/config.rs:323
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "opção desconhecida -{}"
+msgstr "modo desconhecido {}"
 
 #: src/config.rs:578
 msgid "section can not be called {}"
-msgstr ""
+msgstr "secção não pode ser chamada {}"
 
 #: src/config.rs:595
 msgid "failed to find cache directory"
@@ -100,9 +99,8 @@ msgid "failed to find config directory"
 msgstr "problema ao procurar o diretório de configuração"
 
 #: src/config.rs:601
-#, fuzzy
 msgid "failed to find state directory"
-msgstr "problema ao procurar o diretório de cache"
+msgstr "falha ao procurar diretório de estado"
 
 #: src/config.rs:639
 msgid "config file '{}' does not exist"
@@ -133,9 +131,8 @@ msgid "key can not be empty"
 msgstr "chave não pode ter um valor vazio"
 
 #: src/config.rs:952
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
-msgstr "erro: opção desconhecida '{}' na secção [bin]"
+msgstr "erro: opção desconhecida '{}' no repositório"
 
 #: src/config.rs:962
 msgid "key can not contain null bytes"
@@ -187,23 +184,20 @@ msgid "failed to save devel info"
 msgstr "problema ao guardar informações de desenvolvimento"
 
 #: src/devel.rs:204
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "problema ao procurar o diretório de cache"
+msgstr "falha ao criar diretório de estado: {}"
 
 #: src/devel.rs:219
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "problema ao executar gestor de ficheiros: {}"
+msgstr "falha ao criar ficheiro temporário: {}"
 
 #: src/devel.rs:224
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "problema ao ler diretório: {}"
+msgstr "falha ao gravar no ficheiro temporário: {}"
 
 #: src/devel.rs:230
 msgid "failed to rename '{temp}' to '{devel_json}"
-msgstr ""
+msgstr "falha ao renomear '{temp}' para '{devel_json}"
 
 #: src/devel.rs:439
 msgid "package does not have an update"
@@ -265,9 +259,8 @@ msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs atualizadas"
 
 #: src/download.rs:392
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "A transferir PKGBUILDs..."
+msgstr "A transferir repositórios PKGBUILD..."
 
 #: src/download.rs:588
 msgid "{} is not installed: can not get repo packages"
@@ -295,7 +288,7 @@ msgstr "Repo Make"
 
 #: src/fmt.rs:257
 msgid "Pkgbuilds Make"
-msgstr ""
+msgstr "Pkgbuilds Make"
 
 #: src/fmt.rs:259
 msgid "Aur Make"
@@ -311,7 +304,7 @@ msgstr "Aur ({})"
 
 #: src/fmt.rs:310
 msgid "Pkgbuilds ({})"
-msgstr ""
+msgstr "Pkgbuilds ({})"
 
 #: src/fmt.rs:312
 msgid "Old Version"
@@ -406,9 +399,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [package(s)]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [options]"
+msgstr "    paru {-B --build}       [dir(s)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -438,10 +430,11 @@ msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo              Assume que os alvos são dos repositórios"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --repo              Assume que os alvos são dos repositórios"
+msgstr ""
+"       --pkgbuilds              Assume que os alvos sejam de repositórios "
+"pkgbuild"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -449,17 +442,18 @@ msgstr "    -a --aur               Assume que os alvos são do AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>     Define onde o paru procura por alvos"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      Definir um URL alternativo do AUR"
 
 #: src/help.rs:37
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>      Definir um URL alternativo do AUR"
+msgstr ""
+"    --aurrpcur  <url>      Define um URL alternativo para o endpoint /rpc do "
+"AUR"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -699,11 +693,10 @@ msgstr ""
 "pacote de desenvolvimento"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel uprades for specified packages"
 msgstr ""
-"    --[no]provides         Procura fornecedores correspondentes ao procurar "
-"pacotes"
+"    --ignoredevel          Ignora atualizações devel para pacotes "
+"especificados"
 
 #: src/help.rs:88
 msgid ""
@@ -752,9 +745,8 @@ msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              Clonar pacote ao usar SSH"
 
 #: src/help.rs:101
-#, fuzzy
 msgid "Build specific options:"
-msgstr "opções específicas de getpkgbuild:"
+msgstr "Opções específicas de compilação:"
 
 #: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
@@ -850,12 +842,11 @@ msgstr "URL do Snapshot"
 
 #: src/info.rs:117 src/info.rs:229
 msgid "Path"
-msgstr ""
+msgstr "Caminho"
 
 #: src/install.rs:109
-#, fuzzy
 msgid "Generating .SRCINFO for {dir}..."
-msgstr "não foi possível encontrar um .SRCINFO para '{}'"
+msgstr "A gerar .SRCINFO para {dir}..."
 
 #: src/install.rs:118
 msgid "failed to parse srcinfo generated by makepkg"
@@ -937,7 +928,7 @@ msgstr "não é possível instalar o pacote AUR como root"
 
 #: src/install.rs:1054
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly não pode ser usado para pacotes AUR"
 
 #: src/install.rs:1079
 msgid "Remove make dependencies after install?"
@@ -1025,7 +1016,7 @@ msgstr "ficheiro binário: {}"
 
 #: src/install.rs:1655 src/install.rs:1713
 msgid "Accept changes?"
-msgstr ""
+msgstr "Aceitar alterações?"
 
 #: src/install.rs:1717
 msgid " nothing new to review"
@@ -1045,25 +1036,23 @@ msgstr "{}-{} está atualizado -- a ignorar instalação"
 
 #: src/install.rs:2178
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ""
+msgstr "A gerar .SRCINFO para {repo}/{dir}..."
 
 #: src/install.rs:2226
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
-msgstr "problema ao analisar srcinfo para '{}'"
+msgstr "falha ao analisar srcinfo \"{}\""
 
 #: src/install.rs:2238
 msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-msgstr ""
+msgstr "pkgbase {base} já existe no repositório {repo} -- a ignorar)"
 
 #: src/install.rs:2267
 msgid "repo {} not downloaded (use -Sya to download)"
-msgstr ""
+msgstr "repositório {} não transferido (use -Sya para transferir)"
 
 #: src/install.rs:2284
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "opção '{}' não aceita valores"
+msgstr "repositório {} não tem um URL ou caminho"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
@@ -1178,9 +1167,8 @@ msgid "Looking for devel upgrades..."
 msgstr "A procurar atualizações de desenvolvimento..."
 
 #: src/upgrade.rs:185
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "A procurar atualizações no AUR..."
+msgstr "A procurar por atualizações de PKGBUILD..."
 
 #: src/upgrade.rs:215 src/upgrade.rs:228
 msgid "warning:"
