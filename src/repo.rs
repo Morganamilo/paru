@@ -171,6 +171,20 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     let exe = current_exe().context(tr!("failed to get current exe"))?;
     let c = config.color;
 
+    let mut dbs = config.alpm.syncdbs().to_list_mut();
+    dbs.retain(|db| is_local_db(db));
+
+    if !repos.is_empty() {
+        dbs.retain(|db| repos.iter().any(|r| r.as_ref() == db.name()));
+    }
+
+    for db in dbs {
+        let path = file(&db);
+        if let Some(path) = path {
+            init(config, path, db.name())?;
+        }
+    }
+
     if !nix::unistd::getuid().is_root() && !cfg!(feature = "mock") {
         let mut cmd = Command::new(&config.sudo_bin);
 
