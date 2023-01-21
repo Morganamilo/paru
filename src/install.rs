@@ -573,6 +573,7 @@ impl Installer {
                 .with_context(|| tr!("failed to build '{}'", base))?;
         }
 
+        printtr!("{}: parsing pkg list...", base);
         let (pkgdest, version) = parse_package_list(config, dir)?;
 
         if !base.packages().all(|p| pkgdest.contains_key(p)) {
@@ -781,6 +782,7 @@ impl Installer {
         let (mut pkgdest, version) = if build {
             self.build_pkgbuild(config, base, repo, &dir)?
         } else {
+            printtr!("{}: parsing pkg list...", base);
             let (pkgdest, version) = parse_package_list(config, &dir)?;
             let debug_paths = self.debug_paths(config, base, &pkgdest)?;
             self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
@@ -2051,7 +2053,6 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
 }
 
 fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, String>, String)> {
-    printtr!("{}: parsing pkg list...", base);
     let output = exec::makepkg_output(config, dir, &["--packagelist"])?;
     let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
     let mut pkgdests = HashMap::new();
