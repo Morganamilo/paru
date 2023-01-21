@@ -781,6 +781,15 @@ impl Config {
 
         self.need_root = self.need_root();
 
+        if let LocalRepos::Repo(repos) = &self.repos {
+            let (_, db) = repo::repo_aur_dbs(self);
+            for repo in repos {
+                if !db.iter().any(|db| db.name() == repo) {
+                    bail!("{}", tr!("no local repo named {}", repo))
+                }
+            }
+        }
+
         if self.repos != LocalRepos::None {
             let repos = repo::repo_aur_dbs(self).1;
 
@@ -805,6 +814,7 @@ impl Config {
                 }
             }
         }
+
         self.no_warn = self.no_warn_builder.build()?;
         self.ignore_devel = self.ignore_devel_builder.build()?;
 
