@@ -467,50 +467,13 @@ impl Installer {
         }
     }
 
-    fn build_pkgbuild(
+    fn debug_paths(
         &mut self,
         config: &mut Config,
         base: &mut Base,
-        repo: Option<(&str, &str)>,
-        dir: &Path,
-    ) -> Result<(HashMap<String, String>, String)> {
+        pkgdest: &HashMap<String, String>,
+    ) -> Result<HashMap<String, String>> {
         let mut debug_paths = HashMap::new();
-        let c = config.color;
-
-        if config.chroot {
-            let mut extra = Vec::new();
-            if config.repos == LocalRepos::None {
-                extra.extend(self.built.iter().map(|s| s.as_str()));
-            }
-            self.chroot
-                .build(dir, &extra, &["-cu"], &["-ofA"])
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
-        } else {
-            // download sources
-            let mut args = vec!["--verifysource", "-Af"];
-            if !config.keep_src {
-                args.push("-Cc");
-            }
-            exec::makepkg(config, dir, &args)?
-                .success()
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
-
-            // pkgver bump
-            let mut args = vec!["-ofA"];
-            if !config.keep_src {
-                args.push("-C");
-            }
-            exec::makepkg(config, dir, &args)?
-                .success()
-                .with_context(|| tr!("failed to build '{}'", base))?;
-        }
-
-        printtr!("{}: parsing pkg list...", base);
-        let (pkgdest, version) = parse_package_list(config, dir)?;
-
-        if !base.packages().all(|p| pkgdest.contains_key(p)) {
-            bail!(tr!("package list does not match srcinfo"));
-        }
 
         if config.install_debug {
             for dest in pkgdest.values() {
@@ -559,6 +522,65 @@ impl Installer {
             }
         }
 
+        for (pkg, path) in &debug_paths {
+            if !Path::new(path).exists() {
+                match base {
+                    Base::Aur(base) => base.pkgs.retain(|p| p.pkg.name != *pkg),
+                    Base::Custom(base) => base.pkgs.retain(|p| p.pkg.pkgname != *pkg),
+                }
+            } else {
+                printtr!("adding {} to the install list", pkg);
+            }
+        }
+
+        Ok(debug_paths)
+    }
+
+    fn build_pkgbuild(
+        &mut self,
+        config: &mut Config,
+        base: &mut Base,
+        repo: Option<(&str, &str)>,
+        dir: &Path,
+    ) -> Result<(HashMap<String, String>, String)> {
+        let c = config.color;
+
+        if config.chroot {
+            let mut extra = Vec::new();
+            if config.repos == LocalRepos::None {
+                extra.extend(self.built.iter().map(|s| s.as_str()));
+            }
+            self.chroot
+                .build(dir, &extra, &["-cu"], &["-ofA"])
+                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+        } else {
+            // download sources
+            let mut args = vec!["--verifysource", "-Af"];
+            if !config.keep_src {
+                args.push("-Cc");
+            }
+            exec::makepkg(config, dir, &args)?
+                .success()
+                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+
+            // pkgver bump
+            let mut args = vec!["-ofA"];
+            if !config.keep_src {
+                args.push("-C");
+            }
+            exec::makepkg(config, dir, &args)?
+                .success()
+                .with_context(|| tr!("failed to build '{}'", base))?;
+        }
+
+        let (pkgdest, version) = parse_package_list(config, dir)?;
+
+        if !base.packages().all(|p| pkgdest.contains_key(p)) {
+            bail!(tr!("package list does not match srcinfo"));
+        }
+
+        let debug_paths = self.debug_paths(config, base, &pkgdest)?;
+
         let needs_build = needs_build(config, base, &pkgdest, &version);
         if needs_build {
             // actual build
@@ -596,24 +618,56 @@ impl Installer {
             )
         }
 
-        for (pkg, path) in &debug_paths {
-            if !Path::new(path).exists() {
-                match base {
-                    Base::Aur(base) => base.pkgs.retain(|p| p.pkg.name != *pkg),
-                    Base::Custom(base) => base.pkgs.retain(|p| p.pkg.pkgname != *pkg),
-                }
-            } else {
-                printtr!("adding {} to the install list", pkg);
-            }
-        }
+        self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
+        self.to_install(base, &pkgdest, &debug_paths);
+        Ok((pkgdest, version))
+    }
 
+    fn to_install(
+        &mut self,
+        base: &mut Base,
+        pkgdest: &HashMap<String, String>,
+        debug_paths: &HashMap<String, String>,
+    ) {
+        let to_install: Vec<_> = match base {
+            Base::Aur(a) => a
+                .pkgs
+                .iter()
+                .filter(|a| !a.make)
+                .map(|a| a.pkg.name.as_str())
+                .collect(),
+            Base::Custom(c) => c
+                .pkgs
+                .iter()
+                .filter(|c| !c.make)
+                .map(|a| a.pkg.pkgname.as_str())
+                .collect(),
+        };
+
+        let to_install = to_install
+            .iter()
+            .filter_map(|p| pkgdest.get(*p))
+            .chain(debug_paths.values())
+            .cloned();
+
+        self.built.extend(to_install);
+    }
+
+    fn add_pkg(
+        &mut self,
+        config: &mut Config,
+        base: &mut Base,
+        repo: Option<(&str, &str)>,
+        pkgdest: &HashMap<String, String>,
+        debug_paths: &HashMap<String, String>,
+    ) -> Result<()> {
         let paths = base
             .packages()
             .filter_map(|p| pkgdest.get(p))
             .chain(debug_paths.values())
             .map(|s| s.as_str())
             .collect::<Vec<_>>();
-        sign_pkg(config, &paths, needs_build)?;
+        sign_pkg(config, &paths, false)?;
 
         if let Some(ref repo) = repo {
             if let Some(repo) = self.upgrades.aur_repos.get(base.package_base()) {
@@ -643,29 +697,8 @@ impl Installer {
                 save_devel_info(config, &self.devel_info)?;
             }
         }
-        let to_install: Vec<_> = match base {
-            Base::Aur(a) => a
-                .pkgs
-                .iter()
-                .filter(|a| !a.make)
-                .map(|a| a.pkg.name.as_str())
-                .collect(),
-            Base::Custom(c) => c
-                .pkgs
-                .iter()
-                .filter(|c| !c.make)
-                .map(|a| a.pkg.pkgname.as_str())
-                .collect(),
-        };
 
-        let to_install = to_install
-            .iter()
-            .filter_map(|p| pkgdest.get(*p))
-            .chain(debug_paths.values())
-            .cloned();
-
-        self.built.extend(to_install);
-        Ok((pkgdest, version))
+        Ok(())
     }
 
     fn build_install_pkgbuild(
@@ -748,7 +781,11 @@ impl Installer {
         let (mut pkgdest, version) = if build {
             self.build_pkgbuild(config, base, repo, &dir)?
         } else {
-            parse_package_list(config, &dir)?
+            let (pkgdest, version) = parse_package_list(config, &dir)?;
+            let debug_paths = self.debug_paths(config, base, &pkgdest)?;
+            self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
+            self.to_install(base, &pkgdest, &debug_paths);
+            (pkgdest, version)
         };
 
         match &*base {
@@ -2014,6 +2051,7 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
 }
 
 fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, String>, String)> {
+    printtr!("{}: parsing pkg list...", base);
     let output = exec::makepkg_output(config, dir, &["--packagelist"])?;
     let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
     let mut pkgdests = HashMap::new();
