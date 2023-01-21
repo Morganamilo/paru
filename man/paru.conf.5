@@ -37,9 +37,26 @@ Note that dependency resolving will still act normally and include repository
 packages.
 
 .TP
+.B PkgbuildsOnly
+Assume all targets are from PKGBUILD repositories. Additionally, actions such as
+sysupgrade will only act on PKGBUILD repository packages.
+
+Note that dependency resolving will still act normally and include repository
+and AUR packages.
+
+.TP
 .B RepoOnly
 Assume all targets are from the repositories. Additionally, actions such as
 sysupgrade will only act on repository packages.
+
+.TP
+.B Mode = aur|repo|pkgbuilds
+Select what kinds of packages paru should act on. Multiple modes can be selected
+by seperating them with a comma.
+
+Additionally, a, r and p may be used as short hand for aur, repo and pkgbuilds respectivly.
+Short form modes can also be combined without a comma.
+E.g. \fBMode = ar\fR or \fBMode = arp\fR.
 
 .TP
 .B SudoLoop [= args...]
@@ -67,6 +84,11 @@ compared against the hash at install time. This allows devel updates to be
 checked almost instantly and not require the original PKGBUILD to be downloaded.
 
 .TP
+.B IgnoreDevel
+Like IgnorePkg but for devel upgrades. Packages matching this will not be tried for a
+devel update but may still be upgraded if the pkgver changes.
+
+.TP
 .B CleanAfter
 Remove untracked files after installation.
 
@@ -75,10 +97,13 @@ This allows VCS packages to easily pull an update
 instead of having to reclone the entire repo.
 
 .TP
-.B Provides
+.B Provides [= all]
 Look for matching providers when searching for AUR packages. When multiple
 providers are found a menu will appear prompting you to pick one. This
 increases dependency resolve time although this should not be noticeable.
+
+By default only targets and missing packages will be searched for providers.
+Specifying all will enable this for all packages.
 
 .TP
 .B PgpFetch
@@ -134,9 +159,10 @@ Always download PKGBUILDs of targets even when a copy is available in cache. If
 set to all then this applies to all packages, not only targets.
 
 .TP
-.B Rebuild [= all]
+.B Rebuild [= all, tree]
 Always build target packages even when a copy is available in cache. If set to
-all, then all packages are rebuilt, not only targets.
+all, then all packages are rebuilt, not only targets. If set to tree, the whole
+dependency tree is rebuilt, including already satisfied dependencies.
 
 .TP
 .B RemoveMake [= ask]
@@ -281,7 +307,7 @@ This enables fm review mode, where PKGBUILD review is done using the file
 manager specified by command.
 
 This allows the PKGBUILDs and related files to be edited. Changes won't
-persist unless commited.
+persist unless committed.
 
 .TP
 .B MFlags = Flags...
@@ -340,3 +366,42 @@ Set environment variables.
 .TP
 .B Key = Value
 Sets the environment variable Key to Value.
+
+
+.SH PKGBUILD REPOSITORY SECTION
+PKGBUILD repositories can be defined by adding a [reponame] section, where reponame
+is the name of the repository you wish to add.
+
+A PKGBUILD repository acts very much like the AUR in terms of package installation
+and upgrades. Packages in PKGBUILD repositories also take priority over the AUR so
+may be used to mask packages.
+
+The layout of a PKGBUILD repository is simply a directory that contains PKGBUILDs.
+Paru will recursively scan a repository for PKGBUILDs, up to 3 levels by default.
+
+Paru will refresh PKGBUILD repositories when it refreshes repository databases.
+Refreshing just PKGBUILD repositories can be done with \fBparu -Sya\fR.
+
+.TP
+.B URL = https://path/to/repo
+Git URL to the PKGBUILD repository. File paths may be used to point to git repos on
+disk.
+
+.TP
+.B Path = /path/to/repo
+Can be used as an alternative to \fBURL\fR to point to a PKGBUILD repository on disk.
+Unlike using a URL path, changes to this directory are propigated to paru immediately
+and not on \fBparu -Sya\fR. There is also no review step for this kind of repository.
+
+.TP
+.B Depth = N
+The search depth for PKGBUILD scanning.
+
+.TP
+.B SkipReview
+Skip review for this repository.
+
+.TP
+.B GenerateSrcinfo
+Force regeneration of the .SRCINFO file even if it exists on disk. This is useful for
+repositories that forget to update their .SRCINFO files.

@@ -35,9 +35,8 @@ Downloads PKGBUILDs from the ABS or AUR. The ABS can only be used for Arch
 Linux repositories.
 
 .TP
-.B \-U, \-\-upgrade
-When run without targets, like makepkg, builds a PKGBUILD in the current directory.
-
+.B \-B, \-\-build
+Build PKGBUILDs on disk. Targets are directories directly containing a PKGBUILD.
 
 .TP
 .B \-L, \-\-repoctl
@@ -231,7 +230,7 @@ Install a package into the chroot.
 .B \-u, \-\-sysupgrade
 Upgrade the chroot.
 
-.SH UPGRADE OPTIONS (APPLY TO \-U AND \-\-UPGRADE)
+.SH BUILD OPTIONS (APPLY TO \-B AND \-\-BUILD)
 .TP
 .B \-i, \-\-install
 Also install the package once built.
@@ -248,6 +247,22 @@ Assume all targets are from the AUR. Additionally, actions such as
 sysupgrade will only act on AUR packages.
 
 Note that dependency resolution will still include repository packages.
+
+.TP
+.B \--pkgbuilds
+Assume all targets are from the PKGBUILD repositories. Additionally,
+actions such as sysupgrade will only act on AUR packages.
+
+Note that dependency resolution will still include repositoryi and AUR packages.
+
+.TP
+.B \-\-mode = aur|repo|pkgbuilds
+Select what kinds of packages paru should act on. Multiple modes can be selected
+by seperating them with a comma.
+
+Additionally, a, r and p may be used as short hand for aur, repo and pkgbuilds respectivly.
+Short form modes can also be combined without a comma.
+E.g. \fB--mode=ar\fR or \fB--mode=arp\fR.
 
 .TP
 .B \-\-aururl
@@ -447,6 +462,11 @@ The slower pacaur-like devel checks can be implemented manually by piping
 a list of packages into paru (see \fBexamples\fR).
 
 .TP
+.B \-\-ignoredevel
+Like --ignore but for devel upgrades. Packages matching this will not be tried for a
+devel update but may still be upgraded if the pkgver changes.
+
+.TP
 .B \-\-nodevel
 Do not check for development packages updates during sysupgrade.
 
@@ -483,6 +503,9 @@ newer than the AUR's version use that instead of downloading a new one.
 Look for matching providers when searching for AUR packages. When multiple
 providers are found a menu will appear prompting you to pick one. This
 increases dependency resolve time although this should not be noticeable.
+
+By default only targets and missing packages will be searched for providers.
+Specifying all will enable this for all packages.
 
 .TP
 .B \-\-noprovides
@@ -573,9 +596,11 @@ another package, install all the packages in the install queue.
 Always install AUR packages immediately after building them.
 
 .TP
-.B \-\-rebuild [yes|no|all]
+.B \-\-rebuild [yes|no|all|tree]
 Always build target packages even when a copy is available in cache. If all is
-selected then all packages are rebuilt, not only targets. Defaults to no.
+selected then all packages are rebuilt, not only targets. If tree is selected then
+the whole dependency tree is rebuilt, including already satisfied dependencies.
+Defaults to no.
 
 .TP
 .B \-\-norebuild
@@ -670,6 +695,9 @@ Gets information about package \fIfoo\fR from the repos or the \fBAUR\fR.
 paru \-S \fIfoo\fR \-\-mflags "\-\-skipchecksums \-\-skippgpcheck"
 Installs \fIfoo\fR while skipping checksums and PGP checks.
 
+.TP paru \-B .
+Build PKGBUILD in current directory.
+
 .TP
 pacman -Qmq | grep -Ee '-(cvs|svn|git|hg|bzr|darcs)$' | paru -Ta - | paru -S --needed -
 pacaur-like devel check.
@@ -710,6 +738,12 @@ The cache directory is \fI$XDG_CACHE_HOME/paru/\fR. If
 
 \fIpackages.aur\fR holds a list of of all AUR packages for shell
 completion. By default the completion files are refreshed every 7 days.
+
+.TP
+.B STATE DIRECTORY
+The state directory is \fI$XDG_STATE_HOME/paru/\fR. If
+\fB$XDG_STATE_HOME\fR is unset, the state directory will fall back to
+\fI$HOME/.local/state/paru\fR.
 
 \fIdevel.json\fR tracks VCS packages and the latest commit of each source. If
 any of these commits change the package will be upgraded during a devel update.
