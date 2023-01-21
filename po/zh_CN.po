@@ -5,25 +5,25 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: paru  1.9.2\n"
+"Project-Id-Version: paru  1.11.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-11-24 02:00+0000\n"
-"PO-Revision-Date: 2022-10-27 18:40+0800\n"
-"Last-Translator: Yumeoto Zorin <zorin@zorin.icu>\n"
+"PO-Revision-Date: 2022-12-11 23:08+0800\n"
+"Last-Translator: Puqns67 <me@puqns67.icu>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.1\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "你想要从缓存中清除所有 AUR 包吗？"
+msgstr "你想要从缓存中清除所有 AUR 软件包吗？"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "你想要从缓存中清除所有其他的 AUR 包吗？"
+msgstr "你想要从缓存中清除所有其他的 AUR 软件包吗？"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -82,9 +82,8 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "'{val}' 不是键 '{key}' 的合法值，期望值为: {exp}"
 
 #: src/config.rs:323
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "未知的选项 -{}"
+msgstr "未知的模式 {}"
 
 #: src/config.rs:578
 msgid "section can not be called {}"
@@ -99,9 +98,8 @@ msgid "failed to find config directory"
 msgstr "未能找到配置目录"
 
 #: src/config.rs:601
-#, fuzzy
 msgid "failed to find state directory"
-msgstr "未能找到缓存目录"
+msgstr "未能找到状态目录"
 
 #: src/config.rs:639
 msgid "config file '{}' does not exist"
@@ -132,7 +130,6 @@ msgid "key can not be empty"
 msgstr "键不能为空"
 
 #: src/config.rs:952
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "错误: 软件库中有未知的选项 '{}'"
 
@@ -186,23 +183,20 @@ msgid "failed to save devel info"
 msgstr "未能保存开发版信息"
 
 #: src/devel.rs:204
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "未能找到缓存目录"
+msgstr "未能创建状态目录: {}"
 
 #: src/devel.rs:219
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "未能运行文件管理器: {}"
+msgstr "未能创建临时文件: {}"
 
 #: src/devel.rs:224
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "未能读取目录: {}"
+msgstr "未能写入至临时文件: {}"
 
 #: src/devel.rs:230
 msgid "failed to rename '{temp}' to '{devel_json}"
-msgstr ""
+msgstr "未能将 '{temp}' 重命名为 '{devel_json}"
 
 #: src/devel.rs:439
 msgid "package does not have an update"
@@ -238,7 +232,7 @@ msgstr "无法获取软件库中的包: 需要安装 asp"
 
 #: src/download.rs:245
 msgid "Missing ABS packages "
-msgstr "缺失 ABS 包 "
+msgstr "缺失 ABS 软件包 "
 
 #: src/download.rs:264 src/download.rs:290 src/download.rs:598
 #: src/download.rs:611 src/download.rs:625 src/exec.rs:83 src/install.rs:1613
@@ -252,7 +246,7 @@ msgstr "不包含 PKGBUILD: 正在跳过"
 
 #: src/download.rs:309
 msgid "downloading: {pkg}"
-msgstr "正在下载 {pkg}"
+msgstr "正在下载: {pkg}"
 
 #: src/download.rs:331
 msgid "Downloading PKGBUILDs..."
@@ -263,9 +257,8 @@ msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD 都已是最新版本"
 
 #: src/download.rs:392
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "正在下载 PKGBUILD..."
+msgstr "正在下载 PKGBUILD 仓库..."
 
 #: src/download.rs:588
 msgid "{} is not installed: can not get repo packages"
@@ -289,27 +282,27 @@ msgstr "软件库"
 
 #: src/fmt.rs:237
 msgid "Repo Make"
-msgstr "软件库（生成依赖）"
+msgstr "软件库 (生成依赖)"
 
 #: src/fmt.rs:257
 msgid "Pkgbuilds Make"
-msgstr "PKGBUILD（生成依赖）"
+msgstr "PKGBUILD (生成依赖)"
 
 #: src/fmt.rs:259
 msgid "Aur Make"
-msgstr "AUR（生成依赖）"
+msgstr "AUR (生成依赖)"
 
 #: src/fmt.rs:304
 msgid "Repo ({})"
-msgstr "软件库（{}）"
+msgstr "软件库 ({})"
 
 #: src/fmt.rs:309
 msgid "Aur ({})"
-msgstr "Aur（{}）"
+msgstr "Aur ({})"
 
 #: src/fmt.rs:310
 msgid "Pkgbuilds ({})"
-msgstr "PKGBUILD（{}）"
+msgstr "PKGBUILD ({})"
 
 #: src/fmt.rs:312
 msgid "Old Version"
@@ -404,9 +397,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [软件包]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [选项]"
+msgstr "    paru {-B --build}       [目录]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -434,10 +426,9 @@ msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo               假设目标来自存储库"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --repo               假设目标来自存储库"
+msgstr "       --pkgbuilds          假设目标来自 pkgbuild 存储库"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -445,17 +436,16 @@ msgstr "    -a --aur                假设目标来自AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>      设置 paru 寻找目标的位置"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>       设置备用 AUR 地址"
 
 #: src/help.rs:37
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>       设置备用 AUR 地址 或 RPC 端点"
+msgstr "    --aurrpcur  <url>       设置备用 AUR 地址或 RPC 端点"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -528,7 +518,7 @@ msgstr "    --sortby    <field>     在搜索过程中按特定字段对 AUR 结
 
 #: src/help.rs:57
 msgid "    --searchby  <field>    Search for packages using a specified field"
-msgstr "    --searchby  <field>     使用指定字段搜索包"
+msgstr "    --searchby  <field>     使用指定字段搜索软件包"
 
 #: src/help.rs:58
 msgid ""
@@ -596,7 +586,7 @@ msgstr "    --[no]combinedupgrade   刷新，然后一起执行存储库和 AUR 
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
-msgstr "    --[no]batchinstall      构建多个AUR包，然后安装"
+msgstr "    --[no]batchinstall      构建多个 AUR 软件包，然后安装"
 
 #: src/help.rs:75
 msgid ""
@@ -655,22 +645,23 @@ msgstr "    --nocheck               不解决依赖项或运行检查功能"
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
-msgstr "    --develsuffixes         用于确定包是否为开发包的后缀"
+msgstr "    --develsuffixes         用于确定软件包是否为开发包的后缀"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel uprades for specified packages"
-msgstr "    --[no]provides          在搜索时查找匹配的提供者"
+msgstr "    --ignoredevel           忽略指定软件包的开发版更新"
 
 #: src/help.rs:88
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
-msgstr "    --bottomup              首先显示 AUR 包，然后显示存储库的包"
+msgstr ""
+"    --bottomup              首先显示 AUR 中的软件包，然后显示存储库中的软件包"
 
 #: src/help.rs:89
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
-msgstr "    --topdown               首先显示存储库的包，然后显示 AUR 的包"
+msgstr ""
+"    --topdown               首先显示存储库中的软件包，然后显示 AUR 中的软件包"
 
 #: src/help.rs:91
 msgid "show specific options:"
@@ -705,9 +696,8 @@ msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh                使用 SSH 克隆软件包"
 
 #: src/help.rs:101
-#, fuzzy
 msgid "Build specific options:"
-msgstr "获取 PKGBUILD 特定选项："
+msgstr "构建特定选项:"
 
 #: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
@@ -806,9 +796,8 @@ msgid "Path"
 msgstr "路径"
 
 #: src/install.rs:109
-#, fuzzy
 msgid "Generating .SRCINFO for {dir}..."
-msgstr "正在为 {repo}/{dir} 生成 .SRCINFO..."
+msgstr "正在为 {dir} 生成 .SRCINFO..."
 
 #: src/install.rs:118
 msgid "failed to parse srcinfo generated by makepkg"
@@ -852,7 +841,7 @@ msgstr "{}: 正在解析软件包列表..."
 
 #: src/install.rs:512
 msgid "package list does not match srcinfo"
-msgstr "包列表与 srcinfo 不匹配"
+msgstr "软件包列表与 srcinfo 不匹配"
 
 #: src/install.rs:592
 msgid "{}-{} is up to date -- skipping build"
@@ -885,11 +874,11 @@ msgstr "正在解析依赖关系..."
 
 #: src/install.rs:1051
 msgid "can't install AUR package as root"
-msgstr "无法以 root 身份安装 AUR 包"
+msgstr "无法以 root 身份安装 AUR 软件包"
 
 #: src/install.rs:1054
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly 参数不可用于 AUR 软件包"
 
 #: src/install.rs:1079
 msgid "Remove make dependencies after install?"
@@ -1000,22 +989,20 @@ msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr "正在为 {repo}/{dir} 生成 .SRCINFO..."
 
 #: src/install.rs:2226
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
-msgstr "未能解析 '{}' 的 srcinfo"
+msgstr "未能解析 srcinfo \"{}\""
 
 #: src/install.rs:2238
 msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-msgstr "软件包组 {base} 在软件库 {repo} 中已经存在 -- 跳过安装"
+msgstr "软件包组 {base} 在软件库 {repo} 中已经存在 -- 跳过安装)"
 
 #: src/install.rs:2267
 msgid "repo {} not downloaded (use -Sya to download)"
-msgstr "软件库 {} 没有被下载 （使用 -Sya 下载）"
+msgstr "软件库 {} 没有被下载 (使用 -Sya 下载)"
 
 #: src/install.rs:2284
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "软件库 '{}' 缺少 URL 或路径"
+msgstr "软件库 {} 不存在 URL 或路径"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
@@ -1091,23 +1078,23 @@ msgstr "没有符合搜索条件的软件包"
 
 #: src/search.rs:443
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "需要安装的包 (例如: 1 2 3, 1-3):"
+msgstr "需要安装的软件包 (例如: 1 2 3, 1-3):"
 
 #: src/stats.rs:83
 msgid "Total installed packages: {}"
-msgstr "共安装包: {}"
+msgstr "共安装软件包: {}"
 
 #: src/stats.rs:87
 msgid "Aur packages: {}"
-msgstr "AUR 包: {}"
+msgstr "AUR 软件包: {}"
 
 #: src/stats.rs:91
 msgid "Repo packages: {}"
-msgstr "软件库包: {}"
+msgstr "软件库软件包: {}"
 
 #: src/stats.rs:95
 msgid "Explicitly installed packages: {}"
-msgstr "单独指定安装的包: {}"
+msgstr "单独指定安装的软件包: {}"
 
 #: src/stats.rs:99
 msgid "Total Size occupied by packages: {}"
@@ -1115,7 +1102,7 @@ msgstr "软件包共占用空间: {}"
 
 #: src/stats.rs:106
 msgid "Ten biggest packages:"
-msgstr "最大的十个包:"
+msgstr "最大的十个软件包:"
 
 #: src/sync.rs:159 src/lib.rs:444
 msgid " [installed]"
@@ -1130,9 +1117,8 @@ msgid "Looking for devel upgrades..."
 msgstr "正在查找开发版更新..."
 
 #: src/upgrade.rs:185
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "正在查找 AUR 更新..."
+msgstr "正在查找 PKGBUILD 更新..."
 
 #: src/upgrade.rs:215 src/upgrade.rs:228
 msgid "warning:"
@@ -1190,7 +1176,7 @@ msgstr ""
 
 #: src/lib.rs:171
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "无法使用 chroot 构建: 需要安装 devtools"
+msgstr "无法使用 chroot 构建: devtools 未安装"
 
 #: src/lib.rs:267
 msgid "no operation specified (use -h for help)"
