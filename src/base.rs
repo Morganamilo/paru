@@ -41,7 +41,7 @@ pub struct AurBase {
 }
 
 /// A package base.
-/// This descripes  packages that should be built then installed.
+/// This describes  packages that should be built then installed.
 #[derive(Debug, Eq, Clone, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Base {
     /// Aur packages.
@@ -144,7 +144,7 @@ impl Base {
         }
     }
 
-    /// Ammount of packages in this base.
+    /// Amount of packages in this base.
     pub fn package_count(&self) -> usize {
         match self {
             Base::Aur(base) => base.pkgs.len(),

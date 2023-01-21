@@ -397,7 +397,7 @@ Rebuild for openssl 3
 ### Changed
 
 - Show all files in review 9830c74
-- Skip review prompt when nothign to review 2a5e441
+- Skip review prompt when nothing to review 2a5e441
 - Improve local repo documentation 
 
 
@@ -495,7 +495,7 @@ Rebuild for openssl 3
 ### Fixed
 
 - Don't try to remove packages with -c when nothing to remove d3c668e
-- Fix error if running `-Sy` with no tagets 95f5681
+- Fix error if running `-Sy` with no targets 95f5681
 - Hide warnings for debug packages b3e0fe0
 - Don't try to install non existing devel packages 5e910d9
 - Fix clean checking for wrong file type e9a260e
@@ -525,7 +525,7 @@ Rebuild for openssl 3
 - Fix diffs breaking with `--cleanafter` 0b66f9c
 - Fix provider menu formatting d7f100a
 - Fix devel not handling split packages properly a9f47ea
-- Fix rouge "info" object in devel.json d434467
+- Fix rogue "info" object in devel.json d434467
 - Fix version compare 30da3bd
 
 ### Added
