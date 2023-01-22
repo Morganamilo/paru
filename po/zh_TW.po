@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2022-11-24 02:00+0000\n"
+"POT-Creation-Date: 2023-01-22 05:05+0000\n"
 "PO-Revision-Date: 2022-06-28 07:22+0800\n"
 "Last-Translator: Jeff Huang <s8321414@gmail.com>\n"
 "Language-Team: Chinese <zh-l10n@lists.slat.org>\n"
@@ -57,15 +57,15 @@ msgstr "無法開啟再製目錄： {}"
 msgid "option {} expects a value"
 msgstr "選項 {} 預期值"
 
-#: src/command_line.rs:165 src/command_line.rs:369
+#: src/command_line.rs:165 src/command_line.rs:371
 msgid "option {} does not allow a value"
 msgstr "選項 {} 不允許值"
 
-#: src/command_line.rs:360
+#: src/command_line.rs:362
 msgid "unknown option --{}"
 msgstr "未知的選項 --{}"
 
-#: src/command_line.rs:363
+#: src/command_line.rs:365
 msgid "unknown option -{}"
 msgstr "未知的選項 -{}"
 
@@ -81,91 +81,95 @@ msgstr "無法更新 aur 快取"
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "鍵「{key}」有無效值「{val}」，預期： {exp}"
 
-#: src/config.rs:323
+#: src/config.rs:328
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "未知的選項 -{}"
 
-#: src/config.rs:578
+#: src/config.rs:585
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:595
+#: src/config.rs:602
 msgid "failed to find cache directory"
 msgstr "尋找快取目錄失敗"
 
-#: src/config.rs:598
+#: src/config.rs:605
 msgid "failed to find config directory"
 msgstr "尋找設定目錄失敗"
 
-#: src/config.rs:601
+#: src/config.rs:608
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "尋找快取目錄失敗"
 
-#: src/config.rs:639
+#: src/config.rs:646
 msgid "config file '{}' does not exist"
 msgstr "設定檔「{}」不存在"
 
-#: src/config.rs:688
+#: src/config.rs:695
 msgid "only one operation may be used at a time"
 msgstr "一次只能使用一種操作"
 
-#: src/config.rs:791
+#: src/config.rs:788
+msgid "no local repo named {}"
+msgstr ""
+
+#: src/config.rs:811
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "在 pacman.conf 中找不到本機軟體庫「{}」"
 
-#: src/config.rs:833
+#: src/config.rs:850
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "初始化 alpm 失敗：root={} dbpath={}"
 
-#: src/config.rs:908 src/config.rs:1070
+#: src/config.rs:925 src/config.rs:1087
 msgid "value can not be empty for key '{}'"
 msgstr "鍵「{}」的值不能為空"
 
-#: src/config.rs:924
+#: src/config.rs:941
 msgid "key '{}' does not belong to a section"
 msgstr "鍵「{}」不屬於某個部份"
 
-#: src/config.rs:938 src/config.rs:959 src/config.rs:961 src/config.rs:975
+#: src/config.rs:955 src/config.rs:976 src/config.rs:978 src/config.rs:992
 msgid "key can not be empty"
 msgstr "鍵不能為空"
 
-#: src/config.rs:952
+#: src/config.rs:969
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "錯誤：在 [bin] 部份中有未知選項「{}」"
 
-#: src/config.rs:962
+#: src/config.rs:979
 msgid "key can not contain null bytes"
 msgstr "鍵不能包含空的位元組"
 
-#: src/config.rs:965
+#: src/config.rs:982
 msgid "value can not contain null bytes"
 msgstr "值不能包含空的位元組"
 
-#: src/config.rs:998
+#: src/config.rs:1015
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "錯誤：在 [bin] 部份中有未知選項「{}」"
 
-#: src/config.rs:1110
+#: src/config.rs:1127
 msgid "error: unknown option '{}' in section [options]"
 msgstr "錯誤：在 [options] 部份中有未知選項「{}」"
 
-#: src/config.rs:1115
+#: src/config.rs:1132
 msgid "option '{}' does not take a value"
 msgstr "選項「{}」沒有值"
 
-#: src/config.rs:1159 src/resolver.rs:133
+#: src/config.rs:1176 src/resolver.rs:134
 msgid "There are {n} providers available for {pkg}:"
 msgstr "有 {n} 個軟體包提供了 {pkg}："
 
-#: src/config.rs:1173 src/info.rs:95 src/info.rs:216 src/info.rs:250
-#: src/resolver.rs:92 src/resolver.rs:141
+#: src/config.rs:1190 src/info.rs:95 src/info.rs:216 src/info.rs:250
+#: src/resolver.rs:93 src/resolver.rs:142
 msgid "Repository"
 msgstr "軟體庫"
 
-#: src/config.rs:1199
+#: src/config.rs:1216
 msgid "  failed to sync {}"
 msgstr "  同步 {} 失敗"
 
@@ -241,8 +245,8 @@ msgid "Missing ABS packages "
 msgstr "缺少 ABS 軟體包 "
 
 #: src/download.rs:264 src/download.rs:290 src/download.rs:598
-#: src/download.rs:611 src/download.rs:625 src/exec.rs:83 src/install.rs:1613
-#: src/install.rs:1687 src/install.rs:1710
+#: src/download.rs:611 src/download.rs:625 src/exec.rs:83 src/install.rs:1652
+#: src/install.rs:1726 src/install.rs:1749
 msgid "failed to run:"
 msgstr "執行失敗："
 
@@ -659,7 +663,7 @@ msgstr "    --develsuffixes        用於決定軟體包是否為開發軟體包
 
 #: src/help.rs:87
 #, fuzzy
-msgid "    --ignoredevel          Ignore devel uprades for specified packages"
+msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr "    --[no]provides         在搜尋軟體包時尋找相符的提供者"
 
 #: src/help.rs:88
@@ -822,7 +826,7 @@ msgstr "錯誤："
 msgid "could not get news"
 msgstr "無法取得新聞"
 
-#: src/install.rs:208 src/install.rs:1093
+#: src/install.rs:208 src/install.rs:1132
 msgid "Proceed with installation?"
 msgstr "繼續安裝？"
 
@@ -838,88 +842,88 @@ msgstr "在「{base}」的軟體包清單中找不到軟體包「{pkg}」"
 msgid "packages failed to build: {}"
 msgstr "建置軟體包失敗：{}"
 
-#: src/install.rs:487 src/install.rs:496
-msgid "failed to download sources for '{}'"
-msgstr "下載「{}」來源失敗"
-
-#: src/install.rs:505 src/install.rs:577 src/install.rs:585
-msgid "failed to build '{}'"
-msgstr "建置「{}」失敗"
-
-#: src/install.rs:508
-msgid "{}: parsing pkg list..."
-msgstr "{}：正在解析軟體包清單……"
-
-#: src/install.rs:512
-msgid "package list does not match srcinfo"
-msgstr "軟體包清單不符合 srcinfo"
-
-#: src/install.rs:592
-msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} 已為最新 -- 略過建置步驟"
-
-#: src/install.rs:606
+#: src/install.rs:532
 msgid "adding {} to the install list"
 msgstr "正在新增 {} 至安裝清單"
 
-#: src/install.rs:742
+#: src/install.rs:555 src/install.rs:564
+msgid "failed to download sources for '{}'"
+msgstr "下載「{}」來源失敗"
+
+#: src/install.rs:573 src/install.rs:600 src/install.rs:608
+msgid "failed to build '{}'"
+msgstr "建置「{}」失敗"
+
+#: src/install.rs:576 src/install.rs:785
+msgid "{}: parsing pkg list..."
+msgstr "{}：正在解析軟體包清單……"
+
+#: src/install.rs:580
+msgid "package list does not match srcinfo"
+msgstr "軟體包清單不符合 srcinfo"
+
+#: src/install.rs:615
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} 已為最新 -- 略過建置步驟"
+
+#: src/install.rs:776
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "無法建構 {base}，並未滿足以下依賴關係： {deps}"
 
-#: src/install.rs:809
+#: src/install.rs:848
 msgid "fetching devel info..."
 msgstr "正在擷取開發資訊……"
 
-#: src/install.rs:878 src/lib.rs:205
+#: src/install.rs:917 src/lib.rs:205
 msgid "no targets specified (use -h for help)"
 msgstr "未指定目標（使用 -h 以取得說明）"
 
-#: src/install.rs:995 src/install.rs:1063 src/search.rs:446 src/search.rs:484
+#: src/install.rs:1034 src/install.rs:1102 src/search.rs:446 src/search.rs:484
 #: src/lib.rs:261
 msgid " there is nothing to do"
 msgstr " 無事可作"
 
-#: src/install.rs:1003
+#: src/install.rs:1042
 msgid "Resolving dependencies..."
 msgstr "正在解決依賴關係……"
 
-#: src/install.rs:1051
+#: src/install.rs:1090
 msgid "can't install AUR package as root"
 msgstr "無法以 root 身份安裝 AUR 軟體包"
 
-#: src/install.rs:1054
+#: src/install.rs:1093
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1079
+#: src/install.rs:1118
 msgid "Remove make dependencies after install?"
 msgstr "在安裝後移除建置用的依賴關係？"
 
-#: src/install.rs:1090
+#: src/install.rs:1129
 msgid "Proceed to review?"
 msgstr "繼續檢閱？"
 
-#: src/install.rs:1140
+#: src/install.rs:1179
 msgid "no architecture"
 msgstr "無架構"
 
-#: src/install.rs:1154
+#: src/install.rs:1193
 msgid "The following packages are not compatible with your architecture:"
 msgstr "以下的軟體包與您的架構不相容："
 
-#: src/install.rs:1168
+#: src/install.rs:1207
 msgid "Would you like to try build them anyway?"
 msgstr "您無論如何都想要建置它們嗎？"
 
-#: src/install.rs:1316
+#: src/install.rs:1355
 msgid "duplicate packages: {}"
 msgstr "重複的軟體包：{}"
 
-#: src/install.rs:1320
+#: src/install.rs:1359
 msgid "could not find all required packages:"
 msgstr "找不到所有需要的軟體包："
 
-#: src/install.rs:1332
+#: src/install.rs:1371
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -927,92 +931,92 @@ msgstr ""
 "\n"
 "    {missing}（被以下軟體包需要：{stack}）"
 
-#: src/install.rs:1346 src/install.rs:2081
+#: src/install.rs:1385 src/install.rs:2120
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} 已為最新 -- 略過"
 
-#: src/install.rs:1361
+#: src/install.rs:1400
 msgid "Calculating conflicts..."
 msgstr "正在計算衝突……"
 
-#: src/install.rs:1367
+#: src/install.rs:1406
 msgid "Calculating inner conflicts..."
 msgstr "正在計算內部衝突……"
 
-#: src/install.rs:1379
+#: src/install.rs:1418
 msgid "Inner conflicts found:"
 msgstr "找到內部衝突："
 
-#: src/install.rs:1401
+#: src/install.rs:1440
 msgid "Conflicts found:"
 msgstr "找到衝突："
 
-#: src/install.rs:1424
+#: src/install.rs:1463
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "必須手動確認有衝突的軟體包"
 
-#: src/install.rs:1428
+#: src/install.rs:1467
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "無法使用 --noconfirm 安裝衝突的軟體包"
 
-#: src/install.rs:1550
+#: src/install.rs:1589
 msgid "failed to execute file manager: {}"
 msgstr "執行檔案管理程式失敗：{}"
 
-#: src/install.rs:1553
+#: src/install.rs:1592
 msgid "file manager did not execute successfully"
 msgstr "檔案管理程式未成功執行"
 
-#: src/install.rs:1572
+#: src/install.rs:1611
 msgid "failed to read dir: {}"
 msgstr "讀取目錄失敗：{}"
 
-#: src/install.rs:1624
+#: src/install.rs:1663
 msgid "failed to open: {}"
 msgstr "開啟失敗：{}"
 
-#: src/install.rs:1635
+#: src/install.rs:1674
 msgid "binary file: {}"
 msgstr "二進位檔案：{}"
 
-#: src/install.rs:1655 src/install.rs:1713
+#: src/install.rs:1694 src/install.rs:1752
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1717
+#: src/install.rs:1756
 msgid " nothing new to review"
 msgstr " 沒有新東西需要檢閱"
 
-#: src/install.rs:2029
+#: src/install.rs:2068
 msgid "can't find package name in packagelist: {}"
 msgstr "在軟體包清單中找不到軟體包名稱：{}"
 
-#: src/install.rs:2101
+#: src/install.rs:2140
 msgid "Signing packages..."
 msgstr "正在簽署軟體包……"
 
-#: src/install.rs:2139
+#: src/install.rs:2178
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} 已為最新 -- 略過安裝"
 
-#: src/install.rs:2178
+#: src/install.rs:2217
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr ""
 
-#: src/install.rs:2226
+#: src/install.rs:2265
 #, fuzzy
 msgid "failed to parse srcinfo \"{}\""
 msgstr "解析「{}」的 srcinfo 失敗"
 
-#: src/install.rs:2238
+#: src/install.rs:2277
 msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
 msgstr ""
 
-#: src/install.rs:2267
+#: src/install.rs:2306
 msgid "repo {} not downloaded (use -Sya to download)"
 msgstr ""
 
-#: src/install.rs:2284
+#: src/install.rs:2323
 #, fuzzy
 msgid "repo {} does not have a URL or Path"
 msgstr "選項「{}」沒有值"
@@ -1045,23 +1049,23 @@ msgstr " [已忽略]"
 msgid "failed to get current exe"
 msgstr "取得目前 exe 失敗"
 
-#: src/repo.rs:203
+#: src/repo.rs:217
 msgid "syncing local databases..."
 msgstr "正在同步本機資料庫……"
 
-#: src/repo.rs:209
+#: src/repo.rs:223
 msgid "  nothing to do"
 msgstr "  無事可作"
 
-#: src/repo.rs:240
+#: src/repo.rs:254
 msgid "there is nothing to do"
 msgstr "無事可作"
 
-#: src/repo.rs:246
+#: src/repo.rs:260
 msgid "Packages"
 msgstr "軟體包"
 
-#: src/repo.rs:259
+#: src/repo.rs:273
 msgid "Proceed with removal?"
 msgstr "繼續移除？"
 
@@ -1174,11 +1178,11 @@ msgstr "無效數字：{}"
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "無效值：{n} 並不在 1 到 {max} 間"
 
-#: src/resolver.rs:80
+#: src/resolver.rs:81
 msgid "There are {} members in group"
 msgstr "群組中有 {} 個成員"
 
-#: src/resolver.rs:105
+#: src/resolver.rs:106
 msgid ""
 "\n"
 "\n"
