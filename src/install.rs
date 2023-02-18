@@ -2303,7 +2303,10 @@ pub fn refresh_custom_repos(config: &Config, fetch: &Fetch) -> Result<()> {
                 eprintln!(
                     "{} {}",
                     c.warning.paint("::"),
-                    tr!("repo {} not downloaded (use --pkgbuilds -Sy to download)", repo.name)
+                    tr!(
+                        "repo {} not downloaded (use --pkgbuilds -Sy to download)",
+                        repo.name
+                    )
                 );
             }
         }
