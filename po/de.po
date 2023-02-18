@@ -1059,8 +1059,8 @@ msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
 msgstr "pkgbase {base} existiert bereits in Repo {repo} -- überspringe)"
 
 #: src/install.rs:2267
-msgid "repo {} not downloaded (use -Sya to download)"
-msgstr "Repo {} nicht heruntergeladen (benutze -Sya zum Herunterladen)"
+msgid "repo {} not downloaded (use --pkgbuilds -Sy to download)"
+msgstr "Repo {} nicht heruntergeladen (benutze --pkgbuilds -Sy zum Herunterladen)"
 
 #: src/install.rs:2284
 msgid "repo {} does not have a URL or Path"

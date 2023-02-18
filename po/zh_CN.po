@@ -997,8 +997,8 @@ msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
 msgstr "软件包组 {base} 在软件库 {repo} 中已经存在 -- 跳过安装)"
 
 #: src/install.rs:2267
-msgid "repo {} not downloaded (use -Sya to download)"
-msgstr "软件库 {} 没有被下载 (使用 -Sya 下载)"
+msgid "repo {} not downloaded (use --pkgbuilds -Sy to download)"
+msgstr "软件库 {} 没有被下载 (使用 --pkgbuilds -Sy 下载)"
 
 #: src/install.rs:2284
 msgid "repo {} does not have a URL or Path"
