@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-03-14 01:23+0000\n"
-"PO-Revision-Date: 2022-12-03 18:58-0300\n"
+"PO-Revision-Date: 2023-03-13 22:29-0300\n"
 "Last-Translator: João Vitor S. Anjos\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-Bookmarks: -1,110,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: src/clean.rs:36
@@ -114,7 +114,7 @@ msgstr "apenas uma operação pode ser feita por vez"
 
 #: src/config.rs:788
 msgid "no local repo named {}"
-msgstr ""
+msgstr "nenhum repositório local com nome {}"
 
 #: src/config.rs:811
 msgid "can not find local repo '{}' in pacman.conf"
@@ -700,7 +700,6 @@ msgstr ""
 "desenvolvimento"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
 "    --ignoredevel          Ignora atualizações devel para pacotes "
