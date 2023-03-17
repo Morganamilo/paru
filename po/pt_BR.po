@@ -4,7 +4,7 @@
 # Pedro Liberatti <ferrahwolfeh@protonmail.com>, 2021.
 # Morgana Milo <morganamilo@archlinux.org>, 2021.
 # Juliano Marcelino <github@jmarcelino.com.br>, 2021.
-# João Vitor S. Anjos <jvanjos@protonmail.com>, 2021.
+# João Vitor S. Anjos <jvanjos@protonmail.com>, 2021-2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
