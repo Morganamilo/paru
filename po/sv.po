@@ -2,21 +2,21 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # filiphe <filip@hesslund.org>, 2021.
-# Luna Jernberg <droidbittin@gmail.com>, 2022.
+# Luna Jernberg <droidbittin@gmail.com>, 2022, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2022-11-24 02:00+0000\n"
-"PO-Revision-Date: 2022-08-13 21:30+0200\n"
+"PO-Revision-Date: 2023-04-03 12:44+0200\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -83,13 +83,12 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "ogiltigt värde '{val}' för nyckel '{key}', förväntade sig: {exp}"
 
 #: src/config.rs:323
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "okänd parameter -{}"
+msgstr "okänt läge {}"
 
 #: src/config.rs:578
 msgid "section can not be called {}"
-msgstr ""
+msgstr "sektion kan inte kalla på {}"
 
 #: src/config.rs:595
 msgid "failed to find cache directory"
@@ -100,9 +99,8 @@ msgid "failed to find config directory"
 msgstr "misslyckades med att hitta konfigurationskatalogen"
 
 #: src/config.rs:601
-#, fuzzy
 msgid "failed to find state directory"
-msgstr "misslyckades med att hitta cachekatalogen"
+msgstr "det gick inte att hitta tillståndskatalogen"
 
 #: src/config.rs:639
 msgid "config file '{}' does not exist"
@@ -133,9 +131,8 @@ msgid "key can not be empty"
 msgstr "nyckeln får inte vara tom"
 
 #: src/config.rs:952
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
-msgstr "okänt alternativ '{}' i sektion [bin]"
+msgstr "okänt alternativ '{}' i förvar"
 
 #: src/config.rs:962
 msgid "key can not contain null bytes"
@@ -187,23 +184,20 @@ msgid "failed to save devel info"
 msgstr "misslyckades med att spara devel-information"
 
 #: src/devel.rs:204
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "misslyckades med att hitta cachekatalogen"
+msgstr "misslyckades med att skapa tillståndskatalog: {}"
 
 #: src/devel.rs:219
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "misslyckades med att exekvera filhanterare: {}"
+msgstr "misslsyckades med att skapa temporär fil: {}"
 
 #: src/devel.rs:224
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "misslyckades med att läsa katalogen: {}"
+msgstr "misslyckades med att skriva temporär fil: {}"
 
 #: src/devel.rs:230
 msgid "failed to rename '{temp}' to '{devel_json}"
-msgstr ""
+msgstr "misslyckades att byta namn på '{temp} till '{devel_json}"
 
 #: src/devel.rs:439
 msgid "package does not have an update"
@@ -264,9 +258,8 @@ msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD-filer är aktuella"
 
 #: src/download.rs:392
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "Laddar ner PKGBUILD-filer..."
+msgstr "Laddar ner PKGBUILD-förvar..."
 
 #: src/download.rs:588
 msgid "{} is not installed: can not get repo packages"
@@ -294,7 +287,7 @@ msgstr "Förvar Make"
 
 #: src/fmt.rs:257
 msgid "Pkgbuilds Make"
-msgstr ""
+msgstr "Pkgbuilds Make"
 
 #: src/fmt.rs:259
 msgid "Aur Make"
@@ -310,7 +303,7 @@ msgstr "Aur ({})"
 
 #: src/fmt.rs:310
 msgid "Pkgbuilds ({})"
-msgstr ""
+msgstr "Pkgbuilds ({})"
 
 #: src/fmt.rs:312
 msgid "Old Version"
@@ -405,9 +398,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [paket]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [alternativ]"
+msgstr "    paru {-B --build}       [kat(aloger)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -437,10 +429,9 @@ msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo              Anta att målen kommer från förvaren"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --repo              Anta att målen kommer från förvaren"
+msgstr "       --pkgbuilds         Anta att mål är från pkgbuild-förvar"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -448,17 +439,18 @@ msgstr "    -a --aur               Anta att målen kommer från AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>     Ställer in vart paru letar efter mål"
 
 #: src/help.rs:36
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      Ställ in en alternativ AUR URL"
 
 #: src/help.rs:37
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>      Ställ in en alternativ AUR URL"
+msgstr ""
+"    --aurrpcur  <url>      Ställ in en alternativ URL för AUR /rpc-"
+"slutpunkten"
 
 #: src/help.rs:38
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -527,6 +519,8 @@ msgstr "    --fmflags  <flaggor>     Skicka argument till filhanteraren"
 #: src/help.rs:55
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr ""
+"    --completioninterval   <n> Tid i dagar för att uppdatera "
+"slutföringscachen"
 
 #: src/help.rs:56
 msgid ""
@@ -552,11 +546,11 @@ msgstr "    -x --regex             Aktivera regex för aur sök"
 
 #: src/help.rs:61
 msgid "    --skipreview           Skip the review process"
-msgstr ""
+msgstr "    --skipreview           Hoppa över granskningsprocesssen"
 
 #: src/help.rs:62
 msgid "    --review               Don't skip the review process"
-msgstr ""
+msgstr "    --review               Hoppa inte över granskningsprocesssen"
 
 #: src/help.rs:63
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
@@ -590,6 +584,7 @@ msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
+"    --[no]useask           Lös konflikter automatiskt med pacmans askflagga"
 
 #: src/help.rs:71
 msgid ""
@@ -643,6 +638,8 @@ msgstr ""
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
+"    --[no]sudoloop         Loopa sudo anrop i bakgrunden för att undvika "
+"timeout"
 
 #: src/help.rs:79
 msgid "    --[no]chroot           Build packages in a chroot"
@@ -652,6 +649,8 @@ msgstr "    --[no]chroot           Bygg paket i ett chroot"
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
+"    --[no]failfast         Avsluta så snart byggandet av ett AUR-paket "
+"missslyckas"
 
 #: src/help.rs:81
 msgid ""
@@ -677,6 +676,7 @@ msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
+"    --nocheck              Lös inte checkdepends eller kör kontrollfunktionen"
 
 #: src/help.rs:86
 msgid ""
@@ -687,11 +687,10 @@ msgstr ""
 "utvecklingspaket"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel uprades for specified packages"
 msgstr ""
-"    --[no]provides        Leta efter matchande leverantörer när du söker "
-"efter paket"
+"    --ignoredevel         Ignorera utvecklingsuppgraderingar för "
+"specificerade paket"
 
 #: src/help.rs:88
 msgid ""
@@ -736,9 +735,8 @@ msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              Klona paket med SSH"
 
 #: src/help.rs:101
-#, fuzzy
 msgid "Build specific options:"
-msgstr "getpkgbuild specifika alternativ:"
+msgstr "Byggspecifika alternativ:"
 
 #: src/help.rs:102
 msgid "    -i --install          Install package as well as building"
@@ -834,12 +832,11 @@ msgstr "URL Till Ögonblicksbild"
 
 #: src/info.rs:117 src/info.rs:229
 msgid "Path"
-msgstr ""
+msgstr "Sökväg"
 
 #: src/install.rs:109
-#, fuzzy
 msgid "Generating .SRCINFO for {dir}..."
-msgstr "kunde inte hitta .SRCINFO för '{}'"
+msgstr "Genererar SRCINFO för {dir}..."
 
 #: src/install.rs:118
 msgid "failed to parse srcinfo generated by makepkg"
@@ -895,7 +892,7 @@ msgstr "lägger {} till installationslistan"
 
 #: src/install.rs:742
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr ""
+msgstr "kan inte bygga {base}, deps inte tillfredsställda: {deps}"
 
 #: src/install.rs:809
 msgid "fetching devel info..."
@@ -920,7 +917,7 @@ msgstr "kan inte installera AUR-paket som root"
 
 #: src/install.rs:1054
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly kan inte användas för AUR-paket"
 
 #: src/install.rs:1079
 msgid "Remove make dependencies after install?"
@@ -968,7 +965,7 @@ msgstr "Beräknar konflikter..."
 
 #: src/install.rs:1367
 msgid "Calculating inner conflicts..."
-msgstr "Beräknar inre konflikter"
+msgstr "Beräknar inre konflikter..."
 
 #: src/install.rs:1379
 msgid "Inner conflicts found:"
@@ -1008,7 +1005,7 @@ msgstr "binärfil: {}"
 
 #: src/install.rs:1655 src/install.rs:1713
 msgid "Accept changes?"
-msgstr ""
+msgstr "Acceptera ändringar?"
 
 #: src/install.rs:1717
 msgid " nothing new to review"
@@ -1028,25 +1025,23 @@ msgstr "{}-{} är aktuell -- hoppar över installation"
 
 #: src/install.rs:2178
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ""
+msgstr "Genererar .SRCINFO för {repo}/{dir}..."
 
 #: src/install.rs:2226
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
-msgstr "misslyckades med att analysera srcinfo för '{}'"
+msgstr "misslyckades med att analysera srcinfo \"{}\""
 
 #: src/install.rs:2238
 msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-msgstr ""
+msgstr "pkgbase {base} existerar redan för förvar {repo} -- hoppar över)"
 
 #: src/install.rs:2267
 msgid "repo {} not downloaded (use -Sya to download)"
-msgstr ""
+msgstr "förvar {} inte nerladdat (använd -Sya för att ladda ner)"
 
 #: src/install.rs:2284
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "alternativet '{}' tar inget värde"
+msgstr "förvar {} har ingen URL eller sökväg"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
@@ -1161,9 +1156,8 @@ msgid "Looking for devel upgrades..."
 msgstr "Letar efter devel-upgraderingar..."
 
 #: src/upgrade.rs:185
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "Letar efter AUR-uppgraderingar..."
+msgstr "Letar efter PKGBUILD-uppgraderingar..."
 
 #: src/upgrade.rs:215 src/upgrade.rs:228
 msgid "warning:"
