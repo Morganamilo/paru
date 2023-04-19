@@ -213,7 +213,6 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 }
 
 fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
-    let db = config.alpm.syncdbs();
     let c = config.color;
     let mut r = 0;
 
@@ -228,46 +227,22 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
         .map(|d| d.map(|d| d.file_name().into_string().unwrap()))
         .collect::<Result<HashSet<_>, _>>()?;
 
-    let mut ok = Vec::new();
-    let mut missing = Vec::new();
-
-    for &pkg in pkgs {
-        let pkg = pkg.pkg;
-        if let Ok(pkg) = db.pkg(pkg) {
-            let pkg = pkg.base().unwrap_or_else(|| pkg.name());
-            ok.push(pkg);
-        } else {
-            missing.push(pkg);
-        }
-    }
-
-    if !missing.is_empty() {
-        let msg = tr!("Missing ABS packages ");
-        print!("{} {} ", config.color.error.paint("::"), msg);
-        print_indent(
-            config.color.base,
-            msg.len() + 3,
-            3,
-            config.cols,
-            "  ",
-            &missing,
-        );
-    }
-
-    for (n, pkg) in ok.into_iter().enumerate() {
-        print_download(config, n + 1, pkgs.len(), pkg);
+    for (n, targ) in pkgs.into_iter().enumerate() {
+        print_download(config, n + 1, pkgs.len(), targ.pkg);
 
         let ret = Command::new(asp)
             .arg("update")
-            .arg(pkg)
+            .arg(targ.pkg)
             .output()
-            .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
+            .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, targ.pkg))?;
 
         ensure!(
             ret.status.success(),
             "{}",
             String::from_utf8_lossy(&ret.stderr).trim()
         );
+
+        let pkg = targ.pkg;
 
         if cd.contains(pkg) {
             if !Path::new(pkg).join("PKGBUILD").exists() {
@@ -285,9 +260,16 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
 
         let ret = Command::new(asp)
             .arg("export")
-            .arg(pkg)
+            .arg(targ.to_string())
             .output()
-            .with_context(|| format!("{} {} export {}", tr!("failed to run:"), asp, pkg))?;
+            .with_context(|| {
+                format!(
+                    "{} {} export {}",
+                    tr!("failed to run:"),
+                    asp,
+                    targ.to_string()
+                )
+            })?;
 
         ensure!(
             ret.status.success(),
@@ -296,9 +278,6 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
         );
     }
 
-    if !missing.is_empty() {
-        r = 1;
-    }
     Ok(r)
 }
 
