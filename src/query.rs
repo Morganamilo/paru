@@ -110,12 +110,12 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
             }
 
             let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
-            let devel = filter_devel_updates(config, &mut cache, &devel).await?;
+            let devel = filter_devel_updates(config, &mut cache, &devel, &repos).await?;
 
             for target in aur {
                 let local_pkg = db.pkg(target).unwrap();
                 if let Some(pkg) = cache.get(target) {
-                    let devel = devel.iter().any(|d| *d == pkg.name);
+                    let devel = devel.iter().any(|d| d.pkg == pkg.name);
 
                     if alpm::Version::new(&*pkg.version) > local_pkg.version() || devel {
                         aur_ret = 0;

@@ -29,6 +29,9 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         flags.remove(Flags::CHECK_DEPENDS);
         config.mflags.push("--nocheck".into());
     }
+    if !config.mode.pkgbuild() {
+        flags &= !Flags::PKGBUILDS;
+    }
     if !config.mode.aur() {
         flags &= !Flags::AUR;
     }

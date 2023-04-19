@@ -5,7 +5,6 @@ use std::ffi::OsStr;
 use std::fmt::Write as _;
 use std::fs::{read_dir, read_link, File, OpenOptions};
 use std::io::{Read, Write};
-use std::mem::take;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
@@ -842,12 +841,11 @@ impl Installer {
         &mut self,
         config: &mut Config,
         build: &mut [Base],
-        bases: &Bases,
     ) -> Result<()> {
         if config.devel {
             printtr!("fetching devel info...");
             self.devel_info = load_devel_info(config)?.unwrap_or_default();
-            self.new_devel_info = fetch_devel_info(config, bases, &self.srcinfos).await?;
+            self.new_devel_info = fetch_devel_info(config, build, &self.srcinfos).await?;
         }
 
         let (_, repo) = repo::repo_aur_dbs(config);
@@ -949,9 +947,11 @@ impl Installer {
             if config.args.has_arg("y", "refresh") {
                 self.done_something = true;
             }
-            read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
         }
-        let custom_repos = take(&mut self.custom_repos);
+        read_repos(config, &mut self.custom_repo_paths, &mut self.custom_repos)?;
+        // TODO: avoid clone
+        //let custom_repos = take(&mut self.custom_repos);
+        let custom_repos = self.custom_repos.clone();
         self.resolve_targets(config, &custom_repos, &repo_targets, &aur_targets)
             .await
     }
@@ -977,7 +977,7 @@ impl Installer {
         );
 
         if config.args.has_arg("u", "sysupgrade") {
-            let upgrades = get_upgrades(config, &mut resolver).await?;
+            let upgrades = get_upgrades(config, &mut resolver, custom_repos).await?;
             for pkg in &upgrades.repo_skip {
                 let arg = Arg {
                     key: "ignore".to_string(),
@@ -1053,18 +1053,12 @@ impl Installer {
 
         self.prepare_build(config, &mut cache, &mut actions).await?;
 
-        let bases = actions
-            .iter_aur_pkgs()
-            .map(|p| p.pkg.clone())
-            .collect::<Bases>();
         let mut build = actions.build;
 
         let mut err = Ok(());
 
         if !build.is_empty() {
-            err = self
-                .build_install_pkgbuilds(config, &mut build, &bases)
-                .await;
+            err = self.build_install_pkgbuilds(config, &mut build).await;
         }
 
         if err.is_ok() && config.chroot {

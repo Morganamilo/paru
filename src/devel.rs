@@ -1,5 +1,6 @@
 use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::install::read_repos;
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -13,9 +14,10 @@ use std::io::Write;
 use std::iter::FromIterator;
 use std::time::Duration;
 
-use alpm_utils::DbListExt;
+use alpm_utils::{DbListExt, Target};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, Context, Result};
+use aur_depends::{Base, Repo};
 use futures::future::{join_all, select_ok, FutureExt};
 use log::debug;
 use raur::{Cache, Raur};
@@ -118,8 +120,11 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
     let ignore = &config.ignore;
 
+    let mut custom_repo_paths = HashMap::new();
+    let mut custom_repos = Vec::new();
     let mut aur = split_repo_aur_pkgs(config, &pkgs).1;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
+    read_repos(config, &mut custom_repo_paths, &mut custom_repos)?;
 
     aur.retain(|pkg| {
         let pkg = db.pkg(*pkg).unwrap();
@@ -127,11 +132,21 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 
         !devel_info.info.contains_key(pkg)
     });
-    println!(
-        "{} {}",
-        action.paint("::"),
-        bold.paint(tr!("Querying AUR..."))
-    );
+
+    let (_custom, aur): (Vec<_>, Vec<_>) = aur.into_iter().partition(|aur| {
+        custom_repos
+            .iter()
+            .flat_map(|r| &r.pkgs)
+            .any(|p| p.pkg.pkgname == *aur)
+    });
+
+    if !aur.is_empty() {
+        println!(
+            "{} {}",
+            action.paint("::"),
+            bold.paint(tr!("Querying AUR..."))
+        );
+    }
     let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
     warnings.all(config.color, config.cols);
 
@@ -182,6 +197,12 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         }
     }
 
+    let bases = bases
+        .bases
+        .into_iter()
+        .map(|b| Base::Aur(b))
+        .collect::<Vec<_>>();
+
     println!(
         "{} {}",
         action.paint("::"),
@@ -195,6 +216,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     }
 
     save_devel_info(config, &devel_info).context(tr!("failed to save devel info"))?;
+
     Ok(())
 }
 
@@ -367,6 +389,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
 
     updates.sort_unstable();
     updates.dedup();
+
     Ok(updates)
 }
 
@@ -374,9 +397,27 @@ pub async fn filter_devel_updates(
     config: &Config,
     cache: &mut Cache,
     updates: &[String],
-) -> Result<Vec<String>> {
+    custom_repos: &[Repo],
+) -> Result<Vec<Target>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let mut aur = Vec::new();
+    let mut custom = Vec::new();
     let db = config.alpm.localdb();
+
+    'pkg: for update in updates {
+        for repo in custom_repos {
+            for base in &repo.pkgs {
+                for pkg in &base.pkgs {
+                    if pkg.pkgname == *update {
+                        custom.push(Target::new(Some(repo.name.clone()), pkg.pkgname.clone()));
+                        continue 'pkg;
+                    }
+                }
+            }
+        }
+
+        aur.push(update);
+    }
 
     let (_, dbs) = repo::repo_aur_dbs(config);
     for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
@@ -389,20 +430,29 @@ pub async fn filter_devel_updates(
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    config.raur.cache_info(cache, updates).await?;
-    let updates = updates
+    config.raur.cache_info(cache, &aur).await?;
+    let aur = aur
         .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
         .collect::<Vec<_>>();
 
-    let updates = updates
-        .iter()
-        .flatten()
-        .filter(|p| !p.should_ignore())
-        .filter(|p| !config.ignore_devel.is_match(p.name()))
-        .map(|p| p.name().to_string())
-        .filter(|p| cache.contains(p.as_str()))
-        .collect();
+    let mut updates = Vec::new();
+
+    if config.mode.aur() {
+        let aur = aur
+            .iter()
+            .flatten()
+            .filter(|p| !p.should_ignore())
+            .filter(|p| !config.ignore_devel.is_match(p.name()))
+            .map(|p| p.name().to_string())
+            .filter(|p| cache.contains(p.as_str()))
+            .map(|p| Target::new(Some(config.aur_namespace().to_string()), p));
+
+        updates.extend(aur);
+    }
+    if config.mode.pkgbuild() {
+        updates.extend(custom);
+    }
 
     Ok(updates)
 }
@@ -441,7 +491,7 @@ async fn has_update(style: Style, git: &str, flags: &[String], url: &RepoInfo) -
 
 pub async fn fetch_devel_info(
     config: &Config,
-    bases: &Bases,
+    bases: &[Base],
     srcinfos: &HashMap<String, Srcinfo>,
 ) -> Result<DevelInfo> {
     let mut devel_info = DevelInfo::default();
@@ -449,8 +499,11 @@ pub async fn fetch_devel_info(
     let mut parsed = Vec::new();
     let mut futures = Vec::new();
 
-    for base in &bases.bases {
-        let srcinfo = srcinfos.get(base.package_base());
+    for base in bases {
+        let srcinfo = match base {
+            Base::Aur(_) => srcinfos.get(base.package_base()),
+            Base::Custom(c) => Some(c.srcinfo.as_ref()),
+        };
 
         let srcinfo = match srcinfo {
             Some(v) => v,
