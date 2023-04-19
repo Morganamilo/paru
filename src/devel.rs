@@ -147,7 +147,14 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
             bold.paint(tr!("Querying AUR..."))
         );
     }
-    let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, ignore).await?;
+    let warnings = cache_info_with_warnings(
+        &config.raur,
+        &mut config.cache,
+        &aur,
+        ignore,
+        &config.no_warn,
+    )
+    .await?;
     warnings.all(config.color, config.cols);
 
     let bases = Bases::from_iter(warnings.pkgs);

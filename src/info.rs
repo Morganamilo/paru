@@ -12,6 +12,7 @@ use alpm_utils::Targ;
 use ansi_term::Style;
 use anyhow::Error;
 use aur_depends::Repo;
+use globset::GlobSet;
 use raur::ArcPackage as Package;
 use srcinfo::{ArchVec, Srcinfo};
 use term_size::dimensions_stdout;
@@ -57,7 +58,8 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
         let color = conf.color;
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
         let warnings =
-            cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &conf.ignore).await?;
+            cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &[], &GlobSet::empty())
+                .await?;
         for pkg in &warnings.missing {
             eprintln!(
                 "{} {}",

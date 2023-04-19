@@ -4,6 +4,7 @@ use crate::printtr;
 use crate::util::repo_aur_pkgs;
 
 use alpm::PackageReason;
+use globset::GlobSet;
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -73,8 +74,14 @@ pub async fn stats(config: &Config) -> Result<i32> {
         .map(|s| s.to_owned())
         .collect::<Vec<_>>();
 
-    let warnings =
-        cache_info_with_warnings(&config.raur, &mut cache, &aur_packages, &config.ignore).await?;
+    let warnings = cache_info_with_warnings(
+        &config.raur,
+        &mut cache,
+        &aur_packages,
+        &config.ignore,
+        &GlobSet::empty(),
+    )
+    .await?;
 
     version();
     print_line_separator(config);

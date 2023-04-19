@@ -17,6 +17,7 @@ use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::AurBase;
 use aur_fetch::Repo;
+use globset::GlobSet;
 use indicatif::{ProgressBar, ProgressStyle};
 use kuchiki::traits::*;
 use raur::{ArcPackage as Package, Raur};
@@ -135,6 +136,7 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
     cache: &'a mut raur::Cache,
     pkgs: &'a [S],
     ignore: &[String],
+    no_warn: &GlobSet,
 ) -> StdResult<Warnings<'a>, raur::Error> {
     let mut missing = Vec::new();
     let mut ood = Vec::new();
@@ -144,13 +146,16 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
     aur_pkgs.retain(|pkg1| pkgs.iter().any(|pkg2| pkg1.name == pkg2.as_ref()));
 
     for pkg in pkgs {
-        if !ignore.iter().any(|p| p == pkg.as_ref()) && !cache.contains(pkg.as_ref()) {
+        if !no_warn.is_match(pkg.as_ref())
+            && !ignore.iter().any(|p| p == pkg.as_ref())
+            && !cache.contains(pkg.as_ref())
+        {
             missing.push(pkg.as_ref())
         }
     }
 
     for pkg in &aur_pkgs {
-        if !ignore.iter().any(|p| p.as_str() == pkg.name) {
+        if no_warn.is_match(&pkg.name) && !ignore.iter().any(|p| p.as_str() == pkg.name) {
             if pkg.out_of_date.is_some() {
                 ood.push(cache.get(pkg.name.as_str()).unwrap().name.as_str());
             }
@@ -194,8 +199,14 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
             action.paint("::"),
             bold.paint(tr!("Querying AUR..."))
         );
-        let warnings =
-            cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &config.ignore).await?;
+        let warnings = cache_info_with_warnings(
+            &config.raur,
+            &mut config.cache,
+            &aur,
+            &config.ignore,
+            &GlobSet::empty(),
+        )
+        .await?;
         ret |= !warnings.missing.is_empty() as i32;
         warnings.missing(config.color, config.cols);
         let aur = warnings.pkgs;
@@ -447,8 +458,14 @@ pub async fn new_aur_pkgbuilds(
 pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let client = config.raur.client();
 
-    let warnings =
-        cache_info_with_warnings(&config.raur, &mut config.cache, &config.targets, &[]).await?;
+    let warnings = cache_info_with_warnings(
+        &config.raur,
+        &mut config.cache,
+        &config.targets,
+        &[],
+        &GlobSet::empty(),
+    )
+    .await?;
     warnings.missing(config.color, config.cols);
     let ret = !warnings.missing.is_empty() as i32;
     let bases = Bases::from_iter(warnings.pkgs);
@@ -616,7 +633,14 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let client = config.raur.client();
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
 
-        let warnings = cache_info_with_warnings(&config.raur, &mut config.cache, &aur, &[]).await?;
+        let warnings = cache_info_with_warnings(
+            &config.raur,
+            &mut config.cache,
+            &aur,
+            &[],
+            &GlobSet::empty(),
+        )
+        .await?;
         warnings.missing(config.color, config.cols);
         let ret = !warnings.missing.is_empty() as i32;
         let bases = Bases::from_iter(warnings.pkgs);
