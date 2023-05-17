@@ -1681,73 +1681,72 @@ fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()
     if pkgs.is_empty() {
         return Ok(());
     }
+
     if !config.no_confirm {
-        if let Some(ref fm) = config.fm {
-            let _view = file_manager(config, fetch, fm, pkgs)?;
+        let unseen = fetch.unseen(pkgs)?;
+        let has_diff = fetch.has_diff(&unseen)?;
+        let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
+        let diffs = fetch.diff(&has_diff, config.color.enabled)?;
+
+        if printed {
+            let pager = config
+                .pager_cmd
+                .clone()
+                .or_else(|| var("PARU_PAGER").ok())
+                .or_else(|| var("PAGER").ok())
+                .unwrap_or_else(|| "less".to_string());
+
+            exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
+            let mut command = Command::new("sh");
+
+            if std::env::var("LESS").is_err() {
+                command.env("LESS", "SRXF");
+            }
+            let mut command = command
+                .arg("-c")
+                .arg(&pager)
+                .stdin(Stdio::piped())
+                .spawn()
+                .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
+
+            let mut stdin = command.stdin.take().unwrap();
+
+            for diff in diffs {
+                let _ = stdin.write_all(diff.as_bytes());
+                let _ = stdin.write_all(b"\n\n\n");
+            }
+
+            let bat =
+                config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+
+            let mut buf = Vec::new();
+            for pkg in &unseen {
+                if !has_diff.contains(pkg) {
+                    let dir = fetch.clone_dir.join(pkg);
+                    print_dir(config, &dir, &mut stdin, &mut buf, bat, 1)?;
+                }
+            }
+
+            drop(stdin);
+            command
+                .wait()
+                .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
+            exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
 
             if !ask(config, &tr!("Accept changes?"), true) {
                 return Status::err(1);
             }
-
-            if config.save_changes {
-                fetch.commit(pkgs, "paru save changes")?;
-            }
         } else {
-            let unseen = fetch.unseen(pkgs)?;
-            let has_diff = fetch.has_diff(&unseen)?;
-            let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
-            let diffs = fetch.diff(&has_diff, config.color.enabled)?;
+            printtr!(" nothing new to review");
+        }
 
-            if printed {
-                let pager = config
-                    .pager_cmd
-                    .clone()
-                    .or_else(|| var("PARU_PAGER").ok())
-                    .or_else(|| var("PAGER").ok())
-                    .unwrap_or_else(|| "less".to_string());
+        if let Some(ref fm) = config.fm {
+            if ask(config, &tr!("Proceed to edit files?"), true) {
+                let _view = file_manager(config, fetch, fm, pkgs)?;
 
-                exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
-                let mut command = Command::new("sh");
-
-                if std::env::var("LESS").is_err() {
-                    command.env("LESS", "SRXF");
+                if config.save_changes {
+                    fetch.commit(pkgs, "paru save changes")?;
                 }
-                let mut command = command
-                    .arg("-c")
-                    .arg(&pager)
-                    .stdin(Stdio::piped())
-                    .spawn()
-                    .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
-
-                let mut stdin = command.stdin.take().unwrap();
-
-                for diff in diffs {
-                    let _ = stdin.write_all(diff.as_bytes());
-                    let _ = stdin.write_all(b"\n\n\n");
-                }
-
-                let bat = config.color.enabled
-                    && Command::new(&config.bat_bin).arg("-V").output().is_ok();
-
-                let mut buf = Vec::new();
-                for pkg in &unseen {
-                    if !has_diff.contains(pkg) {
-                        let dir = fetch.clone_dir.join(pkg);
-                        print_dir(config, &dir, &mut stdin, &mut buf, bat, 1)?;
-                    }
-                }
-
-                drop(stdin);
-                command
-                    .wait()
-                    .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
-                exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
-
-                if !ask(config, &tr!("Accept changes?"), true) {
-                    return Status::err(1);
-                }
-            } else {
-                printtr!(" nothing new to review");
             }
         }
     }
