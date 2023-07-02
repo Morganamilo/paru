@@ -7,7 +7,7 @@
 # St.kai <St.kai@live.cn> , 2022\n"
 # Yumeoto Zorin <zorin@zorin.icu> , 2022\n"
 # Puqns67 <me@puqns67.icu> , 2022\n"
-# clsty <ph-tyhu@outlook.com> , 2023\n"
+# clsty <celestial.y@outlook.com> , 2023\n"
 msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.11.2\n"
