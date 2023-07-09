@@ -800,7 +800,7 @@ impl Config {
     CacheDir = /var/lib/repo/aur
 
     [aur]
-    SigLevel = PackageOptional DatabaseOptional
+    SigLevel = Never
     Server = file:///var/lib/repo/aur"
                 );
             }
