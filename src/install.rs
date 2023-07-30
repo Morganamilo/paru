@@ -1486,7 +1486,8 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .remove("asexp")
         .remove("y")
         .remove("i")
-        .remove("refresh");
+        .remove("refresh")
+        .arg("noconfirm");
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
     if !config.combined_upgrade || !config.mode.repo() {
