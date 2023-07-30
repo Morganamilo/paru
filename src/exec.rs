@@ -202,16 +202,19 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
     config: &Config,
     args: &Args<S>,
 ) -> Result<Output> {
+    use std::process::Stdio;
+
     if config.need_root {
         wait_for_lock(config);
         let mut cmd = Command::new(&config.sudo_bin);
         cmd.args(&config.sudo_flags)
             .arg(args.bin.as_ref())
-            .args(args.args());
+            .args(args.args())
+            .stdin(Stdio::inherit());
         command_output(&mut cmd)
     } else {
         let mut cmd = Command::new(args.bin.as_ref());
-        cmd.args(args.args());
+        cmd.args(args.args()).stdin(Stdio::inherit());
         command_output(&mut cmd)
     }
 }
