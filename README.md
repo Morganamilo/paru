@@ -65,7 +65,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## IRC
 
-Paru now has an IRC. #paru on Libera Chat. Feel free to join for discussion and help with paru.
+Paru now has an IRC. #paru on [Libera Chat](https://libera.chat/). Feel free to join for discussion and help with paru.
 
 ## Debugging
 
