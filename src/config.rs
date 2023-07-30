@@ -518,6 +518,8 @@ pub struct Config {
     pub delete: u32,
     pub no_install: bool,
 
+    pub env: Vec<(String, String)>,
+
     //pacman
     pub db_path: Option<String>,
     pub root: Option<String>,
@@ -982,6 +984,7 @@ impl Config {
             tr!("value can not contain null bytes")
         );
 
+        self.env.push((key.to_owned(), value.to_string()));
         set_var(key, value);
         Ok(())
     }

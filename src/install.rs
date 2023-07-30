@@ -550,7 +550,7 @@ impl Installer {
                 extra.extend(self.built.iter().map(|s| s.as_str()));
             }
             self.chroot
-                .build(dir, &extra, &["-cu"], &["-ofA"])
+                .build(dir, &extra, &["-cu"], &["-ofA"], &config.env)
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
         } else {
             // download sources
@@ -595,6 +595,7 @@ impl Installer {
                         &extra,
                         &[],
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                        &config.env,
                     )
                     .with_context(|| tr!("failed to build '{}'", base))?;
             } else {

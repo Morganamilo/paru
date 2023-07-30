@@ -107,6 +107,7 @@ impl Chroot {
         pkgs: &[&str],
         chroot_flags: &[&str],
         flags: &[&str],
+        env: &[(String, String)],
     ) -> Result<()> {
         let mut cmd = Command::new("makechrootpkg");
 
@@ -128,6 +129,10 @@ impl Chroot {
         }
 
         cmd.arg("--").args(flags).args(&self.mflags);
+
+        for (key, value) in env {
+            cmd.arg(format!("{}={}", key, value));
+        }
 
         exec::command(&mut cmd)?;
         Ok(())
