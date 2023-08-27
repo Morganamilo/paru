@@ -94,13 +94,18 @@ fn clean_aur(
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
         .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
-    for file in cached_pkgs {
-        if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current, rm)
-        {
-            print_error(config.color.error, err);
-            continue;
-        }
-    }
+    #[allow(unused_must_use)]
+    cached_pkgs.for_each(|maybe_pkg| {
+        maybe_pkg.map_err(anyhow::Error::from).map(|path| {
+            clean_aur_pkg(config, &path, remove_all, keep_installed, keep_current, rm).map_err(
+                |err| {
+                    let name = path.file_name();
+                    printtr!("Failed to clean package: {}", name.to_string_lossy());
+                    print_error(config.color.error, err);
+                },
+            );
+        });
+    });
 
     Ok(())
 }
@@ -115,14 +120,12 @@ fn fix_perms(file: &Path) -> Result<()> {
 
 fn clean_aur_pkg(
     config: &Config,
-    file: std::io::Result<DirEntry>,
+    file: &DirEntry,
     remove_all: bool,
     keep_installed: bool,
     keep_current: bool,
     rm: bool,
 ) -> Result<()> {
-    let file = file?;
-
     if !file.file_type()?.is_dir()
         || !file.path().join(".git").exists()
         || !file.path().join(".SRCINFO").exists()
