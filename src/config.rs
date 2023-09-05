@@ -607,8 +607,8 @@ impl Config {
             dirs::config_dir().ok_or_else(|| anyhow!(tr!("failed to find config directory")))?;
         let config = config.join("paru");
         let state = dirs::state_dir()
-            .ok_or_else(|| dirs::cache_dir())
-            .map_err(|_| anyhow!(tr!("failed to find state directory")))?;
+            .or_else(|| dirs::cache_dir())
+            .ok_or_else(|| anyhow!(tr!("failed to find state directory")))?;
         let state = state.join("paru");
 
         let build_dir = cache.join("clone");
