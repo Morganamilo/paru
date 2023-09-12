@@ -445,7 +445,7 @@ pub struct Config {
     pub no_confirm: bool,
     pub devel: bool,
     pub clean_after: bool,
-    #[default(YesNoAll::Yes)]
+    #[default(YesNoAll::No)]
     pub provides: YesNoAll,
     pub pgp_fetch: bool,
     pub combined_upgrade: bool,
