@@ -476,11 +476,15 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
     let mut futures = Vec::with_capacity(info.len());
 
     for info in info {
+        if config.ignore_devel_source.iter().any(|u| u == &info.url) {
+            continue;
+        }
+
         futures
             .push(has_update(config.color.error, &config.git_bin, &config.git_flags, info).boxed());
     }
 
-    if select_ok(futures).await.is_ok() {
+    if !futures.is_empty() && select_ok(futures).await.is_ok() {
         Some(pkg)
     } else {
         None

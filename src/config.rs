@@ -530,6 +530,7 @@ pub struct Config {
 
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
+    pub ignore_devel_source: Vec<String>,
     #[default(GlobSet::empty())]
     pub ignore_devel: GlobSet,
     #[default(GlobSetBuilder::new())]
@@ -1110,6 +1111,10 @@ impl Config {
             "MakepkgConf" => self.makepkg_conf = Some(value?),
             "DevelSuffixes" => {
                 self.devel_suffixes
+                    .extend(value?.split_whitespace().map(|s| s.to_string()));
+            }
+            "IgnoreDevelSource" => {
+                self.ignore_devel_source
                     .extend(value?.split_whitespace().map(|s| s.to_string()));
             }
             "IgnoreDevel" => {
