@@ -957,7 +957,7 @@ impl Config {
     fn parse_repo(&mut self, repo: &str, key: &str, value: Option<&str>) -> Result<()> {
         let value = value.context(tr!("key can not be empty"));
 
-        let mut repo = self
+        let repo = self
             .custom_repos
             .iter_mut()
             .find(|r| r.name == repo)
