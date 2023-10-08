@@ -8,7 +8,7 @@ use alpm::Ver;
 use aur_depends::{Actions, Base};
 
 use ansi_term::Style;
-use chrono::{DateTime, NaiveDateTime};
+use chrono::{Local, TimeZone, Utc};
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
 
@@ -24,14 +24,12 @@ pub fn opt(opt: &Option<String>) -> String {
 }
 
 pub fn date(date: i64) -> String {
-    let date = NaiveDateTime::from_timestamp_opt(date, 0).unwrap();
-    let date = DateTime::<chrono::Utc>::from_utc(date, chrono::Utc);
-    date.to_rfc2822()
+    let date = Utc.timestamp_opt(date, 0).unwrap().with_timezone(&Local);
+    date.format("%a, %e %b %Y %T").to_string()
 }
 
 pub fn ymd(date: i64) -> String {
-    let date = NaiveDateTime::from_timestamp_opt(date, 0).unwrap();
-    let date = DateTime::<chrono::Utc>::from_utc(date, chrono::Utc);
+    let date = Utc.timestamp_opt(date, 0).unwrap().with_timezone(&Local);
     date.format("%Y-%m-%d").to_string()
 }
 
