@@ -472,6 +472,7 @@ pub struct Config {
     pub makepkg_bin: String,
     #[default = "pacman"]
     pub pacman_bin: String,
+    pub pacman_conf_bin: Option<String>,
     #[default = "git"]
     pub git_bin: String,
     #[default = "gpg"]
@@ -833,8 +834,11 @@ impl Config {
     }
 
     fn init_pacmanconf(&mut self) -> Result<()> {
-        self.pacman =
-            pacmanconf::Config::with_opts(None, self.pacman_conf.as_deref(), self.root.as_deref())?;
+        self.pacman = pacmanconf::Config::with_opts(
+            self.pacman_conf_bin.as_deref(),
+            self.pacman_conf.as_deref(),
+            self.root.as_deref(),
+        )?;
 
         if let Some(ref dbpath) = self.db_path {
             self.pacman.db_path = dbpath.clone();
@@ -1000,6 +1004,7 @@ impl Config {
         match key {
             "Makepkg" => self.makepkg_bin = value,
             "Pacman" => self.pacman_bin = value,
+            "PacmanConf" => self.pacman_conf_bin = Some(value),
             "Git" => self.git_bin = value,
             "Asp" => self.asp_bin = value,
             "Gpg" => self.gpg_bin = value,
