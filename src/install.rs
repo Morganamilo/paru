@@ -1701,12 +1701,18 @@ fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
+                let pager = if Command::new("less").output().is_ok() {
+                    "less"
+                } else {
+                    "cat"
+                };
+
                 let pager = config
                     .pager_cmd
                     .clone()
                     .or_else(|| var("PARU_PAGER").ok())
                     .or_else(|| var("PAGER").ok())
-                    .unwrap_or_else(|| "less".to_string());
+                    .unwrap_or_else(|| pager.to_string());
 
                 exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
                 let mut command = Command::new("sh");
