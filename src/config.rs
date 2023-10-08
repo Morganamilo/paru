@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::util::get_provider;
@@ -7,7 +8,7 @@ use crate::{alpm_debug_enabled, help, printtr, repo};
 use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
-use std::fs::File;
+use std::fs::{remove_file, File, OpenOptions};
 use std::io::{stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -614,19 +615,18 @@ impl Config {
         let state = state.join("paru");
 
         let build_dir = cache.join("clone");
-        let old_devel_path = cache.join("devel.json");
-        let devel_path = state.join("devel.json");
+        let old_old_devel_path = cache.join("devel.json");
+        let old_devel_path = state.join("devel.json");
+        let devel_path = state.join("devel.toml");
         let config_path = config.join("paru.conf");
 
-        // Check if devel.json is present in cache dir & move to state dir if true
-        if !devel_path.exists() && old_devel_path.exists() {
-            if !state.exists() {
-                std::fs::create_dir_all(&state)
-                    .with_context(|| format!("mkdir: {}", state.display()))?;
-            }
-            std::fs::copy(&old_devel_path, &devel_path)?;
-            std::fs::remove_file(&old_devel_path)?;
-        }
+        let old = if old_devel_path.exists() {
+            Some(&old_devel_path)
+        } else if old_old_devel_path.exists() {
+            Some(&old_old_devel_path)
+        } else {
+            None
+        };
 
         let cache_dir = cache;
         let state_dir = state;
@@ -643,6 +643,16 @@ impl Config {
             devel_path,
             ..Self::default()
         };
+
+        if let Some(old) = old {
+            if let Ok(devel) = OpenOptions::new().read(true).open(old) {
+                if let Ok(devel) = serde_json::from_reader(devel) {
+                    save_devel_info(&config, &devel)?;
+                    let _ = remove_file(&old_devel_path);
+                    let _ = remove_file(&old_old_devel_path);
+                }
+            }
+        }
 
         if let Ok(conf) = var("PARU_CONF") {
             let path = PathBuf::from(conf);

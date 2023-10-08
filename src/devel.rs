@@ -8,7 +8,7 @@ use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fs::{create_dir_all, OpenOptions};
+use std::fs::{create_dir_all, read_to_string, OpenOptions};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
@@ -228,7 +228,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     })?;
 
     let mut temp = config.devel_path.to_owned();
-    temp.set_extension("json.tmp");
+    temp.set_extension("toml.tmp");
 
     let file = OpenOptions::new()
         .create(true)
@@ -239,18 +239,18 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     let mut file =
         file.with_context(|| tr!("failed to create temporary file: {}", temp.display()))?;
 
-    let json = serde_json::to_string_pretty(&devel_info).unwrap();
+    let toml = toml::to_string(&devel_info).unwrap();
 
-    file.write_all(json.as_bytes())
+    file.write_all(toml.as_bytes())
         .with_context(|| tr!("failed to write to temporary file: {}", temp.display()))?;
 
     drop(file);
 
     std::fs::rename(&temp, &config.devel_path).with_context(|| {
         tr!(
-            "failed to rename '{temp}' to '{devel_json}",
+            "failed to rename '{temp}' to '{devel_toml}",
             temp = temp.display(),
-            devel_json = config.devel_path.display()
+            devel_toml = config.devel_path.display()
         )
     })?;
 
@@ -485,6 +485,13 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
 
 async fn has_update(style: Style, git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
     let sha = ls_remote(style, git, flags, url.url.clone(), url.branch.as_deref()).await?;
+    debug!(
+        "devel check {}: {} == {} different: {}",
+        url.url,
+        url.commit,
+        sha,
+        url.commit != sha
+    );
     if sha != *url.commit {
         return Ok(());
     }
@@ -556,12 +563,12 @@ pub async fn fetch_devel_info(
 }
 
 pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
-    let file = match OpenOptions::new().read(true).open(&config.devel_path) {
+    let file = match read_to_string(&config.devel_path) {
         Ok(file) => file,
         _ => return Ok(None),
     };
-    let devel_info = serde_json::from_reader(file)
-        .with_context(|| tr!("invalid json: {}", config.devel_path.display()))?;
+    let devel_info = DevelInfo::deserialize(toml::Deserializer::new(&file))
+        .with_context(|| tr!("invalid toml: {}", config.devel_path.display()))?;
 
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
     let mut devel_info: DevelInfo = devel_info;
