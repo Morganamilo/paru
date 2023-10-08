@@ -77,7 +77,7 @@ _paru() {
            nocombinedupgrade batchinstall nobatchinstall provides noprovides devel nodevel
            develsuffixes sudoloop nosudoloop bottomup topdown newsonupgrade bat batflags
            chroot nochroot sign nosign keeprepocache nokeeprepocache signdb nosigndb
-           localrepo review skipreview' 'b d h q r v a')
+           localrepo nolocalrepo review skipreview' 'b d h q r v a')
 
   show=('news stats' 'w s')
   getpkgbuild=('print comments' 'p c')

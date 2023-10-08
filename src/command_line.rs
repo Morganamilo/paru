@@ -335,6 +335,7 @@ impl Config {
             Arg::Long("arch") => self.arch = Some(value?.to_string()),
             Arg::Long("color") => self.color = Colors::from(value.unwrap_or("always")),
             Arg::Long("localrepo") => self.repos = LocalRepos::new(value.ok()),
+            Arg::Long("nolocalrepo") => self.repos = LocalRepos::None,
             Arg::Long("chroot") => {
                 self.chroot = true;
                 if let Ok(p) = value {

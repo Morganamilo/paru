@@ -116,6 +116,7 @@ _pacman_opts_common=(
 	'--signdb[Sign databases with gpg]'
 	"--nosigndb[Don't sign databases with gpg]"
 	'--localrepo[Build packages in a local repo]'
+	"--nolocalrepo[Don't build packages in a local repo]"
 
 	'--skipreview[Skip the review process]'
 	"--review[Don't skip the review process]"

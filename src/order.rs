@@ -91,10 +91,11 @@ fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, Stri
 
 fn print_missing(actions: &Actions) {
     for pk in &actions.missing {
-        println!("MISSING {}", pk.dep);
+        print!("MISSING {}", pk.dep);
         for pk in &pk.stack {
-            println!(" {}", pk.pkg);
+            print!(" {}", pk.pkg);
         }
+        println!();
     }
 }
 

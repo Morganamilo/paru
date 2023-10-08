@@ -81,7 +81,7 @@ pub fn help() {
     printtr!("    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages");
     printtr!("    --[no]sign             Sign packages with gpg");
     printtr!("    --[no]signdb           Sign databases with gpg");
-    printtr!("    --localrepo            Build packages into a local repo");
+    printtr!("    --[no]localrepo        Build packages into a local repo");
     printtr!("    --nocheck              Don't resolve checkdepends or run the check function");
     printtr!("    --develsuffixes        Suffixes used to decide if a package is a devel package");
     printtr!("    --ignoredevel          Ignore devel upgrades for specified packages");
