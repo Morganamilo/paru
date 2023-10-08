@@ -89,6 +89,12 @@ Like IgnorePkg but for devel upgrades. Packages matching this will not be tried 
 devel update but may still be upgraded if the pkgver changes.
 
 .TP
+.B IgnoreDevelSource
+Like IgnoreDevel but targets urls in the source=() array of pkgbuilds. This can be useful
+if a package has a properly working main git source but also has an unversioned secondary
+source that doesn't effect the pkgver.
+
+.TP
 .B CleanAfter
 Remove untracked files after installation.
 
@@ -278,6 +284,11 @@ The command to use for \fBmakepkg\fR calls. This can be a command in
 .TP
 .B Pacman = path/to/pacman
 The command to use for \fBpacman\fR calls. This can be a command in
+\fBPATH\fR or an absolute path to the file.
+
+.TP
+.B PacmanConf = path/to/pacman-conf
+The command to use for \fBpacman-conf\fR calls. This can be a command in
 \fBPATH\fR or an absolute path to the file.
 
 .TP

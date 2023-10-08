@@ -193,6 +193,7 @@ complete -c $progname -n "not $noopt" -l aurrpcurl -d 'Set an alternative URL fo
 complete -c $progname -n "not $noopt" -l clonedir -d 'Directory used to download and run PKGBUILDs' -r
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
 complete -c $progname -n "not $noopt" -l pacman -d 'Pacman command to use' -f
+complete -c $progname -n "not $noopt" -l pacman-conf -d 'Pacman-conf command to use' -f
 complete -c $progname -n "not $noopt" -l git -d 'Git command to use' -f
 complete -c $progname -n "not $noopt" -l asp -d 'Asp command to use' -f
 complete -c $progname -n "not $noopt" -l gpg -d 'Gpg command to use' -f

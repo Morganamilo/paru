@@ -69,7 +69,7 @@ _paru() {
   common=('arch cachedir color config confirm dbpath debug gpgdir help hookdir logfile
            noconfirm noprogressbar noscriptlet quiet root verbose
 
-           repo aur aururl clonedir makepkg mflags pacman git gitflags sudo sudoflags
+           repo aur aururl clonedir makepkg mflags pacman pacman-conf git gitflags sudo sudoflags
            asp gpg gpgflags fm fmflags pager completioninterval sortby searchby limit upgrademenu
            removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask

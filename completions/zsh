@@ -54,6 +54,7 @@ _pacman_opts_common=(
 	'--clonedir[Directory used to download and run PKGBUILDs]:build dir:_files -/'
 	'--makepkg[makepkg command to use]:makepkg:_files'
 	'--pacman[pacman command to use]:pacman:_files'
+	'--pacman-conf[pacman-conf command to use]:pacman:_files'
 	'--git[git command to use]:git:_files'
 	'--gpg[gpg command to use]:gpg:_files'
 	'--fm[file manager to use]:fm:_files'
