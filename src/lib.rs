@@ -268,7 +268,7 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
     }
 }
 
-fn handle_remove(config: &mut Config) -> Result<i32> {
+fn handle_remove(config: &Config) -> Result<i32> {
     remove::remove(config)
 }
 

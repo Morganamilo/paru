@@ -172,7 +172,7 @@ fn find_cusom_pkg<'a>(
 }
 
 pub fn print_custom_info(
-    conf: &mut Config,
+    conf: &Config,
     _verbose: bool,
     repos: &[Repo],
     paths: &HashMap<(String, String), PathBuf>,
@@ -237,7 +237,7 @@ pub fn print_custom_info(
 }
 
 pub fn print_aur_info(
-    conf: &mut Config,
+    conf: &Config,
     verbose: bool,
     pkgs: &[Package],
     len: usize,

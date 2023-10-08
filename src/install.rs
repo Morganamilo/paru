@@ -134,7 +134,7 @@ pub async fn build_pkgbuilds(config: &mut Config, dirs: Vec<PathBuf>) -> Result<
 }
 
 impl Installer {
-    fn new(config: &mut Config) -> Self {
+    fn new(config: &Config) -> Self {
         let mut fetch = config.fetch.clone();
         fetch.clone_dir = fetch.clone_dir.join("repo");
         fetch.diff_dir = fetch.diff_dir.join("repo");
@@ -172,7 +172,7 @@ impl Installer {
         Ok(())
     }
 
-    fn early_pacman(&mut self, config: &mut Config, targets: Vec<String>) -> Result<()> {
+    fn early_pacman(&mut self, config: &Config, targets: Vec<String>) -> Result<()> {
         let mut args = config.pacman_args();
         args.targets.clear();
         args.targets(targets.iter().map(|i| i.as_str()));
@@ -468,7 +468,7 @@ impl Installer {
 
     fn debug_paths(
         &mut self,
-        config: &mut Config,
+        config: &Config,
         base: &mut Base,
         pkgdest: &HashMap<String, String>,
     ) -> Result<HashMap<String, String>> {
@@ -620,11 +620,11 @@ impl Installer {
         }
 
         self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
-        self.to_install(base, &pkgdest, &debug_paths);
+        self.queue_install(base, &pkgdest, &debug_paths);
         Ok((pkgdest, version))
     }
 
-    fn to_install(
+    fn queue_install(
         &mut self,
         base: &mut Base,
         pkgdest: &HashMap<String, String>,
@@ -657,7 +657,7 @@ impl Installer {
     fn add_pkg(
         &mut self,
         config: &mut Config,
-        base: &mut Base,
+        base: &Base,
         repo: Option<(&str, &str)>,
         pkgdest: &HashMap<String, String>,
         debug_paths: &HashMap<String, String>,
@@ -786,7 +786,7 @@ impl Installer {
             let (pkgdest, version) = parse_package_list(config, &dir)?;
             let debug_paths = self.debug_paths(config, base, &pkgdest)?;
             self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
-            self.to_install(base, &pkgdest, &debug_paths);
+            self.queue_install(base, &pkgdest, &debug_paths);
             (pkgdest, version)
         };
 
@@ -1052,7 +1052,7 @@ impl Installer {
             .map(|p| p.pkg.name().to_string())
             .collect::<Vec<_>>();
 
-        self.prepare_build(config, &mut cache, &mut actions).await?;
+        self.prepare_build(config, &cache, &mut actions).await?;
 
         let mut build = actions.build;
 
@@ -1078,7 +1078,7 @@ impl Installer {
     async fn prepare_build(
         &mut self,
         config: &Config,
-        cache: &mut Cache,
+        cache: &Cache,
         actions: &mut Actions<'_>,
     ) -> Result<()> {
         if !actions.build.is_empty() && nix::unistd::getuid().is_root() {

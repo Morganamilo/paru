@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 
-pub fn remove(config: &mut Config) -> Result<i32> {
+pub fn remove(config: &Config) -> Result<i32> {
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
     let bases = config

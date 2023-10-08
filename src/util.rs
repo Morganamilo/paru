@@ -79,7 +79,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
 }
 
 pub fn split_repo_aur_info<'a, T: AsTarg>(
-    config: &mut Config,
+    config: &Config,
     targets: &'a [T],
 ) -> Result<(Vec<Targ<'a>>, Vec<Targ<'a>>)> {
     let mut local = Vec::new();

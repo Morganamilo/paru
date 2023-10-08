@@ -238,7 +238,7 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
         .map(|d| d.map(|d| d.file_name().into_string().unwrap()))
         .collect::<Result<HashSet<_>, _>>()?;
 
-    for (n, targ) in pkgs.into_iter().enumerate() {
+    for (n, targ) in pkgs.iter().enumerate() {
         print_download(config, n + 1, pkgs.len(), targ.pkg);
 
         let ret = Command::new(asp)

@@ -609,7 +609,7 @@ impl Config {
             dirs::config_dir().ok_or_else(|| anyhow!(tr!("failed to find config directory")))?;
         let config = config.join("paru");
         let state = dirs::state_dir()
-            .or_else(|| dirs::cache_dir())
+            .or_else(dirs::cache_dir)
             .ok_or_else(|| anyhow!(tr!("failed to find state directory")))?;
         let state = state.join("paru");
 
