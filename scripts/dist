@@ -2,5 +2,5 @@
 set -e
 cargo build --release --locked --target-dir target -Z sparse-registry
 scripts/mkmo locale/
-strip target/release/paru
+#strip target/release/paru
 tar --zstd -cfparu.tar.zst  man completions paru.conf locale -C target/release paru
