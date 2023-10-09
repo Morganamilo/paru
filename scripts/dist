@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
-cargo build --release --locked --target-dir target -Z sparse-registry
+
+TARGET=$(rustc -vV | sed -n 's|host: ||p')
+CARCH=${TARGET//-*}
+
+cross build --features generate --release --locked --target-dir target
 scripts/mkmo locale/
-strip target/release/paru
-tar --zstd -cfparu.tar.zst  man completions paru.conf locale -C target/release paru
+strip target/${TARGET}/release/paru
+tar --zstd -cf paru-${ARCH}.tar.zst man completions paru.conf locale -C target/${TARGET}/release paru
+

@@ -1,0 +1,9 @@
+
+[target.x86_64-unknown-linux-gnu]
+dockerfile = "Dockerfile"
+
+[target.aarch64-unknown-linux-gnu]
+dockerfile = "Dockerfile"
+
+[target.armv7-unknown-linux-gnueabihf]
+dockerfile = "Dockerfile"
