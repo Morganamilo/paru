@@ -71,8 +71,8 @@ mock = ["async-trait"]
 mock_chroot = ["mock"]
 
 [patch.crates-io]
-#alpm = { path = "../alpm.rs/alpm" }
-alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
+#alpm = { path = "../alpm.rs/alpm"}
+alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "c75bf4" }
 #aur-depends = { path = "../aur-depends" }
 aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "c36167" }
 #aur-fetch = { path = "../aur-fetch" }
