@@ -48,11 +48,7 @@ impl Hash for RepoInfo {
 
 impl PartialOrd for RepoInfo {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(
-            self.url
-                .cmp(&other.url)
-                .then(self.branch.cmp(&other.branch)),
-        )
+        Some(std::cmp::Ord::cmp(self, other))
     }
 }
 
@@ -204,11 +200,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         }
     }
 
-    let bases = bases
-        .bases
-        .into_iter()
-        .map(|b| Base::Aur(b))
-        .collect::<Vec<_>>();
+    let bases = bases.bases.into_iter().map(Base::Aur).collect::<Vec<_>>();
 
     println!(
         "{} {}",

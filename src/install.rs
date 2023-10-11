@@ -624,6 +624,7 @@ impl Installer {
         Ok((pkgdest, version))
     }
 
+    #[allow(clippy::wrong_self_convention)]
     fn to_install(
         &mut self,
         base: &mut Base,
