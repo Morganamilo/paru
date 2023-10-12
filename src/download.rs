@@ -19,7 +19,6 @@ use aur_depends::AurBase;
 use aur_fetch::Repo;
 use globset::GlobSet;
 use indicatif::{ProgressBar, ProgressStyle};
-use kuchiki::traits::*;
 use raur::{ArcPackage as Package, Raur};
 use srcinfo::Srcinfo;
 use tr::tr;
@@ -485,18 +484,18 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
             bail!("{}: {}: {}", base, url, response.status());
         }
 
-        let parser = kuchiki::parse_html();
-        let document = parser.one(response.text().await?);
+        let document = scraper::Html::parse_document(&response.text().await?);
+        let titles_selector = scraper::Selector::parse("div.comments h4.comment-header").unwrap();
+        let comments_selector =
+            scraper::Selector::parse("div.comments div.article-content").unwrap();
 
         let titles = document
-            .select("div.comments h4.comment-header")
-            .unwrap()
-            .map(|node| node.text_contents());
+            .select(&titles_selector)
+            .map(|node| node.text().collect::<String>());
 
         let comments = document
-            .select("div.comments div.article-content")
-            .unwrap()
-            .map(|node| node.text_contents());
+            .select(&comments_selector)
+            .map(|node| node.text().collect::<String>());
 
         let iter = titles.zip(comments).collect::<Vec<_>>();
 
