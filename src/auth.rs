@@ -2,7 +2,7 @@ use anyhow::{Result, ensure, bail, Context};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::os::unix::io::FromRawFd;
-use  nix::unistd::{pipe, close};
+use nix::unistd::pipe;
 use crate::config::Config;
 use std::process::Command;
 use std::cell::RefCell;

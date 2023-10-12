@@ -289,6 +289,7 @@ impl ConfigEnum for SortMode {
 }
 
 bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct Mode: u32 {
         const AUR =  1 << 0;
         const REPO = 1 << 1;
