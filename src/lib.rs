@@ -69,7 +69,7 @@ fn debug_enabled() -> bool {
 }
 
 fn alpm_debug_enabled() -> bool {
-    debug_enabled() && env::var("PARU_ALPM_DEBUG").as_deref().unwrap_or("1") != "0"
+    debug_enabled() && env::var("PARU_ALPM_DEBUG").is_ok_and(|v| v != "0")
 }
 
 fn print_error(color: Style, err: Error) {
