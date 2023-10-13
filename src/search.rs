@@ -4,9 +4,9 @@ use std::path::{Path, PathBuf};
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, print_indent};
-use crate::info;
 use crate::install::read_repos;
 use crate::util::{input, NumberMenu};
+use crate::{info, printtr};
 
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
@@ -410,7 +410,9 @@ pub fn interactive_search_local(config: &mut Config) -> Result<()> {
         all_pkgs.push(AnyPkg::RepoPkg(pkg));
     }
     let targs = interactive_menu(config, all_pkgs, &paths, false)?;
-    ensure!(!targs.is_empty(), "{}", tr!(" there is nothing to do"));
+    if targs.is_empty() {
+        printtr!(" there is nothing to do");
+    }
     config.targets = targs.clone();
     config.args.targets = targs;
     Ok(())
@@ -436,7 +438,9 @@ pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()
     }
 
     let targs = interactive_menu(config, all_pkgs, &paths, install)?;
-    ensure!(!targs.is_empty(), "{}", tr!(" there is nothing to do"));
+    if targs.is_empty() {
+        printtr!(" there is nothing to do");
+    }
     config.targets = targs.clone();
     config.args.targets = targs;
     Ok(())
@@ -451,7 +455,7 @@ pub fn interactive_menu(
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
-        bail!("{}", tr!("no packages match search"));
+        printtr!("no packages match search");
     }
 
     let indexes = all_pkgs
@@ -494,7 +498,7 @@ pub fn interactive_menu(
     };
 
     if input.trim().is_empty() {
-        bail!("{}", tr!(" there is nothing to do"));
+        return Ok(Vec::new());
     }
 
     let menu = NumberMenu::new(&input);

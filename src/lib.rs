@@ -215,7 +215,7 @@ async fn handle_build(config: &mut Config) -> Result<i32> {
 
 async fn handle_query(config: &mut Config) -> Result<i32> {
     let args = &config.args;
-    if config.interactive {
+    if args.has_arg("s", "search") && config.interactive {
         interactive_search_local(config)?;
         for pkg in &config.targets {
             print_target(pkg, config.quiet);

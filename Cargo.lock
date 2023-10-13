@@ -59,8 +59,7 @@ dependencies = [
 [[package]]
 name = "alpm-utils"
 version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01c6892a7ced000868007e9ee99a80680c96f5b3e535e9ade81a54501e391232"
+source = "git+https://github.com/archlinux/alpm.rs?rev=101b05#101b05fe980e3113f3a4fb4026a42cbb272cb3cc"
 dependencies = [
  "alpm",
  "pacmanconf",
