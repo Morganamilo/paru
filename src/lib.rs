@@ -73,12 +73,19 @@ fn alpm_debug_enabled() -> bool {
 }
 
 fn print_error(color: Style, err: Error) {
-    // TODO: re add when stable
-    /*let backtrace = err.backtrace();
+    let backtrace_enabled = match env::var("RUST_LIB_BACKTRACE") {
+        Ok(s) => s != "0",
+        Err(_) => match env::var("RUST_BACKTRACE") {
+            Ok(s) => s != "0",
+            Err(_) => false,
+        },
+    };
 
-    if backtrace.status() == std::backtrace::BacktraceStatus::Captured {
+    if backtrace_enabled {
+        let backtrace = err.backtrace();
         eprint!("{}", backtrace);
-    }*/
+    }
+
     let mut iter = err.chain().peekable();
 
     if <dyn StdError>::is::<exec::PacmanError>(*iter.peek().unwrap())
