@@ -124,6 +124,14 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
     col.paint(name).to_string()
 }
 
+pub fn print_target(targ: &str, quiet: bool) {
+    if quiet {
+        println!("{}", targ.splitn(2, '/').nth(1).unwrap())
+    } else {
+        println!("{}", targ);
+    }
+}
+
 fn base_string(config: &Config, base: &Base, devel: &HashSet<String>) -> String {
     let c = config.color;
     let mut s = String::new();

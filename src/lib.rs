@@ -50,6 +50,7 @@ use std::process::Command;
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
+use fmt::print_target;
 use search::{interactive_search, interactive_search_local};
 use tr::{tr, tr_init};
 
@@ -217,7 +218,7 @@ async fn handle_query(config: &mut Config) -> Result<i32> {
     if config.interactive {
         interactive_search_local(config)?;
         for pkg in &config.targets {
-            println!("{}", pkg);
+            print_target(pkg, config.quiet);
         }
         Ok(0)
     } else if args.has_arg("u", "upgrades") {
@@ -302,7 +303,7 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         if config.interactive {
             interactive_search(config, false).await?;
             for pkg in &config.targets {
-                println!("{}", pkg);
+                print_target(pkg, config.quiet);
             }
             Ok(1)
         } else {
