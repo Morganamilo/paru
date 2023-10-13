@@ -9,7 +9,7 @@ use std::collections::{HashMap, HashSet};
 use alpm::{AlpmList, Db};
 use alpm_utils::DbListExt;
 use anyhow::Result;
-use aur_depends::{AurUpdates, CustomUpdates, Repo, Resolver};
+use aur_depends::{AurUpdates, CustomUpdates, Resolver};
 use futures::try_join;
 use tr::tr;
 
@@ -205,7 +205,6 @@ fn custom_upgrades<'a>(
 pub async fn get_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
-    custom_repos: &[Repo],
 ) -> Result<Upgrades> {
     let (aur_upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
@@ -238,13 +237,8 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     let mut aur_upgrades = aur_upgrades.updates;
-    let mut devel_upgrades = filter_devel_updates(
-        config,
-        resolver.get_cache_mut(),
-        &devel_upgrades,
-        custom_repos,
-    )
-    .await?;
+    let mut devel_upgrades =
+        filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
 
     let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?

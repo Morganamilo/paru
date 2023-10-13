@@ -1,20 +1,16 @@
-use std::collections::HashMap;
-use std::path::PathBuf;
-
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
 use crate::fmt::{date, opt, print_indent};
-use crate::install::read_repos;
 use crate::util::split_repo_aur_info;
 
 use alpm_utils::Targ;
 use ansi_term::Style;
 use anyhow::Error;
-use aur_depends::Repo;
+
 use globset::GlobSet;
 use raur::ArcPackage as Package;
-use srcinfo::{ArchVec, Srcinfo};
+use srcinfo::{ArchVec};
 use term_size::dimensions_stdout;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
@@ -26,16 +22,9 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let (repo, aur) = split_repo_aur_info(conf, &targets)?;
     let mut ret = 0;
 
-    let mut repo_paths = HashMap::new();
-    let mut repos = Vec::new();
+    let longest = longest(conf) + 3;
 
-    if conf.mode.pkgbuild() {
-        read_repos(conf, &mut repo_paths, &mut repos)?;
-    }
-
-    let longest = longest(&repos) + 3;
-
-    let (custom, aur) = aur.into_iter().partition::<Vec<_>, _>(|t| {
+    let (pkgbuild, aur) = aur.into_iter().partition::<Vec<_>, _>(|t| {
         if !conf.mode.aur() {
             return true;
         }
@@ -43,14 +32,13 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
             return false;
         }
         t.repo.map_or_else(
-            || {
-                repos
-                    .iter()
-                    .flat_map(|r| &r.pkgs)
-                    .flat_map(|p| p.names())
-                    .any(|p| p == t.pkg)
+            || conf.pkgbuild_repos.pkg(conf, t.pkg).is_some(),
+            |r| {
+                conf.pkgbuild_repos
+                    .repo(r)
+                    .and_then(|r| r.pkg(conf, t.pkg))
+                    .is_some()
             },
-            |t| repos.iter().any(|r| r.name == t),
         )
     });
 
@@ -85,14 +73,14 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
         print_aur_info(conf, verbose, &aur, longest)?;
     }
 
-    if !custom.is_empty() {
-        print_custom_info(conf, verbose, &repos, &repo_paths, &custom, longest)?;
+    if !pkgbuild.is_empty() {
+        print_pkgbuild_info(conf, verbose, &pkgbuild, longest)?;
     }
 
     Ok(ret)
 }
 
-fn longest(repos: &[Repo]) -> usize {
+fn longest(config: &Config) -> usize {
     let longest = [
         tr!("Repository"),
         tr!("Name"),
@@ -127,8 +115,9 @@ fn longest(repos: &[Repo]) -> usize {
 
     let mut longest_a = 0;
 
-    for repo in repos {
-        for base in &repo.pkgs {
+    for repo in &config.pkgbuild_repos.repos {
+        for base in repo.pkgs(config) {
+            let base = &base.srcinfo;
             longest_a = longest_a
                 .max(arch_len(&base.base.makedepends))
                 .max(arch_len(&base.base.checkdepends));
@@ -154,28 +143,9 @@ fn arch_len(vec: &[ArchVec]) -> usize {
         .unwrap_or(0)
 }
 
-fn find_cusom_pkg<'a>(
-    name: &str,
-    repos: impl IntoIterator<Item = &'a Repo>,
-) -> Option<(&'a str, &'a Srcinfo, &'a srcinfo::Package)> {
-    for repo in repos {
-        for base in &repo.pkgs {
-            for pkg in &base.pkgs {
-                if pkg.pkgname == name {
-                    return Some((&repo.name, base, pkg));
-                }
-            }
-        }
-    }
-
-    None
-}
-
-pub fn print_custom_info(
+pub fn print_pkgbuild_info(
     conf: &Config,
     _verbose: bool,
-    repos: &[Repo],
-    paths: &HashMap<(String, String), PathBuf>,
     pkgs: &[Targ],
     len: usize,
 ) -> Result<(), Error> {
@@ -194,12 +164,14 @@ pub fn print_custom_info(
     };
     for targ in pkgs {
         let pkg = if let Some(repo) = targ.repo {
-            find_cusom_pkg(targ.pkg, repos.iter().find(|r| r.name == repo))
+            conf.pkgbuild_repos
+                .repo(repo)
+                .and_then(|r| r.pkg(conf, targ.pkg))
         } else {
-            find_cusom_pkg(targ.pkg, repos)
+            conf.pkgbuild_repos.pkg(conf, targ.pkg)
         };
 
-        let (repo, srcinfo, pkg) = match pkg {
+        let (base, pkg) = match pkg {
             Some(pkg) => pkg,
             None => {
                 eprintln!(
@@ -211,9 +183,9 @@ pub fn print_custom_info(
             }
         };
 
-        let path = paths
-            .get(&(repo.to_string(), targ.pkg.to_string()))
-            .unwrap();
+        let path = base.path.as_path();
+        let srcinfo = &base.srcinfo;
+        let repo = base.repo.as_str();
 
         print(&tr!("Repository"), repo);
         print(&tr!("Name"), &pkg.pkgname);

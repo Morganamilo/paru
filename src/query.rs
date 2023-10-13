@@ -1,9 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use crate::config::{Config, Mode};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::exec;
-use crate::install::read_repos;
 use crate::util::split_repo_aur_pkgs;
 
 use anyhow::Result;
@@ -60,12 +59,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 
         let mut aur = aur.trim().lines().collect::<Vec<_>>();
 
-        let mut repo_paths = HashMap::new();
-        let mut repos = Vec::new();
-
         if config.mode.pkgbuild() {
-            read_repos(config, &mut repo_paths, &mut repos)?;
-
             aur.retain(|&target| {
                 if !config.mode.aur() {
                     return false;
@@ -75,19 +69,15 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                 }
                 let local_pkg = db.pkg(target).unwrap();
 
-                for repo in &repos {
-                    for pkg in &repo.pkgs {
-                        if let Some(name) = pkg.names().find(|n| n == &target) {
-                            if alpm::Version::new(&*pkg.version()) > local_pkg.version() {
-                                print_upgrade(
-                                    config,
-                                    name,
-                                    local_pkg.version().as_str(),
-                                    &pkg.version(),
-                                );
-                                return false;
-                            }
-                        }
+                if let Some((base, _pkg)) = config.pkgbuild_repos.pkg(config, target) {
+                    if alpm::Version::new(&*base.srcinfo.version()) > local_pkg.version() {
+                        print_upgrade(
+                            config,
+                            target,
+                            local_pkg.version().as_str(),
+                            &base.srcinfo.version(),
+                        );
+                        return false;
                     }
                 }
                 true
@@ -110,7 +100,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
             }
 
             let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
-            let devel = filter_devel_updates(config, &mut cache, &devel, &repos).await?;
+            let devel = filter_devel_updates(config, &mut cache, &devel).await?;
 
             for target in aur {
                 let local_pkg = db.pkg(target).unwrap();

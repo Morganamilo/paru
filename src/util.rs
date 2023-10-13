@@ -50,7 +50,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         } else if let Some(repo) = targ.repo {
             if config.alpm.syncdbs().iter().any(|db| db.name() == repo) {
                 local.push(targ);
-            } else if config.custom_repos.iter().any(|r| r.name == repo)
+            } else if config.pkgbuild_repos.repo(repo).is_some()
                 || repo == config.aur_namespace()
                 || repo == "."
             {

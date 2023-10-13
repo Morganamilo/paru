@@ -14,6 +14,7 @@ mod install;
 mod keys;
 mod news;
 mod order;
+mod pkgbuild;
 mod query;
 mod remove;
 mod repo;

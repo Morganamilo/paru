@@ -2,6 +2,7 @@ use crate::args::Args;
 use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
+use crate::pkgbuild::{PkgbuildRepos, RepoSource};
 use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
@@ -19,6 +20,7 @@ use alpm::{
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
@@ -545,36 +547,8 @@ pub struct Config {
     pub ignore_devel_builder: GlobSetBuilder,
     pub assume_installed: Vec<String>,
 
-    pub custom_repos: Vec<CustomRepo>,
-}
-
-#[derive(Debug, Default)]
-pub enum RepoSource {
-    Url(Url),
-    Path(PathBuf),
-    #[default]
-    None,
-}
-
-#[derive(Default, Debug)]
-pub struct CustomRepo {
-    pub name: String,
-    pub source: RepoSource,
-    pub depth: u32,
-    pub skip_review: bool,
-    pub force_srcinfo: bool,
-}
-
-impl CustomRepo {
-    pub fn new(name: String) -> Self {
-        CustomRepo {
-            depth: 2,
-            name,
-            source: RepoSource::None,
-            skip_review: false,
-            force_srcinfo: false,
-        }
-    }
+    #[default(PkgbuildRepos::new(aur_fetch::Fetch::with_cache_dir("repo")))]
+    pub pkgbuild_repos: PkgbuildRepos,
 }
 
 impl Ini for Config {
@@ -585,13 +559,13 @@ impl Ini for Config {
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
-                    && !self.custom_repos.iter().any(|r| r.name == section)
+                    && self.pkgbuild_repos.repo(section).is_none()
                 {
                     if matches!(section, "local" | "aur" | "pkg" | "base") || section.contains('.')
                     {
                         bail!(tr!("section can not be called {}", section));
                     }
-                    self.custom_repos.push(CustomRepo::new(section.to_string()));
+                    self.pkgbuild_repos.add_repo(section.to_string());
                 }
                 Ok(())
             }
@@ -645,6 +619,11 @@ impl Config {
             devel_path,
             ..Self::default()
         };
+
+        let mut fetch = config.fetch.clone();
+        fetch.clone_dir = config.build_dir.join("repo");
+        fetch.diff_dir = config.cache_dir.join("diff/repo");
+        config.pkgbuild_repos.fetch = fetch;
 
         if let Some(old) = old {
             if let Ok(devel) = OpenOptions::new().read(true).open(old) {
@@ -974,11 +953,7 @@ impl Config {
     fn parse_repo(&mut self, repo: &str, key: &str, value: Option<&str>) -> Result<()> {
         let value = value.context(tr!("key can not be empty"));
 
-        let repo = self
-            .custom_repos
-            .iter_mut()
-            .find(|r| r.name == repo)
-            .unwrap();
+        let repo = self.pkgbuild_repos.repo_mut(repo).unwrap();
 
         match key {
             "URL" => repo.source = RepoSource::Url(Url::parse(value?)?),

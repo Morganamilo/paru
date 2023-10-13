@@ -1,12 +1,12 @@
 use crate::config::Config;
-use crate::install::read_repos;
+use crate::pkgbuild::PkgbuildRepos;
 use crate::{exec, print_error};
 
-use std::collections::HashMap;
+
 use std::io::Write;
 
 use anyhow::{anyhow, ensure, Context, Result};
-use aur_depends::Repo;
+
 use raur::Raur;
 use tr::tr;
 
@@ -38,12 +38,8 @@ pub async fn list(config: &Config) -> Result<i32> {
             }
         }
         if config.mode.pkgbuild() {
-            let mut repo_paths = HashMap::new();
-            let mut repos = Vec::new();
-            read_repos(config, &mut repo_paths, &mut repos)?;
-
-            for repo in &repos {
-                list_custom(config, &repos, &repo.name);
+            for repo in &config.pkgbuild_repos.repos {
+                list_pkgbuilds(config, &config.pkgbuild_repos, &repo.name);
             }
         }
         if config.mode.aur() {
@@ -53,9 +49,6 @@ pub async fn list(config: &Config) -> Result<i32> {
             }
         }
     } else {
-        let mut repo_paths = HashMap::new();
-        let mut repos = Vec::new();
-        let mut loaded = false;
         for &target in &args.targets {
             if config.alpm.syncdbs().iter().any(|r| r.name() == target) && config.mode.repo() {
                 let mut args = args.clone();
@@ -65,13 +58,8 @@ pub async fn list(config: &Config) -> Result<i32> {
                     print_error(c.error, e);
                     ret = 1;
                 }
-            } else if config.custom_repos.iter().any(|r| r.name == target) && config.mode.pkgbuild()
-            {
-                if !loaded {
-                    read_repos(config, &mut repo_paths, &mut repos)?;
-                    loaded = true;
-                }
-                list_custom(config, &repos, target);
+            } else if config.pkgbuild_repos.repo(target).is_some() && config.mode.pkgbuild() {
+                list_pkgbuilds(config, &config.pkgbuild_repos, target);
             } else if target == config.aur_namespace() && config.mode.aur() {
                 if let Err(e) = list_aur(config).await {
                     print_error(c.error, e);
@@ -87,19 +75,19 @@ pub async fn list(config: &Config) -> Result<i32> {
     Ok(ret)
 }
 
-pub fn list_custom(config: &Config, repos: &[Repo], repo: &str) {
+pub fn list_pkgbuilds(config: &Config, repos: &PkgbuildRepos, repo: &str) {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
-    if let Some(repo) = &repos.iter().find(|r| r.name == repo) {
-        for pkg in &repo.pkgs {
-            for name in pkg.names() {
+    if let Some(repo) = repos.repo(repo) {
+        for pkg in repo.pkgs(config) {
+            for name in pkg.srcinfo.names() {
                 print_pkg(
                     config,
                     &mut stdout,
                     name.as_bytes(),
                     &repo.name,
-                    &pkg.version(),
+                    &pkg.srcinfo.version(),
                 )
             }
         }
