@@ -80,7 +80,7 @@ fn search_custom<'a>(
     paths: &mut HashMap<(String, String), PathBuf>,
     targets: &[String],
 ) -> Result<Vec<(&'a str, &'a Srcinfo, &'a srcinfo::Package)>> {
-    if targets.is_empty() || !config.mode.pkgbuild() {
+    if !config.mode.pkgbuild() {
         return Ok(Vec::new());
     }
 
@@ -92,7 +92,8 @@ fn search_custom<'a>(
     for repo in repos {
         for base in &repo.pkgs {
             for pkg in &base.pkgs {
-                if regex.is_match(&base.base.pkgbase)
+                if targets.is_empty()
+                    || regex.is_match(&base.base.pkgbase)
                     || regex.is_match(&pkg.pkgname)
                     || pkg.pkgdesc.iter().any(|d| regex.is_match(d))
                     || pkg
