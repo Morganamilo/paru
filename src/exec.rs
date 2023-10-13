@@ -149,8 +149,8 @@ pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
 
 fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
     loop {
-        update_sudo(sudo, flags)?;
         thread::sleep(Duration::from_secs(250));
+        update_sudo(sudo, flags)?;
     }
 }
 
@@ -173,7 +173,6 @@ fn wait_for_lock(config: &Config) {
                 .paint(tr!("Pacman is currently in use, please wait..."))
         );
 
-        std::thread::sleep(Duration::from_secs(3));
         while path.exists() {
             std::thread::sleep(Duration::from_secs(3));
         }
