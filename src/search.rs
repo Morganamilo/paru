@@ -47,7 +47,7 @@ pub async fn search(config: &Config) -> Result<i32> {
     let print_custom = || {
         for (repo, srcinfo, pkg) in &custom_pkgs {
             let path = paths
-                .get(&(repo.to_string(), pkg.pkgname.to_string()))
+                .get(&(repo.to_string(), srcinfo.base.pkgbase.clone()))
                 .unwrap();
             print_custom_pkg(config, repo, path, srcinfo, pkg, quiet);
         }
@@ -555,7 +555,7 @@ fn print_any_pkg(
             let n = format!("{:>pad$}", n + 1, pad = pad);
             print!("{} ", c.number_menu.paint(n));
             let path = paths
-                .get(&(repo.to_string(), pkg.pkgname.to_string()))
+                .get(&(repo.to_string(), base.base.pkgbase.clone()))
                 .unwrap();
             print_custom_pkg(config, repo, path, base, pkg, false)
         }
