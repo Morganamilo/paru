@@ -548,17 +548,12 @@ pub struct Config {
     pub custom_repos: Vec<CustomRepo>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum RepoSource {
     Url(Url),
     Path(PathBuf),
+    #[default]
     None,
-}
-
-impl Default for RepoSource {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 #[derive(Default, Debug)]
