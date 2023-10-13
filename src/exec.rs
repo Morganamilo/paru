@@ -2,9 +2,9 @@ use crate::args::Args;
 use crate::config::Config;
 
 use std::ffi::OsStr;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
-use std::process::{Command, Output};
+use std::process::{Command, Output, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -180,59 +180,52 @@ fn wait_for_lock(config: &Config) {
     }
 }
 
-pub fn pacman<S: AsRef<str> + Display + std::fmt::Debug>(
-    config: &Config,
-    args: &Args<S>,
-) -> Result<Status> {
-    if config.need_root {
+fn new_pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) -> Command {
+    let mut cmd = if config.need_root {
         wait_for_lock(config);
         let mut cmd = Command::new(&config.sudo_bin);
-        cmd.args(&config.sudo_flags)
-            .arg(args.bin.as_ref())
-            .args(args.args());
-        command_status(&mut cmd)
+        cmd.args(&config.sudo_flags).arg(args.bin.as_ref());
+        cmd
     } else {
-        let mut cmd = Command::new(args.bin.as_ref());
-        cmd.args(args.args());
-        command_status(&mut cmd)
+        Command::new(args.bin.as_ref())
+    };
+
+    if let Some(config) = &config.pacman_conf {
+        cmd.args(["--config", config]);
     }
+    cmd.args(args.args());
+    cmd
+}
+
+pub fn pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) -> Result<Status> {
+    let mut cmd = new_pacman(config, args);
+    command_status(&mut cmd)
 }
 
 pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
     config: &Config,
     args: &Args<S>,
 ) -> Result<Output> {
-    use std::process::Stdio;
-
-    if config.need_root {
-        wait_for_lock(config);
-        let mut cmd = Command::new(&config.sudo_bin);
-        cmd.args(&config.sudo_flags)
-            .arg(args.bin.as_ref())
-            .args(args.args())
-            .stdin(Stdio::inherit());
-        command_output(&mut cmd)
-    } else {
-        let mut cmd = Command::new(args.bin.as_ref());
-        cmd.args(args.args()).stdin(Stdio::inherit());
-        command_output(&mut cmd)
-    }
+    let mut cmd = new_pacman(config, args);
+    cmd.stdin(Stdio::inherit());
+    command_output(&mut cmd)
 }
 
-pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
+fn new_makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Command {
     let mut cmd = Command::new(&config.makepkg_bin);
     if let Some(mconf) = &config.makepkg_conf {
         cmd.arg("--config").arg(mconf);
     }
     cmd.args(&config.mflags).args(args).current_dir(dir);
+    cmd
+}
+
+pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
+    let mut cmd = new_makepkg(config, dir, args);
     command_status(&mut cmd)
 }
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
-    let mut cmd = Command::new(&config.makepkg_bin);
-    if let Some(mconf) = &config.makepkg_conf {
-        cmd.arg("--config").arg(mconf);
-    }
-    cmd.args(&config.mflags).args(args).current_dir(dir);
+    let mut cmd = new_makepkg(config, dir, args);
     command_output(&mut cmd)
 }
