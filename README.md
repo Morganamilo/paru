@@ -61,7 +61,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 `paru --gendb` -- Generate the devel database for tracking `*-git` packages. This is only needed when you initially start using paru.
 
-`paru -Ui` -- Build and install a PKGBUILD in the current directory.
+`paru -Bi .` -- Build and install a PKGBUILD in the current directory.
 
 ## IRC
 
