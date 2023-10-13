@@ -44,6 +44,7 @@ use std::env::{self, current_dir};
 use std::error::Error as StdError;
 use std::fs::{read_dir, read_to_string};
 use std::io::Write;
+
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -51,8 +52,10 @@ use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
 use fmt::print_target;
+
 use search::{interactive_search, interactive_search_local};
 use tr::{tr, tr_init};
+use util::{redirect_to_stderr, reopen_stdout};
 
 #[macro_export]
 macro_rules! printtr {
@@ -216,7 +219,9 @@ async fn handle_build(config: &mut Config) -> Result<i32> {
 async fn handle_query(config: &mut Config) -> Result<i32> {
     let args = &config.args;
     if args.has_arg("s", "search") && config.interactive {
+        let stdout = redirect_to_stderr()?;
         interactive_search_local(config)?;
+        reopen_stdout(&stdout)?;
         for pkg in &config.targets {
             print_target(pkg, config.quiet);
         }
@@ -301,7 +306,9 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         sync::list(config).await
     } else if config.args.has_arg("s", "search") {
         if config.interactive {
+            let stdout = redirect_to_stderr()?;
             interactive_search(config, false).await?;
+            reopen_stdout(&stdout)?;
             for pkg in &config.targets {
                 print_target(pkg, config.quiet);
             }

@@ -1,5 +1,6 @@
-use std::collections::HashSet;
 use std::fmt::Write;
+
+use std::collections::HashSet;
 
 use crate::config::Config;
 use crate::repo;
@@ -126,7 +127,7 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
 
 pub fn print_target(targ: &str, quiet: bool) {
     if quiet {
-        println!("{}", targ.splitn(2, '/').nth(1).unwrap())
+        println!("{}", targ.split_once('/').unwrap().1);
     } else {
         println!("{}", targ);
     }

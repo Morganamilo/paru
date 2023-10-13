@@ -9,7 +9,7 @@ use crate::util::{input, NumberMenu};
 use crate::{info, printtr};
 
 use ansi_term::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{ensure, Context, Result};
 use aur_depends::Repo;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};

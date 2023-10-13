@@ -3,12 +3,16 @@ use crate::repo;
 
 use std::cell::Cell;
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{stdin, stdout, BufRead, Write};
 use std::ops::Range;
+use std::os::fd::{AsFd, AsRawFd};
 
 use alpm::{Package, PackageReason};
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
+use nix::libc::{STDERR_FILENO, STDIN_FILENO, STDOUT_FILENO};
+use nix::unistd::dup2;
 use tr::tr;
 
 #[derive(Debug)]
@@ -402,4 +406,21 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<alpm::Package<'_>>, Vec<alpm::Pack
             .partition(|pkg| config.alpm.syncdbs().pkg(pkg.name()).is_ok());
         (repo, aur)
     }
+}
+
+pub fn redirect_to_stderr() -> Result<File> {
+    let stdout = stdout().as_fd().try_clone_to_owned()?;
+    dup2(STDERR_FILENO, STDOUT_FILENO)?;
+    Ok(File::from(stdout))
+}
+
+pub fn reopen_stdin() -> Result<()> {
+    let file = File::open("/dev/tty")?;
+    dup2(file.as_raw_fd(), STDIN_FILENO)?;
+    Ok(())
+}
+
+pub fn reopen_stdout(file: &File) -> Result<()> {
+    dup2(file.as_raw_fd(), STDOUT_FILENO)?;
+    Ok(())
 }
