@@ -246,6 +246,7 @@ impl Config {
                     self.mode |= word.parse()?;
                 }
             }
+            Arg::Long("interactive") => self.interactive = true,
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,

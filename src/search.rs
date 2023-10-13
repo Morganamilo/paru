@@ -5,12 +5,11 @@ use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, print_indent};
 use crate::info;
-use crate::install::{install, read_repos};
-use crate::printtr;
+use crate::install::read_repos;
 use crate::util::{input, NumberMenu};
 
 use ansi_term::Style;
-use anyhow::{ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use aur_depends::Repo;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
@@ -19,7 +18,8 @@ use reqwest::get;
 use srcinfo::Srcinfo;
 use tr::tr;
 
-enum AnyPkg<'a> {
+#[derive(Debug)]
+pub enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
     AurPkg(&'a raur::Package),
     Custom(&'a str, &'a Srcinfo, &'a srcinfo::Package),
@@ -29,6 +29,7 @@ pub async fn search(config: &Config) -> Result<i32> {
     let mut repos = Vec::new();
     let mut paths = HashMap::new();
     let quiet = config.args.has_arg("q", "quiet");
+
     let repo_pkgs = search_repos(config, &config.targets)?;
 
     let targets = config
@@ -105,6 +106,23 @@ fn search_custom<'a>(
                 }
             }
         }
+    }
+
+    Ok(ret)
+}
+
+fn search_local<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
+    let mut ret = Vec::new();
+
+    if targets.is_empty() {
+        ret.extend(config.alpm.localdb().pkgs());
+    } else {
+        let pkgs = config.alpm.localdb().search(targets.iter())?;
+        ret.extend(pkgs);
+    };
+
+    if config.limit != 0 {
+        ret.truncate(config.limit);
     }
 
     Ok(ret)
@@ -381,7 +399,23 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 }
 
-pub async fn search_install(config: &mut Config) -> Result<i32> {
+pub fn interactive_search_local(config: &mut Config) -> Result<()> {
+    let paths = HashMap::new();
+    let mut all_pkgs = Vec::new();
+
+    let repo_pkgs = search_local(config, &config.targets)?;
+
+    for pkg in repo_pkgs {
+        all_pkgs.push(AnyPkg::RepoPkg(pkg));
+    }
+    let targs = interactive_menu(config, all_pkgs, &paths, false)?;
+    ensure!(!targs.is_empty(), "{}", tr!(" there is nothing to do"));
+    config.targets = targs.clone();
+    config.args.targets = targs;
+    Ok(())
+}
+
+pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()> {
     let mut repos = Vec::new();
     let mut paths = HashMap::new();
 
@@ -400,11 +434,23 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         all_pkgs.push(AnyPkg::AurPkg(pkg));
     }
 
+    let targs = interactive_menu(config, all_pkgs, &paths, install)?;
+    ensure!(!targs.is_empty(), "{}", tr!(" there is nothing to do"));
+    config.targets = targs.clone();
+    config.args.targets = targs;
+    Ok(())
+}
+
+pub fn interactive_menu(
+    config: &Config,
+    mut all_pkgs: Vec<AnyPkg<'_>>,
+    paths: &HashMap<(String, String), PathBuf>,
+    install: bool,
+) -> Result<Vec<String>> {
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
-        printtr!("no packages match search");
-        return Ok(1);
+        bail!("{}", tr!("no packages match search"));
     }
 
     let indexes = all_pkgs
@@ -432,19 +478,22 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
 
     if config.sort_mode == SortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
-            print_any_pkg(config, n, pad, pkg, &paths)
+            print_any_pkg(config, n, pad, pkg, paths)
         }
     } else {
         for (n, pkg) in all_pkgs.iter().enumerate().rev() {
-            print_any_pkg(config, n, pad, pkg, &paths)
+            print_any_pkg(config, n, pad, pkg, paths)
         }
     }
 
-    let input = input(config, &tr!("Packages to install (eg: 1 2 3, 1-3):"));
+    let input = if install {
+        input(config, &tr!("Packages to install (eg: 1 2 3, 1-3):"))
+    } else {
+        input(config, &tr!("Select packages (eg: 1 2 3, 1-3):"))
+    };
 
     if input.trim().is_empty() {
-        printtr!(" there is nothing to do");
-        return Ok(1);
+        bail!("{}", tr!(" there is nothing to do"));
     }
 
     let menu = NumberMenu::new(&input);
@@ -480,15 +529,7 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         }
     }
 
-    if pkgs.is_empty() {
-        printtr!(" there is nothing to do")
-    } else {
-        config.need_root = true;
-        config.args.remove("x").remove("regex");
-        install(config, &pkgs).await?;
-    }
-
-    Ok(0)
+    Ok(pkgs)
 }
 
 fn print_any_pkg(

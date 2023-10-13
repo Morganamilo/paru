@@ -50,6 +50,7 @@ use std::process::Command;
 use ansi_term::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
+use search::{interactive_search, interactive_search_local};
 use tr::{tr, tr_init};
 
 #[macro_export]
@@ -154,13 +155,14 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse(Some(name.as_str()), &file)?;
     };
 
+    log::debug!("{:#?}", config);
+
     if args.is_empty() {
         config.parse_args(["-Syu"])?;
     } else {
         config.parse_args(args)?;
     }
 
-    log::debug!("{:#?}", config);
     handle_cmd(config).await
 }
 
@@ -181,7 +183,7 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
         Op::DepTest => handle_test(config).await?,
         Op::GetPkgBuild => handle_get_pkg_build(config).await?,
         Op::Show => handle_show(config).await?,
-        Op::Yay => handle_yay(config).await?,
+        Op::Default => handle_default(config).await?,
         Op::RepoCtl => handle_repo(config)?,
         Op::ChrootCtl => handle_chroot(config)?,
         // _ => bail!("unknown op '{}'", config.op),
@@ -212,7 +214,13 @@ async fn handle_build(config: &mut Config) -> Result<i32> {
 
 async fn handle_query(config: &mut Config) -> Result<i32> {
     let args = &config.args;
-    if args.has_arg("u", "upgrades") {
+    if config.interactive {
+        interactive_search_local(config)?;
+        for pkg in &config.targets {
+            println!("{}", pkg);
+        }
+        Ok(0)
+    } else if args.has_arg("u", "upgrades") {
         print_upgrade_list(config).await
     } else {
         Ok(exec::pacman(config, args)?.code())
@@ -243,7 +251,7 @@ async fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
     }
 }
 
-async fn handle_yay(config: &mut Config) -> Result<i32> {
+async fn handle_default(config: &mut Config) -> Result<i32> {
     if config.gendb {
         devel::gendb(config).await?;
         Ok(0)
@@ -262,13 +270,15 @@ async fn handle_yay(config: &mut Config) -> Result<i32> {
             Ok(0)
         }
     } else if !config.targets.is_empty() {
-        search::search_install(config).await
+        config.interactive = true;
+        handle_sync(config).await?;
+        Ok(0)
     } else {
         bail!(tr!("no operation specified (use -h for help)"));
     }
 }
 
-fn handle_remove(config: &Config) -> Result<i32> {
+fn handle_remove(config: &mut Config) -> Result<i32> {
     remove::remove(config)
 }
 
@@ -289,13 +299,24 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
     } else if config.args.has_arg("l", "list") {
         sync::list(config).await
     } else if config.args.has_arg("s", "search") {
-        search::search(config).await
+        if config.interactive {
+            interactive_search(config, false).await?;
+            for pkg in &config.targets {
+                println!("{}", pkg);
+            }
+            Ok(1)
+        } else {
+            search::search(config).await
+        }
     } else if config.args.has_arg("g", "groups")
         || config.args.has_arg("p", "print")
         || config.args.has_arg("p", "print-format")
     {
         Ok(exec::pacman(config, &config.args)?.code())
     } else {
+        if config.interactive {
+            search::interactive_search(config, true).await?;
+        }
         let target = std::mem::take(&mut config.targets);
         install::install(config, &target).await?;
         Ok(0)

@@ -194,8 +194,10 @@ pub enum Sign {
     Key(String),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
+    #[default]
+    Default,
     ChrootCtl,
     Database,
     DepTest,
@@ -208,7 +210,6 @@ pub enum Op {
     Sync,
     Upgrade,
     Build,
-    Yay,
 }
 
 impl ConfigEnum for Op {
@@ -225,7 +226,7 @@ impl ConfigEnum for Op {
         ("sync", Self::Sync),
         ("upgrade", Self::Upgrade),
         ("build", Self::Build),
-        ("yay", Self::Yay),
+        ("default", Self::Default),
     ];
 }
 
@@ -386,7 +387,6 @@ pub struct Config {
 
     pub cols: Option<usize>,
 
-    #[default(Op::Yay)]
     pub op: Op,
 
     #[cfg(not(feature = "mock"))]
@@ -435,6 +435,7 @@ pub struct Config {
     #[default(Mode::empty())]
     pub mode: Mode,
     pub aur_filter: bool,
+    pub interactive: bool,
 
     #[default = 7]
     pub completion_interval: u64,
@@ -727,7 +728,7 @@ impl Config {
 
         if self.help {
             match self.op {
-                Op::GetPkgBuild | Op::Show | Op::Yay => {
+                Op::GetPkgBuild | Op::Show | Op::Default => {
                     help::help();
                     std::process::exit(0);
                 }

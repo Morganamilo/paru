@@ -48,7 +48,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         ),
         YesNoAll::All => flags |= Flags::PROVIDES,
     }
-    if config.op == Op::Yay {
+    if config.op == Op::Default {
         flags.remove(Flags::TARGET_PROVIDES);
     }
     if config.repos != LocalRepos::None || config.rebuild == YesNoAllTree::Tree || config.chroot {
