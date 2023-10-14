@@ -35,8 +35,6 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
         .status()?;
     assert!(status.success());
 
-
-
     if repo {
         let status = Command::new("cp")
             .arg("-r")
