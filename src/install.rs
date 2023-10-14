@@ -76,7 +76,8 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> 
     installer.install_targets = !config.no_install;
 
     if targets_str.iter().any(|t| t.starts_with("./")) {
-        config.pkgbuild_repos.add_cwd()?;
+        let repo = PkgbuildRepo::from_cwd(config)?;
+        config.pkgbuild_repos.repos.push(repo);
     }
 
     installer.install(config, targets_str).await

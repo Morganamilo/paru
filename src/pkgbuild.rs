@@ -90,22 +90,28 @@ impl PkgbuildRepo {
             .find_map(|srcinfo| srcinfo.srcinfo.pkg(pkg).map(|p| (srcinfo, p)))
     }
 
+    pub fn from_cwd(config: &Config) -> Result<PkgbuildRepo> {
+        let dir = current_dir()?;
+        let repo = PkgbuildRepo {
+            name: ".".to_string(),
+            source: RepoSource::Path(dir.clone()),
+            depth: 3,
+            skip_review: true,
+            force_srcinfo: false,
+            path: dir,
+            pkgs: Default::default(),
+        };
+
+        repo.pkgs(config);
+        Ok(repo)
+    }
+
     pub fn from_pkgbuilds(config: &Config, dirs: &[PathBuf]) -> Result<PkgbuildRepo> {
-        let repo = Self::new(".".to_string(), ".".into());
-        let c = config.color;
         let mut pkgs = Vec::new();
+        let mut repo = Self::from_cwd(config)?;
 
         for dir in dirs {
-            println!(
-                "{} {}",
-                c.action.paint("::"),
-                c.bold.paint(tr!(
-                    "Generating .SRCINFO for {dir}...",
-                    repo = repo.name,
-                    dir = dir.display()
-                ))
-            );
-
+            repo.print_generate_srcinfo(config, &dir.file_name().unwrap().to_string_lossy());
             let srcinfo = read_srcinfo_from_pkgbuild(config, dir)?;
             pkgs.push(PkgbuildPkg {
                 repo: repo.name.clone(),
@@ -114,6 +120,7 @@ impl PkgbuildRepo {
             });
         }
 
+        repo.pkgs = OnceCell::from(Arc::new(pkgs));
         Ok(repo)
     }
 
@@ -144,23 +151,13 @@ impl PkgbuildRepo {
     }
 
     fn generate_srcinfo(&self, config: &Config, path: &Path) -> Result<()> {
-        let c = config.color;
-
         if !self.force_srcinfo && path.join(".SRCINFO").exists() {
             return Ok(());
         }
 
-        println!(
-            "{} {}",
-            c.action.paint("::"),
-            c.bold.paint(tr!(
-                "Generating .SRCINFO for {repo}/{dir}...",
-                repo = self.name,
-                dir = path.file_name().unwrap().to_string_lossy()
-            ))
-        );
-
-        let output = exec::makepkg_output(config, path, &["--printsrcinfo"]);
+        self.print_generate_srcinfo(config, &path.file_name().unwrap().to_string_lossy());
+        let output = exec::makepkg_output(config, path, &["--printsrcinfo"])
+            .context(path.display().to_string());
         match output {
             Ok(output) => {
                 let mut file = File::create(path.join(".SRCINFO"))?;
@@ -172,6 +169,19 @@ impl PkgbuildRepo {
         }
 
         Ok(())
+    }
+
+    fn print_generate_srcinfo(&self, config: &Config, pkg: &str) {
+        let c = config.color;
+        println!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint(tr!(
+                "Generating .SRCINFO for {repo}/{dir}...",
+                repo = self.name,
+                dir = pkg,
+            ))
+        );
     }
 
     fn for_each_pkgbuild<T, F: Fn(&Path, &mut T)>(&self, data: T, f: F) -> T {
@@ -265,21 +275,6 @@ impl PkgbuildRepos {
         let path = self.fetch.clone_dir.join(&name);
         self.repos.push(PkgbuildRepo::new(name, path));
         self.repos.last_mut().unwrap()
-    }
-
-    pub fn add_cwd(&mut self) -> Result<&mut PkgbuildRepo> {
-        let dir = current_dir()?;
-        let repo = PkgbuildRepo {
-            name: ".".to_string(),
-            source: RepoSource::Path(dir.clone()),
-            depth: 3,
-            skip_review: true,
-            force_srcinfo: false,
-            path: dir,
-            pkgs: Default::default(),
-        };
-        self.repos.push(repo);
-        Ok(self.repos.last_mut().unwrap())
     }
 
     pub fn repo(&self, name: &str) -> Option<&PkgbuildRepo> {
