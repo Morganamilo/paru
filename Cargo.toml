@@ -75,6 +75,6 @@ default = ["git", "generate"]
 #alpm = { path = "../alpm.rs/alpm" }
 alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
 alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
-#aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "c36167" }
+aur-depends = { path = "../aur-depends" }
+#aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "c36167" }
 #aur-fetch = { path = "../aur-fetch" }

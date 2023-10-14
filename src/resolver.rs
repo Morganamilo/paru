@@ -5,7 +5,7 @@ use crate::RaurHandle;
 
 use std::io::{stdin, stdout, BufRead, Write};
 
-use aur_depends::{Flags, Repo, Resolver};
+use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;
 use tr::tr;
 
@@ -64,26 +64,15 @@ pub fn resolver<'a, 'b>(
     alpm: &'a Alpm,
     raur: &'b RaurHandle,
     cache: &'b mut Cache,
+    pkgbuild_repos: Vec<PkgbuildRepo<'a>>,
     flags: Flags,
 ) -> Resolver<'a, 'b, RaurHandle> {
     let devel_suffixes = config.devel_suffixes.clone();
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    //TODO avoid dup
-    let repos = config
-        .pkgbuild_repos
-        .repos
-        .iter()
-        .map(|r| Repo {
-            name: r.name.clone(),
-            pkgs: r.pkgs(config).iter().map(|p| p.srcinfo.clone()).collect(),
-        })
-        .collect::<Vec<_>>();
-    let repos = repos.leak();
-
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
-        .repos(repos)
+        .pkgbuild_repos(pkgbuild_repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
         .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {

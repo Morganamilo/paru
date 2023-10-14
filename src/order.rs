@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::resolver::flags;
 use anyhow::Result;
-use aur_depends::{Actions, Conflict, Package, Repo, Resolver};
+use aur_depends::{Actions, Conflict, Package, Resolver};
 use log::debug;
 use std::collections::HashSet;
 
@@ -11,19 +11,11 @@ pub async fn order(config: &mut Config) -> Result<i32> {
 
     let quiet = config.quiet;
 
-    //TODO avoid dup
-    let repos = config
-        .pkgbuild_repos
-        .repos
-        .iter()
-        .map(|r| Repo {
-            name: r.name.clone(),
-            pkgs: r.pkgs(config).iter().map(|p| p.srcinfo.clone()).collect(),
-        })
-        .collect::<Vec<_>>();
-
+    let repos = config.pkgbuild_repos.clone();
+    let repos = repos.aur_depends_repo(config);
     config.alpm.take_raw_question_cb();
-    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags).repos(&repos);
+    let resolver =
+        Resolver::new(&config.alpm, &mut cache, &config.raur, flags).pkgbuild_repos(repos);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 
@@ -69,7 +61,7 @@ fn print_build(config: &Config, actions: &mut Actions, quiet: bool) {
                     }
                 }
             }
-            aur_depends::Base::Custom(c) => {
+            aur_depends::Base::Pkgbuild(c) => {
                 for pkg in &c.pkgs {
                     if quiet {
                         println!("{}", pkg.pkg.pkgname);

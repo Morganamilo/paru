@@ -18,7 +18,7 @@ use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
-use crate::pkgbuild::{PkgbuildRepo};
+use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{get_upgrades, Upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
@@ -87,7 +87,7 @@ pub async fn build_pkgbuilds(config: &mut Config, dirs: Vec<PathBuf>) -> Result<
     let repo = PkgbuildRepo::from_pkgbuilds(config, &dirs)?;
 
     let targets = repo
-        .pkgs(None.unwrap())
+        .pkgs(config)
         .iter()
         .flat_map(|s| s.srcinfo.names())
         .map(|name| format!("./{}", name))
@@ -231,7 +231,7 @@ impl Installer {
                             }
                         }
                     }
-                    Base::Custom(base) => {
+                    Base::Pkgbuild(base) => {
                         for pkg in &base.pkgs {
                             if pkg.target && self.install_targets {
                                 targets.push(pkg.pkg.pkgname.as_str())
@@ -461,7 +461,7 @@ impl Installer {
                         }
                         base.pkgs.extend(debug);
                     }
-                    Base::Custom(base) => {
+                    Base::Pkgbuild(base) => {
                         let mut debug = Vec::new();
                         for pkg in &base.pkgs {
                             if pkg.make {
@@ -487,7 +487,7 @@ impl Installer {
             if !Path::new(path).exists() {
                 match base {
                     Base::Aur(base) => base.pkgs.retain(|p| p.pkg.name != *pkg),
-                    Base::Custom(base) => base.pkgs.retain(|p| p.pkg.pkgname != *pkg),
+                    Base::Pkgbuild(base) => base.pkgs.retain(|p| p.pkg.pkgname != *pkg),
                 }
             } else {
                 printtr!("adding {} to the install list", pkg);
@@ -599,7 +599,7 @@ impl Installer {
                 .filter(|a| !a.make)
                 .map(|a| a.pkg.name.as_str())
                 .collect(),
-            Base::Custom(c) => c
+            Base::Pkgbuild(c) => c
                 .pkgs
                 .iter()
                 .filter(|c| !c.make)
@@ -672,7 +672,7 @@ impl Installer {
     ) -> Result<()> {
         let dir = match base {
             Base::Aur(_) => config.build_dir.join(base.package_base()),
-            Base::Custom(c) => config
+            Base::Pkgbuild(c) => config
                 .pkgbuild_repos
                 .repo(&c.repo)
                 .unwrap()
@@ -721,7 +721,7 @@ impl Installer {
                     })
                 }
             }
-            Base::Custom(c) => {
+            Base::Pkgbuild(c) => {
                 for pkg in &c.pkgs {
                     missing.retain(|mis| {
                         let provides = ArchVec::supported(&pkg.pkg.provides, arch).map(Depend::new);
@@ -772,7 +772,7 @@ impl Installer {
                     )?
                 }
             }
-            Base::Custom(b) => {
+            Base::Pkgbuild(b) => {
                 for pkg in &b.pkgs {
                     if pkg.target && !self.install_targets {
                         continue;
@@ -927,7 +927,9 @@ impl Installer {
         let flags = flags(config);
         let c = config.color;
 
-        let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, flags);
+        let repos = config.pkgbuild_repos.clone();
+        let repos = repos.aur_depends_repo(config);
+        let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, repos, flags);
 
         if config.args.has_arg("u", "sysupgrade") {
             // TODO?
@@ -949,7 +951,7 @@ impl Installer {
             repo: Some(config.aur_namespace()),
             pkg: p,
         }));
-        targets.extend(self.upgrades.custom_keep.iter().map(|p| Targ {
+        targets.extend(self.upgrades.pkgbuild_keep.iter().map(|p| Targ {
             repo: Some(&p.0),
             pkg: &p.1,
         }));
@@ -1097,12 +1099,12 @@ impl Installer {
                     let dir = config.fetch.clone_dir.join(base.package_base());
                     pre_build_command(config, &dir, base.package_base(), &base.version())?;
                 }
-                Base::Custom(c) => {
+                Base::Pkgbuild(c) => {
                     let dir = &config
                         .pkgbuild_repos
                         .repo(&c.repo)
                         .unwrap()
-                        .base(config, &c.package_base().to_string())
+                        .base(config, c.package_base())
                         .unwrap()
                         .path;
                     pre_build_command(config, dir, c.package_base(), &c.version())?;
@@ -1117,7 +1119,7 @@ impl Installer {
                 .filter(|b| b.build())
                 .filter_map(|b| match b {
                     Base::Aur(pkg) => Some(pkg.package_base()),
-                    Base::Custom(_) => None,
+                    Base::Pkgbuild(_) => None,
                 })
                 .collect::<Vec<_>>();
             review(config, &config.fetch, &pkgs)?;
@@ -1199,7 +1201,7 @@ impl Installer {
             );
             self.remove_make.extend(
                 actions
-                    .iter_custom_pkgs()
+                    .iter_pkgbuilds()
                     .filter(|p| p.1.make)
                     .map(|p| p.1.pkg.pkgname.clone()),
             );
@@ -1838,7 +1840,7 @@ fn deps_not_satisfied<'a>(config: &'a Config, base: &'a Base) -> Result<Vec<&'a 
                 }
             }
         }
-        Base::Custom(base) => {
+        Base::Pkgbuild(base) => {
             check_deps_local(
                 &alpm,
                 &mut missing,
@@ -1916,7 +1918,7 @@ fn deps_not_satisfied_by_repo<'a>(config: &'a Config, base: &'a Base) -> Result<
                 }
             }
         }
-        Base::Custom(base) => {
+        Base::Pkgbuild(base) => {
             check_deps_sync(
                 &alpm,
                 &mut missing,

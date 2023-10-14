@@ -775,6 +775,10 @@ impl Config {
             self.mode = Mode::all();
         }
 
+        if !self.mode.pkgbuild() {
+            self.pkgbuild_repos.repos.clear();
+        }
+
         self.need_root = self.need_root();
 
         if let LocalRepos::Repo(repos) = &self.repos {

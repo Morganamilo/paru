@@ -498,7 +498,7 @@ pub async fn fetch_devel_info(
     for base in bases {
         let srcinfo = match base {
             Base::Aur(_) => srcinfos.get(base.package_base()),
-            Base::Custom(c) => Some(c.srcinfo.as_ref()),
+            Base::Pkgbuild(c) => Some(c.srcinfo.as_ref()),
         };
 
         let srcinfo = match srcinfo {

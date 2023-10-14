@@ -33,7 +33,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         .map(|t| t.to_lowercase())
         .collect::<Vec<_>>();
 
-    let custom_pkgs = search_custom(config, &targets)?;
+    let custom_pkgs = search_pkgbuilds(config, &targets)?;
 
     let pkgs = search_aur(config, &targets)
         .await
@@ -43,12 +43,12 @@ pub async fn search(config: &Config) -> Result<i32> {
         for (repo, srcinfo, pkg) in &custom_pkgs {
             let path = &config
                 .pkgbuild_repos
-                .repo(&repo)
+                .repo(repo)
                 .unwrap()
                 .base(config, &srcinfo.base.pkgbase)
                 .unwrap()
                 .path;
-            print_custom_pkg(config, repo, path, srcinfo, pkg, quiet);
+            print_pkgbuild_pkg(config, repo, path, srcinfo, pkg, quiet);
         }
     };
 
@@ -73,15 +73,13 @@ pub async fn search(config: &Config) -> Result<i32> {
     Ok((repo_pkgs.is_empty() && pkgs.is_empty()) as i32)
 }
 
-fn search_custom<'a>(
+fn search_pkgbuilds<'a>(
     config: &'a Config,
     targets: &[String],
 ) -> Result<Vec<(&'a str, &'a Srcinfo, &'a srcinfo::Package)>> {
     if !config.mode.pkgbuild() {
         return Ok(Vec::new());
     }
-
-    println!("{:#?}", config.pkgbuild_repos);
 
     let regex = RegexSet::new(targets)?;
     let mut ret = Vec::new();
@@ -251,7 +249,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
     Ok(matches)
 }
 
-fn print_custom_pkg(
+fn print_pkgbuild_pkg(
     config: &Config,
     repo: &str,
     path: &Path,
@@ -416,7 +414,7 @@ pub fn interactive_search_local(config: &mut Config) -> Result<()> {
 
 pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()> {
     let repo_pkgs = search_repos(config, &config.targets)?;
-    let custom_pkgs = search_custom(config, &config.targets)?;
+    let custom_pkgs = search_pkgbuilds(config, &config.targets)?;
     let aur_pkgs = search_aur(config, &config.targets).await?;
     let mut all_pkgs = Vec::new();
 
@@ -547,12 +545,12 @@ fn print_any_pkg(config: &Config, n: usize, pad: usize, pkg: &AnyPkg) {
             print!("{} ", c.number_menu.paint(n));
             let path = &config
                 .pkgbuild_repos
-                .repo(&repo)
+                .repo(repo)
                 .unwrap()
                 .base(config, &base.base.pkgbase)
                 .unwrap()
                 .path;
-            print_custom_pkg(config, repo, path, base, pkg, false)
+            print_pkgbuild_pkg(config, repo, path, base, pkg, false)
         }
     };
 }

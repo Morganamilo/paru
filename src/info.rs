@@ -10,7 +10,7 @@ use anyhow::Error;
 
 use globset::GlobSet;
 use raur::ArcPackage as Package;
-use srcinfo::{ArchVec};
+use srcinfo::ArchVec;
 use term_size::dimensions_stdout;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;

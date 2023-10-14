@@ -2,7 +2,6 @@ use crate::config::Config;
 use crate::pkgbuild::PkgbuildRepos;
 use crate::{exec, print_error};
 
-
 use std::io::Write;
 
 use anyhow::{anyhow, ensure, Context, Result};
