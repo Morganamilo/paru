@@ -210,21 +210,47 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
     command_output(&mut cmd)
 }
 
-fn new_makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Command {
+fn new_makepkg<S: AsRef<OsStr>>(
+    config: &Config,
+    dir: &Path,
+    args: &[S],
+    pkgdest: Option<&str>,
+) -> Command {
     let mut cmd = Command::new(&config.makepkg_bin);
     if let Some(mconf) = &config.makepkg_conf {
         cmd.arg("--config").arg(mconf);
+    }
+    if let Some(dest) = pkgdest {
+        cmd.env("PKGDEST", dest);
     }
     cmd.args(&config.mflags).args(args).current_dir(dir);
     cmd
 }
 
-pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
-    let mut cmd = new_makepkg(config, dir, args);
+pub fn makepkg_dest<S: AsRef<OsStr>>(
+    config: &Config,
+    dir: &Path,
+    args: &[S],
+    pkgdest: Option<&str>,
+) -> Result<Status> {
+    let mut cmd = new_makepkg(config, dir, args, pkgdest);
     command_status(&mut cmd)
 }
 
-pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
-    let mut cmd = new_makepkg(config, dir, args);
+pub fn makepkg<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Status> {
+    makepkg_dest(config, dir, args, None)
+}
+
+pub fn makepkg_output_dest<S: AsRef<OsStr>>(
+    config: &Config,
+    dir: &Path,
+    args: &[S],
+    pkgdest: Option<&str>,
+) -> Result<Output> {
+    let mut cmd = new_makepkg(config, dir, args, pkgdest);
     command_output(&mut cmd)
+}
+
+pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
+    makepkg_output_dest(config, dir, args, None)
 }

@@ -1,0 +1,5 @@
+pkgname=a
+pkgver=1
+pkgrel=1
+arch=(any)
+depends=(b)

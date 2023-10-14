@@ -2,3 +2,4 @@
 paru.tar.*
 po/*.mo
 locale/
+testdata/pkg/*

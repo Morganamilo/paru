@@ -218,7 +218,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     );
 
     if !dbs.is_empty() {
-        dbs.update(false)?;
+        dbs.update(cfg!(feature = "mock"))?;
     } else {
         printtr!("  nothing to do");
     }

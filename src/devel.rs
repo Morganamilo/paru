@@ -256,6 +256,11 @@ async fn ls_remote_intenral(
     remote: &str,
     branch: Option<&str>,
 ) -> Result<String> {
+    #[cfg(feature = "mock")]
+    let _ = git;
+    #[cfg(feature = "mock")]
+    let git = "git";
+
     let mut command = AsyncCommand::new(git);
     command
         .args(flags)
@@ -472,7 +477,7 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
 async fn has_update(style: Style, git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
     let sha = ls_remote(style, git, flags, url.url.clone(), url.branch.as_deref()).await?;
     debug!(
-        "devel check {}: {} == {} different: {}",
+        "devel check {}: '{}' == '{}' different: {}",
         url.url,
         url.commit,
         sha,

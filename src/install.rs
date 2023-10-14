@@ -498,6 +498,7 @@ impl Installer {
         Ok(debug_paths)
     }
 
+    // TODO: sort out args
     fn build_pkgbuild(
         &mut self,
         config: &mut Config,
@@ -506,6 +507,9 @@ impl Installer {
         dir: &Path,
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
+        let pkgdest = repo.map(|r| r.1);
+        let mut env = config.env.clone();
+        env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
         if config.chroot {
             let mut extra = Vec::new();
@@ -514,7 +518,7 @@ impl Installer {
             }
             self.chroot
                 .build(dir, &extra, &["-cu"], &["-ofA"], &config.env)
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+                .with_context(|| tr!("failed to download sources for '{}'"))?;
         } else {
             // download sources
             let mut args = vec!["--verifysource", "-Af"];
@@ -536,15 +540,15 @@ impl Installer {
         }
 
         printtr!("{}: parsing pkg list...", base);
-        let (pkgdest, version) = parse_package_list(config, dir)?;
+        let (pkgdests, version) = parse_package_list(config, dir, pkgdest)?;
 
-        if !base.packages().all(|p| pkgdest.contains_key(p)) {
+        if !base.packages().all(|p| pkgdests.contains_key(p)) {
             bail!(tr!("package list does not match srcinfo"));
         }
 
-        let debug_paths = self.debug_paths(config, base, &pkgdest)?;
+        let debug_paths = self.debug_paths(config, base, &pkgdests)?;
 
-        let needs_build = needs_build(config, base, &pkgdest, &version);
+        let needs_build = needs_build(config, base, &pkgdests, &version);
         if needs_build {
             // actual build
             if config.chroot {
@@ -558,7 +562,7 @@ impl Installer {
                         &extra,
                         &[],
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                        &config.env,
+                        &env,
                     )
                     .with_context(|| tr!("failed to build '{}'", base))?;
             } else {
@@ -566,7 +570,7 @@ impl Installer {
                 if !config.keep_src {
                     args.push("-c");
                 }
-                exec::makepkg(config, dir, &args)?
+                exec::makepkg_dest(config, dir, &args, pkgdest)?
                     .success()
                     .with_context(|| tr!("failed to build '{}'", base))?;
             }
@@ -582,9 +586,9 @@ impl Installer {
             )
         }
 
-        self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
-        self.queue_install(base, &pkgdest, &debug_paths);
-        Ok((pkgdest, version))
+        self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
+        self.queue_install(base, &pkgdests, &debug_paths);
+        Ok((pkgdests, version))
     }
 
     fn queue_install(
@@ -683,6 +687,7 @@ impl Installer {
                 .clone(),
         };
 
+        let pkgdest = repo.map(|r| r.1);
         let build = base.build();
 
         if !config.chroot
@@ -749,11 +754,11 @@ impl Installer {
             self.build_pkgbuild(config, base, repo, &dir)?
         } else {
             printtr!("{}: parsing pkg list...", base);
-            let (pkgdest, version) = parse_package_list(config, &dir)?;
-            let debug_paths = self.debug_paths(config, base, &pkgdest)?;
-            self.add_pkg(config, base, repo, &pkgdest, &debug_paths)?;
-            self.queue_install(base, &pkgdest, &debug_paths);
-            (pkgdest, version)
+            let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
+            let debug_paths = self.debug_paths(config, base, &pkgdests)?;
+            self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
+            self.queue_install(base, &pkgdests, &debug_paths);
+            (pkgdests, version)
         };
 
         match &*base {
@@ -820,7 +825,6 @@ impl Installer {
         if let Some(repo) = default_repo {
             let file = repo::file(&repo).unwrap();
             repo::init(config, file, repo.name())?;
-            std::env::set_var("PKGDEST", file);
         }
 
         if config.chroot {
@@ -1971,8 +1975,12 @@ pub fn copy_sync_args<'a>(config: &'a Config, args: &mut Args<&'a str>) {
     }
 }
 
-fn parse_package_list(config: &Config, dir: &Path) -> Result<(HashMap<String, String>, String)> {
-    let output = exec::makepkg_output(config, dir, &["--packagelist"])?;
+fn parse_package_list(
+    config: &Config,
+    dir: &Path,
+    pkgdest: Option<&str>,
+) -> Result<(HashMap<String, String>, String)> {
+    let output = exec::makepkg_output_dest(config, dir, &["--packagelist"], pkgdest)?;
     let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
     let mut pkgdests = HashMap::new();
     let mut version = String::new();

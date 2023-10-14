@@ -167,13 +167,37 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse(Some(name.as_str()), &file)?;
     };
 
-    log::debug!("{:#?}", config);
-
     if args.is_empty() {
         config.parse_args(["-Syu"])?;
     } else {
         config.parse_args(args)?;
     }
+
+    let aur_url = if config.ssh {
+        config
+            .aur_url
+            .to_string()
+            .replacen("https://", "ssh://aur@", 1)
+            .parse()
+            .expect("change AUR URL schema from HTTPS to SSH")
+    } else {
+        config.aur_url.clone()
+    };
+
+    config.fetch = aur_fetch::Fetch {
+        git: config.git_bin.clone().into(),
+        git_flags: config.git_flags.clone(),
+        clone_dir: config.build_dir.clone(),
+        diff_dir: config.cache_dir.join("diff"),
+        aur_url,
+    };
+
+    let mut fetch = config.fetch.clone();
+    fetch.clone_dir = config.build_dir.join("repo");
+    fetch.diff_dir = config.cache_dir.join("diff/repo");
+    config.pkgbuild_repos.fetch = fetch;
+
+    log::debug!("{:#?}", config);
 
     handle_cmd(config).await
 }

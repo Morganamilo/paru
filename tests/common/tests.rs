@@ -188,3 +188,14 @@ async fn pkgbuild_repo() {
     assert_eq!(b.reason(), PackageReason::Depend);
     assert_eq!(c.reason(), PackageReason::Depend);
 }
+
+#[tokio::test]
+async fn devel() {
+    let (tmp, ret) = run(&["-Sua", "--devel"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+    let a = db.pkg("devel").unwrap();
+    assert_eq!(a.version().as_str(), "2-1");
+}

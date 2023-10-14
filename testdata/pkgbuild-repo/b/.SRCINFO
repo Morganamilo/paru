@@ -1,0 +1,7 @@
+pkgbase = b
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+	depends = c
+
+pkgname = b

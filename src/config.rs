@@ -620,11 +620,6 @@ impl Config {
             ..Self::default()
         };
 
-        let mut fetch = config.fetch.clone();
-        fetch.clone_dir = config.build_dir.join("repo");
-        fetch.diff_dir = config.cache_dir.join("diff/repo");
-        config.pkgbuild_repos.fetch = fetch;
-
         if let Some(old) = old {
             if let Ok(devel) = OpenOptions::new().read(true).open(old) {
                 if let Ok(devel) = serde_json::from_reader(devel) {
