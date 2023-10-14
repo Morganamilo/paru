@@ -11,6 +11,8 @@ async fn pacaur() {
 
     let pacaur = db.pkg("pacaur").unwrap();
     let auracle = db.pkg("auracle-git").unwrap();
+    assert_in_local_repo(&alpm, "pacaur");
+    assert_in_local_repo(&alpm, "auracle-git");
 
     assert_eq!(pacaur.reason(), PackageReason::Explicit);
     assert_eq!(auracle.reason(), PackageReason::Depend);
@@ -26,6 +28,8 @@ async fn pacaur_ignore() {
 
     let pacaur = db.pkg("pacaur").unwrap();
     let auracle = db.pkg("auracle-git").unwrap();
+    assert_in_local_repo(&alpm, "pacaur");
+    assert_in_local_repo(&alpm, "auracle-git");
 
     assert_eq!(pacaur.reason(), PackageReason::Explicit);
     assert_eq!(auracle.reason(), PackageReason::Depend);
@@ -41,6 +45,8 @@ async fn pacaur_as_deps() {
 
     let pacaur = db.pkg("pacaur").unwrap();
     let auracle = db.pkg("auracle-git").unwrap();
+    assert_in_local_repo(&alpm, "pacaur");
+    assert_in_local_repo(&alpm, "auracle-git");
 
     assert_eq!(pacaur.reason(), PackageReason::Depend);
     assert_eq!(auracle.reason(), PackageReason::Depend);
@@ -56,6 +62,8 @@ async fn pacaur_as_exp() {
 
     let pacaur = db.pkg("pacaur").unwrap();
     let auracle = db.pkg("auracle-git").unwrap();
+    assert_in_local_repo(&alpm, "pacaur");
+    assert_in_local_repo(&alpm, "auracle-git");
 
     assert_eq!(pacaur.reason(), PackageReason::Explicit);
     assert_eq!(auracle.reason(), PackageReason::Explicit);
@@ -69,6 +77,7 @@ async fn pacaur_no_deps() {
     let db = alpm.localdb();
     db.pkg("pacaur").unwrap();
     db.pkg("auracle-git").unwrap_err();
+    assert_in_local_repo(&alpm, "pacaur");
 }
 
 #[tokio::test]
@@ -151,8 +160,31 @@ async fn pkgbuild() {
     let pacaur = db.pkg("pacaur").unwrap();
     let auracle = db.pkg("auracle-git").unwrap();
     let pkg = db.pkg("pkg").unwrap();
+    assert_in_local_repo(&alpm, "pkg");
+    assert_in_local_repo(&alpm, "auracle-git");
+    assert_in_local_repo(&alpm, "pacaur");
 
     assert_eq!(pkg.reason(), PackageReason::Explicit);
     assert_eq!(auracle.reason(), PackageReason::Depend);
     assert_eq!(pacaur.reason(), PackageReason::Depend);
+}
+
+#[tokio::test]
+async fn pkgbuild_repo() {
+    let (tmp, ret) = run(&["-S", "a"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+
+    let a = db.pkg("a").unwrap();
+    let b = db.pkg("b").unwrap();
+    let c = db.pkg("c").unwrap();
+    assert_in_local_repo(&alpm, "a");
+    assert_in_local_repo(&alpm, "b");
+    assert_in_local_repo(&alpm, "c");
+
+    assert_eq!(a.reason(), PackageReason::Explicit);
+    assert_eq!(b.reason(), PackageReason::Depend);
+    assert_eq!(c.reason(), PackageReason::Depend);
 }

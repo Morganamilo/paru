@@ -28,6 +28,15 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
         .status()?;
     assert!(status.success());
 
+    let status = Command::new("cp")
+        .arg("-r")
+        .arg(testdata.join("pkgbuild-repo"))
+        .arg(dir.join("pkgbuils-repo"))
+        .status()?;
+    assert!(status.success());
+
+
+
     if repo {
         let status = Command::new("cp")
             .arg("-r")
@@ -61,6 +70,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
             CacheDir = {0:}/repo",
             dir.display()
         )?;
+        std::fs::write(dir.join("localrepo"), "1")?;
     }
 
     let pconf = dir.join("pacman.conf");
@@ -140,5 +150,14 @@ pub async fn run_repo_chroot(run_args: &[&str]) -> Result<(TempDir, i32)> {
 
 pub fn alpm(tmp: &TempDir) -> Result<Alpm> {
     let alpm = Alpm::new("/var/empty", tmp.path().join("db").to_str().unwrap())?;
+    if tmp.path().join("localrepo").exists() {
+        alpm.register_syncdb("repo", alpm::SigLevel::NONE).unwrap();
+    }
     Ok(alpm)
+}
+
+pub fn assert_in_local_repo(alpm: &Alpm, pkg: &str) {
+    if let Some(repo) = alpm.syncdbs().iter().find(|db| db.name() == "repo") {
+        repo.pkg(pkg).unwrap();
+    }
 }
