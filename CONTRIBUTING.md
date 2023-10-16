@@ -36,7 +36,7 @@ feature. Then running with **LD_LIBRARY_PATH** pointed at the custom libalpm.so.
 Paru's test suite can be run by running:
 
 ```
-cargo test --features mock -- --test-threads=1
+cargo test --features mock
 ```
 
 ## Translating
@@ -65,15 +65,12 @@ Alternatively, you can use programs like `poedit` to write the translations.
 
 ### Updating existing translations
 
-To update existing translations against new code you must first update the
-template file then update the .po files.
+To update existing translations against new code you must first update the .po
+files.
 
 Do this as its own commit.
 
-Updating the template requires [xtr](https://github.com/woboq/tr) to be installed.
-
 ```
-./scripts/mkpot
 ./scripts/updpo
 git commit po
 ```
