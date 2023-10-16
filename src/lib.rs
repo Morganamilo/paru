@@ -231,7 +231,7 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
 async fn handle_upgrade(config: &mut Config) -> Result<i32> {
     if config.targets.is_empty() {
         let dir = current_dir()?;
-        install::build_pkgbuilds(config, vec![dir]).await?;
+        install::build_dirs(config, vec![dir]).await?;
         Ok(0)
     } else {
         Ok(exec::pacman(config, &config.args)?.code())
@@ -243,7 +243,7 @@ async fn handle_build(config: &mut Config) -> Result<i32> {
         bail!(tr!("no targets specified (use -h for help)"));
     } else {
         let dirs = config.targets.iter().map(PathBuf::from).collect();
-        install::build_pkgbuilds(config, dirs).await?;
+        install::build_dirs(config, dirs).await?;
     }
     Ok(0)
 }

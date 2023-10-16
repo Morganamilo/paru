@@ -83,7 +83,7 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> 
     installer.install(config, targets_str).await
 }
 
-pub async fn build_pkgbuilds(config: &mut Config, dirs: Vec<PathBuf>) -> Result<()> {
+pub async fn build_dirs(config: &mut Config, dirs: Vec<PathBuf>) -> Result<()> {
     let mut installer = Installer::new(config);
     let repo = PkgbuildRepo::from_pkgbuilds(config, &dirs)?;
 
