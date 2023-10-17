@@ -2,6 +2,7 @@ use crate::args::Args;
 use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
+use crate::info::get_terminal_width;
 use crate::util::get_provider;
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
@@ -633,7 +634,7 @@ impl Config {
         let state_dir = state;
 
         let color = Colors::from("never");
-        let cols = term_size::dimensions_stdout().map(|v| v.0);
+        let cols = get_terminal_width();
 
         let mut config = Self {
             cols,
