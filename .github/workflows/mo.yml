@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get install gettext
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build translations
         run: ./scripts/mkmo locale
