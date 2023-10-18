@@ -51,7 +51,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
 
     if repo {
         let status = Command::new("cp")
-            .arg("-rp")
+            .arg("-pa")
             .arg(testdata.join("repo"))
             .arg(dir.join("repo"))
             .status()?;
