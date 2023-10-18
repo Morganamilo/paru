@@ -36,7 +36,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         flags &= !Flags::AUR;
     }
     if !config.mode.repo() {
-        flags &= !Flags::NATIVE_REPO;
+        flags &= !Flags::REPO;
     }
     match config.provides {
         YesNoAll::Yes => flags |= Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES,
@@ -74,7 +74,7 @@ pub fn resolver<'a, 'b>(
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
         .pkgbuild_repos(pkgbuild_repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
-        .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
+        .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();

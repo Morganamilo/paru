@@ -189,7 +189,7 @@ pub async fn get_upgrades<'a, 'b>(
     let (upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
 
-    for pkg in upgrades.ignored_aur {
+    for pkg in upgrades.aur_ignored {
         eprintln!(
             "{} {}",
             config.color.warning.paint(tr!("warning:")),
@@ -202,7 +202,7 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    for pkg in upgrades.ignored_pkgbuild {
+    for pkg in upgrades.pkgbuild_ignored {
         eprintln!(
             "{} {}",
             config.color.warning.paint(tr!("warning:")),

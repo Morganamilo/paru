@@ -115,7 +115,7 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
         .as_deref()
         .unwrap_or("/usr/share/locale/"));
     if debug_enabled() {
-        env_logger::Builder::new()
+        let _ = env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)
             .format(|buf, record| {
                 writeln!(
@@ -127,7 +127,7 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
                 )
             })
             .format_timestamp(None)
-            .init();
+            .try_init();
     }
 
     let _ = &*exec::DEFAULT_SIGNALS;

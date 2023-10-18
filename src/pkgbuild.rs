@@ -197,7 +197,10 @@ impl PkgbuildRepo {
         mut data: T,
         f: F,
     ) -> Result<T> {
-        Self::try_for_each_pkgbuild_internal(&mut data, &f, self.path()?, self.depth)?;
+        let path = self.path()?;
+        if path.exists() {
+            Self::try_for_each_pkgbuild_internal(&mut data, &f, path, self.depth)?;
+        }
         Ok(data)
     }
 
@@ -210,6 +213,8 @@ impl PkgbuildRepo {
         if depth == 0 {
             return Ok(());
         }
+
+        log::debug!("for each pkgbuild: {}", path.display());
 
         if path.join("PKGBUILD").exists() {
             f(path, data)?;

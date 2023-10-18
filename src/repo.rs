@@ -28,7 +28,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         if pkgs.is_empty() {
             return Ok(());
         }
-        read_link(db)?
+        read_link(db).context("readlink")?
     } else if !name.contains(".db.") {
         PathBuf::from(format!("{}.db.tar.gz", name))
     } else {
