@@ -99,8 +99,15 @@ fn clean_aur(
         maybe_pkg.map_err(anyhow::Error::from).map(|path| {
             clean_aur_pkg(config, &path, remove_all, keep_installed, keep_current, rm).map_err(
                 |err| {
+                    let msg_start = tr!("Failed to clean package");
                     let name = path.file_name();
-                    printtr!("Failed to clean package: {}", name.to_string_lossy());
+                    let msg_body = name.to_string_lossy();
+                    eprintln!(
+                        "{} {}: {}",
+                        config.color.error.paint("::"),
+                        config.color.bold.paint(&msg_start),
+                        msg_body,
+                    );
                     print_error(config.color.error, err);
                 },
             );
