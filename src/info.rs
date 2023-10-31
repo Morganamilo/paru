@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::os::fd::AsRawFd;
+use std::path::PathBuf;
+
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
@@ -10,8 +14,8 @@ use anyhow::Error;
 
 use globset::GlobSet;
 use raur::ArcPackage as Package;
-use srcinfo::ArchVec;
-use term_size::dimensions_stdout;
+use srcinfo::{ArchVec, Srcinfo};
+use terminal_size::terminal_size_using_fd;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
 
@@ -150,7 +154,7 @@ pub fn print_pkgbuild_info(
     len: usize,
 ) -> Result<(), Error> {
     let color = conf.color;
-    let cols = dimensions_stdout().map(|x| x.0);
+    let cols = get_terminal_width();
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
     let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
     let print_arch_list = |k: &str, v: &[ArchVec]| {
@@ -215,7 +219,7 @@ pub fn print_aur_info(
     len: usize,
 ) -> Result<(), Error> {
     let color = conf.color;
-    let cols = dimensions_stdout().map(|x| x.0);
+    let cols = get_terminal_width();
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
     let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
     let no = tr!("No");
@@ -295,4 +299,9 @@ fn print_info<'a>(
 
     let sep = if list { "  " } else { " " };
     print_indent(Style::new(), indent, indent, cols, sep, value)
+}
+
+#[must_use]
+pub fn get_terminal_width() -> Option<usize> {
+    terminal_size_using_fd(std::io::stdout().as_raw_fd()).map(|(w, _h)| w.0 as usize)
 }
