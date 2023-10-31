@@ -28,7 +28,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         if pkgs.is_empty() {
             return Ok(());
         }
-        read_link(db)?
+        read_link(db).context("readlink")?
     } else if !name.contains(".db.") {
         PathBuf::from(format!("{}.db.tar.gz", name))
     } else {
@@ -218,7 +218,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     );
 
     if !dbs.is_empty() {
-        dbs.update(false)?;
+        dbs.update(cfg!(feature = "mock"))?;
     } else {
         printtr!("  nothing to do");
     }

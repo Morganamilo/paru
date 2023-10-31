@@ -9,15 +9,15 @@ use std::collections::{HashMap, HashSet};
 use alpm::{AlpmList, Db};
 use alpm_utils::DbListExt;
 use anyhow::Result;
-use aur_depends::{AurUpdates, CustomUpdates, Repo, Resolver};
+use aur_depends::{Resolver, Updates};
 use futures::try_join;
 use tr::tr;
 
 #[derive(Default, Debug)]
 pub struct Upgrades {
     pub aur_repos: HashMap<String, String>,
-    pub custom_keep: Vec<(String, String)>,
-    pub custom_skip: Vec<(String, String)>,
+    pub pkgbuild_keep: Vec<(String, String)>,
+    pub pkgbuild_skip: Vec<(String, String)>,
     pub repo_keep: Vec<String>,
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
@@ -114,104 +114,82 @@ fn print_upgrade(
     );
 }
 
-async fn get_aur_only_upgrades<'a, 'b>(
+async fn get_resolver_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
     print: bool,
-) -> Result<AurUpdates<'a>> {
-    if config.mode.aur() {
-        if print {
-            let c = config.color;
-            println!(
-                "{} {}",
-                c.action.paint("::"),
-                c.bold.paint(tr!("Looking for AUR upgrades..."))
-            );
-        }
-
-        let updates = match config.repos {
-            LocalRepos::None => resolver.aur_updates().await?,
-            _ => {
-                let (_, dbs) = repo::repo_aur_dbs(config);
-                let dbs = dbs.iter().map(|db| db.name()).collect::<Vec<_>>();
-                resolver.local_aur_updates(&dbs).await?
-            }
-        };
-
-        Ok(updates)
-    } else {
-        Ok(AurUpdates::default())
-    }
-}
-
-async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
-    if config.devel && (config.mode.aur() || config.mode.pkgbuild()) {
-        let c = config.color;
-        if print {
-            println!(
-                "{} {}",
-                c.action.paint("::"),
-                c.bold.paint(tr!("Looking for devel upgrades..."))
-            );
-        }
-
-        possible_devel_updates(config).await
-    } else {
-        Ok(Vec::new())
-    }
-}
-
-pub async fn net_upgrades<'res, 'conf>(
-    config: &'conf Config,
-    resolver: &mut Resolver<'res, '_, RaurHandle>,
-    print: bool,
-) -> Result<(AurUpdates<'res>, Vec<String>)> {
-    try_join!(
-        get_aur_only_upgrades(config, resolver, print),
-        get_devel_upgrades(config, print)
-    )
-}
-
-fn custom_upgrades<'a>(
-    config: &Config,
-    resolver: &mut Resolver<'a, '_, RaurHandle>,
-    print: bool,
-) -> Result<CustomUpdates<'a>> {
-    if config.mode.pkgbuild() {
-        if print {
+) -> Result<Updates<'a>> {
+    if print {
+        if config.mode.pkgbuild() {
             let c = config.color;
             println!(
                 "{} {}",
                 c.action.paint("::"),
                 c.bold.paint(tr!("Looking for PKGBUILD upgrades..."))
             );
+
+            if config.mode.aur() {
+                let c = config.color;
+                println!(
+                    "{} {}",
+                    c.action.paint("::"),
+                    c.bold.paint(tr!("Looking for AUR upgrades..."))
+                );
+            }
         }
 
-        let updates = match config.repos {
-            LocalRepos::None => resolver.custom_updates()?,
+        let dbs = match config.repos {
+            LocalRepos::None => None,
             _ => {
                 let (_, dbs) = repo::repo_aur_dbs(config);
-                let dbs = dbs.iter().map(|db| db.name()).collect::<Vec<_>>();
-                resolver.local_custom_updates(&dbs)?
+                let dbs = Some(dbs.into_iter().map(|db| db.name()).collect::<Vec<_>>());
+                dbs
             }
         };
+        let updates = resolver.updates(dbs.as_deref()).await?;
 
         Ok(updates)
     } else {
-        Ok(CustomUpdates::default())
+        Ok(Updates::default())
     }
+}
+
+async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
+    if !config.devel || (!config.mode.aur() && !config.mode.pkgbuild()) {
+        return Ok(Vec::new());
+    }
+
+    let c = config.color;
+    if print {
+        println!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint(tr!("Looking for devel upgrades..."))
+        );
+    }
+
+    possible_devel_updates(config).await
+}
+
+pub async fn net_upgrades<'res, 'conf>(
+    config: &'conf Config,
+    resolver: &mut Resolver<'res, '_, RaurHandle>,
+    print: bool,
+) -> Result<(Updates<'res>, Vec<String>)> {
+    try_join!(
+        get_resolver_upgrades(config, resolver, print),
+        get_devel_upgrades(config, print)
+    )
 }
 
 pub async fn get_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
-    custom_repos: &[Repo],
 ) -> Result<Upgrades> {
-    let (aur_upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
+    let (upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
-    let custom_updates = custom_upgrades(config, resolver, true)?;
 
-    for pkg in aur_upgrades.ignored {
+    for pkg in upgrades.aur_ignored {
         eprintln!(
             "{} {}",
             config.color.warning.paint(tr!("warning:")),
@@ -224,7 +202,7 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    for pkg in custom_updates.ignored {
+    for pkg in upgrades.pkgbuild_ignored {
         eprintln!(
             "{} {}",
             config.color.warning.paint(tr!("warning:")),
@@ -237,14 +215,10 @@ pub async fn get_upgrades<'a, 'b>(
         );
     }
 
-    let mut aur_upgrades = aur_upgrades.updates;
-    let mut devel_upgrades = filter_devel_updates(
-        config,
-        resolver.get_cache_mut(),
-        &devel_upgrades,
-        custom_repos,
-    )
-    .await?;
+    let mut aur_upgrades = upgrades.aur_updates;
+    let pkgbuild_upgrades = upgrades.pkgbuild_updates;
+    let mut devel_upgrades =
+        filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
 
     let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?
@@ -254,6 +228,7 @@ pub async fn get_upgrades<'a, 'b>(
 
     devel_upgrades.sort();
     devel_upgrades.dedup();
+    // TODO better devel pkgbuild
     aur_upgrades.retain(|u| !devel_upgrades.iter().any(|t| t.pkg == u.remote.name));
 
     let mut repo_skip = Vec::new();
@@ -273,7 +248,7 @@ pub async fn get_upgrades<'a, 'b>(
     if devel_upgrades.is_empty()
         && aur_upgrades.is_empty()
         && repo_upgrades.is_empty()
-        && custom_updates.updates.is_empty()
+        && pkgbuild_upgrades.is_empty()
     {
         return Ok(Upgrades::default());
     }
@@ -284,8 +259,7 @@ pub async fn get_upgrades<'a, 'b>(
             .map(|p| p.remote.name.clone())
             .collect::<Vec<_>>();
 
-        let mut custom_updates = custom_updates
-            .updates
+        let mut pkgbuild_updates = pkgbuild_upgrades
             .iter()
             .map(|u| (u.repo.clone(), u.local.name().to_string()))
             .collect::<Vec<_>>();
@@ -294,13 +268,13 @@ pub async fn get_upgrades<'a, 'b>(
             if devel.repo.as_deref() == Some(config.aur_namespace()) {
                 aur.push(devel.pkg.clone());
             } else {
-                custom_updates.push((devel.repo.clone().unwrap(), devel.pkg.clone()));
+                pkgbuild_updates.push((devel.repo.clone().unwrap(), devel.pkg.clone()));
             }
         }
 
         let upgrades = Upgrades {
-            custom_keep: custom_updates,
-            custom_skip,
+            pkgbuild_keep: pkgbuild_updates,
+            pkgbuild_skip: custom_skip,
             aur_repos,
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
             aur_keep: aur,
@@ -314,10 +288,8 @@ pub async fn get_upgrades<'a, 'b>(
     let db = config.alpm.localdb();
     let n_max = repo_upgrades.len() + aur_upgrades.len() + devel_upgrades.len();
     let n_max = n_max.to_string().len();
-    let mut index = repo_upgrades.len()
-        + aur_upgrades.len()
-        + devel_upgrades.len()
-        + custom_updates.updates.len();
+    let mut index =
+        repo_upgrades.len() + aur_upgrades.len() + devel_upgrades.len() + pkgbuild_upgrades.len();
 
     let db_pkg_max = repo_upgrades
         .iter()
@@ -333,8 +305,7 @@ pub async fn get_upgrades<'a, 'b>(
                 .map(|u| db_len(&u.pkg, "devel", &aurdbs)),
         )
         .chain(
-            custom_updates
-                .updates
+            pkgbuild_upgrades
                 .iter()
                 .map(|u| db_len(u.local.name(), &u.repo, &aurdbs)),
         )
@@ -351,12 +322,7 @@ pub async fn get_upgrades<'a, 'b>(
                 .filter_map(|p| db.pkg(p.pkg.as_str()).ok())
                 .map(|p| p.version().len()),
         )
-        .chain(
-            custom_updates
-                .updates
-                .iter()
-                .map(|p| p.local.version().len()),
-        )
+        .chain(pkgbuild_upgrades.iter().map(|p| p.local.version().len()))
         .max()
         .unwrap_or(0);
 
@@ -418,7 +384,7 @@ pub async fn get_upgrades<'a, 'b>(
         index -= 1;
     }
 
-    for pkg in custom_updates.updates.iter().rev().rev() {
+    for pkg in pkgbuild_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| format!("{}-{}", p.db().unwrap().name(), pkg.repo));
@@ -440,10 +406,8 @@ pub async fn get_upgrades<'a, 'b>(
     let input = input(config, &tr!("Packages to exclude (eg: 1 2 3, 1-3):"));
     let input = input.trim();
     let number_menu = NumberMenu::new(input);
-    let mut index = repo_upgrades.len()
-        + aur_upgrades.len()
-        + devel_upgrades.len()
-        + custom_updates.updates.len();
+    let mut index =
+        repo_upgrades.len() + aur_upgrades.len() + devel_upgrades.len() + pkgbuild_upgrades.len();
 
     for pkg in repo_upgrades.iter().rev().rev() {
         let remote = syncdbs.pkg(pkg.name()).unwrap();
@@ -489,7 +453,7 @@ pub async fn get_upgrades<'a, 'b>(
         index -= 1;
     }
 
-    for pkg in custom_updates.updates.iter().rev().rev() {
+    for pkg in pkgbuild_upgrades.iter().rev().rev() {
         let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| p.db().unwrap().name())
@@ -503,8 +467,8 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     let upgrades = Upgrades {
-        custom_keep,
-        custom_skip,
+        pkgbuild_keep: custom_keep,
+        pkgbuild_skip: custom_skip,
         aur_repos,
         repo_keep,
         repo_skip,

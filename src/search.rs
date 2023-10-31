@@ -1,17 +1,13 @@
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, print_indent};
-use crate::info;
-use crate::install::{install, read_repos};
-use crate::printtr;
 use crate::util::{input, NumberMenu};
+use crate::{info, printtr};
 
 use ansi_term::Style;
 use anyhow::{ensure, Context, Result};
-use aur_depends::Repo;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
@@ -19,16 +15,16 @@ use reqwest::get;
 use srcinfo::Srcinfo;
 use tr::tr;
 
-enum AnyPkg<'a> {
+#[derive(Debug)]
+pub enum AnyPkg<'a> {
     RepoPkg(alpm::Package<'a>),
     AurPkg(&'a raur::Package),
     Custom(&'a str, &'a Srcinfo, &'a srcinfo::Package),
 }
 
 pub async fn search(config: &Config) -> Result<i32> {
-    let mut repos = Vec::new();
-    let mut paths = HashMap::new();
     let quiet = config.args.has_arg("q", "quiet");
+
     let repo_pkgs = search_repos(config, &config.targets)?;
 
     let targets = config
@@ -37,7 +33,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         .map(|t| t.to_lowercase())
         .collect::<Vec<_>>();
 
-    let custom_pkgs = search_custom(config, &mut repos, &mut paths, &targets)?;
+    let custom_pkgs = search_pkgbuilds(config, &targets)?;
 
     let pkgs = search_aur(config, &targets)
         .await
@@ -45,10 +41,14 @@ pub async fn search(config: &Config) -> Result<i32> {
 
     let print_custom = || {
         for (repo, srcinfo, pkg) in &custom_pkgs {
-            let path = paths
-                .get(&(repo.to_string(), pkg.pkgname.to_string()))
-                .unwrap();
-            print_custom_pkg(config, repo, path, srcinfo, pkg, quiet);
+            let path = &config
+                .pkgbuild_repos
+                .repo(repo)
+                .unwrap()
+                .base(config, &srcinfo.base.pkgbase)
+                .unwrap()
+                .path;
+            print_pkgbuild_pkg(config, repo, path, srcinfo, pkg, quiet);
         }
     };
 
@@ -73,25 +73,23 @@ pub async fn search(config: &Config) -> Result<i32> {
     Ok((repo_pkgs.is_empty() && pkgs.is_empty()) as i32)
 }
 
-fn search_custom<'a>(
-    config: &Config,
-    repos: &'a mut Vec<Repo>,
-    paths: &mut HashMap<(String, String), PathBuf>,
+fn search_pkgbuilds<'a>(
+    config: &'a Config,
     targets: &[String],
 ) -> Result<Vec<(&'a str, &'a Srcinfo, &'a srcinfo::Package)>> {
-    if targets.is_empty() || !config.mode.pkgbuild() {
+    if !config.mode.pkgbuild() {
         return Ok(Vec::new());
     }
-
-    read_repos(config, paths, repos)?;
 
     let regex = RegexSet::new(targets)?;
     let mut ret = Vec::new();
 
-    for repo in repos {
-        for base in &repo.pkgs {
+    for repo in &config.pkgbuild_repos.repos {
+        for base in repo.pkgs(config) {
+            let base = &base.srcinfo;
             for pkg in &base.pkgs {
-                if regex.is_match(&base.base.pkgbase)
+                if targets.is_empty()
+                    || regex.is_match(&base.base.pkgbase)
                     || regex.is_match(&pkg.pkgname)
                     || pkg.pkgdesc.iter().any(|d| regex.is_match(d))
                     || pkg
@@ -105,6 +103,23 @@ fn search_custom<'a>(
                 }
             }
         }
+    }
+
+    Ok(ret)
+}
+
+fn search_local<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
+    let mut ret = Vec::new();
+
+    if targets.is_empty() {
+        ret.extend(config.alpm.localdb().pkgs());
+    } else {
+        let pkgs = config.alpm.localdb().search(targets.iter())?;
+        ret.extend(pkgs);
+    };
+
+    if config.limit != 0 {
+        ret.truncate(config.limit);
     }
 
     Ok(ret)
@@ -234,7 +249,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
     Ok(matches)
 }
 
-fn print_custom_pkg(
+fn print_pkgbuild_pkg(
     config: &Config,
     repo: &str,
     path: &Path,
@@ -381,12 +396,25 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 }
 
-pub async fn search_install(config: &mut Config) -> Result<i32> {
-    let mut repos = Vec::new();
-    let mut paths = HashMap::new();
+pub fn interactive_search_local(config: &mut Config) -> Result<()> {
+    let mut all_pkgs = Vec::new();
+    let repo_pkgs = search_local(config, &config.targets)?;
 
+    for pkg in repo_pkgs {
+        all_pkgs.push(AnyPkg::RepoPkg(pkg));
+    }
+    let targs = interactive_menu(config, all_pkgs, false)?;
+    if targs.is_empty() {
+        printtr!(" there is nothing to do");
+    }
+    config.targets = targs.clone();
+    config.args.targets = targs;
+    Ok(())
+}
+
+pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()> {
     let repo_pkgs = search_repos(config, &config.targets)?;
-    let custom_pkgs = search_custom(config, &mut repos, &mut paths, &config.targets)?;
+    let custom_pkgs = search_pkgbuilds(config, &config.targets)?;
     let aur_pkgs = search_aur(config, &config.targets).await?;
     let mut all_pkgs = Vec::new();
 
@@ -400,11 +428,24 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         all_pkgs.push(AnyPkg::AurPkg(pkg));
     }
 
+    let targs = interactive_menu(config, all_pkgs, install)?;
+    if targs.is_empty() {
+        printtr!(" there is nothing to do");
+    }
+    config.targets = targs.clone();
+    config.args.targets = targs;
+    Ok(())
+}
+
+pub fn interactive_menu(
+    config: &Config,
+    mut all_pkgs: Vec<AnyPkg<'_>>,
+    install: bool,
+) -> Result<Vec<String>> {
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
         printtr!("no packages match search");
-        return Ok(1);
     }
 
     let indexes = all_pkgs
@@ -432,19 +473,22 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
 
     if config.sort_mode == SortMode::TopDown {
         for (n, pkg) in all_pkgs.iter().enumerate() {
-            print_any_pkg(config, n, pad, pkg, &paths)
+            print_any_pkg(config, n, pad, pkg)
         }
     } else {
         for (n, pkg) in all_pkgs.iter().enumerate().rev() {
-            print_any_pkg(config, n, pad, pkg, &paths)
+            print_any_pkg(config, n, pad, pkg)
         }
     }
 
-    let input = input(config, &tr!("Packages to install (eg: 1 2 3, 1-3):"));
+    let input = if install {
+        input(config, &tr!("Packages to install (eg: 1 2 3, 1-3):"))
+    } else {
+        input(config, &tr!("Select packages (eg: 1 2 3, 1-3):"))
+    };
 
     if input.trim().is_empty() {
-        printtr!(" there is nothing to do");
-        return Ok(1);
+        return Ok(Vec::new());
     }
 
     let menu = NumberMenu::new(&input);
@@ -480,24 +524,10 @@ pub async fn search_install(config: &mut Config) -> Result<i32> {
         }
     }
 
-    if pkgs.is_empty() {
-        printtr!(" there is nothing to do")
-    } else {
-        config.need_root = true;
-        config.args.remove("x").remove("regex");
-        install(config, &pkgs).await?;
-    }
-
-    Ok(0)
+    Ok(pkgs)
 }
 
-fn print_any_pkg(
-    config: &Config,
-    n: usize,
-    pad: usize,
-    pkg: &AnyPkg,
-    paths: &HashMap<(String, String), PathBuf>,
-) {
+fn print_any_pkg(config: &Config, n: usize, pad: usize, pkg: &AnyPkg) {
     let c = config.color;
     match pkg {
         AnyPkg::RepoPkg(pkg) => {
@@ -513,10 +543,14 @@ fn print_any_pkg(
         AnyPkg::Custom(repo, base, pkg) => {
             let n = format!("{:>pad$}", n + 1, pad = pad);
             print!("{} ", c.number_menu.paint(n));
-            let path = paths
-                .get(&(repo.to_string(), pkg.pkgname.to_string()))
-                .unwrap();
-            print_custom_pkg(config, repo, path, base, pkg, false)
+            let path = &config
+                .pkgbuild_repos
+                .repo(repo)
+                .unwrap()
+                .base(config, &base.base.pkgbase)
+                .unwrap()
+                .path;
+            print_pkgbuild_pkg(config, repo, path, base, pkg, false)
         }
     };
 }

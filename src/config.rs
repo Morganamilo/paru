@@ -3,14 +3,15 @@ use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::info::get_terminal_width;
-use crate::util::get_provider;
+use crate::pkgbuild::{PkgbuildRepos, RepoSource};
+use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
-use std::fs::{remove_file, File, OpenOptions};
-use std::io::{stdin, stdout, BufRead};
+use std::fs::{remove_file, OpenOptions};
+use std::io::{stderr, stdin, stdout, BufRead};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -20,10 +21,11 @@ use alpm::{
 use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
-use nix::unistd::{dup2, isatty};
+use nix::unistd::isatty;
 use std::os::unix::io::AsRawFd;
 use tr::tr;
 use url::Url;
@@ -104,7 +106,12 @@ pub struct Colors {
 impl From<&str> for Colors {
     fn from(s: &str) -> Self {
         match s {
-            "auto" if isatty(stdout().as_raw_fd()).unwrap_or(false) => Colors::new(),
+            "auto"
+                if isatty(stdout().as_raw_fd()).unwrap_or(false)
+                    | isatty(stderr().as_raw_fd()).unwrap_or(false) =>
+            {
+                Colors::new()
+            }
             "always" => Colors::new(),
             _ => Colors::default(),
         }
@@ -195,8 +202,10 @@ pub enum Sign {
     Key(String),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
+    #[default]
+    Default,
     ChrootCtl,
     Database,
     DepTest,
@@ -209,7 +218,6 @@ pub enum Op {
     Sync,
     Upgrade,
     Build,
-    Yay,
 }
 
 impl ConfigEnum for Op {
@@ -226,7 +234,7 @@ impl ConfigEnum for Op {
         ("sync", Self::Sync),
         ("upgrade", Self::Upgrade),
         ("build", Self::Build),
-        ("yay", Self::Yay),
+        ("default", Self::Default),
     ];
 }
 
@@ -387,7 +395,6 @@ pub struct Config {
 
     pub cols: Option<usize>,
 
-    #[default(Op::Yay)]
     pub op: Op,
 
     #[cfg(not(feature = "mock"))]
@@ -436,6 +443,7 @@ pub struct Config {
     #[default(Mode::empty())]
     pub mode: Mode,
     pub aur_filter: bool,
+    pub interactive: bool,
 
     #[default = 7]
     pub completion_interval: u64,
@@ -540,41 +548,8 @@ pub struct Config {
     pub ignore_devel_builder: GlobSetBuilder,
     pub assume_installed: Vec<String>,
 
-    pub custom_repos: Vec<CustomRepo>,
-}
-
-#[derive(Debug)]
-pub enum RepoSource {
-    Url(Url),
-    Path(PathBuf),
-    None,
-}
-
-impl Default for RepoSource {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
-#[derive(Default, Debug)]
-pub struct CustomRepo {
-    pub name: String,
-    pub source: RepoSource,
-    pub depth: u32,
-    pub skip_review: bool,
-    pub force_srcinfo: bool,
-}
-
-impl CustomRepo {
-    pub fn new(name: String) -> Self {
-        CustomRepo {
-            depth: 2,
-            name,
-            source: RepoSource::None,
-            skip_review: false,
-            force_srcinfo: false,
-        }
-    }
+    #[default(PkgbuildRepos::new(aur_fetch::Fetch::with_cache_dir("repo")))]
+    pub pkgbuild_repos: PkgbuildRepos,
 }
 
 impl Ini for Config {
@@ -585,13 +560,13 @@ impl Ini for Config {
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
-                    && !self.custom_repos.iter().any(|r| r.name == section)
+                    && self.pkgbuild_repos.repo(section).is_none()
                 {
                     if matches!(section, "local" | "aur" | "pkg" | "base") || section.contains('.')
                     {
                         bail!(tr!("section can not be called {}", section));
                     }
-                    self.custom_repos.push(CustomRepo::new(section.to_string()));
+                    self.pkgbuild_repos.add_repo(section.to_string());
                 }
                 Ok(())
             }
@@ -728,7 +703,7 @@ impl Config {
 
         if self.help {
             match self.op {
-                Op::GetPkgBuild | Op::Show | Op::Yay => {
+                Op::GetPkgBuild | Op::Show | Op::Default => {
                     help::help();
                     std::process::exit(0);
                 }
@@ -794,6 +769,10 @@ impl Config {
 
         if self.mode == Mode::empty() {
             self.mode = Mode::all();
+        }
+
+        if !self.mode.pkgbuild() {
+            self.pkgbuild_repos.repos.clear();
         }
 
         self.need_root = self.need_root();
@@ -974,11 +953,7 @@ impl Config {
     fn parse_repo(&mut self, repo: &str, key: &str, value: Option<&str>) -> Result<()> {
         let value = value.context(tr!("key can not be empty"));
 
-        let repo = self
-            .custom_repos
-            .iter_mut()
-            .find(|r| r.name == repo)
-            .unwrap();
+        let repo = self.pkgbuild_repos.repo_mut(repo).unwrap();
 
         match key {
             "URL" => repo.source = RepoSource::Url(Url::parse(value?)?),
@@ -1177,15 +1152,6 @@ pub fn version() {
     #[cfg(feature = "git")]
     print!(" +git");
     println!(" - libalpm v{}", alpm::version());
-}
-
-fn reopen_stdin() -> Result<()> {
-    let stdin_fd = 0;
-    let file = File::open("/dev/tty")?;
-
-    dup2(file.as_raw_fd(), stdin_fd)?;
-
-    Ok(())
 }
 
 fn question(question: AnyQuestion, data: &mut (bool, Colors)) {

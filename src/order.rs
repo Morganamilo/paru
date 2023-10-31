@@ -1,26 +1,21 @@
 use crate::config::Config;
-use crate::install::read_repos;
 use crate::resolver::flags;
 use anyhow::Result;
 use aur_depends::{Actions, Conflict, Package, Resolver};
 use log::debug;
-use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::collections::HashSet;
 
 pub async fn order(config: &mut Config) -> Result<i32> {
     let mut cache = HashSet::new();
     let flags = flags(config);
 
-    let mut repos = Vec::new();
-    let mut custom_paths = HashMap::new();
     let quiet = config.quiet;
 
-    if config.mode.pkgbuild() {
-        read_repos(config, &mut custom_paths, &mut repos)?;
-    }
-
+    let repos = config.pkgbuild_repos.clone();
+    let repos = repos.aur_depends_repo(config);
     config.alpm.take_raw_question_cb();
-    let resolver = Resolver::new(&config.alpm, &mut cache, &config.raur, flags).repos(&repos);
+    let resolver =
+        Resolver::new(&config.alpm, &mut cache, &config.raur, flags).pkgbuild_repos(repos);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 
@@ -32,7 +27,7 @@ pub async fn order(config: &mut Config) -> Result<i32> {
         print_conflicting(inner_conflicts, "INNER");
     }
     print_install(&actions, quiet);
-    print_build(&mut actions, quiet, &custom_paths);
+    print_build(config, &mut actions, quiet);
 
     Ok(!actions.missing.is_empty() as i32)
 }
@@ -52,7 +47,7 @@ fn print_install(actions: &Actions, quiet: bool) {
     }
 }
 
-fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, String), PathBuf>) {
+fn print_build(config: &Config, actions: &mut Actions, quiet: bool) {
     for build in &actions.build {
         let base = build.package_base();
 
@@ -66,14 +61,19 @@ fn print_build(actions: &mut Actions, quiet: bool, paths: &HashMap<(String, Stri
                     }
                 }
             }
-            aur_depends::Base::Custom(c) => {
+            aur_depends::Base::Pkgbuild(c) => {
                 for pkg in &c.pkgs {
                     if quiet {
                         println!("{}", pkg.pkg.pkgname);
                     } else {
-                        let path = paths
-                            .get(&(c.repo.clone(), c.package_base().to_string()))
-                            .unwrap();
+                        // TODO
+                        let path = &config
+                            .pkgbuild_repos
+                            .repo(&c.repo)
+                            .unwrap()
+                            .base(config, c.package_base())
+                            .unwrap()
+                            .path;
                         println!(
                             "SRCINFO {} {} {} {} {}",
                             get_pkg_type(pkg),

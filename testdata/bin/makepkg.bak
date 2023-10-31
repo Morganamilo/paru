@@ -1,0 +1,2 @@
+#!/bin/sh
+bash -x /usr/local/bin/local/makepkg "$@" | tee /dev/tty

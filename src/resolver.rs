@@ -5,7 +5,7 @@ use crate::RaurHandle;
 
 use std::io::{stdin, stdout, BufRead, Write};
 
-use aur_depends::{Flags, Resolver};
+use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;
 use tr::tr;
 
@@ -36,7 +36,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         flags &= !Flags::AUR;
     }
     if !config.mode.repo() {
-        flags &= !Flags::NATIVE_REPO;
+        flags &= !Flags::REPO;
     }
     match config.provides {
         YesNoAll::Yes => flags |= Flags::TARGET_PROVIDES | Flags::MISSING_PROVIDES,
@@ -48,7 +48,7 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
         ),
         YesNoAll::All => flags |= Flags::PROVIDES,
     }
-    if config.op == Op::Yay {
+    if config.op == Op::Default {
         flags.remove(Flags::TARGET_PROVIDES);
     }
     if config.repos != LocalRepos::None || config.rebuild == YesNoAllTree::Tree || config.chroot {
@@ -62,9 +62,9 @@ pub fn flags(config: &mut Config) -> aur_depends::Flags {
 pub fn resolver<'a, 'b>(
     config: &Config,
     alpm: &'a Alpm,
-    repos: &'a [aur_depends::Repo],
     raur: &'b RaurHandle,
     cache: &'b mut Cache,
+    pkgbuild_repos: Vec<PkgbuildRepo<'a>>,
     flags: Flags,
 ) -> Resolver<'a, 'b, RaurHandle> {
     let devel_suffixes = config.devel_suffixes.clone();
@@ -72,9 +72,9 @@ pub fn resolver<'a, 'b>(
     let no_confirm = config.no_confirm;
 
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
-        .repos(repos)
+        .pkgbuild_repos(pkgbuild_repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
-        .devel_pkgs(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
+        .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();

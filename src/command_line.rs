@@ -186,6 +186,7 @@ impl Config {
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
 
             Arg::Long("builddir") | Arg::Long("clonedir") => self.build_dir = value?.into(),
+            Arg::Long("develfile") => self.devel_path = value?.into(),
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
             Arg::Long("mflags") => self.mflags.extend(split_whitespace(value?)),
             Arg::Long("gitflags") => self.git_flags.extend(split_whitespace(value?)),
@@ -246,6 +247,7 @@ impl Config {
                     self.mode |= word.parse()?;
                 }
             }
+            Arg::Long("interactive") => self.interactive = true,
             Arg::Long("skipreview") => self.skip_review = true,
             Arg::Long("review") => self.skip_review = false,
             Arg::Long("gendb") => self.gendb = true,
@@ -418,6 +420,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("builddir") => TakesValue::Required,
         Arg::Long("provides") => TakesValue::Optional,
         Arg::Long("clonedir") => TakesValue::Required,
+        Arg::Long("develfile") => TakesValue::Required,
         //pacman
         Arg::Long("dbpath") | Arg::Short('b') => TakesValue::Required,
         Arg::Long("root") | Arg::Short('r') => TakesValue::Required,

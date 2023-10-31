@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 set -e
-cargo build --release --locked --target-dir target -Z sparse-registry
+
+cargo build --release --features generate --locked --target-dir target
 scripts/mkmo locale/
 strip target/release/paru
-tar --zstd -cfparu.tar.zst  man completions paru.conf locale -C target/release paru
+
+tar --zstd -cf paru.tar.zst man completions paru.conf locale -C target/release paru
+

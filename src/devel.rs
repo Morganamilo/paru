@@ -1,6 +1,5 @@
 use crate::config::{Config, LocalRepos};
 use crate::download::{self, cache_info_with_warnings, Bases};
-use crate::install::read_repos;
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -17,7 +16,7 @@ use std::time::Duration;
 use alpm_utils::{DbListExt, Target};
 use ansi_term::Style;
 use anyhow::{anyhow, bail, Context, Result};
-use aur_depends::{Base, Repo};
+use aur_depends::Base;
 use futures::future::{join_all, select_ok, FutureExt};
 use log::debug;
 use raur::{Cache, Raur};
@@ -116,11 +115,8 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
     let ignore = &config.ignore;
 
-    let mut custom_repo_paths = HashMap::new();
-    let mut custom_repos = Vec::new();
     let mut aur = split_repo_aur_pkgs(config, &pkgs).1;
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
-    read_repos(config, &mut custom_repo_paths, &mut custom_repos)?;
 
     aur.retain(|pkg| {
         let pkg = db.pkg(*pkg).unwrap();
@@ -129,12 +125,9 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         !devel_info.info.contains_key(pkg)
     });
 
-    let (_custom, aur): (Vec<_>, Vec<_>) = aur.into_iter().partition(|aur| {
-        custom_repos
-            .iter()
-            .flat_map(|r| &r.pkgs)
-            .any(|p| p.pkg.pkgname == *aur)
-    });
+    let (_pkgbuilds, aur): (Vec<_>, Vec<_>) = aur
+        .into_iter()
+        .partition(|aur| config.pkgbuild_repos.pkg(config, aur).is_some());
 
     if !aur.is_empty() {
         println!(
@@ -263,6 +256,11 @@ async fn ls_remote_intenral(
     remote: &str,
     branch: Option<&str>,
 ) -> Result<String> {
+    #[cfg(feature = "mock")]
+    let _ = git;
+    #[cfg(feature = "mock")]
+    let git = "git";
+
     let mut command = AsyncCommand::new(git);
     command
         .args(flags)
@@ -396,7 +394,6 @@ pub async fn filter_devel_updates(
     config: &Config,
     cache: &mut Cache,
     updates: &[String],
-    custom_repos: &[Repo],
 ) -> Result<Vec<Target>> {
     let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
     let mut aur = Vec::new();
@@ -404,15 +401,9 @@ pub async fn filter_devel_updates(
     let db = config.alpm.localdb();
 
     'pkg: for update in updates {
-        for repo in custom_repos {
-            for base in &repo.pkgs {
-                for pkg in &base.pkgs {
-                    if pkg.pkgname == *update {
-                        custom.push(Target::new(Some(repo.name.clone()), pkg.pkgname.clone()));
-                        continue 'pkg;
-                    }
-                }
-            }
+        if let Some((base, pkg)) = config.pkgbuild_repos.pkg(config, update) {
+            custom.push(Target::new(Some(base.repo.clone()), pkg.pkgname.clone()));
+            continue 'pkg;
         }
 
         aur.push(update);
@@ -486,7 +477,7 @@ pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
 async fn has_update(style: Style, git: &str, flags: &[String], url: &RepoInfo) -> Result<()> {
     let sha = ls_remote(style, git, flags, url.url.clone(), url.branch.as_deref()).await?;
     debug!(
-        "devel check {}: {} == {} different: {}",
+        "devel check {}: '{}' == '{}' different: {}",
         url.url,
         url.commit,
         sha,
@@ -512,7 +503,7 @@ pub async fn fetch_devel_info(
     for base in bases {
         let srcinfo = match base {
             Base::Aur(_) => srcinfos.get(base.package_base()),
-            Base::Custom(c) => Some(c.srcinfo.as_ref()),
+            Base::Pkgbuild(c) => Some(c.srcinfo.as_ref()),
         };
 
         let srcinfo = match srcinfo {

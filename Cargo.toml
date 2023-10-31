@@ -25,7 +25,7 @@ srcinfo = "1.1.0"
 
 
 ansi_term = "0.12.1"
-anyhow = "1.0.68"
+anyhow = { version = "1.0.68", features = ["backtrace"] }
 chrono = { version = "0.4.23", default-features = false, features = ["clock"] }
 dirs = "5.0.1"
 futures = "0.3.25"
@@ -69,10 +69,12 @@ generate = ["alpm/generate"]
 static = ["alpm/static"]
 mock = ["async-trait"]
 mock_chroot = ["mock"]
+#default = ["git", "generate"]
 
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
 alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
+alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
 #aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "c36167" }
+aur-depends = { git = "https://github.com/Morganamilo/aur-depends"}
 #aur-fetch = { path = "../aur-fetch" }

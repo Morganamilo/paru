@@ -27,7 +27,7 @@ pub fn check_pgp_keys(
                 let pkg = base.package_base();
                 srcinfos.get(pkg).unwrap()
             }
-            Base::Custom(base) => base.srcinfo.as_ref(),
+            Base::Pkgbuild(base) => base.srcinfo.as_ref(),
         };
         for key in &srcinfo.base.valid_pgp_keys {
             if !seen.insert(key) {

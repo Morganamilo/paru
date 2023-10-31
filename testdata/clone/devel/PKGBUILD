@@ -1,0 +1,6 @@
+pkgname=devel
+pkgver=2
+pkgrel=1
+arch=(any)
+source=(git+file:///$PWD/../../git-repo)
+sha256sums=(SKIP)

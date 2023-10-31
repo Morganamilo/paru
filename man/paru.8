@@ -264,6 +264,28 @@ Additionally, a, r and p may be used as short hand for aur, repo and pkgbuilds r
 Short form modes can also be combined without a comma.
 E.g. \fB--mode=ar\fR or \fB--mode=arp\fR.
 
+
+.TP
+.B \-\-interactive
+Enable interactive package selection for -S, -R, -Ss and -Qs.
+
+For -S/-R this allows you to pick which packages to install/remove from a list.
+
+\fB paru <foo>\fR is an alias to \fBparu -S --interactive <foo>\fR.
+
+For -Ss/-Qs this allows you to interactivly pick packages from the sync/local repos respectively.
+This is intended to be chained with other package tools so paru can handle the menu work while the
+other tool in the pipeline just gets the packages.
+
+For example:
+
+\fB paru -Ssaq --interactive ruby | paru -Gc -\fR
+
+will show AUR packages containing the term ruby, give the user an interactive menu to pick packages, then pipeline
+those packages into -Gc and display the comments.
+
+Would allow a user to interactivly choose what files to list.
+
 .TP
 .B \-\-aururl
 Set an alternative AUR URL.
