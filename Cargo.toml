@@ -69,7 +69,7 @@ generate = ["alpm/generate"]
 static = ["alpm/static"]
 mock = ["async-trait"]
 mock_chroot = ["mock"]
-default = ["git", "generate"]
+#default = ["git", "generate"]
 
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
