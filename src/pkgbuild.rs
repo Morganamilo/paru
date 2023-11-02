@@ -14,6 +14,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use srcinfo::Srcinfo;
 use tr::tr;
 use url::Url;
+use std::ffi::OsStr;
 
 use crate::{config::Config, print_error};
 
@@ -111,7 +112,7 @@ impl PkgbuildRepo {
         let mut repo = Self::from_cwd(config)?;
 
         for dir in dirs {
-            repo.print_generate_srcinfo(config, &dir.file_name().unwrap().to_string_lossy());
+            repo.print_generate_srcinfo(config, dir.file_name().unwrap_or(OsStr::new("")).to_str().unwrap());
             let srcinfo = read_srcinfo_from_pkgbuild(config, dir)?;
             pkgs.push(PkgbuildPkg {
                 repo: repo.name.clone(),
@@ -155,7 +156,7 @@ impl PkgbuildRepo {
             return Ok(());
         }
 
-        self.print_generate_srcinfo(config, &path.file_name().unwrap().to_string_lossy());
+        self.print_generate_srcinfo(config, path.file_name().unwrap_or(OsStr::new("")).to_str().unwrap());
         let output = exec::makepkg_output(config, path, &["--printsrcinfo"])
             .context(path.display().to_string());
         match output {
