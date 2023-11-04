@@ -48,7 +48,7 @@ pub struct PkgbuildRepo {
     pub depth: u32,
     pub skip_review: bool,
     pub force_srcinfo: bool,
-    path: PathBuf,
+    pub path: PathBuf,
     pkgs: OnceCell<Arc<Vec<PkgbuildPkg>>>,
 }
 
@@ -277,8 +277,8 @@ impl PkgbuildRepos {
     }
 
     pub fn add_repo(&mut self, name: String) -> &mut PkgbuildRepo {
-        let path = self.fetch.clone_dir.join(&name);
-        self.repos.push(PkgbuildRepo::new(name, path));
+        self.repos
+            .push(PkgbuildRepo::new(name.clone(), name.into()));
         self.repos.last_mut().unwrap()
     }
 

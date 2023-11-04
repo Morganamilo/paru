@@ -764,8 +764,22 @@ impl Config {
             git_flags: self.git_flags.clone(),
             clone_dir: self.build_dir.clone(),
             diff_dir: self.cache_dir.join("diff"),
+            aur_url: aur_url.clone(),
+        };
+
+        self.pkgbuild_repos.fetch = aur_fetch::Fetch {
+            git: self.git_bin.clone().into(),
+            git_flags: self.git_flags.clone(),
+            clone_dir: self.build_dir.join("repo"),
+            diff_dir: self.cache_dir.join("repo/diff"),
             aur_url,
         };
+
+        for repo in &mut self.pkgbuild_repos.repos {
+            if repo.source.url().is_some() {
+                repo.path = self.pkgbuild_repos.fetch.clone_dir.join(&repo.path);
+            }
+        }
 
         if self.mode == Mode::empty() {
             self.mode = Mode::all();
