@@ -150,7 +150,7 @@ fn base_string(config: &Config, base: &Base, devel: &HashSet<String>) -> String 
     }
 
     if !Base::base_is_pkg(base.package_base(), base.packages()) {
-        write!(&mut s, "(").unwrap();
+        write!(&mut s, " (").unwrap();
         let mut pkgs = base.packages();
         write!(&mut s, "{}", pkgs.next().unwrap()).unwrap();
         for pkg in pkgs {
