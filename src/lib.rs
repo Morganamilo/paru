@@ -54,6 +54,7 @@ use anyhow::{bail, Error, Result};
 use cini::Ini;
 use fmt::print_target;
 
+use pkgbuild::PkgbuildRepo;
 use search::{interactive_search, interactive_search_local};
 use tr::{tr, tr_init};
 use util::{redirect_to_stderr, reopen_stdout};
@@ -329,6 +330,11 @@ async fn handle_test(config: &Config) -> Result<i32> {
 }
 
 async fn handle_sync(config: &mut Config) -> Result<i32> {
+    if config.targets.iter().any(|t| t.starts_with("./")) {
+        let repo = PkgbuildRepo::from_cwd(config)?;
+        config.pkgbuild_repos.repos.push(repo);
+    }
+
     if config.args.has_arg("i", "info") {
         info::info(config, config.args.count("i", "info") > 1).await
     } else if config.args.has_arg("c", "clean") {
