@@ -131,7 +131,11 @@ impl Chroot {
         cmd.arg("--").args(flags).args(&self.mflags);
 
         for (key, value) in env {
-            cmd.arg(format!("{}={}", key, value));
+            if key == "PKGDEST" {
+                cmd.env(key, value);
+            } else {
+                cmd.arg(format!("{}={}", key, value));
+            }
         }
 
         exec::command(&mut cmd)?;
