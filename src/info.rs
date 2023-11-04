@@ -1,6 +1,4 @@
-use std::collections::HashMap;
 use std::os::fd::AsRawFd;
-use std::path::PathBuf;
 
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
@@ -14,7 +12,7 @@ use anyhow::Error;
 
 use globset::GlobSet;
 use raur::ArcPackage as Package;
-use srcinfo::{ArchVec, Srcinfo};
+use srcinfo::ArchVec;
 use terminal_size::terminal_size_using_fd;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
