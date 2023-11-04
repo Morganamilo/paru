@@ -111,8 +111,9 @@ impl PkgbuildRepo {
         let mut repo = Self::from_cwd(config)?;
 
         for dir in dirs {
+            let dir = dir.canonicalize()?;
             repo.print_generate_srcinfo(config, &dir.file_name().unwrap().to_string_lossy());
-            let srcinfo = read_srcinfo_from_pkgbuild(config, dir)?;
+            let srcinfo = read_srcinfo_from_pkgbuild(config, &dir)?;
             pkgs.push(PkgbuildPkg {
                 repo: repo.name.clone(),
                 srcinfo,
