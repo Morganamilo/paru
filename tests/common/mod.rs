@@ -181,6 +181,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
 
     for pkg in std::fs::read_dir(dir.join("cache/pkg"))? {
         let path = pkg?.path();
+
         let name = path.file_name().unwrap().to_str().unwrap();
         if name.ends_with(".pkg.tar.zst") {
             std::fs::rename(&path, testdata.join("pkg").join(name))?;
