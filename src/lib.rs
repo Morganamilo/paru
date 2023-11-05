@@ -310,6 +310,7 @@ async fn handle_default(config: &mut Config) -> Result<i32> {
         }
     } else if !config.targets.is_empty() {
         config.interactive = true;
+        config.need_root = true;
         handle_sync(config).await?;
         Ok(0)
     } else {
