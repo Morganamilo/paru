@@ -2,7 +2,5 @@ pkgbase = devel
 	pkgver = 1
 	pkgrel = 1
 	arch = any
-	source = git+file:////Users/morganamilo/git/paru/testdata/clone/devel/../../git-repo
-	sha256sums = SKIP
 
 pkgname = devel
