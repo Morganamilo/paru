@@ -58,17 +58,9 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
             .status()?;
         assert!(status.success());
     }
-    println!("2");
 
-    println!("{} {}", dir.display(), testdata.display());
-    println!("{}", dir.join("cache/pkg").display());
-    println!("2.4");
     std::fs::create_dir_all(dir.join("cache/pkg"))?;
-    println!("2.5");
-    Command::new("find").status();
-    println!("{}", testdata.join("pkg").display());
     std::fs::create_dir_all(testdata.join("pkg"))?;
-    println!("3");
 
     let mut file = fs::OpenOptions::new()
         .append(true)
