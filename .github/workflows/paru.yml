@@ -24,7 +24,7 @@ jobs:
       image: archlinux
     steps:
       - name: Install Packages
-        run: pacman -Syu rust clang gcc libarchive pkgconf sudo fakeroot --noconfirm --needed
+        run: pacman -Syu rust clang gcc git libarchive pkgconf sudo fakeroot --noconfirm --needed
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
         run: cargo build --locked --features generate
 
       - name: Test
-        run: sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --test-threads=1 --nocapture
+        run: sudo -u nobody XDG_STATE_HOME=/tmp BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --nocapture
 
   test-git:
     runs-on: ubuntu-latest
@@ -64,9 +64,5 @@ jobs:
       - name: Build
         run: cargo build --locked --features git,generate
 
-      - name: chown
-        run: |
-          chown -R nobody: .
-
       - name: Test
-        run: sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --test-threads=1 --nocapture
+        run: sudo -u nobody XDG_STATE_HOME=/tmp BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --nocapture
