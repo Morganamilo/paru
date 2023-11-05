@@ -2,7 +2,5 @@
 	repositoryformatversion = 0
 	filemode = true
 	bare = true
-	ignorecase = true
-	precomposeunicode = true
 [remote "origin"]
-	url = /Users/morganamilo/git/git-repo
+	url = /home/morganamilo/git-repo
