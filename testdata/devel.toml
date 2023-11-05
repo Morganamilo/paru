@@ -1,3 +1,3 @@
 [[devel]]
-url = "file:////Users/morganamilo/git/paru/testdata/clone/devel/../../git-repo"
+url = "testdata/git-repo"
 commit = "deadbeef"
