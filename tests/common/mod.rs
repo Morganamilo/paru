@@ -60,6 +60,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     }
 
     std::fs::create_dir_all(dir.join("cache/pkg"))?;
+
     std::fs::create_dir_all(testdata.join("pkg"))?;
 
     let mut file = fs::OpenOptions::new()

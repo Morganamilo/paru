@@ -64,6 +64,9 @@ jobs:
       - name: Build
         run: cargo build --locked --features git,generate
 
-      - run: chown -R nobody: .
+      - name: chown
+        run: |
+          chown -R nobody: .
+
       - name: Test
         run: sudo -u nobody BUILDDIR=/tmp PKGDEST=/tmp SRCDEST=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --test-threads=1 --nocapture
