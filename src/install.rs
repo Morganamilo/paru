@@ -957,13 +957,13 @@ impl Installer {
 
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
-        // No aur stuff, let's just use pacman
-        if !config.mode.aur()
-            && !config.mode.pkgbuild()
-            && aur_targets.is_empty()
-            && self.upgrades.aur_keep.is_empty()
-            && !self.ran_pacman
-        {
+        if Self::shoud_just_pacman(
+            config.mode,
+            &config.args,
+            aur_targets,
+            &self.upgrades,
+            self.ran_pacman,
+        ) {
             print_warnings(config, &cache, None);
             let mut args = config.pacman_args();
             let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -1027,6 +1027,25 @@ impl Installer {
 
         self.build_cleanup(config, &build)?;
         err
+    }
+
+    fn shoud_just_pacman(
+        mode: Mode,
+        args: &Args<String>,
+        aur_targets: &[Targ<'_>],
+        upgrades: &Upgrades,
+        ran_pacman: bool,
+    ) -> bool {
+        if !mode.aur() && !mode.pkgbuild() {
+            return true;
+        }
+        if args.has_arg("u", "sysupgrade") || args.has_arg("y", "refresh") {
+            return false;
+        }
+        if ran_pacman {
+            return false;
+        }
+        aur_targets.is_empty() && upgrades.aur_keep.is_empty() && upgrades.pkgbuild_keep.is_empty()
     }
 
     async fn prepare_build(
