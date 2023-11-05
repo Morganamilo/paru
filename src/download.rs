@@ -3,11 +3,9 @@ use crate::fmt::print_indent;
 use crate::printtr;
 use crate::RaurHandle;
 
-use std::collections::{HashMap, HashSet};
-use std::fs::read_dir;
+use std::collections::HashMap;
 use std::io::Write;
 use std::iter::FromIterator;
-use std::path::Path;
 use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
@@ -223,60 +221,21 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
 }
 
 fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
-    let c = config.color;
-    let mut r = 0;
-
-    let cd = std::env::current_dir().context(tr!("could not get current directory"))?;
-    let asp = &config.asp_bin;
-
-    if Command::new(asp).output().is_err() {
-        bail!(tr!("can not get repo packages: asp is not installed"));
-    }
-
-    let cd = read_dir(cd)?
-        .map(|d| d.map(|d| d.file_name().into_string().unwrap()))
-        .collect::<Result<HashSet<_>, _>>()?;
+    let pkgctl = &config.pkgctl_bin;
 
     for (n, targ) in pkgs.iter().enumerate() {
         print_download(config, n + 1, pkgs.len(), targ.pkg);
 
-        let ret = Command::new(asp)
-            .arg("update")
-            .arg(targ.pkg)
-            .output()
-            .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, targ.pkg))?;
-
-        ensure!(
-            ret.status.success(),
-            "{}",
-            String::from_utf8_lossy(&ret.stderr).trim()
-        );
-
-        let pkg = targ.pkg;
-
-        if cd.contains(pkg) {
-            if !Path::new(pkg).join("PKGBUILD").exists() {
-                println!(
-                    "{} {} {}",
-                    c.warning.paint("::"),
-                    tr!("does not contain PKGBUILD: skipping"),
-                    pkg
-                );
-                r = 1;
-                continue;
-            }
-            std::fs::remove_dir_all(pkg)?;
-        }
-
-        let ret = Command::new(asp)
-            .arg("export")
+        let ret = Command::new(pkgctl)
+            .arg("repo")
+            .arg("clone")
             .arg(targ.to_string())
             .output()
             .with_context(|| {
                 format!(
                     "{} {} export {}",
                     tr!("failed to run:"),
-                    asp,
+                    pkgctl,
                     targ.to_string()
                 )
             })?;
@@ -288,7 +247,7 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
         );
     }
 
-    Ok(r)
+    Ok(0)
 }
 
 pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
@@ -527,65 +486,37 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+    let client = config.raur.client();
 
     let (repo, aur) = split_repo_aur_pkgbuilds(config, &config.targets);
 
     if !repo.is_empty() {
-        let asp = &config.asp_bin;
+        for pkg in &repo {
+            let url = Url::parse(&format!(
+                "https://gitlab.archlinux.org/archlinux/packaging/packages/{}/-/raw/HEAD/PKGBUILD",
+                pkg.pkg
+            ))?;
 
-        if Command::new(asp).output().is_err() {
-            eprintln!(
-                "{}",
-                tr!("{} is not installed: can not get repo packages", asp)
-            );
-            return Ok(1);
-        }
-
-        for pkg in repo {
-            let ret = Command::new(asp)
-                .arg("update")
-                .arg(pkg.pkg)
-                .output()
-                .with_context(|| format!("{} {} update {}", tr!("failed to run:"), asp, pkg))?;
-
-            ensure!(
-                ret.status.success(),
-                "{}",
-                String::from_utf8_lossy(&ret.stderr).trim()
-            );
+            let response = client
+                .get(url.clone())
+                .send()
+                .await
+                .with_context(|| format!("{}: {}", pkg, url))?;
+            if !response.status().is_success() {
+                bail!("{}: {}: {}", pkg, url, response.status());
+            }
 
             if bat {
-                let output = Command::new(asp)
-                    .arg("show")
-                    .arg(pkg.pkg)
-                    .output()
-                    .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
-
-                ensure!(
-                    output.status.success(),
-                    "{}",
-                    String::from_utf8_lossy(&output.stderr).trim()
-                );
-
-                pipe_bat(config, &output.stdout)?;
+                pipe_bat(config, &response.bytes().await?)?;
             } else {
-                let ret = Command::new(asp)
-                    .arg("show")
-                    .arg(pkg.pkg)
-                    .status()
-                    .with_context(|| format!("{} {} show {}", tr!("failed to run:"), asp, pkg))?;
-
-                ensure!(
-                    ret.success(),
-                    tr!("asp returned {}", ret.code().unwrap_or(1))
-                );
+                let _ = stdout.write_all(&response.bytes().await?);
             }
+
             let _ = stdout.write_all(b"\n");
         }
     }
 
     if !aur.is_empty() {
-        let client = config.raur.client();
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
 
         let warnings = cache_info_with_warnings(
