@@ -229,6 +229,8 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
         let ret = Command::new(pkgctl)
             .arg("repo")
             .arg("clone")
+            .arg("--protocol")
+            .arg("https")
             .arg(targ.to_string())
             .output()
             .with_context(|| {
