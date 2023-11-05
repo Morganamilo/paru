@@ -13,6 +13,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     let tmp = TempDir::new().unwrap();
     let dir = tmp.path();
     let testdata = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata");
+    println!("1");
 
     let status = Command::new("cp")
         .arg("-rp")
@@ -57,9 +58,17 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
             .status()?;
         assert!(status.success());
     }
+    println!("2");
 
+    println!("{} {}", dir.display(), testdata.display());
+    println!("{}", dir.join("cache/pkg").display());
+    println!("2.4");
     std::fs::create_dir_all(dir.join("cache/pkg"))?;
+    println!("2.5");
+    Command::new("find").status();
+    println!("{}", testdata.join("pkg").display());
     std::fs::create_dir_all(testdata.join("pkg"))?;
+    println!("3");
 
     let mut file = fs::OpenOptions::new()
         .append(true)
@@ -137,6 +146,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     let mut path = std::env::var("PATH").unwrap();
     path.push(':');
     path.push_str(testdata.join("bin").to_str().unwrap());
+    println!("4");
 
     std::env::set_var("PACMAN", "true");
     std::env::set_var("PACMAN_CONF", dir.join("pacman.conf"));
@@ -175,6 +185,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
         let ret = paru::run(&args).await;
         assert_eq!(ret, 0);
     }
+    println!("5");
 
     args.extend(run_args);
     let ret = paru::run(&args).await;
