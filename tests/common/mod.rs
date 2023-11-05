@@ -58,7 +58,8 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
         assert!(status.success());
     }
 
-    std::fs::create_dir(dir.join("cache"))?;
+    std::fs::create_dir_all(dir.join("cache/pkg"))?;
+    std::fs::create_dir_all(testdata.join("pkg"))?;
 
     let mut file = fs::OpenOptions::new()
         .append(true)
@@ -178,11 +179,11 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     args.extend(run_args);
     let ret = paru::run(&args).await;
 
-    for pkg in std::fs::read_dir(dir.join("cache"))? {
-        let name = pkg?.path();
-        let name = name.file_name().unwrap().to_str().unwrap();
+    for pkg in std::fs::read_dir(dir.join("cache/pkg"))? {
+        let path = pkg?.path();
+        let name = path.file_name().unwrap().to_str().unwrap();
         if name.ends_with(".pkg.tar.zst") {
-            std::fs::rename(name, testdata.join("pkg").join(name))?;
+            std::fs::rename(&path, testdata.join("pkg").join(name))?;
         }
     }
 
