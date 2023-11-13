@@ -416,6 +416,8 @@ pub struct Config {
     pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
+    #[default(Url::parse("https://archlinux.org/feeds/news/").unwrap())]
+    pub news_url: Url,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub state_dir: PathBuf,
@@ -1056,7 +1058,12 @@ impl Config {
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
             "SaveChanges" => self.save_changes = true,
-            "NewsOnUpgrade" => self.news_on_upgrade = true,
+            "NewsOnUpgrade" => {
+                self.news_on_upgrade = true;
+                if let Some(l) = value {
+                    self.news_url = l.parse()?;
+                }
+            }
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::Yes.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAllTree::Yes.default_or(key, value)?,
