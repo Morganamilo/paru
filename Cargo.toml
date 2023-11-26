@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "1.11.2"
+version = "2.0.0"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2021"
 
@@ -76,5 +76,5 @@ mock_chroot = ["mock"]
 alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
 alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "101b05" }
 #aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends"}
+aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "9f09f5"}
 #aur-fetch = { path = "../aur-fetch" }

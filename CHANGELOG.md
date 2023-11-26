@@ -1,5 +1,127 @@
 # Changelog
 
+## Paru v2.0.0 (2023-11-26)
+
+Paru v2.0.0 comes after a long time of no releases, mostly due to a lack of free time
+and a lot of changes that needed a lot of work to get done.
+
+This update brings a lot of big changes, mostly aimed at power users, and a handul of general
+improvements and quality of life changes.
+
+As there's not been a release in so long, consider a lot of the things here not battle tested,
+with a .1 patch to follow.
+
+This changelog won't include minor changes as there are a lot.
+
+### PKGBUILD Repos
+
+The main feature of this release is properly integrating non aur pkgbuilds into the build
+engine. You can now add pkgbuild repos to your paru.conf in the form of:
+
+```
+[repo_name]
+Url = https://path/to/git/repo
+```
+
+Then syncing the repo with `paru -Sy --pkgbuilds`.
+
+You can also specify 'Path =' instead to point to a pkgbuild repo on disk.
+
+paru will then recognise this repo as a source of pkgbuilds just like the AUR.
+
+```
+paru -S foo
+```
+
+pkgbuild repos have a higher priority than the AUR so this can also be used to shadow AUR
+packages with your own pkgbuilds. The deps of these pkgbuilds can still include AUR deps.
+
+There is also an automatic pkgbuild repo named `.` in the current directory. Essentionally
+there's an invisible:
+
+```
+[.]
+Path = .
+```
+
+in your paru.conf.
+
+This allows doing `paru -S ./foo` where `foo` is the name of a package (not path) under the
+current directory. this means if you have a bunch of pkgbuilds in a directory that depend on
+each other you can build one with `paru -S ./foo` and paru will solve and build the dependencies
+across pkgbuilds.
+
+Previously `paru -U` could be used to build a pkgbuild in the current directory. This has been
+renamed to `paru -B <dirs>...` allowing you to specify multiple pkgbuilds to build at once.
+
+See `paru.conf(5)` for more information on this.
+
+### Chroot
+
+--chroot now works without local repos, though it still works better with them.
+
+### --interactive
+
+`paru foo` has always been there for interactive search and install. There is now `--interactive`
+which works for other operactions.
+
+- `paru foo` is an alias for `paru -S --interactive foo`
+- `paru -R --interactive foo` can be used for an interactive remove.
+- `paru -Ss/-Qs --interactive foo` will give an interactive prompt then print the chosen packages so they can be piped to other commands.
+
+### Provides
+
+Provide searching is now better and is now enabled in the default paru.conf. You probably
+want to uncomment this option if you have an existing paru.conf.
+
+### Contributors
+
+Thanks to every one who has contributed code and translations for paru.
+And thanks to every one who has decided to sponsor the project.
+
+### Added
+
+- Add --interactive
+- Add --nolocalrepo
+- Add --pacmanconfbin
+- Add --provides=all
+- Add --pkgbuilds and --mode
+- Add --rebuild=tree
+- Add -o to ignore optional deps with --clean
+- Add IgnoreDevelsource
+- Add IgnoreDevel
+- Add AurRpcUrl
+- Add pkgbuild repos
+- Add -S ./ syntax
+
+### Changed
+
+- Replace devel.json with devel.toml
+- Move devel.toml to $XDG_STATE_HOME
+- Dates now use the local time zone
+- Fallback to cat when less is not available
+- No confirm pacman install after final paru confirmation
+- Copy DB into chroot before update
+- Disable -w/--downloadonly when installing aur packages
+- Allow chroot without local repo
+- Replace -U with -B
+
+### Fixed
+
+- Pass env into chroot
+- Fix separate install of split packages
+- Create local repo when refreshing
+- Respect makepkg config outside of chroot
+- Fix no sudo when running paru -Sc
+- Fix --redownload=yes
+- Don't try set install reason if package didn't actually install
+- colour version when printing install
+- Fix assume install for chroot
+- Don't install makedeps when chroot
+- Fix -dd in chroot
+- Don't review when no packages
+- Fix aur packages not being case sensitive
+
 ## Paru v1.11.2 (2022-11-05)
 
 Rebuild for openssl 3
