@@ -970,7 +970,7 @@ impl Config {
         let repo = self.pkgbuild_repos.repo_mut(repo).unwrap();
 
         match key {
-            "URL" => repo.source = RepoSource::Url(Url::parse(value?)?),
+            "Url" => repo.source = RepoSource::Url(Url::parse(value?)?),
             "Path" => repo.source = RepoSource::Path(PathBuf::from(value?.to_string())),
             "Depth" => repo.depth = value?.parse()?,
             "SkipReview" => repo.skip_review = true,
