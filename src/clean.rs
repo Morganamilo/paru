@@ -94,16 +94,12 @@ fn clean_aur(
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
         .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
-    for maybe_pkg in cached_pkgs {
-        if let Err(err) = clean_aur_pkg(
-            config,
-            &maybe_pkg?,
-            remove_all,
-            keep_installed,
-            keep_current,
-            rm,
-        ) {
+    for file in cached_pkgs {
+        if let Err(err) =
+            clean_aur_pkg(config, &file?, remove_all, keep_installed, keep_current, rm)
+        {
             print_error(config.color.error, err);
+            continue;
         }
     }
 
