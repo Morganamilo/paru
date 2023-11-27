@@ -94,16 +94,18 @@ fn clean_aur(
     let cached_pkgs = read_dir(&config.fetch.clone_dir)
         .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
-    #[allow(unused_must_use)]
-    cached_pkgs.for_each(|maybe_pkg| {
-        maybe_pkg.map_err(anyhow::Error::from).map(|path| {
-            clean_aur_pkg(config, &path, remove_all, keep_installed, keep_current, rm).map_err(
-                |err| {
-                    print_error(config.color.error, err);
-                },
-            );
-        });
-    });
+    for maybe_pkg in cached_pkgs {
+        if let Err(err) = clean_aur_pkg(
+            config,
+            &maybe_pkg?,
+            remove_all,
+            keep_installed,
+            keep_current,
+            rm,
+        ) {
+            print_error(config.color.error, err);
+        }
+    }
 
     Ok(())
 }
