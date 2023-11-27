@@ -309,10 +309,6 @@ impl PkgbuildRepos {
     }
 
     pub fn refresh(&self, config: &Config) -> Result<()> {
-        if self.repos.is_empty() {
-            return Ok(());
-        }
-
         let cols = config.cols.unwrap_or(0);
         let action = config.color.action;
         let bold = config.color.bold;
@@ -330,6 +326,10 @@ impl PkgbuildRepos {
                     })
             })
             .collect::<Vec<_>>();
+
+        if repos.is_empty() {
+            return Ok(());
+        }
 
         println!(
             "\n{} {}",
