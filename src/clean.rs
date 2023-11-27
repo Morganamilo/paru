@@ -99,15 +99,6 @@ fn clean_aur(
         maybe_pkg.map_err(anyhow::Error::from).map(|path| {
             clean_aur_pkg(config, &path, remove_all, keep_installed, keep_current, rm).map_err(
                 |err| {
-                    let msg_start = tr!("Failed to clean package");
-                    let name = path.file_name();
-                    let msg_body = name.to_string_lossy();
-                    eprintln!(
-                        "{} {}: {}",
-                        config.color.error.paint("::"),
-                        config.color.bold.paint(&msg_start),
-                        msg_body,
-                    );
                     print_error(config.color.error, err);
                 },
             );
@@ -146,7 +137,13 @@ fn clean_aur_pkg(
         return do_remove(config, &file.path(), rm);
     }
 
-    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
+    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO")).with_context(|| {
+        let file_name = file.file_name();
+        tr!(
+            "could not parse .SRCINFO for '{}'",
+            file_name.to_string_lossy()
+        )
+    })?;
 
     if config.clean == 1 {
         if keep_installed {
