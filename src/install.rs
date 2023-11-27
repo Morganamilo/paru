@@ -1578,8 +1578,6 @@ fn print_dir(
         let c = config.color;
         let has_pkgbuild = path.join("PKGBUILD").exists();
 
-        println!("{:?} {:?}", path, has_pkgbuild);
-
         for file in read_dir(path).with_context(|| tr!("failed to read dir: {}", path.display()))? {
             let file = file?;
 
@@ -1655,7 +1653,7 @@ fn print_dir(
     Ok(())
 }
 
-fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
     if pkgs.is_empty() {
         return Ok(());
     }

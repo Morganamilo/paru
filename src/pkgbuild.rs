@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::{download::print_download, exec};
+use crate::{download::print_download, exec, install::review};
 use anyhow::{anyhow, bail, Context, Result};
 use aur_fetch::Fetch;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -215,7 +215,7 @@ impl PkgbuildRepo {
             return Ok(());
         }
 
-        log::debug!("for each pkgbuild: {}", path.display());
+        //log::debug!("for each pkgbuild: {}", path.display());
 
         if path.join("PKGBUILD").exists() {
             f(path, data)?;
@@ -361,6 +361,22 @@ impl PkgbuildRepos {
 
             pb.finish();
         }
+
+        let review_repos = repos
+            .iter()
+            .filter(|r| {
+                !config
+                    .pkgbuild_repos
+                    .repo(&r.name)
+                    .map(|r| r.skip_review)
+                    .unwrap_or(false)
+            })
+            .map(|r| r.name.as_str())
+            .collect::<Vec<_>>();
+        review(config, &self.fetch, &review_repos)?;
+
+        let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+        self.fetch.merge(&all_repos)?;
 
         self.repos.iter().for_each(|r| r.generate_srcinfos(config));
         Ok(())
