@@ -403,8 +403,10 @@ pub fn interactive_search_local(config: &mut Config) -> Result<()> {
     for pkg in repo_pkgs {
         all_pkgs.push(AnyPkg::RepoPkg(pkg));
     }
+
+    let was_results = all_pkgs.is_empty();
     let targs = interactive_menu(config, all_pkgs, false)?;
-    if targs.is_empty() {
+    if targs.is_empty() && !was_results {
         printtr!(" there is nothing to do");
     }
     config.targets = targs.clone();
@@ -428,8 +430,9 @@ pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()
         all_pkgs.push(AnyPkg::AurPkg(pkg));
     }
 
+    let was_results = all_pkgs.is_empty();
     let targs = interactive_menu(config, all_pkgs, install)?;
-    if targs.is_empty() {
+    if targs.is_empty() && !was_results {
         printtr!(" there is nothing to do");
     }
     config.targets = targs.clone();
@@ -446,6 +449,7 @@ pub fn interactive_menu(
 
     if all_pkgs.is_empty() {
         printtr!("no packages match search");
+        return Ok(Vec::new());
     }
 
     let indexes = all_pkgs
