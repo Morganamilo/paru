@@ -365,7 +365,9 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
             search::interactive_search(config, true).await?;
         }
         let target = std::mem::take(&mut config.targets);
-        install::install(config, &target).await?;
+        if !target.is_empty() {
+            install::install(config, &target).await?;
+        }
         Ok(0)
     }
 }
