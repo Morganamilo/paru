@@ -95,7 +95,8 @@ fn clean_aur(
         .with_context(|| tr!("can't open clone dir: {}", config.fetch.clone_dir.display()))?;
 
     for file in cached_pkgs {
-        if let Err(err) = clean_aur_pkg(config, file, remove_all, keep_installed, keep_current, rm)
+        if let Err(err) =
+            clean_aur_pkg(config, &file?, remove_all, keep_installed, keep_current, rm)
         {
             print_error(config.color.error, err);
             continue;
@@ -115,14 +116,12 @@ fn fix_perms(file: &Path) -> Result<()> {
 
 fn clean_aur_pkg(
     config: &Config,
-    file: std::io::Result<DirEntry>,
+    file: &DirEntry,
     remove_all: bool,
     keep_installed: bool,
     keep_current: bool,
     rm: bool,
 ) -> Result<()> {
-    let file = file?;
-
     if !file.file_type()?.is_dir()
         || !file.path().join(".git").exists()
         || !file.path().join(".SRCINFO").exists()
@@ -136,7 +135,13 @@ fn clean_aur_pkg(
         return do_remove(config, &file.path(), rm);
     }
 
-    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO"))?;
+    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO")).with_context(|| {
+        let file_name = file.file_name();
+        tr!(
+            "could not parse .SRCINFO for '{}'",
+            file_name.to_string_lossy()
+        )
+    })?;
 
     if config.clean == 1 {
         if keep_installed {
