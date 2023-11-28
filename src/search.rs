@@ -445,8 +445,7 @@ pub fn interactive_menu(
     let pad = all_pkgs.len().to_string().len();
 
     if all_pkgs.is_empty() {
-        println!("{}", tr!("no packages match search"));
-        return Ok(Vec::new());
+        printtr!("no packages match search");
     }
 
     let indexes = all_pkgs
