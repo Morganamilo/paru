@@ -100,6 +100,7 @@ _pacman_opts_common=(
 	'--batflags[Pass arguments to bat]:flags'
 	'--gpgflags[Pass arguments to gpg]:flags'
 	'--fmflags[Pass arguments to file manager]:flags'
+	'--chrootflags[Pass arguments to makechrootpkg]:flags'
 
 	'--sudoloop[Loop sudo calls in the background to avoid timeout]'
 	'--nosudoloop[Do not loop sudo calls in the background]'

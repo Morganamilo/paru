@@ -101,11 +101,11 @@ impl Chroot {
         self.run(&["pacman", "-Syu", "--noconfirm"])
     }
 
-    pub fn build(
+    pub fn build<S: AsRef<OsStr>>(
         &self,
         pkgbuild: &Path,
         pkgs: &[&str],
-        chroot_flags: &[&str],
+        chroot_flags: &[S],
         flags: &[&str],
         env: &[(String, String)],
     ) -> Result<()> {

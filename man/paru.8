@@ -395,6 +395,13 @@ passed to sudo. Multiple arguments may be passed by supplying a space
 separated list that is quoted by the shell.
 
 .TP
+.B \-\-chrootflags <flags>
+Passes arguments to makechrootpkg. These flags get passed to every instance
+where makechrootpkg is called by paru. Arguments are split on whitespace before
+being passed to makechrootpkg. Multiple arguments may be passed by supplying a
+space separated list that is quoted by the shell.
+
+.TP
 .B \-\-completioninterval <days>
 Time in days to refresh the completion cache. Setting this to 0 will cause the
 cache to be refreshed every time, while setting this to -1 will cause the cache
