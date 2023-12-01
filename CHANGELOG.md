@@ -1,5 +1,22 @@
 # Changelog
 
+## Paru v2.0.1 (2023-12-01)
+
+### Added
+
+- Print which package failed to clean in -Sc #1074
+
+### Fixed
+
+- Fix local pkgbuild review bf35cab
+- Don't try interactive install with empty package list 26ce55f
+- Don't refresh when no Git pkgbuild repos e090af4
+- Fix compile on arm d1a9c4
+
+### Localization
+
+- Update sv locale #1088
+
 ## Paru v2.0.0 (2023-11-26)
 
 Paru v2.0.0 comes after a long time of no releases, mostly due to a lack of free time
