@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-11-27 04:08+0000\n"
-"PO-Revision-Date: 2023-11-23 13:45+0100\n"
+"PO-Revision-Date: 2023-11-29 15:48+0100\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -200,9 +200,8 @@ msgid "failed to write to temporary file: {}"
 msgstr "misslyckades med att skriva till temporär fil: {}"
 
 #: src/devel.rs:244
-#, fuzzy
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr "misslyckades att byta namn på '{temp}' till '{devel_json}"
+msgstr "misslyckades att byta namn på '{temp}' till '{devel_toml}"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -213,9 +212,8 @@ msgid "failed to lookup: {}"
 msgstr "misslyckades med att leta upp: {}"
 
 #: src/devel.rs:562
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "ogiltig json: {}"
+msgstr "ogiltig toml: {}"
 
 #: src/download.rs:95
 msgid "packages not in the AUR: "
@@ -423,6 +421,8 @@ msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, -"
 "Ss and -Qs"
 msgstr ""
+"    --interactive            Aktivera interaktivt paketval för -S, -R, -Ss "
+"och -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -469,9 +469,8 @@ msgid "    --sudoflags <flags>    Pass arguments to sudo"
 msgstr "    --sudoflags <flaggor>    Skicka argument till sudo"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <fil>     git kommando att använda"
+msgstr "    --pkgctl       <fil>     pkgctl kommando att använda"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
@@ -651,9 +650,8 @@ msgid "    --[no]signdb           Sign databases with gpg"
 msgstr "    --[no]signdb           Signera databaser med gpg"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr "    --localrepo            Bygg paket till ett lokalt förvar"
+msgstr "    --[no]localrepo            Bygg paket till ett lokalt förvar"
 
 #: src/help.rs:88
 msgid ""
@@ -1024,9 +1022,8 @@ msgid "repo {} does not have a URL or Path"
 msgstr "förvar {} har ingen URL eller sökväg"
 
 #: src/pkgbuild.rs:134
-#, fuzzy
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
-msgstr "förvar {} inte nedladdad (använd -Sya för att ladda ner)"
+msgstr "förvar {} inte nedladdad (använd -Sy --pkgbuilds för att ladda ner)"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
@@ -1101,9 +1098,8 @@ msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "Paket att installera (t.ex. 1 2 3, 1-3)"
 
 #: src/search.rs:487
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Paket att installera (t.ex. 1 2 3, 1-3)"
+msgstr "Välj paket (t.ex.: 1 2 3, 1-3):"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
