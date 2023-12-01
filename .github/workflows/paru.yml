@@ -29,6 +29,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - uses: Swatinem/rust-cache@2.7.1
+        with:
+          cache-on-failure: true
+
       - name: Format
         run: cargo fmt -- --check
 
