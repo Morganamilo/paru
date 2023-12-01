@@ -416,8 +416,7 @@ pub struct Config {
     pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
-    #[default(Url::parse("https://archlinux.org/feeds/news/").unwrap())]
-    pub news_url: Url,
+    pub news_url: Option<Url>,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub state_dir: PathBuf,
@@ -1061,7 +1060,7 @@ impl Config {
             "NewsOnUpgrade" => {
                 self.news_on_upgrade = true;
                 if let Some(l) = value {
-                    self.news_url = l.parse()?;
+                    self.news_url = Some(l.parse()?);
                 }
             }
             "InstallDebug" => self.install_debug = true,
