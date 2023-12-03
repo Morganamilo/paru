@@ -3,22 +3,22 @@
 # This file is distributed under the same license as the paru package.
 #
 # Previous translators
-# Silejonu <erwan.amans@gmail.com> , 2021\n"
+# Silejonu <erwan.amans@gmail.com>, 2021\n"
 # Cedric Brisson <cedric@cedricbrisson.ca>, 2021\n"
 msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2022-07-09 21:36+0200\n"
-"Last-Translator: Silejonu <erwan.amans@gmail.com>\n"
-"Language-Team: Paragoumba <paragoumba@gmail.com>, 2021\n"
+"PO-Revision-Date: 2023-12-03 21:43+0100\n"
+"Last-Translator: Paragoumba <github@paragoumba.fr>\n"
+"Language-Team: Paragoumba <github@paragoumba.fr>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Lokalize 23.08.3\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -96,7 +96,7 @@ msgstr "option inconnue -{}"
 
 #: src/config.rs:567
 msgid "section can not be called {}"
-msgstr ""
+msgstr "la section ne peut pas être appelée {}"
 
 #: src/config.rs:584
 msgid "failed to find cache directory"
@@ -121,7 +121,7 @@ msgstr "une seule opération peut être utilisée à la fois"
 
 #: src/config.rs:798
 msgid "no local repo named {}"
-msgstr ""
+msgstr "pas de dépôt local nommé {}"
 
 #: src/config.rs:821
 msgid "can not find local repo '{}' in pacman.conf"
@@ -214,7 +214,7 @@ msgstr "échec de la lecture du dossier : {}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr ""
+msgstr "erreur de renommage"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -276,7 +276,7 @@ msgstr "Dépôts (compilation)"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr ""
+msgstr "Pkgbuilds de compilation"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
@@ -292,7 +292,7 @@ msgstr "Aur ({})"
 
 #: src/fmt.rs:317
 msgid "Pkgbuilds ({})"
-msgstr ""
+msgstr "Pkgbuilds ({})"
 
 #: src/fmt.rs:319
 msgid "Old Version"
@@ -431,13 +431,15 @@ msgstr "    -a --aur               Suppose que les cibles sont dans l'AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>     Défini l'endroit où paru cherche les cibles"
 
 #: src/help.rs:37
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, -"
 "Ss and -Qs"
 msgstr ""
+"    --interactive          Activer la selection interactive de paquet pour -"
+"S, -R, -Ss et -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -854,7 +856,7 @@ msgstr "URL de l'instantané"
 
 #: src/info.rs:109 src/info.rs:205
 msgid "Path"
-msgstr ""
+msgstr "Chemin"
 
 #: src/install.rs:158 src/query.rs:48 src/lib.rs:104
 msgid "error:"
@@ -932,7 +934,7 @@ msgstr "impossible d'installer le paquet de l'AUR en tant que root"
 
 #: src/install.rs:1061
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly ne peut pas être utilisé pour les paquets de l'AUR"
 
 #: src/install.rs:1086
 msgid "Remove make dependencies after install?"
@@ -1020,7 +1022,7 @@ msgstr "fichier binaire : {}"
 
 #: src/install.rs:1664 src/install.rs:1728
 msgid "Accept changes?"
-msgstr ""
+msgstr "Accepter les changements ?"
 
 #: src/install.rs:1732
 msgid " nothing new to review"
@@ -1066,10 +1068,12 @@ msgstr "l'option '{}' n'accepte pas de valeur"
 #: src/pkgbuild.rs:134
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
+"Le dépôt {} n'a pas été téléchargé (utiliser -Sy --pkgbuilds pour le "
+"télécharger)"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ""
+msgstr "Génération du .SRCINFO pour {repo}/{dir}..."
 
 #: src/pkgbuild.rs:259
 #, fuzzy
