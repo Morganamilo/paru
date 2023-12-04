@@ -313,8 +313,8 @@ pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet
         actions.iter_aur_pkgs().count(),
         actions.iter_pkgbuilds().count(),
     ) {
-        (a, 0) => tr!("Aur ({})", a),
-        (a, c) => tr!("Pkgbuilds ({})", a + c),
+        (a, 0) => format!("Aur ({})", a),
+        (a, c) => format!("Pkgbuilds ({})", a + c),
     };
     let old = tr!("Old Version");
     let new = tr!("New Version");
