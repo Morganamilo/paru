@@ -29,7 +29,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: Swatinem/rust-cache@2
+      - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
 
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: Swatinem/rust-cache@2
+      - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
 
