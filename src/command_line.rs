@@ -194,6 +194,7 @@ impl Config {
             Arg::Long("sudoflags") => self.sudo_flags.extend(split_whitespace(value?)),
             Arg::Long("batflags") => self.bat_flags.extend(split_whitespace(value?)),
             Arg::Long("fmflags") => self.fm_flags.extend(split_whitespace(value?)),
+            Arg::Long("chrootflags") => self.chroot_flags.extend(split_whitespace(value?)),
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
@@ -406,6 +407,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("sudoflags") => TakesValue::Required,
         Arg::Long("batflags") => TakesValue::Required,
         Arg::Long("fmflags") => TakesValue::Required,
+        Arg::Long("chrootflags") => TakesValue::Required,
         Arg::Long("completioninterval") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,
         Arg::Long("searchby") => TakesValue::Required,

@@ -503,6 +503,7 @@ pub struct Config {
     pub sudo_flags: Vec<String>,
     pub bat_flags: Vec<String>,
     pub fm_flags: Vec<String>,
+    pub chroot_flags: Vec<String>,
     pub pager_cmd: Option<String>,
 
     pub devel_suffixes: Vec<String>,
@@ -1020,6 +1021,7 @@ impl Config {
             "SudoFlags" => self.sudo_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
+            "ChrootFlags" => self.chroot_flags.extend(split),
             "PreBuildCommand" => self.pre_build_command = Some(value),
             _ => eprintln!(
                 "{}",

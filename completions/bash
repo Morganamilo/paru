@@ -70,8 +70,8 @@ _paru() {
            noconfirm noprogressbar noscriptlet quiet root verbose
 
            repo aur aururl clonedir makepkg mflags pacman pacman-conf git gitflags sudo sudoflags
-           asp gpg gpgflags fm fmflags pager completioninterval sortby searchby limit upgrademenu
-           removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
+           asp gpg gpgflags fm fmflags chrootflags pager completioninterval sortby searchby limit
+           upgrademenu removemake noremovemake cleanafter nocleanafter rebuild rebuildall norebuild
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
            nouseask savechanges nosavechanges failfast nofailfast keepsrc nokeepsrc combinedupgrade
            nocombinedupgrade batchinstall nobatchinstall provides noprovides devel nodevel

@@ -241,6 +241,7 @@ complete -c $progname -n "not $noopt" -l gpgflags -d 'Pass the following options
 complete -c $progname -n "not $noopt" -l sudoflags -d 'Pass the following options to sudo' -f
 complete -c $progname -n "not $noopt" -l batflags -d 'Pass the following options to sudo' -f
 complete -c $progname -n "not $noopt" -l fmflags -d 'Pass the following options to file manager' -f
+complete -c $progname -n "not $noopt" -l chrootflags -d 'Pass the following options to makechrootpkg' -f
 complete -c $progname -n "not $noopt" -l sudoloop -d 'Loop sudo calls in the background to avoid timeout' -f
 complete -c $progname -n "not $noopt" -l nosudoloop -d 'Do not loop sudo calls in the background' -f
 complete -c $progname -n "not $noopt" -l chroot -d 'Build packages in a chroot' -f
