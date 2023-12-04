@@ -14,8 +14,8 @@ include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
 
 
 [dependencies]
-alpm = "2.2.2"
-alpm-utils = "2.0.0"
+alpm = "2.2.3"
+alpm-utils = "2.0.1"
 aur-depends = "3.0.0"
 aur-fetch = "0.11.2"
 cini = "1.0.0"
@@ -73,8 +73,8 @@ mock_chroot = ["mock"]
 
 [patch.crates-io]
 #alpm = { path = "../alpm.rs/alpm" }
-alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
-alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
+#alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
+#alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
 #aur-depends = { path = "../aur-depends" }
 aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "9f09f5"}
 #aur-fetch = { path = "../aur-fetch" }
