@@ -76,5 +76,5 @@ mock_chroot = ["mock"]
 #alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
 #alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
 #aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "9f09f5"}
+aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "8ef159"}
 #aur-fetch = { path = "../aur-fetch" }
