@@ -2042,14 +2042,14 @@ fn needs_build(
             if !base
                 .packages()
                 .filter_map(|p| repos.pkg(p).ok())
-                .any(|_| base.version() == version)
+                .any(|p| p.version() == version)
             {
                 all_installed = false
             }
         } else if !base
             .packages()
             .filter_map(|p| config.alpm.localdb().pkg(p).ok())
-            .any(|_| base.version() == version)
+            .any(|p| p.version() == version)
         {
             all_installed = false
         }
