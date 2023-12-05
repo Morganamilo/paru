@@ -1250,7 +1250,8 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     }
 
     if config.args.has_arg("u", "sysupgrade") && config.mode.aur() {
-        let (_, pkgs) = repo_aur_pkgs(config);
+        let (_, mut pkgs) = repo_aur_pkgs(config);
+        pkgs.retain(|pkg| config.pkgbuild_repos.pkg(config, pkg.name()).is_none());
 
         warnings.missing = pkgs
             .iter()
