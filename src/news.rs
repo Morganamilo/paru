@@ -4,7 +4,7 @@ use crate::fmt::print_indent;
 use std::str::Chars;
 
 use ansi_term::Style;
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use htmlescape::decode_html;
 use rss::Channel;
 use tr::tr;
@@ -33,7 +33,7 @@ pub async fn news(config: &Config) -> Result<i32> {
     let url = config
         .news_url
         .clone()
-        .unwrap_or(config.arch_url.join("feeds/news")?);
+        .with_context(|| "NewsOnUpgrade is not set")?;
     let client = config.raur.client();
 
     let resp = client.get(url.clone()).send().await?;
