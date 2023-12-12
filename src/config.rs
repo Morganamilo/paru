@@ -108,7 +108,7 @@ impl From<&str> for Colors {
         match s {
             "auto"
                 if isatty(stdout().as_raw_fd()).unwrap_or(false)
-                    | isatty(stderr().as_raw_fd()).unwrap_or(false) =>
+                    && isatty(stderr().as_raw_fd()).unwrap_or(false) =>
             {
                 Colors::new()
             }
