@@ -1,13 +1,13 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 #
-# Jeff Huang <s8321414@gmail.com>, 2021, 2022.
+# SPDX-FileCopyrightText: 2021, 2022, 2023 Jeff Huang <s8321414@gmail.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2022-06-28 07:22+0800\n"
+"PO-Revision-Date: 2023-12-17 22:06+0800\n"
 "Last-Translator: Jeff Huang <s8321414@gmail.com>\n"
 "Language-Team: Chinese <zh-l10n@lists.slat.org>\n"
 "Language: zh_TW\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Lokalize 22.04.2\n"
+"X-Generator: Lokalize 23.08.4\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -54,9 +54,8 @@ msgid "can't open clone dir: {}"
 msgstr "無法開啟再製目錄： {}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "找不到「{}」的 .SRCINFO"
+msgstr "無法解析「{}」的 .SRCINFO"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
@@ -87,13 +86,12 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "鍵「{key}」有無效值「{val}」，預期： {exp}"
 
 #: src/config.rs:339
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "未知的選項 -{}"
+msgstr "未知的模式 {}"
 
 #: src/config.rs:567
 msgid "section can not be called {}"
-msgstr ""
+msgstr "區段不能稱為 {}"
 
 #: src/config.rs:584
 msgid "failed to find cache directory"
@@ -104,9 +102,8 @@ msgid "failed to find config directory"
 msgstr "尋找設定目錄失敗"
 
 #: src/config.rs:591
-#, fuzzy
 msgid "failed to find state directory"
-msgstr "尋找快取目錄失敗"
+msgstr "找不到狀態目錄"
 
 #: src/config.rs:638
 msgid "config file '{}' does not exist"
@@ -118,7 +115,7 @@ msgstr "一次只能使用一種操作"
 
 #: src/config.rs:798
 msgid "no local repo named {}"
-msgstr ""
+msgstr "沒有名為 {} 的本機軟體庫"
 
 #: src/config.rs:821
 msgid "can not find local repo '{}' in pacman.conf"
@@ -141,9 +138,8 @@ msgid "key can not be empty"
 msgstr "鍵不能為空"
 
 #: src/config.rs:978
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
-msgstr "錯誤：在 [bin] 部份中有未知選項「{}」"
+msgstr "錯誤：在軟體庫中有未知的選項「{}」"
 
 #: src/config.rs:988
 msgid "key can not contain null bytes"
@@ -195,23 +191,20 @@ msgid "failed to save devel info"
 msgstr "儲存 devel 資訊失敗"
 
 #: src/devel.rs:218
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "尋找快取目錄失敗"
+msgstr "建立狀態目錄失敗：{}"
 
 #: src/devel.rs:233
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "執行檔案管理程式失敗：{}"
+msgstr "建立臨時檔案失敗：{}"
 
 #: src/devel.rs:238
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "讀取目錄失敗：{}"
+msgstr "寫入臨時檔案失敗：{}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr ""
+msgstr "將「{temp}」重新命名為「{devel_toml}」"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -222,9 +215,8 @@ msgid "failed to lookup: {}"
 msgstr "查詢失敗：{}"
 
 #: src/devel.rs:562
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "無效的 json：{}"
+msgstr "無效的 toml：{}"
 
 #: src/download.rs:95
 msgid "packages not in the AUR: "
@@ -273,7 +265,7 @@ msgstr "軟體庫 Make"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr ""
+msgstr "Pkgbuilds Make"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
@@ -289,7 +281,7 @@ msgstr "Aur ({})"
 
 #: src/fmt.rs:317
 msgid "Pkgbuilds ({})"
-msgstr ""
+msgstr "Pkgbuilds ({})"
 
 #: src/fmt.rs:319
 msgid "Old Version"
@@ -384,9 +376,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [軟體包]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [選項]"
+msgstr "    paru {-B --build}       [目錄]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -414,10 +405,9 @@ msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo              假設目標來自軟體庫"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --repo              假設目標來自軟體庫"
+msgstr "       --pkgbuilds         假設目標來自 pkgbuild 軟體庫"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -425,23 +415,22 @@ msgstr "    -a --aur               假設目標來自 AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <mode>     設定 paru 尋找目標的位置"
 
 #: src/help.rs:37
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, -"
 "Ss and -Qs"
-msgstr ""
+msgstr "    --interactive          啟用 -S, -R, -Ss 與 -Qs 的互動式軟體包選擇"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      設定替代 AUR URL"
 
 #: src/help.rs:40
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>      設定替代 AUR URL"
+msgstr "    --aurrpcur  <url>      為 AUR /rpc 端點設定備用 URL"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -476,9 +465,8 @@ msgid "    --sudoflags <flags>    Pass arguments to sudo"
 msgstr "    --sudoflags <flags>    傳遞參數給 sudo"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <file>     要使用的 git 指令"
+msgstr "    --pkgctl    <file>     要使用的 pkgctl 命令"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
@@ -629,9 +617,8 @@ msgid "    --[no]signdb           Sign databases with gpg"
 msgstr "    --[no]signdb           使用 gpg 簽署資料庫"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr "    --localrepo            在本機軟體庫中建置軟體包"
+msgstr "    --[no]localrepo        將軟體包建置到本機軟體庫中"
 
 #: src/help.rs:88
 msgid ""
@@ -646,9 +633,8 @@ msgid ""
 msgstr "    --develsuffixes        用於決定軟體包是否為開發軟體包的後綴"
 
 #: src/help.rs:90
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
-msgstr "    --[no]provides         在搜尋軟體包時尋找相符的提供者"
+msgstr "    --ignoredevel          忽略指定軟體包的開發升級"
 
 #: src/help.rs:91
 msgid ""
@@ -693,9 +679,8 @@ msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              使用 SSH 再製軟體包"
 
 #: src/help.rs:104
-#, fuzzy
 msgid "Build specific options:"
-msgstr "getpkgbuild 專用選項："
+msgstr "專用於建置的選項："
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
@@ -791,7 +776,7 @@ msgstr "快照 URL"
 
 #: src/info.rs:109 src/info.rs:205
 msgid "Path"
-msgstr ""
+msgstr "路徑"
 
 #: src/install.rs:158 src/query.rs:48 src/lib.rs:104
 msgid "error:"
@@ -868,7 +853,7 @@ msgstr "無法以 root 身份安裝 AUR 軟體包"
 
 #: src/install.rs:1061
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly 不能用於 AUR 軟體包"
 
 #: src/install.rs:1086
 msgid "Remove make dependencies after install?"
@@ -956,7 +941,7 @@ msgstr "二進位檔案：{}"
 
 #: src/install.rs:1664 src/install.rs:1728
 msgid "Accept changes?"
-msgstr ""
+msgstr "接受變更？"
 
 #: src/install.rs:1732
 msgid " nothing new to review"
@@ -995,27 +980,24 @@ msgid "no new news"
 msgstr "沒有新的新聞"
 
 #: src/pkgbuild.rs:72
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "選項「{}」沒有值"
+msgstr "軟體庫 {} 沒有 URL 或路徑"
 
 #: src/pkgbuild.rs:134
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
-msgstr ""
+msgstr "無法下載軟體庫 {}（使用 -Sy --pkgbuilds 以下載）"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ""
+msgstr "正在為 {repo}/{dir} 產生 .SRCINFO……"
 
 #: src/pkgbuild.rs:259
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
 msgstr "解析「{}」的 srcinfo 失敗"
 
 #: src/pkgbuild.rs:337
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "正在下載 PKGBUILD……"
+msgstr "正在下載 PKGBUILD 軟體庫……"
 
 #: src/pkgbuild.rs:390
 msgid "failed to parse srcinfo generated by makepkg"
@@ -1078,9 +1060,8 @@ msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "要安裝的軟體包（例如：1 2 3, 1-3）："
 
 #: src/search.rs:491
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "要安裝的軟體包（例如：1 2 3, 1-3）："
+msgstr "選取軟體包（例如：1 2 3, 1-3）："
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
@@ -1111,9 +1092,8 @@ msgid " [installed]"
 msgstr "[已安裝]"
 
 #: src/upgrade.rs:128
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "正在尋找 AUR 升級……"
+msgstr "正在尋找 PKGBUILD 升級……"
 
 #: src/upgrade.rs:136
 msgid "Looking for AUR upgrades..."
@@ -1244,3 +1224,4 @@ msgstr " [已安裝：{}]"
 
 #~ msgid "no"
 #~ msgstr "no"
+
