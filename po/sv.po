@@ -2,14 +2,14 @@
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
 # filiphe <filip@hesslund.org>, 2021.
-# Luna Jernberg <droidbittin@gmail.com>, 2022, 2023.
+# Luna Jernberg <droidbittin@gmail.com>, 2022, 2023, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2023-11-29 15:48+0100\n"
+"PO-Revision-Date: 2024-01-15 10:22+0000\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -55,9 +55,8 @@ msgid "can't open clone dir: {}"
 msgstr "kan inte öppna kloningskatalog: {}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "kunde inte hitta .SRCINFO för '{}'"
+msgstr "kunde inte analysera .SRCINFO för '{}'"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
