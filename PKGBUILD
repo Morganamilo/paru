@@ -17,8 +17,9 @@ _srcenv() {
   cd "$srcdir/$pkgname-$pkgver"
   export PKG_CONFIG_ALLOW_CROSS=1
   export RUSTUP_TOOLCHAIN=stable
-  source <(cargo +nightly -Z unstable-options rustc --print cfg|grep -E "target_(arch|vendor|os|env)")
-  TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
+  rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n) | grep musl && TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep musl|head -n1) || TARGET=$(rustup target list --installed | grep $(rustc -vV | sed -e 's|host: ||' -e 's|-gnu||p' -n)|grep -v musl|head -n1)
+  #source <(cargo +nightly -Z unstable-options rustc --print cfg|grep -E "target_(arch|vendor|os|env)")
+  #TARGET="${target_arch}-${target_vendor}-${target_os}-${target_env}"
 }
 
 prepare() {
