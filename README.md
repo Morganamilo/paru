@@ -66,20 +66,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 ## Default Configuration
 
 Paru will read `/etc/paru.conf` or `~/.config/paru/paru.conf` (if available) to load the default configuration.
-See the default configuration [paru.conf](./paru.conf) as a reference.
-
-To override the default configuration, create the `~/config/paru/paru.conf` file and configure it according to your needs.
-Example:
-```
-# file: ~/.config/paru/paru.conf
-[options]
-# Enable "Refresh then perform the repo and AUR upgrade together" (--combinedupgrade)
-CombinedUpgrade
-# Enable "Show interactive menu to skip upgrades" (--upgrademenu)
-UpgradeMenu
-# Enable "Print new news during sysupgrade" (--newsonupgrade)
-NewsOnUpgrade
-```
+See the Paru's man page `man paru` for the configuration details, or the default [paru.conf](./paru.conf) configuration as a reference.
 
 ## IRC
 
