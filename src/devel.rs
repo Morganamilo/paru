@@ -216,7 +216,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     create_dir_all(&config.state_dir).with_context(|| {
         tr!(
             "failed to create state directory: {}",
-            config.cache_dir.display()
+            config.state_dir.display()
         )
     })?;
 
