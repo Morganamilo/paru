@@ -23,7 +23,7 @@ pub struct NumberMenu<'a> {
     pub ex_word: Vec<&'a str>,
 }
 
-pub fn pkg_base_or_name<'a>(pkg: &Package<'a>) -> &'a str {
+pub fn pkg_base_or_name(pkg: &Package) -> &str {
     pkg.base().unwrap_or_else(|| pkg.name())
 }
 
@@ -201,7 +201,7 @@ pub fn unneeded_pkgs(config: &Config, keep_make: bool, keep_optional: bool) -> V
     while again {
         again = false;
 
-        let mut check_deps = |deps: alpm::AlpmList<alpm::Dep>| {
+        let mut check_deps = |deps: alpm::AlpmList<&alpm::Dep>| {
             for dep in deps {
                 if let Some(deps) = providers.get(dep.name()) {
                     for dep in deps {
@@ -391,7 +391,7 @@ pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -
     (repo, aur)
 }
 
-pub fn repo_aur_pkgs(config: &Config) -> (Vec<alpm::Package<'_>>, Vec<alpm::Package<'_>>) {
+pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Package>) {
     if config.repos != LocalRepos::None {
         let (repo, aur) = repo::repo_aur_dbs(config);
         let repo = repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();

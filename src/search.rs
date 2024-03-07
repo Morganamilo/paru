@@ -17,7 +17,7 @@ use tr::tr;
 
 #[derive(Debug)]
 pub enum AnyPkg<'a> {
-    RepoPkg(alpm::Package<'a>),
+    RepoPkg(&'a alpm::Package),
     AurPkg(&'a raur::Package),
     Custom(&'a str, &'a Srcinfo, &'a srcinfo::Package),
 }
@@ -108,7 +108,7 @@ fn search_pkgbuilds<'a>(
     Ok(ret)
 }
 
-fn search_local<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
+fn search_local<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<&'a alpm::Package>> {
     let mut ret = Vec::new();
 
     if targets.is_empty() {
@@ -125,7 +125,7 @@ fn search_local<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::
     Ok(ret)
 }
 
-fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<alpm::Package<'a>>> {
+fn search_repos<'a>(config: &'a Config, targets: &[String]) -> Result<Vec<&'a alpm::Package>> {
     if targets.is_empty() || !config.mode.repo() {
         return Ok(Vec::new());
     }
