@@ -25,7 +25,7 @@ pub struct Upgrades {
     pub devel: HashSet<String>,
 }
 
-pub fn repo_upgrades(config: &Config) -> Result<Vec<alpm::Package>> {
+pub fn repo_upgrades(config: &Config) -> Result<Vec<&alpm::Package>> {
     let flags = alpm::TransFlag::NO_LOCK;
     config.alpm.trans_init(flags)?;
     config
@@ -297,17 +297,17 @@ pub async fn get_upgrades<'a, 'b>(
         .chain(
             aur_upgrades
                 .iter()
-                .map(|u| db_len(u.local.name(), "aur", &aurdbs)),
+                .map(|u| db_len(u.local.name(), "aur", aurdbs.list())),
         )
         .chain(
             devel_upgrades
                 .iter()
-                .map(|u| db_len(&u.pkg, "devel", &aurdbs)),
+                .map(|u| db_len(&u.pkg, "devel", aurdbs.list())),
         )
         .chain(
             pkgbuild_upgrades
                 .iter()
-                .map(|u| db_len(u.local.name(), &u.repo, &aurdbs)),
+                .map(|u| db_len(u.local.name(), &u.repo, aurdbs.list())),
         )
         .max()
         .unwrap_or(0);
@@ -480,7 +480,7 @@ pub async fn get_upgrades<'a, 'b>(
     Ok(upgrades)
 }
 
-fn db_len(name: &str, repo_name: &str, aurdbs: &AlpmList<Db>) -> usize {
+fn db_len(name: &str, repo_name: &str, aurdbs: AlpmList<&Db>) -> usize {
     name.len()
         + aurdbs
             .pkg(name)

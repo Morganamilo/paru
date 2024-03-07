@@ -1232,7 +1232,7 @@ impl Installer {
     }
 }
 
-fn is_debug(pkg: alpm::Package) -> bool {
+fn is_debug(pkg: &alpm::Package) -> bool {
     if let Some(base) = pkg.base() {
         if pkg.name().ends_with("-debug") && pkg.name().trim_end_matches("-debug") == base {
             return true;

@@ -137,7 +137,7 @@ fn is_configured_local_db(config: &Config, db: &Db) -> bool {
     }
 }
 
-pub fn file<'a>(repo: &Db<'a>) -> Option<&'a str> {
+pub fn file(repo: &Db) -> Option<&str> {
     repo.servers()
         .first()
         .map(|s| s.trim_start_matches("file://"))
@@ -158,7 +158,7 @@ fn is_local_db(db: &alpm::Db) -> bool {
     !db.servers().is_empty() && db.servers().iter().all(|s| s.starts_with("file://"))
 }
 
-pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<Db>, AlpmListMut<Db>) {
+pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<&Db>, AlpmListMut<&Db>) {
     let dbs = config.alpm.syncdbs();
     let mut aur = dbs.to_list_mut();
     let mut repo = dbs.to_list_mut();
@@ -172,6 +172,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     let c = config.color;
 
     let mut dbs = config.alpm.syncdbs().to_list_mut();
+
     dbs.retain(|db| is_local_db(db));
 
     if !repos.is_empty() {
@@ -218,7 +219,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     );
 
     if !dbs.is_empty() {
-        dbs.update(cfg!(feature = "mock"))?;
+        dbs.list().update(cfg!(feature = "mock"))?;
     } else {
         printtr!("  nothing to do");
     }
