@@ -461,7 +461,15 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
         } else if let Some(repo) = targ.repo {
             if matches!(
                 repo,
-                "testing" | "community-testing" | "core" | "extra" | "community" | "multilib"
+                "testing"
+                    | "community-testing"
+                    | "core"
+                    | "extra"
+                    | "community"
+                    | "multilib"
+                    | "core-testing"
+                    | "extra-testing"
+                    | "multilib-testing"
             ) {
                 local.push(targ);
             } else {
@@ -470,7 +478,15 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
         } else if let Ok(pkg) = db.pkg(targ.pkg) {
             if matches!(
                 pkg.db().unwrap().name(),
-                "testing" | "community-testing" | "core" | "extra" | "community" | "multilib"
+                "testing"
+                    | "community-testing"
+                    | "core"
+                    | "extra"
+                    | "community"
+                    | "multilib"
+                    | "core-testing"
+                    | "extra-testing"
+                    | "multilib-testing"
             ) {
                 local.push(targ);
             } else {
