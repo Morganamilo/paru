@@ -1,5 +1,11 @@
 # Changelog
 
+## Paru v2.0.3 (2024-03-13)
+
+### Fixed
+
+- Fix build on arm c096bb
+
 ## Paru v2.0.2 (2024-03-13)
 
 ### Added
