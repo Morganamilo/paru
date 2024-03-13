@@ -1,6 +1,6 @@
 FROM debian:unstable as build-stage
 
-ARG PACMAN_VER=6.0.2
+ARG PACMAN_VER=6.1.0
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /pacman
