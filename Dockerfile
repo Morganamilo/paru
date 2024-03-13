@@ -1,4 +1,4 @@
-FROM debian:unstable as build-stage
+FROM debian:bullseye as build-stage
 
 ARG PACMAN_VER=6.1.0
 ARG DEBIAN_FRONTEND=noninteractive
@@ -10,7 +10,7 @@ RUN apt-get install -y build-essential git libcurl4-openssl-dev curl meson ninja
         libarchive-dev pkg-config libgpgme-dev libssl-dev clang python3 python3-setuptools \
         gettext zstd
 
-RUN curl -O https://sources.archlinux.org/other/pacman/pacman-${PACMAN_VER}.tar.xz
+RUN curl -L -o pacman-${PACMAN_VER}.tar.xz https://gitlab.archlinux.org/pacman/pacman/-/releases/v${PACMAN_VER}/downloads/pacman-${PACMAN_VER}.tar.xz
 RUN tar -xf pacman-${PACMAN_VER}.tar.xz
 
 WORKDIR pacman-${PACMAN_VER}
