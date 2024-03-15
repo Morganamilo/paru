@@ -1,4 +1,4 @@
-FROM debian:bullseye as build-stage
+FROM debian:bookworm as build-stage
 
 ARG PACMAN_VER=6.1.0
 ARG DEBIAN_FRONTEND=noninteractive
