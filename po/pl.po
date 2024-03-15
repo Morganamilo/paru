@@ -1,0 +1,694 @@
+# paru Polish translation
+# Copyright (C) 2021 THE paru'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the paru package.
+# Rail <rail01@protonmail.com> 2021
+# Pacman Polish translators
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: paru VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2021-06-28 03:24+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/clean.rs:31
+msgid "Do you want to remove ALL AUR packages from cache?"
+msgstr "Czy chcesz usunąć WSZYSTKIE pakiety z AUR znajdujące się w pamięci pdoręcznej?"
+
+#: src/clean.rs:33
+msgid "Do you want to remove all other AUR packages from cache?"
+msgstr "Czy chcesz usunąć wszystkie inne pakiety z AUR znajdujące się w pamięci podręcznej?"
+
+#: src/clean.rs:40
+msgid "Clone Directory: {}"
+msgstr ""
+
+#: src/clean.rs:46
+msgid "\n"
+"Diff Directory: {}"
+msgstr ""
+
+#: src/clean.rs:48
+msgid "Do you want to remove all saved diffs?"
+msgstr "Czy chcesz usunąć wszystkie zapisane różnice?"
+
+#: src/clean.rs:64
+msgid "can't open diff dir: {}"
+msgstr "nie można otworzyć katalogu różnic: {}"
+
+#: src/clean.rs:75 src/clean.rs:133
+msgid "could not remove '{}'"
+msgstr "nie udało się usunąć '{}'"
+
+#: src/clean.rs:93
+msgid "can't open clone dir: {}"
+msgstr "nie można otworzyć katalogu klonów: {}"
+
+#: src/command_line.rs:127
+msgid "option {} expects a value"
+msgstr "opcja {} wymaga wartości"
+
+#: src/command_line.rs:158 src/command_line.rs:327
+msgid "option {} does not allow a value"
+msgstr "opcja {} nie zezwala na wartość"
+
+#: src/command_line.rs:318
+msgid "unknown option --{}"
+msgstr "nieznana opcja --{}"
+
+#: src/command_line.rs:321
+msgid "unknown option -{}"
+msgstr "nieznana opcja -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "otwieranie pliku pamięci podręcznej '{}' nie powiodło się"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "nie udało się zaktualizować pamięci podręcznej AUR"
+
+#: src/config.rs:174
+msgid "invalid value '{:val}' for key '{:key}', expected: {:exp}"
+msgstr "nieprawidłowa wartość '{:val}' podana dla '{:key}'; oczekiwano: {:exp}"
+
+#: src/config.rs:474
+msgid "failed to find cache directory"
+msgstr "szukanie katalogu pamięci podręcznej nie powiodło się"
+
+#: src/config.rs:477
+msgid "failed to find config directory"
+msgstr "szukanie katalogu konfiguracji nie powiodło się"
+
+#: src/config.rs:501
+msgid "config file '{}' does not exist"
+msgstr "plik konfiguracyjny '{}' nie istnieje"
+
+#: src/config.rs:550
+msgid "only one operation may be used at a time"
+msgstr "tylko jedna operacja może być użyta na raz"
+
+#: src/config.rs:638
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "nie można znaleźć lokalnego repozytorium '{}' w pacman.conf"
+
+#: src/config.rs:670
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "inicjacja alpm nie powiodła się: root={} dbpath={}"
+
+#: src/config.rs:740 src/config.rs:873
+msgid "value can not be empty for key '{}'"
+msgstr "wartość dla '{}' nie może być pusta"
+
+#: src/config.rs:756
+msgid "key '{}' does not belong to a section"
+msgstr "klucz '{}' nie należy do sekcji"
+
+#: src/config.rs:762
+msgid "unknown section '{}'"
+msgstr "nieznana sekcja '{}'"
+
+#: src/config.rs:769 src/config.rs:824 src/config.rs:829
+msgid "key can not be empty"
+msgstr "klucz nie może być pusty"
+
+#: src/config.rs:791
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "błąd: nieznana opcja '{}' w sekcji [bin]"
+
+#: src/config.rs:891
+msgid "error: unknown option '{}' in section [options]"
+msgstr "błąd: nieznana opcja '{}' w sekcji [options]"
+
+#: src/config.rs:896
+msgid "option '{}' does not take a value"
+msgstr "opcja '{}' nie przyjmuje wartości"
+
+#: src/config.rs:947 src/install.rs:1796
+msgid "There are {:n} providers available for {:pkg}:"
+msgstr "Dostępnych jest {:n} dostawców dla {:pkg}"
+
+#: src/config.rs:961 src/info.rs:56 src/info.rs:95 src/install.rs:1755 src/install.rs:1804
+msgid "Repository"
+msgstr "Repozytorium"
+
+#: src/config.rs:983
+msgid "  failed to sync {}"
+msgstr "  synchronizacja {} nie powiodła się"
+
+#: src/devel.rs:129 src/download.rs:179
+msgid "Querying AUR..."
+msgstr "Odpytywanie AUR…"
+
+#: src/devel.rs:142 src/devel.rs:166 src/install.rs:694
+msgid "failed to parse srcinfo for '{}'"
+msgstr "parsowanie srcinfo dla '{}' nie powiodło się"
+
+#: src/devel.rs:184
+msgid "Looking for devel repos..."
+msgstr "Szukanie repozytorium devel…"
+
+#: src/devel.rs:193
+msgid "failed to save devel info"
+msgstr "zapisywanie informacji devel nie powiodło się"
+
+#: src/devel.rs:382
+msgid "package does not have an update"
+msgstr "pakiet nie ma aktualizacji"
+
+#: src/devel.rs:417
+msgid "failed to lookup: {}"
+msgstr "sprawdzenie nie powiodło się: {}"
+
+#: src/devel.rs:445
+msgid "invalid json: {}"
+msgstr "niepoprawny JSON: {}"
+
+#: src/download.rs:83
+msgid "packages not in the AUR: "
+msgstr "pakiety nie znajdujące się a AUR: "
+
+#: src/download.rs:94
+msgid "marked out of date: "
+msgstr "oznaczone jako nieaktualne: "
+
+#: src/download.rs:105
+msgid "orphans: "
+msgstr "osierocone: "
+
+#: src/download.rs:206
+msgid "could not get current directory"
+msgstr "nie udało się pozyskać obecnego katalogu"
+
+#: src/download.rs:210
+msgid "can not get repo packages: asp is not installed"
+msgstr "nie można pozyskać pakietów w repozytorium: asp nie jest zainstalowany"
+
+#: src/download.rs:231
+msgid "Missing ABS packages "
+msgstr "Brakujące pakiety ABS "
+
+#: src/download.rs:250 src/download.rs:276 src/download.rs:530 src/download.rs:543 src/download.rs:557 src/exec.rs:72 src/exec.rs:113 src/exec.rs:122 src/exec.rs:148 src/exec.rs:161 src/exec.rs:186 src/exec.rs:200 src/exec.rs:221 src/exec.rs:234 src/install.rs:744 src/install.rs:807 src/install.rs:845 src/keys.rs:74
+msgid "failed to run:"
+msgstr "uruchamianie nie powiodło się:"
+
+#: src/download.rs:263
+msgid "does not contain PKGBUILD: skipping"
+msgstr "nie zawiera PKGBUILD: ominięto"
+
+#: src/download.rs:294
+msgid " ({:total>padding$}/{:total}) downloading: {:pkg}"
+msgstr " ({:total>padding$}/{:total}) pobieranie: {:pkg}"
+
+#: src/download.rs:317
+msgid "Downloading PKGBUILDs..."
+msgstr "Pobieranie plików PKGBUILD…"
+
+#: src/download.rs:321
+msgid " PKGBUILDs up to date"
+msgstr "Pliki PKGBUILD są aktualne"
+
+#: src/download.rs:520
+msgid "{} is not installed: can not get repo packages"
+msgstr "{} nie jest zainstalowany: nie można uzyskać pakietów w repozytorium"
+
+#: src/download.rs:561
+msgid "asp returned {}"
+msgstr "asp zwrócił {}"
+
+#: src/exec.rs:86
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman znajduje się obecnie w użyciu, proszę czekać…"
+
+#: src/fmt.rs:6 src/info.rs:146 src/search.rs:176
+msgid "None"
+msgstr "Brak"
+
+#: src/info.rs:30 src/query.rs:51
+msgid "package '{}' was not found"
+msgstr "pakiet '{}' nie został odnaleziony"
+
+#: src/info.rs:57 src/info.rs:96
+msgid "Name"
+msgstr "Nazwa"
+
+#: src/info.rs:58 src/info.rs:97
+msgid "Version"
+msgstr "Wersja"
+
+#: src/info.rs:59 src/info.rs:98
+msgid "Description"
+msgstr "Opis"
+
+#: src/info.rs:60 src/info.rs:106
+msgid "Groups"
+msgstr "Grupy"
+
+#: src/info.rs:61 src/info.rs:107
+msgid "Licenses"
+msgstr "Licencje"
+
+#: src/info.rs:62 src/info.rs:108
+msgid "Provides"
+msgstr "Dostawcy"
+
+#: src/info.rs:63 src/info.rs:109
+msgid "Depends On"
+msgstr "Zależności"
+
+#: src/info.rs:64 src/info.rs:110
+msgid "Make Deps"
+msgstr "Zależności instalacyjne"
+
+#: src/info.rs:65 src/info.rs:111
+msgid "Check Deps"
+msgstr ""
+
+#: src/info.rs:66 src/info.rs:113
+msgid "Conflicts With"
+msgstr "Konfliktuje z"
+
+#: src/info.rs:67 src/info.rs:114
+msgid "Maintainer"
+msgstr "Opiekun"
+
+#: src/info.rs:68 src/info.rs:115
+msgid "Votes"
+msgstr "Głosy"
+
+#: src/info.rs:69 src/info.rs:116
+msgid "Popularity"
+msgstr "Popularność"
+
+#: src/info.rs:70 src/info.rs:117
+msgid "First Submitted"
+msgstr "Dodano"
+
+#: src/info.rs:71 src/info.rs:118
+msgid "Last Modified"
+msgstr "Zmodyfikowano"
+
+#: src/info.rs:72 src/info.rs:120
+msgid "Out Of Date"
+msgstr "Nieaktualny"
+
+#: src/info.rs:73 src/info.rs:125
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:74 src/info.rs:126
+msgid "Package Base ID"
+msgstr "Bazowe ID pakietu"
+
+#: src/info.rs:75 src/info.rs:127
+msgid "Keywords"
+msgstr "Słowa kluczowe"
+
+#: src/info.rs:76 src/info.rs:129
+msgid "Snapshot URL"
+msgstr "Adres URL snapshota"
+
+#: src/info.rs:92
+msgid "No"
+msgstr "Nie"
+
+#: src/info.rs:112
+msgid "Optional Deps"
+msgstr "Opcjonalne zależności"
+
+#: src/install.rs:131 src/install.rs:545 src/install.rs:944
+msgid "no architecture"
+msgstr "brak architektury"
+
+#: src/install.rs:138
+msgid "can't build package as root"
+msgstr "nie można skompilować pakietu jako root"
+
+#: src/install.rs:142
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "parsowanie srcinfo wygenerowanego przez makepkg nie powiodło się"
+
+#: src/install.rs:171 src/install.rs:442
+msgid "Resolving dependencies..."
+msgstr "Rozwiązywanie zależności……"
+
+#: src/install.rs:220 src/install.rs:225
+msgid "failed to download sources"
+msgstr "pobieranie źródeł nie powiodło się"
+
+#: src/install.rs:230 src/install.rs:246 src/install.rs:254
+msgid "failed to build"
+msgstr "kompilowanie nie powiodło się"
+
+#: src/install.rs:233
+msgid "parsing pkg list..."
+msgstr "parsowanie listy pkg…"
+
+#: src/install.rs:261 src/install.rs:1462
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} jest aktualny -- pomijanie kompilacji"
+
+#: src/install.rs:333 src/query.rs:50 src/lib.rs:84
+msgid "error:"
+msgstr "błąd:"
+
+#: src/install.rs:334
+msgid "could not get news"
+msgstr "nie udało się uzyskać aktualności"
+
+#: src/install.rs:339 src/install.rs:521 src/install.rs:716 src/install.rs:848
+msgid "Proceed with installation?"
+msgstr "Kontynuować instalację?"
+
+#: src/install.rs:356
+msgid "no targets specified (use -h for help)"
+msgstr "nie podano żadnych celów (użyj -h aby otrzymać pomoc)"
+
+#: src/install.rs:434 src/install.rs:461 src/search.rs:324 src/search.rs:360 src/lib.rs:227
+msgid " there is nothing to do"
+msgstr " nie ma nic do zrobienia"
+
+#: src/install.rs:488
+msgid "can't install AUR package as root"
+msgstr "nie można instalować pakietów z AUR jako root"
+
+#: src/install.rs:507
+msgid "Remove make dependencies after install?"
+msgstr "Usunąć zależności instalacyjne po jej zakończeniu?"
+
+#: src/install.rs:518
+msgid "Proceed to review?"
+msgstr "Przejść do przeglądu?"
+
+#: src/install.rs:559
+msgid "The following packages are not compatible with your architecture:"
+msgstr "Poniższe pakiety nie są kompatybilne z używaną architekturą:"
+
+#: src/install.rs:573
+msgid "Would you like to try build them anyway?"
+msgstr "Czy chcesz spróbować je skompilować mimo to?"
+
+#: src/install.rs:662
+msgid "packages failed to build: {}"
+msgstr "pakiety, których kompilowanie nie powiodło się: {}"
+
+#: src/install.rs:698
+msgid "could not find .SRINFO for '{}'"
+msgstr "nie można znaleźć .SRINFO dla '{}'"
+
+#: src/install.rs:762
+msgid "failed to read dir: {}"
+msgstr "odczytywanie katalogu nie powiodło się: {}"
+
+#: src/install.rs:778
+msgid "{} is a directory\n"
+"\n"
+""
+msgstr "{} jest katalogiem\n"
+"\n"
+""
+
+#: src/install.rs:818
+msgid "failed to open: {}"
+msgstr "otwieranie nie powiodło się: {}"
+
+#: src/install.rs:830
+msgid "binary file: {}"
+msgstr "plik binarny: {}"
+
+#: src/install.rs:852
+msgid " nothing new to review"
+msgstr " brak nowych treści do przeglądu"
+
+#: src/install.rs:871
+msgid "failed to execute file manager: {}"
+msgstr "uruchamianie menadżera plików nie powiodło się: {}"
+
+#: src/install.rs:874
+msgid "file manager did not execute successfully"
+msgstr "menadżer plików nie został pomyślnie uruchomiony"
+
+#: src/install.rs:936
+msgid "duplicate packages: {}"
+msgstr "zduplikowane pakiety: {}"
+
+#: src/install.rs:975
+msgid "could not find all required packages:"
+msgstr "nie można znaleźć wszystkich wymaganych pakietów:"
+
+#: src/install.rs:982
+msgid "\n"
+"    {:missing} (wanted by: {:stack})"
+msgstr "\n"
+"    {:missing} (wymagany przez: {:stack})"
+
+#: src/install.rs:996 src/install.rs:1941
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} jest aktualny -- pomijanie"
+
+#: src/install.rs:1011
+msgid "Calculating conflicts..."
+msgstr "Obliczanie konfliktów…"
+
+#: src/install.rs:1017
+msgid "Calculating inner conflicts..."
+msgstr "Obliczanie wewnętrznych konfliktów…"
+
+#: src/install.rs:1029
+msgid "Inner conflicts found:"
+msgstr "Znalezione wewnętrzne konflikty:"
+
+#: src/install.rs:1051
+msgid "Conflicts found:"
+msgstr "Znalezione konflikty:"
+
+#: src/install.rs:1074
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "Konfliktujące pakiety będa musiały zostać zatwierdzone ręcznie"
+
+#: src/install.rs:1078
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "nie można instalować konfliktujących pakietów z  --noconfirm"
+
+#: src/install.rs:1117
+msgid "Repo"
+msgstr "Repozytorium"
+
+#: src/install.rs:1124
+msgid "Repo Make"
+msgstr ""
+
+#: src/install.rs:1138
+msgid "Aur Make"
+msgstr ""
+
+#: src/install.rs:1240
+msgid "fetching devel info..."
+msgstr "pozyskiwanie informacji devel…"
+
+#: src/install.rs:1320
+msgid "Signing packages..."
+msgstr "Podpisywanie pakietów…"
+
+#: src/install.rs:1398 src/install.rs:1403
+msgid "failed to download sources for '{}'"
+msgstr "pobieranie źródeł dla '{}' nie powiodło się"
+
+#: src/install.rs:1408 src/install.rs:1447 src/install.rs:1455
+msgid "failed to build '{}'"
+msgstr "kompilowanie '{}' nie powiodło się"
+
+#: src/install.rs:1411
+msgid "{}: parsing pkg list..."
+msgstr "{}: parsowanie listy pkg…"
+
+#: src/install.rs:1473
+msgid "adding {} to the install list"
+msgstr "dodawanie {} do listy instalowanych"
+
+#: src/install.rs:1532
+msgid "could not find package '{:pkg}' in package list for '{:base}'"
+msgstr "nie znaleziono pakietu '{:pkg} w liście pakietów '{:base}'"
+
+#: src/install.rs:1670
+msgid "can't find package name in packagelist: {}"
+msgstr "nie znaleziono nazwy pakietu w packagelist: {}"
+
+#: src/install.rs:1743
+msgid "There are {} members in group"
+msgstr "Znaleziono {} pakietów w grupie"
+
+#: src/install.rs:1768
+msgid "\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr "\n"
+"\n"
+"Wybierz pakiety (domyślnie=wszystkie): "
+
+#: src/install.rs:1965
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} jest aktualny -- pomijanie instalacji"
+
+#: src/keys.rs:47
+msgid "keys need to be imported:)"
+msgstr "klucze muszą zostać zaimportowane:)"
+
+#: src/keys.rs:52
+msgid "     {:key} wanted by: {:base}"
+msgstr "     {:key} wymagany przez: {:base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "Brak daty"
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "Brak tytułu"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "brak aktualności"
+
+#: src/query.rs:105
+msgid " [ignored]"
+msgstr " [ignorowany]"
+
+#: src/repo.rs:164
+msgid "failed to get current exe"
+msgstr ""
+
+#: src/repo.rs:195
+msgid "syncing local databases..."
+msgstr "synchronizowanie lokalnych baz danych…"
+
+#: src/repo.rs:201
+msgid "  nothing to do"
+msgstr "  nic do zrobienia"
+
+#: src/search.rs:32
+msgid "aur search failed"
+msgstr "wyszukiwanie w AUR nie powiodło się"
+
+#: src/search.rs:158
+msgid "[Out-of-date: {}]"
+msgstr "[Nieaktualny: {}]"
+
+#: src/search.rs:164 src/search.rs:218
+msgid "[Installed: {}]"
+msgstr "[Zainstalowany: {}]"
+
+#: src/search.rs:166 src/search.rs:220
+msgid "[Installed]"
+msgstr "[Zainstalowany]"
+
+#: src/search.rs:173
+msgid "[Orphaned]"
+msgstr "[Osierocony]"
+
+#: src/search.rs:263
+msgid "no packages match search"
+msgstr "żaden pakiet nie odpowiada wyszukiwaniu"
+
+#: src/search.rs:321
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "Pakiety do zainstalowania (np. 1 2 3, 1-3):"
+
+#: src/stats.rs:83
+msgid "Total installed packages: {}"
+msgstr "Wszystkie zainstalowane pakiety: {}"
+
+#: src/stats.rs:87
+msgid "Aur packages: {}"
+msgstr "Pakiety z AUR: {}"
+
+#: src/stats.rs:91
+msgid "Repo packages: {}"
+msgstr "Pakiety z repozytorium: {}"
+
+#: src/stats.rs:95
+msgid "Explicitly installed packages: {}"
+msgstr "Konkretnie zainstalowane pakiety: {}"
+
+#: src/stats.rs:99
+msgid "Total Size occupied by packages: {}"
+msgstr "Całkowity rozmiar zajmowany przez pakiety: {}"
+
+#: src/stats.rs:106
+msgid "Ten biggest packages:"
+msgstr "Dziesięć największych pakietów:"
+
+#: src/sync.rs:89 src/lib.rs:395
+msgid " [installed]"
+msgstr " [zainstalowano]"
+
+#: src/upgrade.rs:122
+msgid "Looking for AUR upgrades"
+msgstr "Szukanie aktualizacji w AUR"
+
+#: src/upgrade.rs:148
+msgid "Looking for devel upgrades"
+msgstr "Szukanie aktualizacji devel"
+
+#: src/upgrade.rs:179
+msgid "warning:"
+msgstr "ostrzeżenie:"
+
+#: src/upgrade.rs:181
+msgid "{:pkg}: ignoring package upgrade ({:old} => {:new})"
+msgstr "{:pkg}: ignorowanie aktualizacji ({:old} => {:new})"
+
+#: src/upgrade.rs:334
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "Pakiety do wykluczenia (np. 1 2 3, 1-3):"
+
+#: src/util.rs:80
+msgid "[Y/n]:"
+msgstr "[T/n]"
+
+#: src/util.rs:82
+msgid "[y/N]:"
+msgstr "[t/N]"
+
+#: src/util.rs:101
+msgid "y"
+msgstr "t"
+
+#: src/util.rs:101
+msgid "yes"
+msgstr "tak"
+
+#: src/util.rs:103
+msgid "n"
+msgstr "n"
+
+#: src/util.rs:103
+msgid "no"
+msgstr "nie"
+
+#: src/util.rs:299
+msgid "Enter a number (default=1): "
+msgstr "Podaj numer (domyślnie=1): "
+
+#: src/util.rs:316
+msgid "invalid number: {}"
+msgstr "nieprawidłowy numer: {}"
+
+#: src/util.rs:326
+msgid "invalid value: {:n} is not between 1 and {:max}"
+msgstr "nieprawidłowa wartość: {:n} nie jest pomiędzy 1 i {:max}"
+
+#: src/lib.rs:153
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "nie można użyć kompilacji chroot: devtools nie jest zainstalowany"
+
+#: src/lib.rs:393
+msgid " [installed: {}]"
+msgstr " [zainstalowano: {}]"
