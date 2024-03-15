@@ -135,8 +135,9 @@ are built or a package in the build queue is needed as a dependency to build
 another package, install all the packages in the install queue.
 
 .TP
-.B NewsOnUpgrade
-Print new news during sysupgrade.
+.B NewsOnUpgrade [= URL]
+Print new news during sysupgrade. By default paru fetches news from the Arch Linux
+RSS news feed. Users of other distributions can customize the RSS feed URL here.
 
 .TP
 .B UseAsk
