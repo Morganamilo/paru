@@ -696,11 +696,11 @@ impl Config {
         }
 
         self.args.op = self.op.as_str().to_string();
-        self.args.targets = self.targets.clone();
-        self.args.bin = self.pacman_bin.clone();
+        self.args.targets.clone_from(&self.targets);
+        self.args.bin.clone_from(&self.pacman_bin);
 
         self.globals.op = self.op.as_str().to_string();
-        self.globals.bin = self.pacman_bin.clone();
+        self.globals.bin.clone_from(&self.pacman_bin);
 
         if self.help {
             match self.op {
@@ -848,7 +848,7 @@ impl Config {
         )?;
 
         if let Some(ref dbpath) = self.db_path {
-            self.pacman.db_path = dbpath.clone();
+            self.pacman.db_path.clone_from(dbpath);
         }
 
         self.ignore.extend(self.pacman.ignore_pkg.clone());

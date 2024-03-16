@@ -31,7 +31,7 @@ mod resolver;
 #[cfg(not(feature = "mock"))]
 type RaurHandle = raur::Handle;
 #[cfg(feature = "mock")]
-type RaurHandle = crate::mock::Mock;
+type RaurHandle = mock::Mock;
 
 #[macro_use]
 extern crate smart_default;
@@ -147,18 +147,15 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
         }
     };
 
-    match run2(&mut config, args).await {
-        Err(err) => {
-            let code = if let Some(e) = err.downcast_ref::<install::Status>() {
-                e.0
-            } else {
-                1
-            };
-            print_error(Style::new(), err);
-            code
-        }
-        Ok(ret) => ret,
-    }
+    run2(&mut config, args).await.unwrap_or_else(|err| {
+        let code = if let Some(e) = err.downcast_ref::<install::Status>() {
+            e.0
+        } else {
+            1
+        };
+        print_error(Style::new(), err);
+        code
+    })
 }
 
 async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
@@ -362,7 +359,7 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
         Ok(exec::pacman(config, &config.args)?.code())
     } else {
         if config.interactive {
-            search::interactive_search(config, true).await?;
+            interactive_search(config, true).await?;
             if config.targets.is_empty() {
                 return Ok(1);
             }
