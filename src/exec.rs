@@ -174,7 +174,7 @@ fn wait_for_lock(config: &Config) {
         );
 
         while path.exists() {
-            std::thread::sleep(Duration::from_secs(3));
+            thread::sleep(Duration::from_secs(3));
         }
     }
 }
@@ -201,7 +201,7 @@ pub fn pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) 
     command_status(&mut cmd)
 }
 
-pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
+pub fn pacman_output<S: AsRef<str> + Display + Debug>(
     config: &Config,
     args: &Args<S>,
 ) -> Result<Output> {

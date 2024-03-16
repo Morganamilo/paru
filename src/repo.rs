@@ -154,7 +154,7 @@ pub fn all_files(config: &Config) -> Vec<String> {
         .collect()
 }
 
-fn is_local_db(db: &alpm::Db) -> bool {
+fn is_local_db(db: &Db) -> bool {
     !db.servers().is_empty() && db.servers().iter().all(|s| s.starts_with("file://"))
 }
 
@@ -180,13 +180,13 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     }
 
     for db in dbs {
-        let path = file(&db);
+        let path = file(db);
         if let Some(path) = path {
             init(config, path, db.name())?;
         }
     }
 
-    if !nix::unistd::getuid().is_root() && !cfg!(feature = "mock") {
+    if !unistd::getuid().is_root() && !cfg!(feature = "mock") {
         let mut cmd = Command::new(&config.sudo_bin);
 
         cmd.arg(exe);
@@ -277,7 +277,7 @@ pub fn clean(config: &mut Config) -> Result<i32> {
 
     for pkgs in rem {
         let repo = pkgs[0].db().unwrap();
-        let path = file(&repo).unwrap();
+        let path = file(repo).unwrap();
         let pkgs = pkgs.iter().map(|p| p.name()).collect::<Vec<_>>();
         remove(config, path, repo.name(), &pkgs)?;
     }

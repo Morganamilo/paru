@@ -5,7 +5,6 @@ use crate::RaurHandle;
 
 use std::collections::HashMap;
 use std::io::Write;
-use std::iter::FromIterator;
 use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
@@ -238,7 +237,7 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
                     "{} {} export {}",
                     tr!("failed to run:"),
                     pkgctl,
-                    targ.to_string()
+                    targ
                 )
             })?;
 
