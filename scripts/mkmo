@@ -9,5 +9,5 @@ fi
 for po in po/*.po; do
 	lang=$(basename ${po%.po})
 	install -dm755 "$1/$lang/LC_MESSAGES/"
-	msgfmt "$po" -o "$1/$lang/LC_MESSAGES/paru.mo"
+	msgfmt -o "$1/$lang/LC_MESSAGES/paru.mo" "$po"
 done
