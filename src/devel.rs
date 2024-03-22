@@ -10,7 +10,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::{create_dir_all, read_to_string, OpenOptions};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
-use std::iter::FromIterator;
 use std::time::Duration;
 
 use alpm_utils::{DbListExt, Target};
