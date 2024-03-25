@@ -11,7 +11,7 @@ use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
 use std::fs::{remove_file, OpenOptions};
-use std::io::{stderr, stdin, stdout, BufRead};
+use std::io::{stderr, stdin, stdout, BufRead, IsTerminal};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -25,8 +25,6 @@ use anyhow::{anyhow, bail, ensure, Context, Error, Result};
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
-use nix::unistd::isatty;
-use std::os::unix::io::AsRawFd;
 use tr::tr;
 use url::Url;
 
@@ -106,12 +104,7 @@ pub struct Colors {
 impl From<&str> for Colors {
     fn from(s: &str) -> Self {
         match s {
-            "auto"
-                if isatty(stdout().as_raw_fd()).unwrap_or(false)
-                    && isatty(stderr().as_raw_fd()).unwrap_or(false) =>
-            {
-                Colors::new()
-            }
+            "auto" if stdout().is_terminal() && stderr().is_terminal() => Colors::new(),
             "always" => Colors::new(),
             _ => Colors::default(),
         }
