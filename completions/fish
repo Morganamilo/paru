@@ -112,6 +112,7 @@ complete -c $progname -n "$has_db_opt; and $database" -xa "$listinstalled"
 complete -c $progname -n "$files" -s x -l regex -d 'Interpret each query as a regular expression' -f
 complete -c $progname -n "$files" -l machinereadable -d 'Print each match in a machine readable output format' -f
 complete -c $progname -n "$files" -d 'Package' -xa "$listpacman"
+complete -c $progname -n "$files" -F -k
 
 # Query options
 complete -c $progname -n "$query" -s c -l changelog -d 'View the change log of PACKAGE' -f
