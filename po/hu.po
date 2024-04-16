@@ -8,26 +8,26 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2024-03-16 12:54+0000\n"
+"PO-Revision-Date: 2024-04-16 13:01+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.1\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.2\n"
 "X-Language: hu_HU\n"
 "X-Source-Language: C\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Biztosan el akarod távolítani az ÖSSZES AUR csomagot a gyorsítótárból?"
+msgstr "Biztosan el akarja távolítani az ÖSSZES AUR csomagot a gyorsítótárból?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
 msgstr ""
-"Biztosan el akarod távolítani az összes többi AUR csomagot a gyorsítótárból?"
+"Biztosan el akarja távolítani az összes többi AUR csomagot a gyorsítótárból?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -43,7 +43,7 @@ msgstr ""
 
 #: src/clean.rs:49
 msgid "Do you want to remove all saved diffs?"
-msgstr "Biztosan el akarod távolítani az összes mentett diff-et?"
+msgstr "Biztosan el akarja távolítani az összes mentett diff-et?"
 
 #: src/clean.rs:65
 msgid "can't open diff dir: {}"
@@ -253,7 +253,7 @@ msgstr " A PKGBUILD-ek naprakészek"
 
 #: src/exec.rs:173
 msgid "Pacman is currently in use, please wait..."
-msgstr "A Pacman jelenleg használatban van, kérlek várj..."
+msgstr "A Pacman jelenleg használatban van, várjon..."
 
 #: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
 msgid "None"
@@ -269,11 +269,11 @@ msgstr "Tároló make"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "Pkgbuilds Make"
+msgstr "Pkgbuilds make"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
-msgstr "AUR Make"
+msgstr "AUR make"
 
 #: src/fmt.rs:311
 msgid "Repo ({})"
@@ -430,11 +430,11 @@ msgstr "    --mode      <mode>     Beállítja, hogy a paru hol keressen céloka
 
 #: src/help.rs:37
 msgid ""
-"    --interactive          Enable interactive package selection for -S, -R, "
-"-Ss and -Qs"
+"    --interactive          Enable interactive package selection for -S, -R, -"
+"Ss and -Qs"
 msgstr ""
-"    --interactive          Interaktív csomag kiválasztás engedélyezése az "
-"-S, -R, -Ss és -Qs-hez"
+"    --interactive          Interaktív csomag kiválasztás engedélyezése az -"
+"S, -R, -Ss és -Qs-hez"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -832,7 +832,7 @@ msgstr "Kulcsszavak"
 
 #: src/info.rs:108 src/info.rs:260
 msgid "Snapshot URL"
-msgstr "Snapshot URL-cím"
+msgstr "Pillanatkép URL-cím"
 
 #: src/info.rs:109 src/info.rs:205
 msgid "Path"
@@ -848,7 +848,7 @@ msgstr "nem sikerült híreket gyűjteni"
 
 #: src/install.rs:164 src/install.rs:1100
 msgid "Proceed with installation?"
-msgstr "Folytatod a telepítést?"
+msgstr "Folytatja a telepítést?"
 
 #: src/install.rs:199
 msgid "could not find .SRCINFO for '{}'"
@@ -923,7 +923,7 @@ msgstr "Make függőségek eltávolítása telepítés után?"
 
 #: src/install.rs:1097
 msgid "Proceed to review?"
-msgstr "Folytatod a felülvizsgálatot?"
+msgstr "Folytatja a felülvizsgálatot?"
 
 #: src/install.rs:1150
 msgid "no architecture"
@@ -931,12 +931,11 @@ msgstr "nincs architektúra"
 
 #: src/install.rs:1164
 msgid "The following packages are not compatible with your architecture:"
-msgstr ""
-"A következő csomagok nem kompatibilisek az általad használt architektúrával:"
+msgstr "Az alábbi csomagok nem kompatibilisek a processzor architektúrájával:"
 
 #: src/install.rs:1178
 msgid "Would you like to try build them anyway?"
-msgstr "Megpróbálod mégis összeállítani őket?"
+msgstr "Megpróbálja mégis összeállítani őket?"
 
 #: src/install.rs:1326
 msgid "duplicate packages: {}"
@@ -980,8 +979,7 @@ msgstr "Az ütköző csomagokat kézzel kell megerősíteni"
 
 #: src/install.rs:1438
 msgid "can not install conflicting packages with --noconfirm"
-msgstr ""
-"nem telepíthetsz egymásnak ellentmondó csomagokat a --noconfirm opcióval"
+msgstr "nem telepíthet egymásnak ellentmondó csomagokat a --noconfirm opcióval"
 
 #: src/install.rs:1561
 msgid "failed to execute file manager: {}"
@@ -1005,7 +1003,7 @@ msgstr "bináris fájl: {}"
 
 #: src/install.rs:1664 src/install.rs:1728
 msgid "Accept changes?"
-msgstr "Elfogadod a változásokat?"
+msgstr "Elfogadja a változásokat?"
 
 #: src/install.rs:1732
 msgid " nothing new to review"
@@ -1095,7 +1093,7 @@ msgstr "Csomagok"
 
 #: src/repo.rs:273
 msgid "Proceed with removal?"
-msgstr "Biztosan törlöd?"
+msgstr "Biztosan törli?"
 
 #: src/search.rs:40
 msgid "aur search failed"
@@ -1221,7 +1219,7 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"Válaszd ki, hogy melyiket szeretnéd megjelölni (alapértelmezett=all): "
+"Válassza ki, hogy melyiket szeretné megjelölni (alapértelmezett=all): "
 
 #: src/lib.rs:210
 msgid "can not use chroot builds: devtools is not installed"
@@ -1230,7 +1228,7 @@ msgstr ""
 
 #: src/lib.rs:317
 msgid "no operation specified (use -h for help)"
-msgstr "nem adtál meg opciót (használd a -h a segítségért)"
+msgstr "nem adott meg opciót (használja a -h a segítségért)"
 
 #: src/lib.rs:513
 msgid " [installed: {}]"
