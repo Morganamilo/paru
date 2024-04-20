@@ -462,10 +462,8 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
             if matches!(
                 repo,
                 "testing"
-                    | "community-testing"
                     | "core"
                     | "extra"
-                    | "community"
                     | "multilib"
                     | "core-testing"
                     | "extra-testing"
@@ -479,10 +477,8 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
             if matches!(
                 pkg.db().unwrap().name(),
                 "testing"
-                    | "community-testing"
                     | "core"
                     | "extra"
-                    | "community"
                     | "multilib"
                     | "core-testing"
                     | "extra-testing"
