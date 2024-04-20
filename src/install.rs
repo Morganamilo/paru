@@ -1232,7 +1232,7 @@ impl Installer {
     }
 }
 
-fn is_debug(pkg: alpm::Package) -> bool {
+fn is_debug(pkg: &alpm::Package) -> bool {
     if let Some(base) = pkg.base() {
         if pkg.name().ends_with("-debug") && pkg.name().trim_end_matches("-debug") == base {
             return true;
@@ -1611,6 +1611,9 @@ fn print_dir(
                 let _ = write!(stdin, "{}", c.bold.paint(s));
                 continue;
             }
+            if file.file_type()?.is_dir() {
+                continue;
+            }
 
             let _ = writeln!(stdin, "{}", c.bold.paint(file.path().display().to_string()));
             if bat {
@@ -1630,14 +1633,14 @@ fn print_dir(
                     })?;
                 let _ = stdin.write_all(&output.stdout);
             } else {
-                let mut pkgbbuild = OpenOptions::new()
+                let mut pkgfile = OpenOptions::new()
                     .read(true)
                     .open(file.path())
                     .with_context(|| {
                         tr!("failed to open: {}", file.path().display().to_string())
                     })?;
                 buf.clear();
-                pkgbbuild.read_to_end(buf)?;
+                pkgfile.read_to_end(buf)?;
 
                 let _ = match std::str::from_utf8(buf) {
                     Ok(_) => stdin.write_all(buf),
@@ -2042,14 +2045,14 @@ fn needs_build(
             if !base
                 .packages()
                 .filter_map(|p| repos.pkg(p).ok())
-                .any(|_| base.version() == version)
+                .any(|p| p.version() == version)
             {
                 all_installed = false
             }
         } else if !base
             .packages()
             .filter_map(|p| config.alpm.localdb().pkg(p).ok())
-            .any(|_| base.version() == version)
+            .any(|p| p.version() == version)
         {
             all_installed = false
         }

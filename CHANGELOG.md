@@ -1,5 +1,37 @@
 # Changelog
 
+## Paru v2.0.3 (2024-03-13)
+
+### Fixed
+
+- Fix build on arm c096bb
+
+## Paru v2.0.2 (2024-03-13)
+
+### Added
+
+- Add --chrootflags option #1090
+- Add zsh package completion for --getpkgbuild #1101
+
+### Fixed
+
+- Fix crash when pkgbuild repo has directories 057706b
+- Fix cache_dir instead of state_dir in error message #1141
+- Fix --needed #1100
+- Filter out pkgbuild repos for aur warnings 81efb1f
+- Fixed typos in man page #1091
+- Only enable color when stderr and stdout are tty b345771
+- Update testing repo names for -G #1147
+
+### Localization
+
+- Add hu locale #1116
+- Updated fr locale #1094
+- Update sv locale #1125
+- Update zh_CN locale #1120
+- Update es locale #1117
+- Update zh_TW locale #1111
+
 ## Paru v2.0.1 (2023-12-01)
 
 ### Added

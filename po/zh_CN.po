@@ -13,14 +13,14 @@ msgstr ""
 "Project-Id-Version: paru  1.11.2\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2022-12-11 23:08+0800\n"
+"PO-Revision-Date: 2023-12-31 22:59+0800\n"
 "Last-Translator: clsty <celestial.y@outlook.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.1\n"
+"X-Generator: Poedit 3.4.1\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -59,9 +59,8 @@ msgid "can't open clone dir: {}"
 msgstr "无法打开克隆目录：{}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "无法找到 '{}' 的 .SRCINFO"
+msgstr "无法解析 '{}' 的 .SRCINFO"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
@@ -209,9 +208,8 @@ msgid "failed to write to temporary file: {}"
 msgstr "未能写入至临时文件：{}"
 
 #: src/devel.rs:244
-#, fuzzy
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr "未能将 '{temp}' 重命名为 '{devel_json}"
+msgstr "未能将 '{temp}' 重命名为 '{devel_toml}"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -222,9 +220,8 @@ msgid "failed to lookup: {}"
 msgstr "未能查找：{}"
 
 #: src/devel.rs:562
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "非有效的 json：{}"
+msgstr "非有效的 toml：{}"
 
 #: src/download.rs:95
 msgid "packages not in the AUR: "
@@ -429,7 +426,7 @@ msgstr "    --mode      <模式>      设置 paru 寻找目标的位置"
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, -"
 "Ss and -Qs"
-msgstr ""
+msgstr "    --interactive          在使用 -S, -R, -Ss 和 -Qs 时交互选择软件包"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -473,9 +470,8 @@ msgid "    --sudoflags <flags>    Pass arguments to sudo"
 msgstr "    --sudoflags <标志>      传递参数给 sudo"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <文件>      要使用的 git 命令"
+msgstr "    --pkgctl       <文件>      要使用的 pkgctl 命令"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
@@ -626,9 +622,8 @@ msgid "    --[no]signdb           Sign databases with gpg"
 msgstr "    --[no]signdb            使用 gpg 签名数据库"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr "    --localrepo             构建软件包到本地软件库中"
+msgstr "    --[no]localrepo             构建软件包到本地软件库中"
 
 #: src/help.rs:88
 msgid ""
@@ -996,9 +991,8 @@ msgid "repo {} does not have a URL or Path"
 msgstr "软件库 {} 不具有 URL 或路径"
 
 #: src/pkgbuild.rs:134
-#, fuzzy
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
-msgstr "软件库 {} 未下载（使用 -Sya 下载）"
+msgstr "软件库 {} 未下载（使用 -Sy --pkgbuilds 下载）"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
@@ -1073,9 +1067,8 @@ msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "要安装的软件包（例如：1 2 3, 1-3）："
 
 #: src/search.rs:491
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "要安装的软件包（例如：1 2 3, 1-3）："
+msgstr "选择软件包（例如：1 2 3, 1-3）："
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"

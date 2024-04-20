@@ -170,6 +170,7 @@ _pacman_opts_query_modifiers=(
 _pacman_opts_getpkgbuild_modifiers=(
 	{-p,--print}'[Print PKGBUILD instead of downloading]'
 	{-c,--comments}"[Print the AUR comments from the PKGBUILD's AUR page]"
+	{-s,--ssh}"[Clone the AUR package using SSH]"
 )
 
 # -L
@@ -391,6 +392,27 @@ _pacman_action_version() {
 	return 0
 }
 
+# handles --getpkgbuild subcommand
+_pacman_action_getpkgbuild() {
+  local aur_only
+  typeset -A opt_args
+  if (( $+words[(r)-c] )) || (( $+words[(r)--comments] )); then
+    aur_only=1
+  elif (( $+words[(r)-s] )) || (( $+words[(r)--ssh] )); then
+    aur_only=1
+  fi
+
+  if [[ $aur_only == 1 ]]; then
+    _arguments -s : \
+        "$_pacman_opts_getpkgbuild_modifiers[@]" \
+        '*:package:_pacman_completions_aur_packages'
+  else
+    _arguments -s : \
+        "$_pacman_opts_getpkgbuild_modifiers[@]" \
+        '*:package:_pacman_completions_all_packages'
+  fi
+}
+
 # provides completions for package groups
 _pacman_completions_all_groups() {
 	local -a cmd groups
@@ -431,6 +453,18 @@ _pacman_completions_all_packages() {
 		typeset -U repositories
 		_wanted repo_packages expl "repository/package" compadd -S "/" $repositories
 	fi
+}
+
+_pacman_completions_aur_packages() {
+  # make sure cache is full
+  paru -Pc >/dev/null
+
+  local cache_file=${XDG_CACHE_HOME:-$HOME/.cache}/paru/packages.aur
+  if [ ! -f $cache_file ]; then
+    return
+  fi
+  local -a packages=( $(< $cache_file) )
+  _wanted packages expl "AUR packages" compadd ${(@)packages}
 }
 
 # provides completions for package groups
@@ -578,8 +612,7 @@ _pacman_zsh_comp() {
 				"$_pacman_opts_paru_modifiers[@]"
 			;;
 		G*)
-			_arguments -s : \
-				"$_pacman_opts_getpkgbuild_modifiers[@]"
+			_pacman_action_getpkgbuild
 			;;
 		L*)
 			_arguments -s : \
@@ -623,6 +656,9 @@ _pacman_zsh_comp() {
 					;;
 				*--upgrade*)
 					_pacman_action_upgrade
+					;;
+				*--getpkgbuild*)
+					_pacman_action_getpkgbuild
 					;;
 				*)
 					_pacman_action_none

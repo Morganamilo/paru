@@ -216,7 +216,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     create_dir_all(&config.state_dir).with_context(|| {
         tr!(
             "failed to create state directory: {}",
-            config.cache_dir.display()
+            config.state_dir.display()
         )
     })?;
 
@@ -345,7 +345,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
     let mut futures = Vec::new();
-    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
 
     for pkg in db.pkgs().iter() {
         let name = pkg_base_or_name(&pkg);
@@ -395,7 +395,7 @@ pub async fn filter_devel_updates(
     cache: &mut Cache,
     updates: &[String],
 ) -> Result<Vec<Target>> {
-    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
     let mut aur = Vec::new();
     let mut custom = Vec::new();
     let db = config.alpm.localdb();
@@ -561,7 +561,7 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
     let devel_info = DevelInfo::deserialize(toml::Deserializer::new(&file))
         .with_context(|| tr!("invalid toml: {}", config.devel_path.display()))?;
 
-    let mut pkgbases: HashMap<&str, Vec<alpm::Package>> = HashMap::new();
+    let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
     let mut devel_info: DevelInfo = devel_info;
 
     if !devel_info._info.is_empty() {
