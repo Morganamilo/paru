@@ -10,7 +10,7 @@ use std::process::{Command, Stdio};
 use std::result::Result as StdResult;
 
 use alpm::Version;
-use alpm_utils::{AsTarg, DbListExt, Targ};
+use alpm_utils::{AsTarg, DbListExt};
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::AurBase;
@@ -184,11 +184,10 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     let mut ret = 0;
 
     if !repo.is_empty() {
-        ret = repo_pkgbuilds(config, &repo)?;
+        ret = repo_pkgbuilds(config, &repo[..])?;
     }
 
     if !aur.is_empty() {
-        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
         let action = config.color.action;
         let bold = config.color.bold;
         println!(
@@ -220,11 +219,11 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
+fn repo_pkgbuilds(config: &Config, pkgs: &[String]) -> Result<i32> {
     let pkgctl = &config.pkgctl_bin;
 
     for (n, targ) in pkgs.iter().enumerate() {
-        print_download(config, n + 1, pkgs.len(), targ.pkg);
+        print_download(config, n + 1, pkgs.len(), targ);
 
         let ret = Command::new(pkgctl)
             .arg("repo")
@@ -447,7 +446,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
     config: &Config,
     targets: &'a [T],
-) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
+) -> (Vec<String>, Vec<String>) {
     let mut local = Vec::new();
     let mut aur = Vec::new();
     let db = config.alpm.syncdbs();
@@ -455,9 +454,9 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
     for targ in targets {
         let targ = targ.as_targ();
         if !config.mode.repo() {
-            aur.push(targ);
+            aur.push(targ.pkg.to_string());
         } else if !config.mode.aur() && !config.mode.pkgbuild() {
-            local.push(targ);
+            local.push(targ.pkg.to_string());
         } else if let Some(repo) = targ.repo {
             if matches!(
                 repo,
@@ -471,9 +470,9 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
                     | "extra-testing"
                     | "multilib-testing"
             ) {
-                local.push(targ);
+                local.push(targ.pkg.to_string());
             } else {
-                aur.push(targ);
+                aur.push(targ.pkg.to_string());
             }
         } else if let Ok(pkg) = db.pkg(targ.pkg) {
             if matches!(
@@ -488,12 +487,20 @@ fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
                     | "extra-testing"
                     | "multilib-testing"
             ) {
-                local.push(targ);
+                if let Some(base) = pkg.base() {
+                    if base != pkg.name() {
+                        local.push(base.to_string())
+                    } else {
+                        local.push(targ.pkg.to_string());
+                    }
+                } else {
+                    local.push(targ.pkg.to_string());
+                }
             } else {
-                aur.push(targ);
+                aur.push(targ.pkg.to_string());
             }
         } else {
-            aur.push(targ);
+            aur.push(targ.pkg.to_string());
         }
     }
 
@@ -512,7 +519,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         for pkg in &repo {
             let url = Url::parse(&format!(
                 "https://gitlab.archlinux.org/archlinux/packaging/packages/{}/-/raw/HEAD/PKGBUILD",
-                pkg.pkg
+                pkg
             ))?;
 
             let response = client
@@ -535,8 +542,6 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() {
-        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
-
         let warnings = cache_info_with_warnings(
             &config.raur,
             &mut config.cache,
