@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2024-04-16 13:01+0200\n"
+"PO-Revision-Date: 2024-08-25 10:17+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -31,7 +31,7 @@ msgstr ""
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
-msgstr "Clone könyvtár: {}"
+msgstr "Klónkönyvtár: {}"
 
 #: src/clean.rs:47
 msgid ""
@@ -39,27 +39,27 @@ msgid ""
 "Diff Directory: {}"
 msgstr ""
 "\n"
-"Diff könyvtár: {}"
+"Összehasonlítási könyvtár: {}"
 
 #: src/clean.rs:49
 msgid "Do you want to remove all saved diffs?"
-msgstr "Biztosan el akarja távolítani az összes mentett diff-et?"
+msgstr "Biztosan el akarja távolítani az összes mentett összehasonlítást?"
 
 #: src/clean.rs:65
 msgid "can't open diff dir: {}"
-msgstr "a diff könyvtár nem nyitható meg: {}"
+msgstr "az összehasonlítási könyvtár nem nyitható meg: {}"
 
 #: src/clean.rs:76 src/clean.rs:180
 msgid "could not remove '{}'"
-msgstr "nem sikerült eltávolítani a(z) '{}'-t"
+msgstr "nem sikerült eltávolítani a következőt: „{}”"
 
 #: src/clean.rs:95
 msgid "can't open clone dir: {}"
-msgstr "nem sikerült megnyitni a clone könyvtárat: {}"
+msgstr "nem sikerült megnyitni a klónkönyvtárat: {}"
 
 #: src/clean.rs:141
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "nem sikerült elemezni az .SRCINFO-t a(z) '{}' esetében"
+msgstr "nem sikerült elemezni az .SRCINFO-t a(z) „{}” esetében"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
@@ -79,7 +79,7 @@ msgstr "ismeretlen opció -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
-msgstr "nem sikerült megnyitni a cache fájlt '{}'"
+msgstr "nem sikerült megnyitni a cache fájlt „{}”"
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
@@ -87,7 +87,7 @@ msgstr "nem sikerült frissíteni az AUR gyorsítótárát"
 
 #: src/config.rs:186
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
-msgstr "érvénytelen '{val}' érték a '{key}' kulcshoz, várt érték: {exp}"
+msgstr "érvénytelen „{val}” érték a(z) „{key}” kulcshoz, várt érték: {exp}"
 
 #: src/config.rs:339
 msgid "unknown mode {}"
@@ -111,7 +111,7 @@ msgstr "nem sikerült megtalálni a state könyvtárat"
 
 #: src/config.rs:638
 msgid "config file '{}' does not exist"
-msgstr "a(z) '{}' config fájl nem létezik"
+msgstr "a(z) „{}” config fájl nem létezik"
 
 #: src/config.rs:687
 msgid "only one operation may be used at a time"
@@ -119,11 +119,11 @@ msgstr "egyszerre csak egy művelet használható"
 
 #: src/config.rs:798
 msgid "no local repo named {}"
-msgstr "nem található a(z) '{}' nevezetű helyi tároló"
+msgstr "nem található a(z) „{}” nevezetű helyi tároló"
 
 #: src/config.rs:821
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "nem található a(z) '{}' nevezetű helyi tároló a pacman.conf-ban"
+msgstr "nem található a(z) „{}” nevezetű helyi tároló a pacman.conf-ban"
 
 #: src/config.rs:863
 msgid "failed to initialize alpm: root={} dbpath={}"
@@ -131,11 +131,11 @@ msgstr "nem sikerült inicializálni az alpm-et: root={} dbpath={}"
 
 #: src/config.rs:938 src/config.rs:1098
 msgid "value can not be empty for key '{}'"
-msgstr "a(z) '{}' kulcs esetében az érték nem lehet üres"
+msgstr "a(z) „{}” kulcs esetében az érték nem lehet üres"
 
 #: src/config.rs:954
 msgid "key '{}' does not belong to a section"
-msgstr "a(z) '{}' kulcs nem tartozik egy szekcióhoz"
+msgstr "a(z) „{}” kulcs nem tartozik egy szekcióhoz"
 
 #: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
 msgid "key can not be empty"
@@ -143,7 +143,7 @@ msgstr "a kulcs nem lehet üres"
 
 #: src/config.rs:978
 msgid "error: unknown option '{}' in repo"
-msgstr "hiba: ismeretlen '{}' opció a tárolóban"
+msgstr "hiba: ismeretlen „{}” opció a tárolóban"
 
 #: src/config.rs:988
 msgid "key can not contain null bytes"
@@ -155,15 +155,15 @@ msgstr "az érték nem tartalmazhat null bájtot"
 
 #: src/config.rs:1026
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "hiba: ismeretlen '{}' opció a [bin] szekcióban"
+msgstr "hiba: ismeretlen „{}” opció a [bin] szekcióban"
 
 #: src/config.rs:1142
 msgid "error: unknown option '{}' in section [options]"
-msgstr "hiba: ismeretlen '{}' opció az [options] szekcióban"
+msgstr "hiba: ismeretlen „{}” opció az [options] szekcióban"
 
 #: src/config.rs:1147
 msgid "option '{}' does not take a value"
-msgstr "a(z) '{}' opció nem vesz fel értéket"
+msgstr "a(z) „{}” opció nem vesz fel értéket"
 
 #: src/config.rs:1182 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
@@ -176,7 +176,7 @@ msgstr "Tároló"
 
 #: src/config.rs:1222
 msgid "  failed to sync {}"
-msgstr "  a(z) {}-t nem sikerült szinkronizálni"
+msgstr "  nem sikerült szinkronizálni a következőt: {}"
 
 #: src/devel.rs:136 src/download.rs:197
 msgid "Querying AUR..."
@@ -184,7 +184,7 @@ msgstr "AUR lekérdezése..."
 
 #: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
 msgid "failed to parse srcinfo for '{}'"
-msgstr "az .SRCINFO-t nem lehetett elemezni ehhez: '{}'"
+msgstr "az .SRCINFO-t nem lehetett elemezni ehhez: „{}”"
 
 #: src/devel.rs:201
 msgid "Looking for devel repos..."
@@ -208,7 +208,7 @@ msgstr "nem sikerült írni az ideiglenes fájlba: {}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr "nem sikerült a(z) '{temp}' átnevezése erre: '{devel_toml}"
+msgstr "nem sikerült a(z) „{temp}” átnevezése erre: „{devel_toml}”"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -228,7 +228,7 @@ msgstr "az AUR-ban nem szereplő csomagok: "
 
 #: src/download.rs:106
 msgid "marked out of date: "
-msgstr "Elavultnak lett jelölve: "
+msgstr "elavultnak lett jelölve: "
 
 #: src/download.rs:117
 msgid "orphans: "
@@ -265,15 +265,15 @@ msgstr "Tároló"
 
 #: src/fmt.rs:244
 msgid "Repo Make"
-msgstr "Tároló make"
+msgstr "Tároló Fordítás"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "Pkgbuilds make"
+msgstr "Pkgbuilds Fordítás"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
-msgstr "AUR make"
+msgstr "AUR Fordítás"
 
 #: src/fmt.rs:311
 msgid "Repo ({})"
@@ -297,7 +297,7 @@ msgstr "Új verzió"
 
 #: src/fmt.rs:321
 msgid "Make Only"
-msgstr "Csak make"
+msgstr "Csak Fordítás"
 
 #: src/fmt.rs:322
 msgid "Yes"
@@ -385,7 +385,7 @@ msgstr "    paru {-B --build}       [könyvtár(ak)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
-msgstr "Ha nem kap argumentumokat, akkor a 'paru -Syu' parancsot hajtja végre"
+msgstr "Ha nem kap argumentumokat, akkor a „paru -Syu” parancsot hajtja végre"
 
 #: src/help.rs:27
 msgid "Options without operation:"
@@ -555,7 +555,8 @@ msgstr ""
 
 #: src/help.rs:67
 msgid "    --[no]removemake       Remove makedepends after install"
-msgstr "    --[no]removemake       Make függőségek eltávolítása telepítés után"
+msgstr ""
+"    --[no]removemake       Fordítási függőségek eltávolítása telepítés után"
 
 #: src/help.rs:68
 msgid "    --[no]cleanafter       Remove package sources after install"
@@ -708,7 +709,7 @@ msgstr ""
 
 #: src/help.rs:94
 msgid "show specific options:"
-msgstr "Különleges opciók megjelenítése:"
+msgstr "különleges opciók megjelenítése:"
 
 #: src/help.rs:95
 msgid "    -c --complete         Used for completions"
@@ -724,7 +725,7 @@ msgstr "    -w --news             Arch hírek megjelenítése"
 
 #: src/help.rs:99
 msgid "getpkgbuild specific options:"
-msgstr "A getpkgbuild különleges opciói:"
+msgstr "a getpkgbuild különleges opciói:"
 
 #: src/help.rs:100
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -780,7 +781,7 @@ msgstr "Függőségek"
 
 #: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Make Deps"
-msgstr "Make függőségek"
+msgstr "Fordítási függőségek"
 
 #: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Check Deps"
@@ -852,12 +853,12 @@ msgstr "Folytatja a telepítést?"
 
 #: src/install.rs:199
 msgid "could not find .SRCINFO for '{}'"
-msgstr "nem található az .SRCINFO ehhez: '{}'"
+msgstr "nem található az .SRCINFO ehhez: „{}”"
 
 #: src/install.rs:329
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
-"nem található a(z) '{pkg}' nevezetű csomag a(z) '{base}' csomaglistában"
+"nem található a(z) „{pkg}” nevezetű csomag a(z) „{base}” csomaglistában"
 
 #: src/install.rs:416
 msgid "packages failed to build: {}"
@@ -869,11 +870,11 @@ msgstr "{} hozzáadása a telepítési listához"
 
 #: src/install.rs:515 src/install.rs:524
 msgid "failed to download sources for '{}'"
-msgstr "nem sikerült letölteni a(z) '{}' forrásait"
+msgstr "nem sikerült letölteni a(z) „{}” forrásait"
 
 #: src/install.rs:533 src/install.rs:561 src/install.rs:569
 msgid "failed to build '{}'"
-msgstr "nem sikerült összeállítani a(z) '{}' -t"
+msgstr "nem sikerült összeállítani a következőt: „{}”"
 
 #: src/install.rs:536 src/install.rs:750
 msgid "{}: parsing pkg list..."
@@ -919,7 +920,7 @@ msgstr "--downloadonly nem használható az AUR csomagokhoz"
 
 #: src/install.rs:1086
 msgid "Remove make dependencies after install?"
-msgstr "Make függőségek eltávolítása telepítés után?"
+msgstr "Fordítási függőségek eltávolítása telepítés után?"
 
 #: src/install.rs:1097
 msgid "Proceed to review?"
@@ -1057,7 +1058,7 @@ msgstr ".SRCINFO generálása a {repo}/{dir} számára..."
 
 #: src/pkgbuild.rs:259
 msgid "failed to parse srcinfo \"{}\""
-msgstr "nem sikerült elemezni az srcinfo-t: \"{}\""
+msgstr "nem sikerült elemezni az srcinfo-t: „{}”"
 
 #: src/pkgbuild.rs:337
 msgid "Downloading PKGBUILD Repos..."
