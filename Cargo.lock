@@ -41,8 +41,9 @@ dependencies = [
 
 [[package]]
 name = "alpm"
-version = "3.0.4"
-source = "git+https://github.com/archlinux/alpm.rs?rev=306342#306342efc6f24739c92de64c432f962a22891e63"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d07c43bf396280fdda8928f725a89cdb8c525bba0240494f5da6b40aafe61387"
 dependencies = [
  "alpm-sys",
  "bitflags 2.4.2",
@@ -50,8 +51,9 @@ dependencies = [
 
 [[package]]
 name = "alpm-sys"
-version = "3.0.0"
-source = "git+https://github.com/archlinux/alpm.rs?rev=306342#306342efc6f24739c92de64c432f962a22891e63"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad5eb56a41bf4f036c600aa1ddff354971926dd8ea29a3fb6589c6c375bf918b"
 dependencies = [
  "bindgen",
  "pkg-config",
@@ -59,9 +61,9 @@ dependencies = [
 
 [[package]]
 name = "alpm-utils"
-version = "3.0.2"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1a65e48b9a950d1297b865a436733d496b6cdd966133a02fdadc6127dfe37e7"
+checksum = "7a56cf9221faa08b5a59a9f429cc5338d8e77e22e1d7fe7d3179fc5c3acf7fc3"
 dependencies = [
  "alpm",
  "pacmanconf",
@@ -174,8 +176,9 @@ dependencies = [
 
 [[package]]
 name = "aur-depends"
-version = "3.0.0"
-source = "git+https://github.com/Morganamilo/aur-depends?rev=30c2c1#30c2c15019f8dd80e803c9deefce3279079806af"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28edc980d756c337ee5f775ba1393fb8f627fb9cd98718687a00467a348f766c"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -1322,9 +1325,9 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "pacmanconf"
-version = "2.1.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31d9811f947c6ffc56eeafb789dfad44a7ea7cc383ac3bc6c9b23cd27100bbb1"
+checksum = "5be1f202256ab200a4fdaaad0988015987876b0aa336ca7a7e685080bab58a40"
 dependencies = [
  "cini",
 ]
@@ -2591,3 +2594,13 @@ dependencies = [
  "quote",
  "syn 2.0.52",
 ]
+
+[[patch.unused]]
+name = "alpm"
+version = "3.0.4"
+source = "git+https://github.com/archlinux/alpm.rs?rev=306342#306342efc6f24739c92de64c432f962a22891e63"
+
+[[patch.unused]]
+name = "aur-depends"
+version = "3.0.0"
+source = "git+https://github.com/Morganamilo/aur-depends?rev=30c2c1#30c2c15019f8dd80e803c9deefce3279079806af"
