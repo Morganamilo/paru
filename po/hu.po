@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2024-09-14 17:02+0200\n"
+"PO-Revision-Date: 2024-09-14 17:06+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -899,7 +899,7 @@ msgstr "fejlesztői információk lekérése..."
 
 #: src/install.rs:880 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
-msgstr "nincsenek célok megadva (használja a -h a segítségért)"
+msgstr "nincsenek célok megadva (használja a -h opciót a segítségért)"
 
 #: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
@@ -1229,7 +1229,7 @@ msgstr ""
 
 #: src/lib.rs:317
 msgid "no operation specified (use -h for help)"
-msgstr "nem adott meg opciót (használja a -h a segítségért)"
+msgstr "nem adott meg opciót (használja a -h opciót a segítségért)"
 
 #: src/lib.rs:513
 msgid " [installed: {}]"
