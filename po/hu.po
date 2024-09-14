@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2023-12-01 19:43+0000\n"
-"PO-Revision-Date: 2024-08-25 10:17+0200\n"
+"PO-Revision-Date: 2024-09-14 17:02+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -265,15 +265,15 @@ msgstr "Tároló"
 
 #: src/fmt.rs:244
 msgid "Repo Make"
-msgstr "Tároló Fordítás"
+msgstr "Tároló fordítás"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "Pkgbuilds Fordítás"
+msgstr "Pkgbuilds fordítás"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
-msgstr "AUR Fordítás"
+msgstr "AUR fordítás"
 
 #: src/fmt.rs:311
 msgid "Repo ({})"
@@ -297,7 +297,7 @@ msgstr "Új verzió"
 
 #: src/fmt.rs:321
 msgid "Make Only"
-msgstr "Csak Fordítás"
+msgstr "Csak fordítás"
 
 #: src/fmt.rs:322
 msgid "Yes"
@@ -899,7 +899,7 @@ msgstr "fejlesztői információk lekérése..."
 
 #: src/install.rs:880 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
-msgstr "nincsenek célok megadva (használd a -h a segítségért)"
+msgstr "nincsenek célok megadva (használja a -h a segítségért)"
 
 #: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
@@ -1049,7 +1049,7 @@ msgstr "a(z) {} tároló nem rendelkezik URL-címmel vagy elérési útvonallal"
 #: src/pkgbuild.rs:134
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
-"a(z) {} tároló nincs letöltve (használd a -Sy --pkgbuilds opciót a "
+"a(z) {} tároló nincs letöltve (használja a -Sy --pkgbuilds opciót a "
 "letöltéshez)"
 
 #: src/pkgbuild.rs:181
