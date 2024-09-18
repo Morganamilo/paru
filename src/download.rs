@@ -224,23 +224,21 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
     let pkgctl = &config.pkgctl_bin;
 
     for (n, targ) in pkgs.iter().enumerate() {
-        print_download(config, n + 1, pkgs.len(), targ.pkg);
+        let Ok(pkg) = config.alpm.syncdbs().find_target(*targ) else {
+            continue;
+        };
+        let base = pkg.base().unwrap_or_else(|| pkg.name());
+
+        print_download(config, n + 1, pkgs.len(), base);
 
         let ret = Command::new(pkgctl)
             .arg("repo")
             .arg("clone")
             .arg("--protocol")
             .arg("https")
-            .arg(targ.to_string())
+            .arg(base)
             .output()
-            .with_context(|| {
-                format!(
-                    "{} {} export {}",
-                    tr!("failed to run:"),
-                    pkgctl,
-                    targ.to_string()
-                )
-            })?;
+            .with_context(|| format!("{} {} export {}", tr!("failed to run:"), pkgctl, base))?;
 
         ensure!(
             ret.status.success(),
@@ -510,9 +508,14 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
     if !repo.is_empty() {
         for pkg in &repo {
+            let Ok(pkg) = config.alpm.syncdbs().find_target(*pkg) else {
+                continue;
+            };
+            let pkg = pkg.base().unwrap_or_else(|| pkg.name());
+
             let url = Url::parse(&format!(
                 "https://gitlab.archlinux.org/archlinux/packaging/packages/{}/-/raw/HEAD/PKGBUILD",
-                pkg.pkg
+                pkg
             ))?;
 
             let response = client
