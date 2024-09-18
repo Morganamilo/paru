@@ -7,7 +7,7 @@ set -l progname paru
 # paru constants
 set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb'
 set -l listall "(paru -Pc | string replace ' ' \t)"
-set -l listpacman "(__fish_print_packages)"
+set -l listpacman "(__fish_print_pacman_packages)"
 set -l show '__fish_contains_opt -s P show'
 set -l getpkgbuild '__fish_contains_opt -s G getpkgbuild'
 set -l repoctl '__fish_contains_opt -s L repoctl'
