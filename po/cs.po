@@ -1,0 +1,1208 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the paru package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: paru  2.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
+"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"PO-Revision-Date: 2024-02-13 19:40+0100\n"
+"Last-Translator: walken <walken@centrum.cz>\n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: src/clean.rs:36
+msgid "Do you want to clean ALL AUR packages from cache?"
+msgstr "Chcete odstranit VŠECHNY balíčky AUR z mezipaměti?"
+
+#: src/clean.rs:38
+msgid "Do you want to clean all other AUR packages from cache?"
+msgstr "Chcete odstranit všechny ostatní balíčky AUR z mezipaměti?"
+
+#: src/clean.rs:41
+msgid "Clone Directory: {}"
+msgstr "Clone adresář: {}"
+
+#: src/clean.rs:47
+msgid ""
+"\n"
+"Diff Directory: {}"
+msgstr ""
+"\n"
+"Diff adresář: {}"
+
+#: src/clean.rs:49
+msgid "Do you want to remove all saved diffs?"
+msgstr "Přejete si smazat všechny uložené rozdíly?"
+
+#: src/clean.rs:65
+msgid "can't open diff dir: {}"
+msgstr "nelze otevřít diff adresář: {}"
+
+#: src/clean.rs:76 src/clean.rs:180
+msgid "could not remove '{}'"
+msgstr "nelze odstranit '{}'"
+
+#: src/clean.rs:95
+msgid "can't open clone dir: {}"
+msgstr "nelze otevřít clone adresář: {}"
+
+#: src/clean.rs:141
+msgid "could not parse .SRCINFO for '{}'"
+msgstr "nelze načíst .SRCINFO pro '{}'"
+
+#: src/command_line.rs:134
+msgid "option {} expects a value"
+msgstr "volba {} očekává hodnotu"
+
+#: src/command_line.rs:165 src/command_line.rs:375
+msgid "option {} does not allow a value"
+msgstr "volba {} nedovoluje hodnotu"
+
+#: src/command_line.rs:366
+msgid "unknown option --{}"
+msgstr "neznámá volba --{}"
+
+#: src/command_line.rs:369
+msgid "unknown option -{}"
+msgstr "neznámá volba -{}"
+
+#: src/completion.rs:27
+msgid "failed to open cache file '{}'"
+msgstr "nepodařilo se otevřít soubor mezipaměti '{}'"
+
+#: src/completion.rs:65
+msgid "could not update aur cache"
+msgstr "nepodařilo se aktualizovat aur mezipaměť"
+
+#: src/config.rs:186
+msgid "invalid value '{val}' for key '{key}', expected: {exp}"
+msgstr "neplatná hodnota '{val}' pro klíč '{key}', očekáváno: {exp}"
+
+#: src/config.rs:339
+msgid "unknown mode {}"
+msgstr "neznámý režim {}"
+
+#: src/config.rs:567
+msgid "section can not be called {}"
+msgstr "oddíl nelze pojmenovat {}"
+
+#: src/config.rs:584
+msgid "failed to find cache directory"
+msgstr "nepodařilo se najít adresář mezipaměti"
+
+#: src/config.rs:587
+msgid "failed to find config directory"
+msgstr "nepodařilo se najít konfigurační adresář"
+
+#: src/config.rs:591
+msgid "failed to find state directory"
+msgstr "nepodařilo se najít stavový adresář"
+
+#: src/config.rs:638
+msgid "config file '{}' does not exist"
+msgstr "konfigurační soubor '{}' neexistuje"
+
+#: src/config.rs:687
+msgid "only one operation may be used at a time"
+msgstr "naráz může být použita pouze jedna operace"
+
+#: src/config.rs:798
+msgid "no local repo named {}"
+msgstr "neexistuje lokální repozitář jménem {}"
+
+#: src/config.rs:821
+msgid "can not find local repo '{}' in pacman.conf"
+msgstr "nelze najít lokální repozitář '{}' v pacman.conf"
+
+#: src/config.rs:863
+msgid "failed to initialize alpm: root={} dbpath={}"
+msgstr "nepodařilo se inicializovat alpm: root={} dbpath={}"
+
+#: src/config.rs:938 src/config.rs:1098
+msgid "value can not be empty for key '{}'"
+msgstr "hodnota pro klíč '{}' nemůže být prázdná"
+
+#: src/config.rs:954
+msgid "key '{}' does not belong to a section"
+msgstr "klíč '{}' nepatří do oddílu"
+
+#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+msgid "key can not be empty"
+msgstr "klíč nemůže být prázdný"
+
+#: src/config.rs:978
+msgid "error: unknown option '{}' in repo"
+msgstr "chyba: neznámá volba '{}' v repozitáři"
+
+#: src/config.rs:988
+msgid "key can not contain null bytes"
+msgstr "klíč nesmí obsahovat nulové bajty"
+
+#: src/config.rs:991
+msgid "value can not contain null bytes"
+msgstr "hodnota nesmí obsahovat nulové bajty"
+
+#: src/config.rs:1026
+msgid "error: unknown option '{}' in section [bin]"
+msgstr "chyba: neznámá volba '{}' v oddíle [bin]"
+
+#: src/config.rs:1142
+msgid "error: unknown option '{}' in section [options]"
+msgstr "chyba: neznámá volba '{}' v oddíle [options]"
+
+#: src/config.rs:1147
+msgid "option '{}' does not take a value"
+msgstr "volba '{}' nepřijímá hodnotu"
+
+#: src/config.rs:1182 src/resolver.rs:137
+msgid "There are {n} providers available for {pkg}:"
+msgstr "Pro {pkg} je dostupných {n} poskytovatelů:"
+
+#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/resolver.rs:96 src/resolver.rs:145
+msgid "Repository"
+msgstr "Repozitář"
+
+#: src/config.rs:1222
+msgid "  failed to sync {}"
+msgstr "  synchronizace {} se nezdařila"
+
+#: src/devel.rs:136 src/download.rs:197
+msgid "Querying AUR..."
+msgstr "Dotazovaní AUR..."
+
+#: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
+msgid "failed to parse srcinfo for '{}'"
+msgstr "nepodařilo se načíst srcinfo pro '{}'"
+
+#: src/devel.rs:201
+msgid "Looking for devel repos..."
+msgstr "Vyhledávání vývojových repozitářů..."
+
+#: src/devel.rs:210
+msgid "failed to save devel info"
+msgstr "nepodařilo se uložit vývojové informace"
+
+#: src/devel.rs:218
+msgid "failed to create state directory: {}"
+msgstr "nepodařilo se vytvořit stavový adresář: {}"
+
+#: src/devel.rs:233
+msgid "failed to create temporary file: {}"
+msgstr "nepodařilo se vytvořit dočasný soubor: {}"
+
+#: src/devel.rs:238
+msgid "failed to write to temporary file: {}"
+msgstr "nepodařilo se zapsat dočasný soubor: {}"
+
+#: src/devel.rs:244
+msgid "failed to rename '{temp}' to '{devel_toml}"
+msgstr "nepodařilo se přejmenovat '{temp}' na '{devel_toml}"
+
+#: src/devel.rs:490
+msgid "package does not have an update"
+msgstr "balíček nemá aktualizaci"
+
+#: src/devel.rs:534
+msgid "failed to lookup: {}"
+msgstr "nepodařilo se najít: {}"
+
+#: src/devel.rs:562
+msgid "invalid toml: {}"
+msgstr "neplatný: {}"
+
+#: src/download.rs:95
+msgid "packages not in the AUR: "
+msgstr "balíčky mimo AUR: "
+
+#: src/download.rs:106
+msgid "marked out of date: "
+msgstr "označené jako zastaralé: "
+
+#: src/download.rs:117
+msgid "orphans: "
+msgstr "osamocené: "
+
+#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
+#: src/install.rs:1725
+msgid "failed to run:"
+msgstr "nepodařilo se spustit:"
+
+#: src/download.rs:259
+msgid "downloading: {pkg}"
+msgstr "stahuji: {pkg}"
+
+#: src/download.rs:281
+msgid "Downloading PKGBUILDs..."
+msgstr "Stahuji PKGBUILDs..."
+
+#: src/download.rs:285
+msgid " PKGBUILDs up to date"
+msgstr " PKGBUILDs jsou aktuální"
+
+#: src/exec.rs:173
+msgid "Pacman is currently in use, please wait..."
+msgstr "Pacman je zaneprázdněný, prosím počkejte..."
+
+#: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
+msgid "None"
+msgstr "Žádný"
+
+#: src/fmt.rs:237
+msgid "Repo"
+msgstr "Repozitář"
+
+#: src/fmt.rs:244
+msgid "Repo Make"
+msgstr "Repo Make"
+
+#: src/fmt.rs:264
+msgid "Pkgbuilds Make"
+msgstr "Pkgbuilds Make"
+
+#: src/fmt.rs:266
+msgid "Aur Make"
+msgstr "Aur Make"
+
+#: src/fmt.rs:311
+msgid "Repo ({})"
+msgstr "Repozitář ({})"
+
+#: src/fmt.rs:316
+msgid "Aur ({})"
+msgstr "Aur ({})"
+
+#: src/fmt.rs:317
+msgid "Pkgbuilds ({})"
+msgstr "Pkgbuilds ({})"
+
+#: src/fmt.rs:319
+msgid "Old Version"
+msgstr "Stará verze"
+
+#: src/fmt.rs:320
+msgid "New Version"
+msgstr "Nová verze"
+
+#: src/fmt.rs:321
+msgid "Make Only"
+msgstr "Pouze Make"
+
+#: src/fmt.rs:322
+msgid "Yes"
+msgstr "Ano"
+
+#: src/fmt.rs:323 src/info.rs:223
+msgid "No"
+msgstr "Ne"
+
+#: src/fmt.rs:411
+msgid "insufficient columns available for table display"
+msgstr "nedostatek sloupců pro zobrazení tabulky"
+
+#: src/help.rs:4
+msgid "Usage:"
+msgstr "Použití:"
+
+#: src/help.rs:5
+msgid "    paru"
+msgstr "    paru"
+
+#: src/help.rs:6
+msgid "    paru <operation> [...]"
+msgstr "    paru <operace> [...]"
+
+#: src/help.rs:7
+msgid "    paru <package(s)>"
+msgstr "    paru <balík(y)>"
+
+#: src/help.rs:9
+msgid "Pacman operations:"
+msgstr "Pacman operace:"
+
+#: src/help.rs:10
+msgid "    paru {-h --help}"
+msgstr "    paru {-h --help}"
+
+#: src/help.rs:11
+msgid "    paru {-V --version}"
+msgstr "    paru {-V --version}"
+
+#: src/help.rs:12
+msgid "    paru {-D --database}    <options> <package(s)>"
+msgstr "    paru {-D --database}    <volby> <balík(y)>"
+
+#: src/help.rs:13
+msgid "    paru {-F --files}       [options] [package(s)]"
+msgstr "    paru {-F --files}       [volby] [balík(y)]"
+
+#: src/help.rs:14
+msgid "    paru {-Q --query}       [options] [package(s)]"
+msgstr "    paru {-Q --query}       [volby] [balík(y)]"
+
+#: src/help.rs:15
+msgid "    paru {-R --remove}      [options] <package(s)>"
+msgstr "    paru {-R --remove}      [volby] <balík(y)>"
+
+#: src/help.rs:16
+msgid "    paru {-S --sync}        [options] [package(s)]"
+msgstr "    paru {-S --sync}        [volby] [balík(y)]"
+
+#: src/help.rs:17
+msgid "    paru {-T --deptest}     [options] [package(s)]"
+msgstr "    paru {-T --deptest}     [volby] [balík(y)]"
+
+#: src/help.rs:18
+msgid "    paru {-U --upgrade}     [options] [file(s)]"
+msgstr "   paru {-U --upgrade}     [volby] [soubor(y)]"
+
+#: src/help.rs:20
+msgid "New operations:"
+msgstr "Nové operace:"
+
+#: src/help.rs:21
+msgid "    paru {-P --show}        [options]"
+msgstr "    paru {-P --show}        [volby]"
+
+#: src/help.rs:22
+msgid "    paru {-G --getpkgbuild} [package(s)]"
+msgstr "    paru {-G --getpkgbuild} [balík(y)]"
+
+#: src/help.rs:23
+msgid "    paru {-B --build}       [dir(s)]"
+msgstr "    paru {-B --build}       [adresář(e)]"
+
+#: src/help.rs:25
+msgid "If no arguments are provided 'paru -Syu' will be performed"
+msgstr "Pokud nejsou dodány argumenty, provede se 'paru -Syu'"
+
+#: src/help.rs:27
+msgid "Options without operation:"
+msgstr "Volby bez operace:"
+
+#: src/help.rs:28
+msgid "    -c --clean            Remove unneeded dependencies"
+msgstr "    -c --clean            Odebrat nepotřebné závislosti"
+
+#: src/help.rs:29
+msgid ""
+"       --gendb            Generates development package DB used for updating"
+msgstr ""
+"       --gendb            Vygenerovat databázi vývojových balíčků použitých "
+"k aktualizaci"
+
+#: src/help.rs:31
+msgid "New options:"
+msgstr "Nové volby:"
+
+#: src/help.rs:32
+msgid "       --repo              Assume targets are from the repositories"
+msgstr ""
+"       --repo              Předpokládat, že cíle pocházejí z repozitářů"
+
+#: src/help.rs:33
+msgid ""
+"       --pkgbuilds         Assume targets are from pkgbuild repositories"
+msgstr ""
+"       --pkgbuilds         Předpokládat, že cíle pocházejí z pkgbuild "
+"repozitářů"
+
+#: src/help.rs:34
+msgid "    -a --aur               Assume targets are from the AUR"
+msgstr "    -a --aur               Předpokládat, že cíle pocházejí z AUR"
+
+#: src/help.rs:35
+msgid "    --mode      <mode>     Sets where paru looks for targets"
+msgstr "    --mode      <mód>     Nastavit, kde paru vyhledává cíle"
+
+#: src/help.rs:37
+msgid ""
+"    --interactive          Enable interactive package selection for -S, -R, -"
+"Ss and -Qs"
+msgstr ""
+"    --interactive          Zapnout interaktivní výběr balíčků pro -S, -R, -"
+"Ss a -Qs"
+
+#: src/help.rs:39
+msgid "    --aururl    <url>      Set an alternative AUR URL"
+msgstr "    --aururl    <url>      Nastavit alternativní URL AUR"
+
+#: src/help.rs:40
+msgid ""
+"    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
+msgstr "    --aurrpcur  <url>      Nastavit alternativní URL AUR /rpc endpoint"
+
+#: src/help.rs:41
+msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
+msgstr "    --clonedir  <adresář>      Adresář pro stažení a běh PKGBUILDs"
+
+#: src/help.rs:43
+msgid "    --makepkg   <file>     makepkg command to use"
+msgstr "    --makepkg   <soubor>     makepkg příkaz k vykonání"
+
+#: src/help.rs:44
+msgid "    --mflags    <flags>    Pass arguments to makepkg"
+msgstr "    --mflags    <flags>    Předat argumenty do makepkg"
+
+#: src/help.rs:45
+msgid "    --pacman    <file>     pacman command to use"
+msgstr "    --pacman    <soubor>     pacman příkaz k vykonání"
+
+#: src/help.rs:46
+msgid "    --git       <file>     git command to use"
+msgstr "    --git       <soubor>     git příkaz k vykonání"
+
+#: src/help.rs:47
+msgid "    --gitflags  <flags>    Pass arguments to git"
+msgstr "  --gitflags  <flags>    Předat argumenty do git"
+
+#: src/help.rs:48
+msgid "    --sudo      <file>     sudo command to use"
+msgstr "    --sudo      <soubor>     sudo příkaz k vykonání"
+
+#: src/help.rs:49
+msgid "    --sudoflags <flags>    Pass arguments to sudo"
+msgstr "    --sudoflags <flags>    Předat argumenty do sudo"
+
+#: src/help.rs:50
+msgid "    --pkgctl    <file>     pkgctl command to use"
+msgstr "    --pkgctl    <soubor>     pkgctl příkaz k vykonání"
+
+#: src/help.rs:51
+msgid "    --bat       <file>     bat command to use"
+msgstr "    --bat       <soubor>     bat příkaz k vykonání"
+
+#: src/help.rs:52
+msgid "    --batflags  <flags>    Pass arguments to bat"
+msgstr "    --batflags  <flags>    Předat argumenty do bat"
+
+#: src/help.rs:53
+msgid "    --gpg       <file>     gpg command to use"
+msgstr "    --gpg       <soubor>     gpg příkaz k vykonání"
+
+#: src/help.rs:54
+msgid "    --gpgflags  <flags>    Pass arguments to gpg"
+msgstr "    --gpgflags  <flags>    Předat argumenty do gpg"
+
+#: src/help.rs:55
+msgid "    --fm        <file>     File manager to use for PKGBUILD review"
+msgstr "    --fm        <soubor>     souborový manažer pro PKGBUILD kontrolu"
+
+#: src/help.rs:56
+msgid "    --fmflags   <flags>    Pass arguments to file manager"
+msgstr "    --fmflags   <flags>    Předat argumenty do souborového manažeru"
+
+#: src/help.rs:58
+msgid "    --completioninterval   <n> Time in days to refresh completion cache"
+msgstr ""
+"    --completioninterval   <n> Čas ve dnech do další aktualizace mezipaměti "
+"dokončení"
+
+#: src/help.rs:59
+msgid ""
+"    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr ""
+"    --sortby    <pole>    Řazení výsledků hledání v AUR podle specifického "
+"pole"
+
+#: src/help.rs:60
+msgid "    --searchby  <field>    Search for packages using a specified field"
+msgstr "    --searchby  <pole>    Hledání balíčků podle specifického pole"
+
+#: src/help.rs:61
+msgid ""
+"    --limit     <limit>    Limits the number of items returned in a search"
+msgstr "    --limit     <limit>    Omezit počet výsledků hledání"
+
+#: src/help.rs:62
+msgid "    -x --regex             Enable regex for aur search"
+msgstr "    -x --regex             Zapnout regex pro vyhledávání v AUR"
+
+#: src/help.rs:64
+msgid "    --skipreview           Skip the review process"
+msgstr "    --skipreview           Přeskočit proces kontroly"
+
+#: src/help.rs:65
+msgid "    --review               Don't skip the review process"
+msgstr "    --review               Nepřeskakovat proces kontroly"
+
+#: src/help.rs:66
+msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
+msgstr ""
+"    --[no]upgrademenu      Zobrazit interaktivní menu k přeskakovaní "
+"aktualizací"
+
+#: src/help.rs:67
+msgid "    --[no]removemake       Remove makedepends after install"
+msgstr "    --[no]removemake       Smazat makedepends po instalaci"
+
+#: src/help.rs:68
+msgid "    --[no]cleanafter       Remove package sources after install"
+msgstr "    --[no]cleanafter       Smazat zdroje balíčků po instalaci"
+
+#: src/help.rs:69
+msgid "    --[no]rebuild          Always build target packages"
+msgstr "    --[no]rebuild          Vždy sestavit cílové balíčky"
+
+#: src/help.rs:70
+msgid "    --[no]redownload       Always download PKGBUILDs of targets"
+msgstr "    --[no]redownload       Vždy stáhnout PKGBUILDs cílů"
+
+#: src/help.rs:72
+msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
+msgstr "    --[no]pgpfetch         Vyzvat k importu PGP klíčů z PKGBUILDs"
+
+#: src/help.rs:73
+msgid ""
+"    --[no]useask           Automatically resolve conflicts using pacman's "
+"ask flag"
+msgstr ""
+"    --[no]useask           Automaticky vyřešit konflikty pomocí pacman ask "
+"příznaku"
+
+#: src/help.rs:74
+msgid ""
+"    --[no]savechanges      Commit changes to pkgbuilds made during review"
+msgstr ""
+"    --[no]savechanges      Převzít změny udělané během kontroly do pkgbuilds"
+
+#: src/help.rs:75
+msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
+msgstr ""
+"    --[no]newsonupgrade    Zobrazit novinky během systémové aktualizace"
+
+#: src/help.rs:76
+msgid ""
+"    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
+"together"
+msgstr ""
+"    --[no]combinedupgrade  Obnovit a pak provést aktualizaci repozitáře a "
+"AUR najednou"
+
+#: src/help.rs:77
+msgid ""
+"    --[no]batchinstall     Build multiple AUR packages then install them "
+"together"
+msgstr ""
+"    --[no]batchinstall     Sestavit vícero AUR balíčků a pak je nainstalovat "
+"najednou"
+
+#: src/help.rs:78
+msgid ""
+"    --[no]provides         Look for matching providers when searching for "
+"packages"
+msgstr ""
+"    --[no]provides         Při hledání balíčků, najít odpovídající "
+"poskytovatele"
+
+#: src/help.rs:79
+msgid "    --[no]devel            Check development packages during sysupgrade"
+msgstr ""
+"    --[no]devel            Zkontrolovat vývojové balíčky během systémové "
+"aktualizace"
+
+#: src/help.rs:80
+msgid ""
+"    --[no]installdebug     Also install debug packages when a package "
+"provides them"
+msgstr ""
+"    --[no]installdebug     Nainstalovat ladící balíčky pokud je balík "
+"poskytuje"
+
+#: src/help.rs:81
+msgid ""
+"    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgstr ""
+"    --[no]sudoloop         Zacyklit sudo volání na pozadí, aby se předešlo "
+"vypršení časového limitu"
+
+#: src/help.rs:82
+msgid "    --[no]chroot           Build packages in a chroot"
+msgstr "    --[no]chroot           Sestavit balíčky v chroot"
+
+#: src/help.rs:83
+msgid ""
+"    --[no]failfast         Exit as soon as building an AUR package fails"
+msgstr ""
+"    --[no]failfast         Skončit jakmile sestavování AUR balíčku selže"
+
+#: src/help.rs:84
+msgid ""
+"    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
+msgstr ""
+"    --[no]keepsrc          Ponechat src/ a pkg/ adresáře po sestavení balíčků"
+
+#: src/help.rs:85
+msgid "    --[no]sign             Sign packages with gpg"
+msgstr "    --[no]sign             Podepsat balíčky pomocí gpg"
+
+#: src/help.rs:86
+msgid "    --[no]signdb           Sign databases with gpg"
+msgstr "    --[no]signdb           Podepsat databáze pomocí gpg"
+
+#: src/help.rs:87
+msgid "    --[no]localrepo        Build packages into a local repo"
+msgstr "    --[no]localrepo        Sestavit balíčky do lokálního repozitáře"
+
+#: src/help.rs:88
+msgid ""
+"    --nocheck              Don't resolve checkdepends or run the check "
+"function"
+msgstr ""
+"    --nocheck              Neřešit checkdepends nebo spouštět ověřování"
+
+#: src/help.rs:89
+msgid ""
+"    --develsuffixes        Suffixes used to decide if a package is a devel "
+"package"
+msgstr "    --develsuffixes        Přípony označující vývojové balíčky"
+
+#: src/help.rs:90
+msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
+msgstr ""
+"    --ignoredevel          Ignorovat vývojové aktualizace pro specifikované "
+"balíčky"
+
+#: src/help.rs:91
+msgid ""
+"    --bottomup             Shows AUR's packages first and then repository's"
+msgstr ""
+"    --bottomup             Zobrazit nejdříve balíčky AUR a pak balíčky z "
+"repozitáře"
+
+#: src/help.rs:92
+msgid ""
+"    --topdown              Shows repository's packages first and then AUR's"
+msgstr ""
+"    --topdown              Zobrazit nejdříve balíčky z repozitáře a pak "
+"balíčky AUR"
+
+#: src/help.rs:94
+msgid "show specific options:"
+msgstr "specifické volby pro show:"
+
+#: src/help.rs:95
+msgid "    -c --complete         Used for completions"
+msgstr "    -c --complete         Použito k dokončení"
+
+#: src/help.rs:96
+msgid "    -s --stats            Display system package statistics"
+msgstr "    -s --stats            Zobrazit statistiky systémových balíčků"
+
+#: src/help.rs:97
+msgid "    -w --news             Print arch news"
+msgstr "    -w --news             Zobrazit novinky Arch"
+
+#: src/help.rs:99
+msgid "getpkgbuild specific options:"
+msgstr "specifické volby pro getpkgbuild:"
+
+#: src/help.rs:100
+msgid "    -p --print            Print pkgbuild to stdout"
+msgstr "    -p --print            Předat pkgbuild do stdout"
+
+#: src/help.rs:101
+msgid "    -c --comments         Print AUR comments for pkgbuild"
+msgstr "    -c --comments         Zobrazit AUR komentáře pro pkgbuild"
+
+#: src/help.rs:102
+msgid "    -s --ssh              Clone package using SSH"
+msgstr "    -s --ssh              Klonovat balíček pomocí SSH"
+
+#: src/help.rs:104
+msgid "Build specific options:"
+msgstr "Specifické volby pro sestavení:"
+
+#: src/help.rs:105
+msgid "    -i --install          Install package as well as building"
+msgstr "    -i --install          Nainstalovat a sestavit balíček"
+
+#: src/info.rs:57 src/info.rs:182 src/query.rs:49
+msgid "package '{}' was not found"
+msgstr "balíček '{}' nebyl nalezen"
+
+#: src/info.rs:88 src/info.rs:193 src/info.rs:227
+msgid "Name"
+msgstr "Jméno"
+
+#: src/info.rs:89 src/info.rs:194 src/info.rs:228
+msgid "Version"
+msgstr "Verze"
+
+#: src/info.rs:90 src/info.rs:195 src/info.rs:229
+msgid "Description"
+msgstr "Popis"
+
+#: src/info.rs:91 src/info.rs:197 src/info.rs:237
+msgid "Groups"
+msgstr "Skupiny"
+
+#: src/info.rs:92 src/info.rs:198 src/info.rs:238
+msgid "Licenses"
+msgstr "Licence"
+
+#: src/info.rs:93 src/info.rs:199 src/info.rs:239
+msgid "Provides"
+msgstr "Poskytuje"
+
+#: src/info.rs:94 src/info.rs:200 src/info.rs:240
+msgid "Depends On"
+msgstr "Závisí na"
+
+#: src/info.rs:95 src/info.rs:201 src/info.rs:241
+msgid "Make Deps"
+msgstr "Vytvořit závislosti"
+
+#: src/info.rs:96 src/info.rs:202 src/info.rs:242
+msgid "Check Deps"
+msgstr "Zkontrolovat závislosti"
+
+#: src/info.rs:97 src/info.rs:203 src/info.rs:243
+msgid "Optional Deps"
+msgstr "Volitelné závislosti"
+
+#: src/info.rs:98 src/info.rs:204 src/info.rs:244
+msgid "Conflicts With"
+msgstr "V konfliktu s"
+
+#: src/info.rs:99 src/info.rs:245
+msgid "Maintainer"
+msgstr "Správce"
+
+#: src/info.rs:100 src/info.rs:246
+msgid "Votes"
+msgstr "Hlasy"
+
+#: src/info.rs:101 src/info.rs:247
+msgid "Popularity"
+msgstr "Popularita"
+
+#: src/info.rs:102 src/info.rs:248
+msgid "First Submitted"
+msgstr "Poprvé zveřejněno"
+
+#: src/info.rs:103 src/info.rs:249
+msgid "Last Modified"
+msgstr "Poslední úprava"
+
+#: src/info.rs:104 src/info.rs:251
+msgid "Out Of Date"
+msgstr "Zastaralé"
+
+#: src/info.rs:105 src/info.rs:256
+msgid "ID"
+msgstr "ID"
+
+#: src/info.rs:106 src/info.rs:257
+msgid "Package Base ID"
+msgstr "Základní ID aplikace"
+
+#: src/info.rs:107 src/info.rs:258
+msgid "Keywords"
+msgstr "Klíčová slova"
+
+#: src/info.rs:108 src/info.rs:260
+msgid "Snapshot URL"
+msgstr "URL Snapshotu"
+
+#: src/info.rs:109 src/info.rs:205
+msgid "Path"
+msgstr "Cesta"
+
+#: src/install.rs:158 src/query.rs:48 src/lib.rs:104
+msgid "error:"
+msgstr "chyba:"
+
+#: src/install.rs:159
+msgid "could not get news"
+msgstr "nepodařilo se získat novinky"
+
+#: src/install.rs:164 src/install.rs:1100
+msgid "Proceed with installation?"
+msgstr "Pokračovat v instalaci?"
+
+#: src/install.rs:199
+msgid "could not find .SRCINFO for '{}'"
+msgstr "nepodařilo se najít .SRCINFO pro '{}'"
+
+#: src/install.rs:329
+msgid "could not find package '{pkg}' in package list for '{base}'"
+msgstr "nepodařilo se najít balíčky '{pkg}' v seznamu balíčků pro '{base}'"
+
+#: src/install.rs:416
+msgid "packages failed to build: {}"
+msgstr "balíčky, které se nepodařilo sestavit: {}"
+
+#: src/install.rs:488
+msgid "adding {} to the install list"
+msgstr "přidávám {} do seznamu k instalaci"
+
+#: src/install.rs:515 src/install.rs:524
+msgid "failed to download sources for '{}'"
+msgstr "nepodařilo se stáhnout zdroje pro '{}'"
+
+#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+msgid "failed to build '{}'"
+msgstr "nepodařilo se sestavit '{}'"
+
+#: src/install.rs:536 src/install.rs:750
+msgid "{}: parsing pkg list..."
+msgstr "{}: načítám pkg seznam..."
+
+#: src/install.rs:540
+msgid "package list does not match srcinfo"
+msgstr "seznam balíčků nesouhlasí s srcinfo"
+
+#: src/install.rs:576
+msgid "{}-{} is up to date -- skipping build"
+msgstr "{}-{} je aktuální -- přeskakuji sestavení"
+
+#: src/install.rs:741
+msgid "can't build {base}, deps not satisfied: {deps}"
+msgstr "nemohu sestavit {base}, závislosti nejsou vyřešeny: {deps}"
+
+#: src/install.rs:812
+msgid "fetching devel info..."
+msgstr "získávám devel informace..."
+
+#: src/install.rs:880 src/lib.rs:244
+msgid "no targets specified (use -h for help)"
+msgstr "nebyly specifikovány cíle (použijte -h pro nápovědu)"
+
+#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/lib.rs:308
+msgid " there is nothing to do"
+msgstr " není co dělat"
+
+#: src/install.rs:997
+msgid "Resolving dependencies..."
+msgstr "Řeším závislosti..."
+
+#: src/install.rs:1058
+msgid "can't install AUR package as root"
+msgstr "nemohu nainstalovat AUR balíček jako root"
+
+#: src/install.rs:1061
+msgid "--downloadonly can't be used for AUR packages"
+msgstr "--downloadonly nelze použít pro AUR balíčky"
+
+#: src/install.rs:1086
+msgid "Remove make dependencies after install?"
+msgstr "Odebrat make závislosti po instalaci?"
+
+#: src/install.rs:1097
+msgid "Proceed to review?"
+msgstr "Pokračovat ke kontrole?"
+
+#: src/install.rs:1150
+msgid "no architecture"
+msgstr "žádná architektura"
+
+#: src/install.rs:1164
+msgid "The following packages are not compatible with your architecture:"
+msgstr "Následující balíčky nejsou kompatibilní s vaší architekturou:"
+
+#: src/install.rs:1178
+msgid "Would you like to try build them anyway?"
+msgstr "Přejete si je přesto sestavit?"
+
+#: src/install.rs:1326
+msgid "duplicate packages: {}"
+msgstr "duplicitní balíčky: {}"
+
+#: src/install.rs:1330
+msgid "could not find all required packages:"
+msgstr "nepodařilo se najít všechny potřebné balíčky:"
+
+#: src/install.rs:1342
+msgid ""
+"\n"
+"    {missing} (wanted by: {stack})"
+msgstr ""
+"\n"
+"    {missing} (požadováno: {stack})"
+
+#: src/install.rs:1356 src/install.rs:2058
+msgid "{}-{} is up to date -- skipping"
+msgstr "{}-{} je aktuální -- přeskakuji"
+
+#: src/install.rs:1371
+msgid "Calculating conflicts..."
+msgstr "Výpočet konfliktů..."
+
+#: src/install.rs:1377
+msgid "Calculating inner conflicts..."
+msgstr "Výpočet vnitřních konfliktů..."
+
+#: src/install.rs:1389
+msgid "Inner conflicts found:"
+msgstr "Nalezené vnitřní konflikty:"
+
+#: src/install.rs:1411
+msgid "Conflicts found:"
+msgstr "Nalezené konflikty:"
+
+#: src/install.rs:1434
+msgid "Conflicting packages will have to be confirmed manually"
+msgstr "Konfliktní balíčky musí být potvrzeny ručně"
+
+#: src/install.rs:1438
+msgid "can not install conflicting packages with --noconfirm"
+msgstr "nemohu instalovat konfliktní balíčky s --noconfirm"
+
+#: src/install.rs:1561
+msgid "failed to execute file manager: {}"
+msgstr "nepodařilo se spustit správce souborů: {}"
+
+#: src/install.rs:1564
+msgid "file manager did not execute successfully"
+msgstr "správce souborů se nesputil"
+
+#: src/install.rs:1581
+msgid "failed to read dir: {}"
+msgstr "nepodařilo se načíst adresář: {}"
+
+#: src/install.rs:1633
+msgid "failed to open: {}"
+msgstr "nepodařilo se otevřít: {}"
+
+#: src/install.rs:1644
+msgid "binary file: {}"
+msgstr "binární soubor: {}"
+
+#: src/install.rs:1664 src/install.rs:1728
+msgid "Accept changes?"
+msgstr "Potvrdit změny?"
+
+#: src/install.rs:1732
+msgid " nothing new to review"
+msgstr " nic nového ke kontrole"
+
+#: src/install.rs:2006
+msgid "can't find package name in packagelist: {}"
+msgstr "nemohu najít jméno balíčku v packagelist: {}"
+
+#: src/install.rs:2078
+msgid "Signing packages..."
+msgstr "Podepisuji balíčky..."
+
+#: src/install.rs:2116
+msgid "{}-{} is up to date -- skipping install"
+msgstr "{}-{} je aktuální -- přeskakuji aktualizaci"
+
+#: src/keys.rs:53
+msgid "keys need to be imported:"
+msgstr "klíče k importu:"
+
+#: src/keys.rs:58
+msgid "     {key} wanted by: {base}"
+msgstr "     {key} požadováno: {base}"
+
+#: src/news.rs:57
+msgid "No Date "
+msgstr "Žádný datum "
+
+#: src/news.rs:60
+msgid "No Title"
+msgstr "Žádný název"
+
+#: src/news.rs:69
+msgid "no new news"
+msgstr "žádné nové novinky"
+
+#: src/pkgbuild.rs:72
+msgid "repo {} does not have a URL or Path"
+msgstr "repozitář {} nemá URL nebo Path"
+
+#: src/pkgbuild.rs:134
+msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
+msgstr "repozitář {} se nestáhl (použijte -Sy --pkgbuilds ke stažení)"
+
+#: src/pkgbuild.rs:181
+msgid "Generating .SRCINFO for {repo}/{dir}..."
+msgstr "Vytvářím .SRCINFO for {repo}/{dir}..."
+
+#: src/pkgbuild.rs:259
+msgid "failed to parse srcinfo \"{}\""
+msgstr "nepodařilo se načíst srcinfo \"{}\""
+
+#: src/pkgbuild.rs:337
+msgid "Downloading PKGBUILD Repos..."
+msgstr "Stahuji PKGBUILD repozitáře..."
+
+#: src/pkgbuild.rs:390
+msgid "failed to parse srcinfo generated by makepkg"
+msgstr "nepodařilo se načíst srcinfo vytvořené makepkg"
+
+#: src/query.rs:147
+msgid " [ignored]"
+msgstr " [ignorováno]"
+
+#: src/repo.rs:171
+msgid "failed to get current exe"
+msgstr "nepodařilo se získat aktuální exe"
+
+#: src/repo.rs:217
+msgid "syncing local databases..."
+msgstr "synchronizuji lokální databáze..."
+
+#: src/repo.rs:223
+msgid "  nothing to do"
+msgstr "  není co dělat"
+
+#: src/repo.rs:254
+msgid "there is nothing to do"
+msgstr "není co dělat"
+
+#: src/repo.rs:260
+msgid "Packages"
+msgstr "Balíčky"
+
+#: src/repo.rs:273
+msgid "Proceed with removal?"
+msgstr "Pokračovat v odebrání?"
+
+#: src/search.rs:40
+msgid "aur search failed"
+msgstr "vyhledávání v AUR selhalo"
+
+#: src/search.rs:275 src/search.rs:316 src/search.rs:370
+msgid "[Installed: {}]"
+msgstr "[Nainstalované: {}]"
+
+#: src/search.rs:277 src/search.rs:318 src/search.rs:372
+msgid "[Installed]"
+msgstr "[Nainstalované]"
+
+#: src/search.rs:310
+msgid "[Out-of-date: {}]"
+msgstr "[Zastaralé: {}]"
+
+#: src/search.rs:325
+msgid "[Orphaned]"
+msgstr "[Osamocené]"
+
+#: src/search.rs:451
+msgid "no packages match search"
+msgstr "žádné balíčky neodpovídají hledání"
+
+#: src/search.rs:489
+msgid "Packages to install (eg: 1 2 3, 1-3):"
+msgstr "Balíčky k instalaci (např: 1 2 3, 1-3):"
+
+#: src/search.rs:491
+msgid "Select packages (eg: 1 2 3, 1-3):"
+msgstr "Vyberete balíčky (např: 1 2 3, 1-3):"
+
+#: src/stats.rs:90
+msgid "Total installed packages: {}"
+msgstr "Počet nainstalovaných balíčků: {}"
+
+#: src/stats.rs:94
+msgid "Aur packages: {}"
+msgstr "AUR balíčky: {}"
+
+#: src/stats.rs:98
+msgid "Repo packages: {}"
+msgstr "Balíčky z repozitářů: {}"
+
+#: src/stats.rs:102
+msgid "Explicitly installed packages: {}"
+msgstr "Explicitně nainstalované balíčky: {}"
+
+#: src/stats.rs:106
+msgid "Total Size occupied by packages: {}"
+msgstr "Celková velikost obsazená balíčky: {}"
+
+#: src/stats.rs:113
+msgid "Ten biggest packages:"
+msgstr "Deset největších balíčků:"
+
+#: src/sync.rs:146 src/lib.rs:515
+msgid " [installed]"
+msgstr " [nainstalováno]"
+
+#: src/upgrade.rs:128
+msgid "Looking for PKGBUILD upgrades..."
+msgstr "Hledám aktualizace PKGBUILD..."
+
+#: src/upgrade.rs:136
+msgid "Looking for AUR upgrades..."
+msgstr "Hledám aktualizace AUR..."
+
+#: src/upgrade.rs:167
+msgid "Looking for devel upgrades..."
+msgstr "Vyhledávání aktualizací vývojových balíčků..."
+
+#: src/upgrade.rs:195 src/upgrade.rs:208
+msgid "warning:"
+msgstr "varování:"
+
+#: src/upgrade.rs:197 src/upgrade.rs:210
+msgid "{pkg}: ignoring package upgrade ({old} => {new})"
+msgstr "{pkg}: ignoruji aktualizaci balíčku ({old} => {new})"
+
+#: src/upgrade.rs:406
+msgid "Packages to exclude (eg: 1 2 3, 1-3):"
+msgstr "Balíčky k vyloučení (např.: 1 2 3, 1-3):"
+
+#: src/util.rs:120
+msgid "[Y/n]:"
+msgstr "[A/n]:"
+
+#: src/util.rs:122
+msgid "[y/N]:"
+msgstr "[a/N]:"
+
+#: src/util.rs:141
+msgid "y"
+msgstr "a"
+
+#: src/util.rs:141
+msgid "yes"
+msgstr "ano"
+
+#: src/util.rs:339
+msgid "Enter a number (default=1): "
+msgstr "Zadejte číslo (výchozí=1): "
+
+#: src/util.rs:356
+msgid "invalid number: {}"
+msgstr "neplatné číslo: {}"
+
+#: src/util.rs:366
+msgid "invalid value: {n} is not between 1 and {max}"
+msgstr "neplatná hodnota: {n} není mezi 1 a {max}"
+
+#: src/resolver.rs:84
+msgid "There are {} members in group"
+msgstr "Ve skupině je {} členů"
+
+#: src/resolver.rs:109
+msgid ""
+"\n"
+"\n"
+"Enter a selection (default=all): "
+msgstr ""
+"\n"
+"\n"
+"Zadejte výběr (výchozí=all): "
+
+#: src/lib.rs:210
+msgid "can not use chroot builds: devtools is not installed"
+msgstr "nelze použít chroot sestavení: devtools není nainstalováno"
+
+#: src/lib.rs:317
+msgid "no operation specified (use -h for help)"
+msgstr "žádná operace nebyla specifikována (použijte -h pro nápovědu)"
+
+#: src/lib.rs:513
+msgid " [installed: {}]"
+msgstr " [nainstalováno: {}]"
