@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2021-06-28 10:08+0200\n"
 "Last-Translator: Henry Keinälä <henry.keinala@tuta.io>\n"
 "Language-Team: \n"
@@ -63,15 +63,15 @@ msgstr "ei pystytty löytämään .SRCINFOa paketille: '{}'"
 msgid "option {} expects a value"
 msgstr "vaihtoehto {} odottaa arvoa"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "vaihtoehto {} ei salli arvoa"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "tuntematon vaihtoehto --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "tuntematon vaihtoehto -{}"
 
@@ -83,101 +83,101 @@ msgstr "ei pystytty avaamaan välimuistitiedostoa '{}'"
 msgid "could not update aur cache"
 msgstr "ei pystytty päivittämään aur välimuistia"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "kelpaamaton arvo '{val}' avaimelle {key}', odotettiin: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "tuntematon vaihtoehto -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "ei löydetty välimuistikansiota"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "ei löydetty asetuskansiota"
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "ei löydetty välimuistikansiota"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "asetustiedosto '{}' ei ole olemassa"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "vain yksi operaatia on sallittu kerrallaan"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr ""
 "ei pystytty löytämään paikallista pakettivarastoa '{}' tiedostosta pacman."
 "conf"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "ei pystytty alustamaan alpm: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "arvo ei voi olla tyhjä avaimelle '{}'"
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "avain '{}' ei kuulu mihinkään osioon"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "avain ei voi olla tyhjä"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "virhe: tuntematon vaihtoehto '{}' osiossa [bin]"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "virhe: tuntematon vaihtoehto '{}' osiossa [bin]"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "virhe: tuntematon vaihtoehto '{}' osiossa [options]"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "vaihtoehto '{}' ei ota arvoa"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "On olemassa {n} tarjoajaa paketille {pkg}"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "Pakettivarasto"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  epäonnistuttiin synkronoimaan {}"
 
@@ -241,20 +241,20 @@ msgstr "vanhentuneeksi merkatut: "
 msgid "orphans: "
 msgstr "orvot: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "epäonnistuttiin suorittamaan:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "ladataan: {pkg}"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "Ladataan PKGBUILDeja..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDit ovat ajantasalla"
 
@@ -286,14 +286,6 @@ msgstr "Aur Make"
 #, fuzzy
 msgid "Repo ({})"
 msgstr "Pakettivarasto"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr ""
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 #, fuzzy
@@ -802,7 +794,7 @@ msgstr "virhe:"
 msgid "could not get news"
 msgstr "ei voitu hakea uutisia"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "Jatka asentamista?"
 
@@ -823,85 +815,85 @@ msgstr "pakettien rakennus epäonnistui: {}"
 msgid "adding {} to the install list"
 msgstr "lisätään {} asennuslistaan"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "ei pystytty latamaan lähteitä paketille '{}'"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "ei pystytty rakentamaan '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: jäsennetään pkg listaa..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 #, fuzzy
 msgid "package list does not match srcinfo"
 msgstr "mitkään paketit ei vastannut hakua"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} on ajantasalla -- ohitetaan rakennus"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "haetaan devel tietoa..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "yhtään kohdetta ei ole määritelty (-h tulostaa ohjeen)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " ei ole mitään tehtävää"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "Selvitetään riippuvuuksia..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "ei pystytty asentamaan AUR pakettia root-käyttäjänä"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "Poistetaanko make riippuvuudet asennuksen jälkeen?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "Jatketaanko tarkistukseen?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "ei arkkitehtuuria"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "Seuraavat paketit eivät ole yhteensopvia arkkitehtuurisi kanssa:"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "Haluaisitko kuitenkin kokeilla niiden rakentamista?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "duplikaatti paketti: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "ei pystytty löytämään kaikkia vaadittuja paketteja"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -909,71 +901,71 @@ msgstr ""
 "\n"
 "    {missing} ({stack} haluaa tämän)"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} on ajantasalla -- ohitetaan"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "Lasketaan ristiriitoja..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "Lasketaan sisäisiä ristiriitoja..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "Sisäiset ristiriidat löydetty:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "Ristiriidat löydetty:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Ristiriitaiset paketit on vahvistettava manuaalisesti"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "ei voida asentaa ristiriitaisia paketteja --noconfirm:illa"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "ei pystytty suorittamaan tiedostoselainta: {}"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "tiedostoselain ei suorittunut onnistuneesti"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "ei pystytty lukemaan kansiota: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "ei pystytty avaamaan: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "binääri tiedosto: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " ei uutta tarkistettavaa"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "ei löydetty paketin nimeä pakettilistassa: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "Allekirjoitetaan paketteja..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} on ajantasalla -- ohitetaan asennus"
 
@@ -1032,25 +1024,25 @@ msgstr " [ohitettu]"
 msgid "failed to get current exe"
 msgstr "ei pystytty hakemaan nykyistä exe:ä"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "synkronoidaan paikallisia tietokantoja..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  ei mitään tehtävää"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 #, fuzzy
 msgid "there is nothing to do"
 msgstr " ei ole mitään tehtävää"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 #, fuzzy
 msgid "Packages"
 msgstr "Paketin pohja ID"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 #, fuzzy
 msgid "Proceed with removal?"
 msgstr "Jatketaanko tarkistukseen?"

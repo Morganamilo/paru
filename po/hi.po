@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2021-07-03 20:07+0600\n"
 "Last-Translator: Atharva Amritkar <atharvaamritkar@protonmail.com>\n"
 "Language-Team: \n"
@@ -65,15 +65,15 @@ msgstr "'{}' के लिए .SRINFO नहीं ढूंढ सका"
 msgid "option {} expects a value"
 msgstr "विकल्प {} एक मान की अपेक्षा करता है"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "विकल्प {} मान की अनुमति नहीं देता"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "अज्ञात विकल्प --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "अज्ञात विकल्प -{}"
 
@@ -85,99 +85,99 @@ msgstr "कैशे फ़ाइल खोलने में विफल  '{}
 msgid "could not update aur cache"
 msgstr "AUR कैश अपडेट नहीं कर सका"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "अमान्य मान '{val}','{key}' कुंजी के लिए , अपेक्षित: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "अज्ञात विकल्प -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "कैश निर्देशिका खोजने में विफल"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "कॉन्फ़िग निर्देशिका खोजने में विफल"
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "कैश निर्देशिका खोजने में विफल"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "कॉन्फ़िग फ़ाइल '{}' मौजूद नहीं होना"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "एक समय में केवल एक ही ऑपरेशन का उपयोग किया जा सकता है"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "स्थानीय रेपो नहीं मिल रहा है '{}' pacman.conf में"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "alpm प्रारंभ करने में विफल: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "'{}' कुंजी के लिए मान खाली नहीं हो सकता "
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "की '{}' एक खंड से संबंधित नहीं है"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "कुंजी खाली नहीं हो सकती"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "त्रुटि: खंड [bin] में अज्ञात विकल्प '{}'"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "त्रुटि: खंड [bin] में अज्ञात विकल्प '{}'"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "त्रुटि: अज्ञात विकल्प '{}' अनुभाग में [options]"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "विकल्प '{}' मूल्य नहीं लेता"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "{pkg} के लिए {n} प्रदाता उपलब्ध हैं:"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "कोष"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  सिंक करने में विफल {}"
 
@@ -241,20 +241,20 @@ msgstr "पुराना चिह्नित: "
 msgid "orphans: "
 msgstr "अनाथ: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "चलाने में विफल:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "डाउनलोड: {pkg}"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "डाउनलोड PKGBUILDs..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD अप टू डेट"
 
@@ -286,14 +286,6 @@ msgstr "Aur Make"
 #, fuzzy
 msgid "Repo ({})"
 msgstr "Repo"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr ""
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 #, fuzzy
@@ -802,7 +794,7 @@ msgstr "त्रुटि:"
 msgid "could not get news"
 msgstr "खबर नहीं मिल सकी"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "स्थापना के साथ आगे बढ़ें?"
 
@@ -823,85 +815,85 @@ msgstr "पैकेज बनाने में विफल: {}"
 msgid "adding {} to the install list"
 msgstr "{} को संस्थापित सूची में जोड़ना"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "'{}' के लिए स्रोत डाउनलोड करने में विफल"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "निर्माण करने में विफल '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: संकल्प पीकेजी सूची..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 #, fuzzy
 msgid "package list does not match srcinfo"
 msgstr "पैकेज खोज से मेल नहीं"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} अप टू डेट है -- स्किप बिल्ड"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "डेवेल जानकारी प्राप्त करना..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "कोई लक्ष्य निर्दिष्ट नहीं (मदद के लिए -h का उपयोग करें)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " यहां करने के लिए कुछ नहीं है"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "निर्भरता का समाधान..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "AUR पैकेज को रूट के रूप में स्थापित नहीं कर सकता"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "इंस्टॉल करने के बाद मेक डिपेंडेंसी हटाएं?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "समीक्षा के लिए आगे बढ़ें?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "कोई वास्तुकला नहीं"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "निम्नलिखित पैकेज आपके आर्किटेक्चर के अनुकूल नहीं हैं"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "क्या आप उन्हें वैसे भी बनाने की कोशिश करना चाहेंगे?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "डुप्लीकेट पैकेज: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "सभी आवश्यक पैकेज नहीं मिल सका:"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -909,71 +901,71 @@ msgstr ""
 "\n"
 "    {missing} (द्वारा चाहता था: {stack})"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} अप टू डेट है -- लंघन"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "संघर्षों की गणना..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "आंतरिक संघर्षों की गणना..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "आंतरिक संघर्ष पाए गए:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "संघर्ष पाया गया:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "विरोधी पैकेजों की मैन्युअल रूप से पुष्टि करनी होगी"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "--noconfirm के साथ परस्पर विरोधी पैकेज स्थापित नहीं कर सकता"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "फ़ाइल प्रबंधक निष्पादित करने में विफल: {}"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "फ़ाइल प्रबंधक सफलतापूर्वक निष्पादित नहीं हुआ"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "निर्देशिका पढ़ने में विफल: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "खोलने में असफल हुआ: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "बाइनरी फ़ाइल: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " समीक्षा करने के लिए कुछ भी नया नहीं"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "पैकेजेलिस्ट में पैकेज का नाम नहीं मिल रहा है: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "पैकेज पर हस्ताक्षर..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} अप टू डेट है -- लंघन इंस्टाल"
 
@@ -1032,25 +1024,25 @@ msgstr " [नज़रअंदाज़]"
 msgid "failed to get current exe"
 msgstr "वर्तमान exe प्राप्त करने में विफल"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "स्थानीय डेटाबेस को सिंक हो रहा..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  कुछ करने को नहीं"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 #, fuzzy
 msgid "there is nothing to do"
 msgstr " यहां करने के लिए कुछ नहीं है"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 #, fuzzy
 msgid "Packages"
 msgstr "पैकेज बेस ID"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 #, fuzzy
 msgid "Proceed with removal?"
 msgstr "समीक्षा के लिए आगे बढ़ें?"

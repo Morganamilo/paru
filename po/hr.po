@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Ivan Merčep <i1mercep@gmail.com>\n"
 "Language-Team: Ivan Merčep <i1mercep@gmail.com>\n"
@@ -64,15 +64,15 @@ msgstr "nije moguće pronaći .SRINFO za '{}'"
 msgid "option {} expects a value"
 msgstr "opcija {} očekuje vrijednost"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "opcija {} ne dopušta vrijednost"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "nepoznata opcija --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "nepoznata opcija -{}"
 
@@ -84,99 +84,99 @@ msgstr "neuspješno otvaranje cache datoteke '{}'"
 msgid "could not update aur cache"
 msgstr "neuspješan update aur cache-a"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "Nevažeća vrijednost '{val}' za key '{key}', očekivana: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "nepoznata opcija -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "neuspješno traženje cache direktorija"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "neuspješno traženje config direktorija"
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "neuspješno traženje cache direktorija"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "config datoteka '{}' ne postoji"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "istovremeno se smije koristiti samo jedna operacija"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "neuspješno traženje lokalnog repozitorija '{}' u pacman.conf"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "neuspješna inicijalizacija alpm: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "vrijednost ne smije biti prazna za key '{}'"
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "key '{}' ne pripada sekciji"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "key ne smije biti prazan"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "greška: nepoznata opcija '{}' u sekciji [bin]"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr "key ne smije sadržavati null bytes"
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr "vrijednost ne smije sadržavati null bytes"
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "greška: nepoznata opcija '{}' u sekciji [bin]"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "greška: nepoznata opcija '{}' u sekciji [opcije]"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "opcija '{}' ne prima vrijednost"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "{pkg} ima {n} dostupnih providera:"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "Repozitorij"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  neuspješan sync {}"
 
@@ -240,20 +240,20 @@ msgstr "označeno kao zastarjelo"
 msgid "orphans: "
 msgstr "napušteni: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "neuspješno pokretanje:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "preuzimanje: {pkg}"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "Preuzimanje PKGBUILDs..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs su ažurirani"
 
@@ -285,14 +285,6 @@ msgstr "Aur Make"
 #, fuzzy
 msgid "Repo ({})"
 msgstr "Repo"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr ""
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 #, fuzzy
@@ -831,7 +823,7 @@ msgstr "greška:"
 msgid "could not get news"
 msgstr "neuspješno preuzimanje vijesti"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "Nastavi sa instalacijom?"
 
@@ -852,85 +844,85 @@ msgstr "neuspješan build na paketima: {}"
 msgid "adding {} to the install list"
 msgstr "dodavanje {} na install list"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "neuspješno preuzimanje source-a za '{}'"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "neuspješan build '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: raščlanjivanje pkg list..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 #, fuzzy
 msgid "package list does not match srcinfo"
 msgstr "nema paketa koji odgovara pretrazi"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} je ažuriran -- preskačem build"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "dohvaćanje devel info..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "ciljevi nisu specifirani (-h za help)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " nema se što napraviti"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "Razrješavanje dependencies..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "nije moguće instalirati AUR pakete kao root"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "Izbriši make dependencies nakon instalacije?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "Nastavi na review?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "bez arhitekture"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "Sljedeći paketi nemaju kompatibilnu arhitekturu:"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "Svejedno napravi build?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "dupli paketi: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "neuspješno traženje potrebnih paketa:"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -938,71 +930,71 @@ msgstr ""
 "\n"
 "    {missing} (tražen od: {stack})"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} je ažuriran -- preskačem"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "Računanje konflikata..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "Računanje unutrašnjih konflikata..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "Unutrašnji konflikti pronađeni:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "Konflikti pronađeni:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Paketi u konfliktu se moraju ručno potvrditi"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "nije moguće instalirati pakete u konfliktu sa --noconfirm"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "neuspješno pokretanje file manager-a: {}"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "file manager se nije uspješno pokrenuo"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "neuspješno čitanje dir-a: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "neuspješno otvaranje: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "binarna datoteka: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " ništa novo za review"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "nije moguće pronaći naziv paketa u listi paketa: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "Potpisivanje paketa..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} je ažuriran -- preskakanje instalacije"
 
@@ -1061,25 +1053,25 @@ msgstr " [ignorirano]"
 msgid "failed to get current exe"
 msgstr "neuspješno dohvaćanje trenutnog exe"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "sinkroniziranje lokalne baze podataka..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  ništa za napraviti"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 #, fuzzy
 msgid "there is nothing to do"
 msgstr " nema se što napraviti"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 #, fuzzy
 msgid "Packages"
 msgstr "Paket Base ID"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 #, fuzzy
 msgid "Proceed with removal?"
 msgstr "Nastavi na review?"

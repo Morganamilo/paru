@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2022-06-30 21:10+0900\n"
 "Last-Translator: livewing.net <dev@livewing.net>\n"
 "Language-Team: \n"
@@ -63,15 +63,15 @@ msgstr "'{}' の .SRCINFO を見つけられませんでした"
 msgid "option {} expects a value"
 msgstr "オプション {} は値が必要です"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "オプション {} は値を許可しません"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "不明なオプション --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "不明なオプション -{}"
 
@@ -83,99 +83,99 @@ msgstr "キャッシュファイル '{}' のオープンに失敗しました"
 msgid "could not update aur cache"
 msgstr "AUR キャッシュを更新できませんでした"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "キー '{key}' に対して値 '{val}' は不正です、期待される値: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "不明なオプション -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "キャッシュディレクトリが見つかりません"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "設定ディレクトリが見つかりません"
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "キャッシュディレクトリが見つかりません"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "設定ファイル '{}' は存在しません"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "一度にできる操作はひとつだけです"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "pacman.conf でローカルリポジトリ '{}' を見つけられません"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "alpm を初期化できません: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "キー '{}' の値は空にできません"
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "キー '{}' はセクションに属しません"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "キーは空にできません"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "エラー: セクション [bin] の不明なオプション '{}'"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr "キーに null バイトを含めることはできません"
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr "値に null バイトを含めることはできません"
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "エラー: セクション [bin] の不明なオプション '{}'"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "エラー: セクション [options] の不明なオプション '{}'"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "オプション '{}' は値をとりません"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "{n} 個の選択肢が {pkg} にはあります:"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "リポジトリ"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  {} の同期に失敗しました"
 
@@ -239,20 +239,20 @@ msgstr "古いバージョンとしてマーク: "
 msgid "orphans: "
 msgstr "孤児: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "実行に失敗しました:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "{pkg} をダウンロードしています"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "PKGBUILD をダウンロードしています..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD は最新です"
 
@@ -283,14 +283,6 @@ msgstr "AUR ビルド"
 #: src/fmt.rs:311
 msgid "Repo ({})"
 msgstr "リポジトリ ({})"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr "Aur ({})"
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 msgid "Old Version"
@@ -828,7 +820,7 @@ msgstr "エラー:"
 msgid "could not get news"
 msgstr "ニュースを取得できませんでした"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "インストールを行いますか？"
 
@@ -848,84 +840,84 @@ msgstr "パッケージのビルドに失敗しました: {}"
 msgid "adding {} to the install list"
 msgstr "インストールリストに {} を追加しています"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "'{}' のソースのダウンロードに失敗しました"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "'{}' のビルドに失敗しました"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: パッケージリストを解析しています..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 msgid "package list does not match srcinfo"
 msgstr "パッケージリストはsrcinfoに一致しません"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} は最新です -- ビルドをスキップ"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "依存関係{deps}が満たされないため、{base}をビルドできませんでした"
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "開発情報を取得しています..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "対象が指定されていません (-h を使ってヘルプを見て下さい)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " 何も行うことがありません"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "依存関係を解決しています..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "root で AUR パッケージをインストールできません"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "ビルド時の依存パッケージをインストール後に削除しますか？"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "レビューを続行しますか？"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "アーキテクチャなし"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "次のパッケージはアーキテクチャの互換性がありません:"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "それでもビルドしますか？"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "重複したパッケージ: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "必要なパッケージを全て見つけることができません:"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -933,71 +925,71 @@ msgstr ""
 "\n"
 "    {missing} (必要としているパッケージ: {stack})"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} は最新です -- スキップ"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "衝突を確認しています..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "内部衝突を確認しています..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "内部衝突が見つかりました:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "衝突が見つかりました:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "衝突しているパッケージを手動で確認する必要があります"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "--noconfirm で衝突するパッケージをインストールできません"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "ファイルマネージャの実行に失敗しました"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "ファイルマネージャを正しく実行できません"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "ディレクトリの読み込みに失敗しました: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "オープンに失敗しました: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "バイナリファイル: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " 新しくレビューするものはありません"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "パッケージリストにパッケージの名前を見つけることができません: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "パッケージへ署名をしています..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} は最新です -- インストールをスキップ"
 
@@ -1056,23 +1048,23 @@ msgstr " [無視]"
 msgid "failed to get current exe"
 msgstr "現在の実行ファイルの取得に失敗しました"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "ローカルデータベースの同期中..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  何も行うことがありません"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 msgid "there is nothing to do"
 msgstr "何も行うことがありません"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 msgid "Packages"
 msgstr "パッケージ"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 msgid "Proceed with removal?"
 msgstr "削除を続行しますか？"
 
@@ -1215,6 +1207,9 @@ msgstr "対象が指定されていません (-h を使ってヘルプを見て�
 #: src/lib.rs:513
 msgid " [installed: {}]"
 msgstr " [インストール済み: {}]"
+
+#~ msgid "Aur ({})"
+#~ msgstr "Aur ({})"
 
 #~ msgid "could not get current directory"
 #~ msgstr "現在のディレクトリを取得できませんでした"

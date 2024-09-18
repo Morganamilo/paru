@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2024-02-13 19:40+0100\n"
 "Last-Translator: walken <walken@centrum.cz>\n"
 "Language-Team: \n"
@@ -61,15 +61,15 @@ msgstr "nelze načíst .SRCINFO pro '{}'"
 msgid "option {} expects a value"
 msgstr "volba {} očekává hodnotu"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "volba {} nedovoluje hodnotu"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "neznámá volba --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "neznámá volba -{}"
 
@@ -81,96 +81,96 @@ msgstr "nepodařilo se otevřít soubor mezipaměti '{}'"
 msgid "could not update aur cache"
 msgstr "nepodařilo se aktualizovat aur mezipaměť"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "neplatná hodnota '{val}' pro klíč '{key}', očekáváno: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 msgid "unknown mode {}"
 msgstr "neznámý režim {}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr "oddíl nelze pojmenovat {}"
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "nepodařilo se najít adresář mezipaměti"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "nepodařilo se najít konfigurační adresář"
 
-#: src/config.rs:591
+#: src/config.rs:585
 msgid "failed to find state directory"
 msgstr "nepodařilo se najít stavový adresář"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "konfigurační soubor '{}' neexistuje"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "naráz může být použita pouze jedna operace"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr "neexistuje lokální repozitář jménem {}"
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "nelze najít lokální repozitář '{}' v pacman.conf"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "nepodařilo se inicializovat alpm: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "hodnota pro klíč '{}' nemůže být prázdná"
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "klíč '{}' nepatří do oddílu"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "klíč nemůže být prázdný"
 
-#: src/config.rs:978
+#: src/config.rs:972
 msgid "error: unknown option '{}' in repo"
 msgstr "chyba: neznámá volba '{}' v repozitáři"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr "klíč nesmí obsahovat nulové bajty"
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr "hodnota nesmí obsahovat nulové bajty"
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "chyba: neznámá volba '{}' v oddíle [bin]"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "chyba: neznámá volba '{}' v oddíle [options]"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "volba '{}' nepřijímá hodnotu"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Pro {pkg} je dostupných {n} poskytovatelů:"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "Repozitář"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  synchronizace {} se nezdařila"
 
@@ -230,20 +230,20 @@ msgstr "označené jako zastaralé: "
 msgid "orphans: "
 msgstr "osamocené: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "nepodařilo se spustit:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "stahuji: {pkg}"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "Stahuji PKGBUILDs..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs jsou aktuální"
 
@@ -274,14 +274,6 @@ msgstr "Aur Make"
 #: src/fmt.rs:311
 msgid "Repo ({})"
 msgstr "Repozitář ({})"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr "Aur ({})"
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr "Pkgbuilds ({})"
 
 #: src/fmt.rs:319
 msgid "Old Version"
@@ -824,7 +816,7 @@ msgstr "chyba:"
 msgid "could not get news"
 msgstr "nepodařilo se získat novinky"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "Pokračovat v instalaci?"
 
@@ -844,84 +836,84 @@ msgstr "balíčky, které se nepodařilo sestavit: {}"
 msgid "adding {} to the install list"
 msgstr "přidávám {} do seznamu k instalaci"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "nepodařilo se stáhnout zdroje pro '{}'"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "nepodařilo se sestavit '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: načítám pkg seznam..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 msgid "package list does not match srcinfo"
 msgstr "seznam balíčků nesouhlasí s srcinfo"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} je aktuální -- přeskakuji sestavení"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "nemohu sestavit {base}, závislosti nejsou vyřešeny: {deps}"
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "získávám devel informace..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "nebyly specifikovány cíle (použijte -h pro nápovědu)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " není co dělat"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "Řeším závislosti..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "nemohu nainstalovat AUR balíček jako root"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr "--downloadonly nelze použít pro AUR balíčky"
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "Odebrat make závislosti po instalaci?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "Pokračovat ke kontrole?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "žádná architektura"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "Následující balíčky nejsou kompatibilní s vaší architekturou:"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "Přejete si je přesto sestavit?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "duplicitní balíčky: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "nepodařilo se najít všechny potřebné balíčky:"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -929,71 +921,71 @@ msgstr ""
 "\n"
 "    {missing} (požadováno: {stack})"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} je aktuální -- přeskakuji"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "Výpočet konfliktů..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "Výpočet vnitřních konfliktů..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "Nalezené vnitřní konflikty:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "Nalezené konflikty:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Konfliktní balíčky musí být potvrzeny ručně"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "nemohu instalovat konfliktní balíčky s --noconfirm"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "nepodařilo se spustit správce souborů: {}"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "správce souborů se nesputil"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "nepodařilo se načíst adresář: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "nepodařilo se otevřít: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "binární soubor: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr "Potvrdit změny?"
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " nic nového ke kontrole"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "nemohu najít jméno balíčku v packagelist: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "Podepisuji balíčky..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} je aktuální -- přeskakuji aktualizaci"
 
@@ -1049,23 +1041,23 @@ msgstr " [ignorováno]"
 msgid "failed to get current exe"
 msgstr "nepodařilo se získat aktuální exe"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "synchronizuji lokální databáze..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  není co dělat"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 msgid "there is nothing to do"
 msgstr "není co dělat"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 msgid "Packages"
 msgstr "Balíčky"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 msgid "Proceed with removal?"
 msgstr "Pokračovat v odebrání?"
 
@@ -1206,3 +1198,9 @@ msgstr "žádná operace nebyla specifikována (použijte -h pro nápovědu)"
 #: src/lib.rs:513
 msgid " [installed: {}]"
 msgstr " [nainstalováno: {}]"
+
+#~ msgid "Aur ({})"
+#~ msgstr "Aur ({})"
+
+#~ msgid "Pkgbuilds ({})"
+#~ msgstr "Pkgbuilds ({})"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru 1.7.3\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2021-06-28 19:00+0000\n"
 "Last-Translator: Francesco Minnocci <ascoli dot minnocci at gmail dot com>\n"
 "Language-Team: \n"
@@ -62,15 +62,15 @@ msgstr "impossibile trovare .SRCINFO per '{}'"
 msgid "option {} expects a value"
 msgstr "l'opzione {} richiede un valore"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "l'opzione {} non accetta valori"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "opzione sconosciuta --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "opzione sconosciuta -{}"
 
@@ -82,100 +82,100 @@ msgstr "impossibile aprire il file di cache '{}'"
 msgid "could not update aur cache"
 msgstr "non è stato possibile aggiornare la cache dell'aur"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr ""
 "valore non valido '{val}' per il campo '{key}', valori possibili: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "opzione sconosciuta -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "impossibile trovare o leggere la directory della cache"
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "impossibile trovare la directory di configurazione"
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "impossibile trovare o leggere la directory della cache"
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "il file di configurazione '{}' non esiste"
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "puoi usare un'operazione sola alla volta"
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "non è stato possibile trovare la repository locale '{}' in pacman.conf"
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "inizializzazione fallita per alpm: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "il valore per '{}' non può essere vuoto"
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "Il campo '{}' non appartiene a nessuna sezione"
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "il campo non può essere vuoto"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "errore: opzione sconosciuta '{}' nella sezione [bin]"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "errore: opzione sconosciuta '{}' nella sezione [bin]"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "errore: opzione sconosciuta '{}' nella sezione [opzioni]"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "l'opzione '{}' non accetta valori"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Ci sono {n} provider disponibili per {pkg}:"
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "Repository"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  non è potuto essere sincronizzato"
 
@@ -239,20 +239,20 @@ msgstr "pacchetti obsoleti: "
 msgid "orphans: "
 msgstr "pacchetti orfani: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "esecuzione fallita:"
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "in scaricamento: {pkg}"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "Scaricando i PKGBUILD..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD aggiornati"
 
@@ -284,14 +284,6 @@ msgstr "AUR (compilazione)"
 #, fuzzy
 msgid "Repo ({})"
 msgstr "Repo"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr ""
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 #, fuzzy
@@ -800,7 +792,7 @@ msgstr "errore:"
 msgid "could not get news"
 msgstr "impossibile ottenere le notizie"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "Proseguire con l'installazione?"
 
@@ -823,85 +815,85 @@ msgstr "compilazione fallita per i seguenti pacchetti: {}"
 msgid "adding {} to the install list"
 msgstr "{} aggiunto alla lista d'installazione"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "Impossibile scaricare il codice sorgente per '{}'"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "compilazione fallita per '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: lettura lista pacchetti in corso..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 #, fuzzy
 msgid "package list does not match srcinfo"
 msgstr "nessun pacchetto corrisponde alla ricerca"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} è aggiornato -- compilazione ignorata"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "salvando le informazioni sulle repository di sviluppo..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "non è stato specificato nessun pacchetto (usa -h per un aiuto)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " non c'è nulla da fare"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "Risoluzione delle dipendenze in corso..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "non è possibile installare pacchetti AUR come root"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "Rimuovere le dipendenze di compilazione dopo l'installazione?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "Proseguire alla revisione?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "nessuna architettura"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "I seguenti pacchetti non sono compatibili con la tua architettura:"
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "Vuoi provare a compilarli comunque?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "pacchetti duplicati: {}"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "impossibile trovare tutti i pacchetti necessari:"
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -909,73 +901,73 @@ msgstr ""
 "\n"
 "    {missing} (richiesto da: {stack})"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} è aggiornato -- sarà ignorato"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "Analizzando i conflitti..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "Analizzando i conflitti..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "Conflitti interni:"
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "Conflitti:"
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "I pacchetti in conflitto dovranno essere confermati manualmente"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "impossibile installare pacchetti in conflitto con --noconfirm "
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "impossibile lanciare il gestore di file: {}"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "l'esecuzione del gestore di file è fallita"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "impossibile accedere alla directory: {}"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "impossibile aprire: {}"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "file binario: {}"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " nessuna nuova revisione"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 "impossibile trovare il nome del pacchetto nella lista dei "
 "pacchetti(packagelist): {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "Firmando i pacchetti..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} è aggiornato -- saltando l'installazione"
 
@@ -1034,25 +1026,25 @@ msgstr " [ignorato]"
 msgid "failed to get current exe"
 msgstr "impossibile ottenire l'eseguibie attuale"
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "sincronizzazione dei database locali in corso..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  nulla da fare"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 #, fuzzy
 msgid "there is nothing to do"
 msgstr " non c'è nulla da fare"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 #, fuzzy
 msgid "Packages"
 msgstr "ID base del pacchetto"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 #, fuzzy
 msgid "Proceed with removal?"
 msgstr "Proseguire alla revisione?"

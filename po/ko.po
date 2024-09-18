@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2023-12-01 19:43+0000\n"
+"POT-Creation-Date: 2024-09-18 23:38+0000\n"
 "PO-Revision-Date: 2022-02-18 00:00+1100\n"
 "Last-Translator: ponte-vecchio <zkogdxdkur@p.monash.edu>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -64,15 +64,15 @@ msgstr "'{}'에 대한 .SRINFO를 찾지 못함"
 msgid "option {} expects a value"
 msgstr "{} 옵션은 값이 필요함"
 
-#: src/command_line.rs:165 src/command_line.rs:375
+#: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
 msgstr "{} 옵션은 값을 허가하지 않음"
 
-#: src/command_line.rs:366
+#: src/command_line.rs:367
 msgid "unknown option --{}"
 msgstr "알 수 없는 옵션 --{}"
 
-#: src/command_line.rs:369
+#: src/command_line.rs:370
 msgid "unknown option -{}"
 msgstr "알 수 없는 옵션 -{}"
 
@@ -84,99 +84,99 @@ msgstr "캐시 파일 '{}' 열기 실패함"
 msgid "could not update aur cache"
 msgstr "AUR 캐시 갱신 실패"
 
-#: src/config.rs:186
+#: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "'{key}' 키에 대한 잘못된 값 '{value}', 기대값: {exp}"
 
-#: src/config.rs:339
+#: src/config.rs:332
 #, fuzzy
 msgid "unknown mode {}"
 msgstr "알 수 없는 옵션 -{}"
 
-#: src/config.rs:567
+#: src/config.rs:561
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:578
 msgid "failed to find cache directory"
 msgstr "캐시 디렉터리를 찾을 수 없음 "
 
-#: src/config.rs:587
+#: src/config.rs:581
 msgid "failed to find config directory"
 msgstr "설정 디렉터리를 찾을 수 없음 "
 
-#: src/config.rs:591
+#: src/config.rs:585
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "캐시 디렉터리를 찾을 수 없음 "
 
-#: src/config.rs:638
+#: src/config.rs:632
 msgid "config file '{}' does not exist"
 msgstr "구성파일 '{}'이/가 존재하지 않음 "
 
-#: src/config.rs:687
+#: src/config.rs:681
 msgid "only one operation may be used at a time"
 msgstr "한 번에 한 명령어만 사용 가능 "
 
-#: src/config.rs:798
+#: src/config.rs:792
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:815
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "pacman.conf에서 로컬 저장소 '{}'을/를 찾을 수 없음 "
 
-#: src/config.rs:863
+#: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "alpm 초기화 실패: root={} dbpath={}"
 
-#: src/config.rs:938 src/config.rs:1098
+#: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
 msgstr "'{}' 키의 값은 비어있을 수 없음 "
 
-#: src/config.rs:954
+#: src/config.rs:948
 msgid "key '{}' does not belong to a section"
 msgstr "'{}' 키는 어느 섹션에도 속하지 않음 "
 
-#: src/config.rs:968 src/config.rs:985 src/config.rs:987 src/config.rs:1002
+#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
 msgstr "키는 비어있을 수 없음"
 
-#: src/config.rs:978
+#: src/config.rs:972
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "오류: [bin] 섹션에 알 수 없는 옵션 '{}'"
 
-#: src/config.rs:988
+#: src/config.rs:982
 msgid "key can not contain null bytes"
 msgstr "키에 빈 바이트를 포함할 수 없음"
 
-#: src/config.rs:991
+#: src/config.rs:985
 msgid "value can not contain null bytes"
 msgstr "값에 빈 바이트를 포함할 수 없음"
 
-#: src/config.rs:1026
+#: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "오류: [bin] 섹션에 알 수 없는 옵션 '{}'"
 
-#: src/config.rs:1142
+#: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
 msgstr "오류: [options] 섹션에 알 수 없는 옵션 '{}'"
 
-#: src/config.rs:1147
+#: src/config.rs:1142
 msgid "option '{}' does not take a value"
 msgstr "'{}' 옵션은 값을 받지 않음"
 
-#: src/config.rs:1182 src/resolver.rs:137
+#: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
 msgstr "{pkg} 꾸러미 제공자가 {n}개: "
 
-#: src/config.rs:1196 src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
 #: src/resolver.rs:96 src/resolver.rs:145
 msgid "Repository"
 msgstr "저장소"
 
-#: src/config.rs:1222
+#: src/config.rs:1217
 msgid "  failed to sync {}"
 msgstr "  {} 동기화 실패"
 
@@ -240,20 +240,20 @@ msgstr "오래된 꾸러미로 표식됨: "
 msgid "orphans: "
 msgstr "고아화된 꾸러미: "
 
-#: src/download.rs:239 src/exec.rs:83 src/install.rs:1622 src/install.rs:1702
-#: src/install.rs:1725
+#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
+#: src/install.rs:1732
 msgid "failed to run:"
 msgstr "실행 실패: "
 
-#: src/download.rs:259
+#: src/download.rs:257
 msgid "downloading: {pkg}"
 msgstr "{pkg} 내려 받는 중"
 
-#: src/download.rs:281
+#: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
 msgstr "PKGBUILD들 내려 받는 중..."
 
-#: src/download.rs:285
+#: src/download.rs:283
 msgid " PKGBUILDs up to date"
 msgstr " 모든 PKGBUILD 최신버전"
 
@@ -285,14 +285,6 @@ msgstr "AUR 메이크"
 #, fuzzy
 msgid "Repo ({})"
 msgstr "저장소"
-
-#: src/fmt.rs:316
-msgid "Aur ({})"
-msgstr ""
-
-#: src/fmt.rs:317
-msgid "Pkgbuilds ({})"
-msgstr ""
 
 #: src/fmt.rs:319
 #, fuzzy
@@ -820,7 +812,7 @@ msgstr "오류: "
 msgid "could not get news"
 msgstr "새로운 소식을 불러올 수 없음"
 
-#: src/install.rs:164 src/install.rs:1100
+#: src/install.rs:164 src/install.rs:1103
 msgid "Proceed with installation?"
 msgstr "설치를 진행하시겠습니까?"
 
@@ -841,85 +833,85 @@ msgstr "꾸러미 빌드 실패: {}"
 msgid "adding {} to the install list"
 msgstr "설치할 리스트에 {} 추가"
 
-#: src/install.rs:515 src/install.rs:524
+#: src/install.rs:518 src/install.rs:527
 msgid "failed to download sources for '{}'"
 msgstr "'{}'의 소스 내려받기 실패"
 
-#: src/install.rs:533 src/install.rs:561 src/install.rs:569
+#: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
 msgstr "빌드 실패: '{}'"
 
-#: src/install.rs:536 src/install.rs:750
+#: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
 msgstr "{}: 꾸러미 리스트 해석 중..."
 
-#: src/install.rs:540
+#: src/install.rs:543
 #, fuzzy
 msgid "package list does not match srcinfo"
 msgstr "조회된 꾸러미가 없음"
 
-#: src/install.rs:576
+#: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} 현재 최신버전 -- 빌드 건너뛰는 중"
 
-#: src/install.rs:741
+#: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:812
+#: src/install.rs:815
 msgid "fetching devel info..."
 msgstr "개발자 정보 불러오는 중..."
 
-#: src/install.rs:880 src/lib.rs:244
+#: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
 msgstr "지정된 대상이 없음. (도움말을 보려면 -h)"
 
-#: src/install.rs:989 src/install.rs:1070 src/search.rs:410 src/search.rs:436
+#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
 msgid " there is nothing to do"
 msgstr " 할 일 없음"
 
-#: src/install.rs:997
+#: src/install.rs:1000
 msgid "Resolving dependencies..."
 msgstr "의존성 해결 중..."
 
-#: src/install.rs:1058
+#: src/install.rs:1061
 msgid "can't install AUR package as root"
 msgstr "관리자(루트)로 AUR 꾸러미를 설치할 수 없음"
 
-#: src/install.rs:1061
+#: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1086
+#: src/install.rs:1089
 msgid "Remove make dependencies after install?"
 msgstr "설치 후 빌드에 사용한 의존성 꾸러미를 삭제하시겠습니까?"
 
-#: src/install.rs:1097
+#: src/install.rs:1100
 msgid "Proceed to review?"
 msgstr "리뷰를 진행하시겠습니까?"
 
-#: src/install.rs:1150
+#: src/install.rs:1153
 msgid "no architecture"
 msgstr "아키텍처가 명시되지 않음"
 
-#: src/install.rs:1164
+#: src/install.rs:1167
 msgid "The following packages are not compatible with your architecture:"
 msgstr "해당 꾸러미는 현 컴퓨터의 설계와 호환되지 않음: "
 
-#: src/install.rs:1178
+#: src/install.rs:1181
 msgid "Would you like to try build them anyway?"
 msgstr "무시하고 빌드를 진행하시겠습니까?"
 
-#: src/install.rs:1326
+#: src/install.rs:1330
 msgid "duplicate packages: {}"
 msgstr "{}: 겹치는 꾸러미"
 
-#: src/install.rs:1330
+#: src/install.rs:1334
 msgid "could not find all required packages:"
 msgstr "필요한 꾸러미들을 모두 찾지 못함: "
 
-#: src/install.rs:1342
+#: src/install.rs:1346
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -927,71 +919,71 @@ msgstr ""
 "\n"
 "    {missing} ({stack}: 필요로 함)"
 
-#: src/install.rs:1356 src/install.rs:2058
+#: src/install.rs:1360 src/install.rs:2065
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} 현재 최신버전 -- 건너뛰는 중"
 
-#: src/install.rs:1371
+#: src/install.rs:1375
 msgid "Calculating conflicts..."
 msgstr "충돌 계산 중..."
 
-#: src/install.rs:1377
+#: src/install.rs:1381
 msgid "Calculating inner conflicts..."
 msgstr "내부충돌 계산 중..."
 
-#: src/install.rs:1389
+#: src/install.rs:1393
 msgid "Inner conflicts found:"
 msgstr "내부 충돌: "
 
-#: src/install.rs:1411
+#: src/install.rs:1415
 msgid "Conflicts found:"
 msgstr "충돌 발견: "
 
-#: src/install.rs:1434
+#: src/install.rs:1438
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "충돌되는 꾸러미는 각각 확인되어야 함"
 
-#: src/install.rs:1438
+#: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "충돌되는 꾸러미는 --noconfirm으로 설치할 수 없음"
 
-#: src/install.rs:1561
+#: src/install.rs:1565
 msgid "failed to execute file manager: {}"
 msgstr "{}: 파일 관리자 실행 실패"
 
-#: src/install.rs:1564
+#: src/install.rs:1568
 msgid "file manager did not execute successfully"
 msgstr "파일 관리자가 성공적으로 실행되지 않음"
 
-#: src/install.rs:1581
+#: src/install.rs:1585
 msgid "failed to read dir: {}"
 msgstr "{}: 디렉터리를 읽지 못함"
 
-#: src/install.rs:1633
+#: src/install.rs:1640
 msgid "failed to open: {}"
 msgstr "{}: 열 수 없음"
 
-#: src/install.rs:1644
+#: src/install.rs:1651
 msgid "binary file: {}"
 msgstr "{}: 바이너리 파일"
 
-#: src/install.rs:1664 src/install.rs:1728
+#: src/install.rs:1671 src/install.rs:1735
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1732
+#: src/install.rs:1739
 msgid " nothing new to review"
 msgstr " 리뷰할 게 없음"
 
-#: src/install.rs:2006
+#: src/install.rs:2013
 msgid "can't find package name in packagelist: {}"
 msgstr "꾸러미 리스트에서 해당되는 꾸러미를 찾을 수 없음: {}"
 
-#: src/install.rs:2078
+#: src/install.rs:2085
 msgid "Signing packages..."
 msgstr "꾸러미 서명 중..."
 
-#: src/install.rs:2116
+#: src/install.rs:2123
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} 현재 최신버전입 -- 설치 건너뛰는 중"
 
@@ -1050,25 +1042,25 @@ msgstr " [무시됨]"
 msgid "failed to get current exe"
 msgstr "현 "
 
-#: src/repo.rs:217
+#: src/repo.rs:218
 msgid "syncing local databases..."
 msgstr "로컬 데이터베이스 동기화 중..."
 
-#: src/repo.rs:223
+#: src/repo.rs:224
 msgid "  nothing to do"
 msgstr "  할 일 없음"
 
-#: src/repo.rs:254
+#: src/repo.rs:255
 #, fuzzy
 msgid "there is nothing to do"
 msgstr " 할 일 없음"
 
-#: src/repo.rs:260
+#: src/repo.rs:261
 #, fuzzy
 msgid "Packages"
 msgstr "꾸러미 베이스 ID"
 
-#: src/repo.rs:273
+#: src/repo.rs:274
 #, fuzzy
 msgid "Proceed with removal?"
 msgstr "리뷰를 진행하시겠습니까?"
