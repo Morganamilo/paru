@@ -9,7 +9,7 @@ use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;
 use tr::tr;
 
-pub fn flags(config: &mut Config) -> aur_depends::Flags {
+pub fn flags(config: &mut Config) -> Flags {
     let mut flags = Flags::new();
 
     if config.args.has_arg("needed", "needed") {
@@ -71,7 +71,7 @@ pub fn resolver<'a, 'b>(
     let c = config.color;
     let no_confirm = config.no_confirm;
 
-    let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
+    let mut resolver = Resolver::new(alpm, cache, raur, flags)
         .pkgbuild_repos(pkgbuild_repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
         .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))

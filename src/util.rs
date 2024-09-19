@@ -391,7 +391,7 @@ pub fn split_repo_aur_pkgs<S: AsRef<str> + Clone>(config: &Config, pkgs: &[S]) -
     (repo, aur)
 }
 
-pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Package>) {
+pub fn repo_aur_pkgs(config: &Config) -> (Vec<&Package>, Vec<&Package>) {
     if config.repos != LocalRepos::None {
         let (repo, aur) = repo::repo_aur_dbs(config);
         let repo = repo.iter().flat_map(|db| db.pkgs()).collect::<Vec<_>>();
