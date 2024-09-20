@@ -294,8 +294,16 @@ impl Config {
             Arg::Long("noinstall") => self.no_install = true,
 
             Arg::Long("print") | Arg::Short('p') => self.print = true,
-            Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
-            Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
+            Arg::Long("newsonupgrade") => {
+                let url: Option<Url>;
+                if let Some(value) = value.ok() {
+                    url = Some(value.parse()?);
+                } else {
+                    url = None;
+                }
+                self.enable_news(url)?;
+            }
+            Arg::Long("nonewsonupgrade") => self.news_url = None,
             Arg::Long("comments") => self.comments = true,
             Arg::Long("ssh") => self.ssh = true,
             Arg::Long("failfast") => self.fail_fast = true,
@@ -416,6 +424,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("redownload") => TakesValue::Optional,
         Arg::Long("rebuild") => TakesValue::Optional,
         Arg::Long("sudoloop") => TakesValue::Optional,
+        Arg::Long("newsonupgrade") => TakesValue::Optional,
         Arg::Long("develsuffixes") => TakesValue::Required,
         Arg::Long("localrepo") => TakesValue::Optional,
         Arg::Long("chroot") => TakesValue::Optional,

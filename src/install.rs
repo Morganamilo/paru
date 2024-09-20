@@ -149,7 +149,7 @@ impl Installer {
     async fn news(&self, config: &Config) -> Result<()> {
         let c = config.color;
 
-        if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
+        if config.news_url.is_some() && config.args.has_arg("u", "sysupgrade") {
             let mut ret = 0;
             match news::news(config).await {
                 Ok(v) => ret = v,

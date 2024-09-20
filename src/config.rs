@@ -409,6 +409,7 @@ pub struct Config {
     pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
+    pub news_url: Option<Url>,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub state_dir: PathBuf,
@@ -460,7 +461,6 @@ pub struct Config {
     pub optional: bool,
     pub complete: bool,
     pub print: bool,
-    pub news_on_upgrade: bool,
     pub comments: bool,
     pub ssh: bool,
     pub keep_repo_cache: bool,
@@ -1051,7 +1051,15 @@ impl Config {
             "BatchInstall" => self.batch_install = true,
             "UseAsk" => self.use_ask = true,
             "SaveChanges" => self.save_changes = true,
-            "NewsOnUpgrade" => self.news_on_upgrade = true,
+            "NewsOnUpgrade" => {
+                let url: Option<Url>;
+                if let Some(l) = value {
+                    url = Some(l.parse()?);
+                } else {
+                    url = None;
+                }
+                self.enable_news(url)?;
+            }
             "InstallDebug" => self.install_debug = true,
             "Redownload" => self.redownload = YesNoAll::Yes.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAllTree::Yes.default_or(key, value)?,
@@ -1152,6 +1160,13 @@ impl Config {
         } else {
             "aur"
         }
+    }
+
+    // sets url to the one specified if url is Some,
+    // or the defualt arch news url if it's None
+    pub fn enable_news(&mut self, url: Option<Url>) -> Result<()> {
+        self.news_url = Some(url.unwrap_or(self.arch_url.join("feeds/news")?));
+        Ok(())
     }
 }
 
