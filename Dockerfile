@@ -1,6 +1,6 @@
 FROM debian:bookworm as build-stage
 
-ARG PACMAN_VER=6.1.0
+ARG PACMAN_VER=7.0.0
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /pacman

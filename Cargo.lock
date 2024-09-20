@@ -1356,7 +1356,7 @@ dependencies = [
 
 [[package]]
 name = "paru"
-version = "2.0.3"
+version = "2.0.4"
 dependencies = [
  "alpm",
  "alpm-utils",

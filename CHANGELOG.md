@@ -1,5 +1,25 @@
 # Changelog
 
+## Paru v2.0.4 (2024-09-20)
+
+### Added
+
+- Add pacman 7 support 90656a9
+
+### Fixed
+
+- Fix split package support on -G c894e25
+- Fix -Fl fish completion #1213
+- Fix typo in man page #1237
+- Fix build when POSIXLY_CORRECT is set #1160
+
+### Localization
+
+- Add cs locale #1133
+- Updated pt locale #1164
+- Updated pt_BR locale #1175
+- Updated hu locale #1235
+
 ## Paru v2.0.3 (2024-03-13)
 
 ### Fixed
