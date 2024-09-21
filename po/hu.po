@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2024-09-14 17:06+0200\n"
+"PO-Revision-Date: 2024-09-21 10:34+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -741,7 +741,7 @@ msgstr "    -i --install          Csomagösszeállítás és telepítés"
 
 #: src/info.rs:57 src/info.rs:182 src/query.rs:49
 msgid "package '{}' was not found"
-msgstr "nem található a(z) '{}' nevezetű csomag"
+msgstr "nem található a(z) „{}” nevezetű csomag"
 
 #: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Name"
