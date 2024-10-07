@@ -2087,7 +2087,7 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
 
         for path in paths {
             let mut cmd = Command::new("gpg");
-            cmd.args(["--detach-sign", "--no-armor", "--batch"]);
+            cmd.args(["--detach-sign", "--no-armor", "--batch", "--yes"]);
 
             if let Sign::Key(ref k) = config.sign {
                 cmd.arg("-u").arg(k);
