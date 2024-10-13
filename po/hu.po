@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2024-09-14 17:06+0200\n"
+"PO-Revision-Date: 2024-10-13 15:26+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -63,19 +63,19 @@ msgstr "nem sikerült elemezni az .SRCINFO-t a(z) „{}” esetében"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
-msgstr "a(z) {} opció értéket vár"
+msgstr "a(z) {} kapcsoló értéket vár"
 
 #: src/command_line.rs:165 src/command_line.rs:376
 msgid "option {} does not allow a value"
-msgstr "a(z) {} opció nem enged meg egy értéket"
+msgstr "a(z) {} kapcsoló nem enged meg egy értéket"
 
 #: src/command_line.rs:367
 msgid "unknown option --{}"
-msgstr "ismeretlen opció --{}"
+msgstr "ismeretlen kapcsoló --{}"
 
 #: src/command_line.rs:370
 msgid "unknown option -{}"
-msgstr "ismeretlen opció -{}"
+msgstr "ismeretlen kapcsoló -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
@@ -95,19 +95,19 @@ msgstr "ismeretlen mód {}"
 
 #: src/config.rs:561
 msgid "section can not be called {}"
-msgstr "ez a szekció nem hívható meg {}"
+msgstr "ez a szakasz nem hívható meg {}"
 
 #: src/config.rs:578
 msgid "failed to find cache directory"
-msgstr "nem sikerült megtalálni a cache könyvtárat"
+msgstr "nem sikerült megtalálni a „cache” könyvtárat"
 
 #: src/config.rs:581
 msgid "failed to find config directory"
-msgstr "nem sikerült megtalálni a config könyvtárat"
+msgstr "nem sikerült megtalálni a „config” könyvtárat"
 
 #: src/config.rs:585
 msgid "failed to find state directory"
-msgstr "nem sikerült megtalálni a state könyvtárat"
+msgstr "nem sikerült megtalálni a „state” könyvtárat"
 
 #: src/config.rs:632
 msgid "config file '{}' does not exist"
@@ -135,7 +135,7 @@ msgstr "a(z) „{}” kulcs esetében az érték nem lehet üres"
 
 #: src/config.rs:948
 msgid "key '{}' does not belong to a section"
-msgstr "a(z) „{}” kulcs nem tartozik egy szekcióhoz"
+msgstr "a(z) „{}” kulcs nem tartozik egy szakaszhoz sem"
 
 #: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
 msgid "key can not be empty"
@@ -143,7 +143,7 @@ msgstr "a kulcs nem lehet üres"
 
 #: src/config.rs:972
 msgid "error: unknown option '{}' in repo"
-msgstr "hiba: ismeretlen „{}” opció a tárolóban"
+msgstr "hiba: ismeretlen „{}” kapcsoló a tárolóban"
 
 #: src/config.rs:982
 msgid "key can not contain null bytes"
@@ -155,15 +155,15 @@ msgstr "az érték nem tartalmazhat null bájtot"
 
 #: src/config.rs:1021
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "hiba: ismeretlen „{}” opció a [bin] szekcióban"
+msgstr "hiba: ismeretlen „{}” kapcsoló a [bin] szakaszban"
 
 #: src/config.rs:1137
 msgid "error: unknown option '{}' in section [options]"
-msgstr "hiba: ismeretlen „{}” opció az [options] szekcióban"
+msgstr "hiba: ismeretlen „{}” kapcsoló az [options] szakaszban"
 
 #: src/config.rs:1142
 msgid "option '{}' does not take a value"
-msgstr "a(z) „{}” opció nem vesz fel értéket"
+msgstr "a(z) „{}” kapcsoló nem vesz fel értéket"
 
 #: src/config.rs:1177 src/resolver.rs:137
 msgid "There are {n} providers available for {pkg}:"
@@ -245,7 +245,7 @@ msgstr "letöltés: {pkg}"
 
 #: src/download.rs:279
 msgid "Downloading PKGBUILDs..."
-msgstr "A PKGBUILD-ek letöltése..."
+msgstr "A PKGBUILD-ek letöltése…"
 
 #: src/download.rs:283
 msgid " PKGBUILDs up to date"
@@ -333,31 +333,31 @@ msgstr "    paru {-V --version}"
 
 #: src/help.rs:12
 msgid "    paru {-D --database}    <options> <package(s)>"
-msgstr "    paru {-D --database}    <opciók> <csomag(ok)>"
+msgstr "    paru {-D --database}    <kapcsolók> <csomag(ok)>"
 
 #: src/help.rs:13
 msgid "    paru {-F --files}       [options] [package(s)]"
-msgstr "    paru {-F --files}       [opciók] [csomag(ok)]"
+msgstr "    paru {-F --files}       [kapcsolók] [csomag(ok)]"
 
 #: src/help.rs:14
 msgid "    paru {-Q --query}       [options] [package(s)]"
-msgstr "    paru {-Q --query}       [opciók] [csomag(ok)]"
+msgstr "    paru {-Q --query}       [kapcsolók] [csomag(ok)]"
 
 #: src/help.rs:15
 msgid "    paru {-R --remove}      [options] <package(s)>"
-msgstr "    paru {-R --remove}      [opciók] <csomag(ok)>"
+msgstr "    paru {-R --remove}      [kapcsolók] <csomag(ok)>"
 
 #: src/help.rs:16
 msgid "    paru {-S --sync}        [options] [package(s)]"
-msgstr "    paru {-S --sync}        [opciók] [csomag(ok)]"
+msgstr "    paru {-S --sync}        [kapcsolók] [csomag(ok)]"
 
 #: src/help.rs:17
 msgid "    paru {-T --deptest}     [options] [package(s)]"
-msgstr "    paru {-T --deptest}     [opciók] [csomag(ok)]"
+msgstr "    paru {-T --deptest}     [kapcsolók] [csomag(ok)]"
 
 #: src/help.rs:18
 msgid "    paru {-U --upgrade}     [options] [file(s)]"
-msgstr "    paru {-U --upgrade}     [opciók] [fájl(ok)]"
+msgstr "    paru {-U --upgrade}     [kapcsolók] [fájl(ok)]"
 
 #: src/help.rs:20
 msgid "New operations:"
@@ -365,7 +365,7 @@ msgstr "Új műveletek:"
 
 #: src/help.rs:21
 msgid "    paru {-P --show}        [options]"
-msgstr "    paru {-P --show}        [opciók]"
+msgstr "    paru {-P --show}        [kapcsolók]"
 
 #: src/help.rs:22
 msgid "    paru {-G --getpkgbuild} [package(s)]"
@@ -381,7 +381,7 @@ msgstr "Ha nem kap argumentumokat, akkor a „paru -Syu” parancsot hajtja vég
 
 #: src/help.rs:27
 msgid "Options without operation:"
-msgstr "Opciók műveletek nélkül:"
+msgstr "Kapcsolók műveletek nélkül:"
 
 #: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
@@ -391,12 +391,12 @@ msgstr "    -c --clean            Felesleges függőségek eltávolítása"
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            A frissítéshez használt fejlesztői csomag "
-"adatbázist generálja"
+"       --gendb            A frissítéshez használt fejlesztői "
+"csomagadatbázist állítja elő"
 
 #: src/help.rs:31
 msgid "New options:"
-msgstr "Új opciók:"
+msgstr "Új kapcsolók:"
 
 #: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
@@ -430,13 +430,13 @@ msgstr ""
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Alternatív AUR URL-cím beállítása"
+msgstr "    --aururl    <url>      Alternatív AUR-webcím beállítása"
 
 #: src/help.rs:40
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr ""
-"    --aurrpcur  <url>      Alternatív URL-cím beállítása az AUR /rpc "
+"    --aurrpcur  <url>      Alternatív webcím beállítása az AUR /rpc "
 "végponthoz"
 
 #: src/help.rs:41
@@ -496,7 +496,7 @@ msgstr "    --gpgflags  <flags>    Argumentumok átadása a gpg-nek"
 #: src/help.rs:55
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
-"    --fm        <file>     A PKGBUILD felülvizsgálatához használandó "
+"    --fm        <file>     A PKGBUILD felülvizsgálatához használni kívánt "
 "fájlkezelő"
 
 #: src/help.rs:56
@@ -514,7 +514,7 @@ msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
 "    --sortby    <field>    Az AUR-eredmények rendezése egy adott mező "
-"szerint keresés közben"
+"szerint kereséskor"
 
 #: src/help.rs:60
 msgid "    --searchby  <field>    Search for packages using a specified field"
@@ -524,8 +524,7 @@ msgstr "    --searchby  <field>    Csomagok keresése egy megadott mező szerint
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
-"    --limit     <limit>    Korlátozza a keresés során visszaadott elemek "
-"számát"
+"    --limit     <limit>    Korlátozza a kereséskor visszaadott elemek számát"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
@@ -580,13 +579,13 @@ msgstr ""
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      A pkgbuild-ek felülvizsgálata során végrehajtott "
+"    --[no]savechanges      A pkgbuild-ek felülvizsgálatakor végrehajtott "
 "változások átvezetése"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Új hírek megjelenítése a rendszerfrissítés során"
+"    --[no]newsonupgrade    Új hírek megjelenítése a rendszerfrissítéskor"
 
 #: src/help.rs:76
 msgid ""
@@ -615,7 +614,7 @@ msgstr ""
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
-"    --[no]devel            Rendszerfrissítés közben ellenőrízze a fejlesztői "
+"    --[no]devel            Rendszerfrissítéskor ellenőrizze a fejlesztői "
 "csomagokat"
 
 #: src/help.rs:80
@@ -624,7 +623,7 @@ msgid ""
 "provides them"
 msgstr ""
 "    --[no]installdebug     Hibakereső csomagok telepítése, amennyiben azok "
-"elérhetőek a csomaghoz"
+"elérhetők a csomaghoz"
 
 #: src/help.rs:81
 msgid ""
@@ -701,7 +700,7 @@ msgstr ""
 
 #: src/help.rs:94
 msgid "show specific options:"
-msgstr "különleges opciók megjelenítése:"
+msgstr "speciális kapcsolók megjelenítése:"
 
 #: src/help.rs:95
 msgid "    -c --complete         Used for completions"
@@ -717,7 +716,7 @@ msgstr "    -w --news             Arch hírek megjelenítése"
 
 #: src/help.rs:99
 msgid "getpkgbuild specific options:"
-msgstr "a getpkgbuild különleges opciói:"
+msgstr "a getpkgbuild speciális kapcsolói:"
 
 #: src/help.rs:100
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -733,7 +732,7 @@ msgstr "    -s --ssh              Csomag klónozása SSH használatával"
 
 #: src/help.rs:104
 msgid "Build specific options:"
-msgstr "A build különleges opciói:"
+msgstr "A build speciális kapcsolói:"
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
@@ -741,7 +740,7 @@ msgstr "    -i --install          Csomagösszeállítás és telepítés"
 
 #: src/info.rs:57 src/info.rs:182 src/query.rs:49
 msgid "package '{}' was not found"
-msgstr "nem található a(z) '{}' nevezetű csomag"
+msgstr "nem található a(z) „{}” nevezetű csomag"
 
 #: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Name"
@@ -781,7 +780,7 @@ msgstr "Függőségek ellenőrzése"
 
 #: src/info.rs:97 src/info.rs:203 src/info.rs:243
 msgid "Optional Deps"
-msgstr "Opcionális függőségek"
+msgstr "Nem kötelező függőségek"
 
 #: src/info.rs:98 src/info.rs:204 src/info.rs:244
 msgid "Conflicts With"
@@ -825,7 +824,7 @@ msgstr "Kulcsszavak"
 
 #: src/info.rs:108 src/info.rs:260
 msgid "Snapshot URL"
-msgstr "Pillanatkép URL-cím"
+msgstr "Pillanatkép webcíme"
 
 #: src/info.rs:109 src/info.rs:205
 msgid "Path"
@@ -891,7 +890,7 @@ msgstr "fejlesztői információk lekérése..."
 
 #: src/install.rs:883 src/lib.rs:244
 msgid "no targets specified (use -h for help)"
-msgstr "nincsenek célok megadva (használja a -h opciót a segítségért)"
+msgstr "nincsenek célok megadva (tekintse meg a súgót a -h kapcsolóval)"
 
 #: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:308
@@ -972,7 +971,8 @@ msgstr "Az ütköző csomagokat kézzel kell megerősíteni"
 
 #: src/install.rs:1442
 msgid "can not install conflicting packages with --noconfirm"
-msgstr "nem telepíthet egymásnak ellentmondó csomagokat a --noconfirm opcióval"
+msgstr ""
+"nem telepíthet egymásnak ellentmondó csomagokat a --noconfirm kapcsolóval"
 
 #: src/install.rs:1565
 msgid "failed to execute file manager: {}"
@@ -1036,17 +1036,17 @@ msgstr "nincsenek új hírek"
 
 #: src/pkgbuild.rs:72
 msgid "repo {} does not have a URL or Path"
-msgstr "a(z) {} tároló nem rendelkezik URL-címmel vagy elérési útvonallal"
+msgstr "a(z) {} tároló nem rendelkezik webcímmel vagy elérési útvonallal"
 
 #: src/pkgbuild.rs:134
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
-"a(z) {} tároló nincs letöltve (használja a -Sy --pkgbuilds opciót a "
+"a(z) {} tároló nincs letöltve (használja a -Sy --pkgbuilds kapcsolókat a "
 "letöltéshez)"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr ".SRCINFO generálása a {repo}/{dir} számára..."
+msgstr ".SRCINFO előállítása a(z) {repo}/{dir} számára..."
 
 #: src/pkgbuild.rs:259
 msgid "failed to parse srcinfo \"{}\""
@@ -1058,15 +1058,15 @@ msgstr "A PKGBUILD tárolók letöltése..."
 
 #: src/pkgbuild.rs:390
 msgid "failed to parse srcinfo generated by makepkg"
-msgstr "nem sikerült elemezni a makepkg által generált srcinfo-t"
+msgstr "nem sikerült elemezni a makepkg által előállított srcinfo-t"
 
 #: src/query.rs:147
 msgid " [ignored]"
-msgstr " [elutasítva]"
+msgstr " [mellőzött]"
 
 #: src/repo.rs:171
 msgid "failed to get current exe"
-msgstr "nem sikerült lekérni az aktuális végrehajtható fájlt"
+msgstr "nem sikerült lekérni az jelenlegi végrehajtható fájlt"
 
 #: src/repo.rs:218
 msgid "syncing local databases..."
@@ -1114,7 +1114,7 @@ msgstr "egyetlen csomag sem felel meg a keresésnek"
 
 #: src/search.rs:489
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "Telepítendő csomagok (pl.: 1 2 3, 1-3):"
+msgstr "Telepíteni kívánt csomagok (pl.: 1 2 3, 1-3):"
 
 #: src/search.rs:491
 msgid "Select packages (eg: 1 2 3, 1-3):"
@@ -1170,7 +1170,7 @@ msgstr "{pkg}: a csomagfrissítés figyelmen kívül hagyása ({old} => {new})"
 
 #: src/upgrade.rs:406
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Kihagyandó csomagok (pl.: 1 2 3, 1-3):"
+msgstr "Kihagyni kívánt csomagok (pl.: 1 2 3, 1-3):"
 
 #: src/util.rs:120
 msgid "[Y/n]:"
@@ -1221,7 +1221,7 @@ msgstr ""
 
 #: src/lib.rs:317
 msgid "no operation specified (use -h for help)"
-msgstr "nem adott meg opciót (használja a -h opciót a segítségért)"
+msgstr "nem adott meg kapcsolót (tekintse meg a súgót a -h kapcsolóval)"
 
 #: src/lib.rs:513
 msgid " [installed: {}]"
