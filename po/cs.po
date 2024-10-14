@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2024-02-13 19:40+0100\n"
+"PO-Revision-Date: 2024-10-14 12:43+0200\n"
 "Last-Translator: walken <walken@centrum.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -955,7 +955,7 @@ msgstr "nepodařilo se spustit správce souborů: {}"
 
 #: src/install.rs:1568
 msgid "file manager did not execute successfully"
-msgstr "správce souborů se nesputil"
+msgstr "správce souborů se nespustil"
 
 #: src/install.rs:1585
 msgid "failed to read dir: {}"
@@ -1019,7 +1019,7 @@ msgstr "repozitář {} se nestáhl (použijte -Sy --pkgbuilds ke stažení)"
 
 #: src/pkgbuild.rs:181
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr "Vytvářím .SRCINFO for {repo}/{dir}..."
+msgstr "Vytvářím .SRCINFO pro {repo}/{dir}..."
 
 #: src/pkgbuild.rs:259
 msgid "failed to parse srcinfo \"{}\""
