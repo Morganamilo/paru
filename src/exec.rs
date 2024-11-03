@@ -4,7 +4,7 @@ use crate::config::Config;
 use std::ffi::OsStr;
 use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
-use std::process::{Command, Output, Stdio};
+use std::process::{Command, Output};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -88,6 +88,22 @@ fn command_err(cmd: &Command) -> String {
             .join(" ")
     )
 }
+pub fn get_privileged_command() -> String {
+    println!("Looking for doas...");
+    if Command::new("doas").output().is_ok() {
+        println!("Found doas.");
+        "doas".to_string()
+    } else {
+        println!("doas not found. Falling back to sudo.");
+        "sudo".to_string()
+    }
+}
+
+pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
+    update_sudo(&sudo, &flags)?;
+    thread::spawn(move || sudo_loop(&sudo, &flags));
+    Ok(())
+}
 
 fn command_status(cmd: &mut Command) -> Result<Status> {
     debug!("running command: {:?}", cmd);
@@ -98,7 +114,7 @@ fn command_status(cmd: &mut Command) -> Result<Status> {
     let ret = cmd
         .status()
         .map(|s| Status(s.code().unwrap_or(1)))
-        .with_context(|| command_err(cmd));
+        .context(|| command_err(cmd)());
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
 
@@ -110,9 +126,7 @@ fn command_status(cmd: &mut Command) -> Result<Status> {
 
 pub fn command(cmd: &mut Command) -> Result<()> {
     debug!("running command: {:?}", cmd);
-    command_status(cmd)?
-        .success()
-        .with_context(|| command_err(cmd))?;
+    command_status(cmd)?;
     Ok(())
 }
 
@@ -141,21 +155,22 @@ pub fn command_output(cmd: &mut Command) -> Result<Output> {
     Ok(ret)
 }
 
-pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
-    update_sudo(&sudo, &flags)?;
-    thread::spawn(move || sudo_loop(&sudo, &flags));
+pub fn spawn_privileged_command(flags: Vec<String>) -> Result<()> {
+    let privileged_cmd = get_privileged_command();
+    update_privileged_command(&privileged_cmd, &flags)?;
+    thread::spawn(move || privileged_command_loop(&privileged_cmd, &flags));
     Ok(())
 }
 
-fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
+fn privileged_command_loop<S: AsRef<OsStr>>(privileged_cmd: &str, flags: &[S]) -> Result<()> {
     loop {
         thread::sleep(Duration::from_secs(250));
-        update_sudo(sudo, flags)?;
+        update_privileged_command(privileged_cmd, flags)?;
     }
 }
 
-fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    let mut cmd = Command::new(sudo);
+fn update_privileged_command<S: AsRef<OsStr>>(privileged_cmd: &str, flags: &[S]) -> Result<()> {
+    let mut cmd = Command::new(privileged_cmd);
     cmd.args(flags);
     let status = command_status(&mut cmd)?;
     status.success()?;
@@ -169,8 +184,7 @@ fn wait_for_lock(config: &Config) {
         println!(
             "{} {}",
             c.error.paint("::"),
-            c.bold
-                .paint(tr!("Pacman is currently in use, please wait..."))
+            c.bold.paint(tr!("Pacman is currently in use, please wait..."))
         );
 
         while path.exists() {
@@ -179,10 +193,11 @@ fn wait_for_lock(config: &Config) {
     }
 }
 
+
 fn new_pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) -> Command {
     let mut cmd = if config.need_root {
         wait_for_lock(config);
-        let mut cmd = Command::new(&config.sudo_bin);
+        let mut cmd = Command::new(&get_privileged_command());
         cmd.args(&config.sudo_flags).arg(args.bin.as_ref());
         cmd
     } else {
@@ -206,7 +221,6 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
     args: &Args<S>,
 ) -> Result<Output> {
     let mut cmd = new_pacman(config, args);
-    cmd.stdin(Stdio::inherit());
     command_output(&mut cmd)
 }
 
