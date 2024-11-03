@@ -141,7 +141,9 @@ impl Installer {
         if !config.sudo_loop.is_empty() {
             let mut flags = config.sudo_flags.clone();
             flags.extend(config.sudo_loop.clone());
-            exec::spawn_privileged_command(config.sudo_bin.clone(), flags)?;
+            let mut privilege_flags = vec![config.sudo_bin.clone()];
+            privilege_flags.extend(flags);
+            exec::spawn_privileged_command(privilege_flags)?;
         }
         Ok(())
     }
