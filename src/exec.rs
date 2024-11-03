@@ -105,6 +105,23 @@ pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
     Ok(())
 }
 
+fn update_sudo(sudo: &str, flags: &[String]) -> Result<()> {
+    let mut cmd = Command::new(sudo);
+    cmd.args(flags);
+    let status = command_status(&mut cmd)?;
+    status.success()?;
+    Ok(())
+}
+
+fn sudo_loop(sudo: &str, flags: &[String]) {
+    loop {
+        thread::sleep(Duration::from_secs(250));
+        if let Err(e) = update_sudo(sudo, flags) {
+            eprintln!("Failed to update sudo: {}", e);
+        }
+    }
+}
+
 fn command_status(cmd: &mut Command) -> Result<Status> {
     debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
@@ -114,7 +131,7 @@ fn command_status(cmd: &mut Command) -> Result<Status> {
     let ret = cmd
         .status()
         .map(|s| Status(s.code().unwrap_or(1)))
-        .context(|| command_err(cmd)());
+        .context(|| command_err(cmd).to_string());
 
     DEFAULT_SIGNALS.store(true, Ordering::Relaxed);
 
