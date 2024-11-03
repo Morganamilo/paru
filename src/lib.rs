@@ -39,7 +39,6 @@ extern crate smart_default;
 use crate::chroot::Chroot;
 use crate::config::{Config, Op};
 use crate::query::print_upgrade_list;
-use crate::exec::Status;
 
 use std::collections::HashMap;
 use std::env::{self, current_dir};
@@ -92,7 +91,7 @@ fn print_error(color: Style, err: Error) {
     let mut iter = err.chain().peekable();
 
     if <dyn StdError>::is::<exec::PacmanError>(*iter.peek().unwrap())
-        || <dyn StdError>::is::<Status>(*iter.peek().unwrap())
+        || <dyn StdError>::is::<exec::Status>(*iter.peek().unwrap())
     {
         eprint!("{}", iter.peek().unwrap());
         return;
