@@ -238,7 +238,7 @@ fn wait_for_lock(config: &Config) {
 fn new_pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) -> Command {
     let mut cmd = if config.need_root {
         wait_for_lock(config);
-        let mut cmd = Command::new(&config.sudo_bin);
+        let mut cmd = Command::new(&get_privileged_command());
         cmd.args(&config.sudo_flags).arg(args.bin.as_ref());
         cmd
     } else {
