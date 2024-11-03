@@ -89,6 +89,62 @@ fn command_err(cmd: &Command) -> String {
     )
 }
 
+pub fn get_privileged_command() -> String {
+    if Command::new("doas").output().is_ok() {
+        "doas".to_string()
+    } else if Command::new("run0").output().is_ok() {
+        "run0".to_string()
+    } else {
+        "sudo".to_string()
+    }
+}
+
+pub fn spawn_privileged_command(flags: Vec<String>) -> Result<()> {
+    let privileged_cmd = get_privileged_command();
+    match privileged_cmd.as_str() {
+        "doas" | "sudo" => {
+            update_privileged_command(&privileged_cmd, &flags)?;
+            thread::spawn(move || privileged_command_loop(&privileged_cmd, &flags));
+        }
+        "run0" => {
+            update_run0(&flags)?;
+            thread::spawn(move || {
+                loop {
+                    thread::sleep(Duration::from_secs(250));
+                    if let Err(e) = update_run0(&flags) {
+                        eprintln!("Failed to update run0: {}", e);
+                    }
+                }
+            });
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn update_privileged_command<S: AsRef<OsStr>>(privileged_cmd: &str, flags: &[S]) -> Result<()> {
+    let mut cmd = Command::new(privileged_cmd);
+    cmd.args(flags);
+    let status = command_status(&mut cmd)?;
+    status.success()?;
+    Ok(())
+}
+
+fn update_run0<S: AsRef<OsStr>>(flags: &[S]) -> Result<()> {
+    let mut cmd = Command::new("run0");
+    cmd.args(flags);
+    let status = command_status(&mut cmd)?;
+    status.success()?;
+    Ok(())
+}
+
+fn privileged_command_loop<S: AsRef<OsStr>>(privileged_cmd: &str, flags: &[S]) -> Result<()> {
+    loop {
+        thread::sleep(Duration::from_secs(250));
+        update_privileged_command(privileged_cmd, flags)?;
+    }
+}
+
 fn command_status(cmd: &mut Command) -> Result<Status> {
     debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
