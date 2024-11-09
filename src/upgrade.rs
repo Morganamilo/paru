@@ -17,11 +17,9 @@ use tr::tr;
 pub struct Upgrades {
     pub aur_repos: HashMap<String, String>,
     pub pkgbuild_keep: Vec<(String, String)>,
-    pub pkgbuild_skip: Vec<(String, String)>,
     pub repo_keep: Vec<String>,
     pub repo_skip: Vec<String>,
     pub aur_keep: Vec<String>,
-    pub aur_skip: Vec<String>,
     pub devel: HashSet<String>,
 }
 
@@ -233,10 +231,8 @@ pub async fn get_upgrades<'a, 'b>(
 
     let mut repo_skip = Vec::new();
     let mut repo_keep = Vec::new();
-    let mut aur_skip = Vec::new();
     let mut aur_keep = Vec::new();
     let mut custom_keep = Vec::new();
-    let mut custom_skip = Vec::new();
 
     let mut aur_repos = HashMap::new();
     for pkg in &aur_upgrades {
@@ -274,11 +270,9 @@ pub async fn get_upgrades<'a, 'b>(
 
         let upgrades = Upgrades {
             pkgbuild_keep: pkgbuild_updates,
-            pkgbuild_skip: custom_skip,
             aur_repos,
             repo_keep: repo_upgrades.iter().map(|p| p.name().to_string()).collect(),
             aur_keep: aur,
-            aur_skip,
             repo_skip,
             devel: devel_upgrades.into_iter().map(|t| t.pkg).collect(),
         };
@@ -427,8 +421,6 @@ pub async fn get_upgrades<'a, 'b>(
             .unwrap_or("aur");
         if !number_menu.contains(index, remote) || input.is_empty() {
             aur_keep.push(pkg.local.name().to_string());
-        } else {
-            aur_skip.push(pkg.local.name().to_string());
         }
         index -= 1;
     }
@@ -445,9 +437,8 @@ pub async fn get_upgrades<'a, 'b>(
 
         match (keep, is_aur) {
             (true, true) => aur_keep.push(pkg.pkg.to_string()),
-            (false, true) => aur_skip.push(pkg.pkg.to_string()),
             (true, false) => custom_keep.push((pkg.repo.clone().unwrap(), pkg.pkg.clone())),
-            (false, false) => custom_skip.push((pkg.repo.clone().unwrap(), pkg.pkg.clone())),
+            (false, _) => (),
         }
 
         index -= 1;
@@ -460,20 +451,16 @@ pub async fn get_upgrades<'a, 'b>(
             .unwrap_or(&pkg.repo);
         if !number_menu.contains(index, remote) || input.is_empty() {
             custom_keep.push((pkg.repo.clone(), pkg.local.name().to_string()));
-        } else {
-            custom_skip.push((pkg.repo.clone(), pkg.local.name().to_string()));
         }
         index -= 1;
     }
 
     let upgrades = Upgrades {
         pkgbuild_keep: custom_keep,
-        pkgbuild_skip: custom_skip,
         aur_repos,
         repo_keep,
         repo_skip,
         aur_keep,
-        aur_skip,
         devel: devel_upgrades.into_iter().map(|t| t.pkg).collect(),
     };
 
