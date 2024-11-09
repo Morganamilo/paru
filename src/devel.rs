@@ -250,7 +250,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
     Ok(())
 }
 
-async fn ls_remote_intenral(
+async fn ls_remote_internal(
     git: &str,
     flags: &[String],
     remote: &str,
@@ -293,7 +293,7 @@ async fn ls_remote(
 ) -> Result<String> {
     let remote = &remote;
     let time = Duration::from_secs(15);
-    let future = ls_remote_intenral(git, flags, remote, branch);
+    let future = ls_remote_internal(git, flags, remote, branch);
     let future = timeout(time, future);
 
     if let Ok(v) = future.await {
