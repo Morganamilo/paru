@@ -267,7 +267,7 @@ fn print_pkgbuild_pkg(
         "{}/{} {}",
         color_repo(c.enabled, repo),
         c.ss_name.paint(&pkg.pkgname),
-        c.ss_ver.paint(&srcinfo.version()),
+        c.ss_ver.paint(srcinfo.version()),
     );
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.pkgname) {

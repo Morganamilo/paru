@@ -132,7 +132,7 @@ fn print_pkg(config: &Config, mut stdout: impl Write, line: &[u8], repo: &str, v
 
     if config.args.has_arg("q", "quiet") {
         let _ = stdout.write_all(line);
-        let _ = stdout.write_all(&[b'\n']);
+        let _ = stdout.write_all(b"\n");
         return;
     }
     let _ = crepo.paint(repo.as_bytes()).write_to(&mut stdout);
@@ -147,5 +147,5 @@ fn print_pkg(config: &Config, mut stdout: impl Write, line: &[u8], repo: &str, v
             .write_to(&mut stdout);
     }
 
-    let _ = stdout.write_all(&[b'\n']);
+    let _ = stdout.write_all(b"\n");
 }

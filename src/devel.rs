@@ -348,7 +348,7 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
 
     for pkg in db.pkgs().iter() {
-        let name = pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
@@ -411,12 +411,12 @@ pub async fn filter_devel_updates(
 
     let (_, dbs) = repo::repo_aur_dbs(config);
     for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
-        let name = pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
     for pkg in db.pkgs().iter() {
-        let name = pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
@@ -571,19 +571,19 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
     }
 
     for pkg in config.alpm.localdb().pkgs().iter() {
-        let name = pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
     let (_, dbs) = repo::repo_aur_dbs(config);
     for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
-        let name = pkg_base_or_name(&pkg);
+        let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
     devel_info
         .info
-        .retain(|pkg, _| pkgbases.get(pkg.as_str()).is_some());
+        .retain(|pkg, _| pkgbases.contains_key(pkg.as_str()));
 
     save_devel_info(config, &devel_info)?;
 

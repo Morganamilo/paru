@@ -23,7 +23,11 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
 
     create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");
-    let file = OpenOptions::new().write(true).create(true).open(&path);
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(&path);
     let mut file = file.with_context(|| tr!("failed to open cache file '{}'", path.display()))?;
 
     for line in data.split(|&c| c == b'\n').skip(1) {

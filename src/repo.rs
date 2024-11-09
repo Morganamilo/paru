@@ -180,7 +180,7 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
     }
 
     for db in dbs {
-        let path = file(&db);
+        let path = file(db);
         if let Some(path) = path {
             init(config, path, db.name())?;
         }
@@ -277,7 +277,7 @@ pub fn clean(config: &mut Config) -> Result<i32> {
 
     for pkgs in rem {
         let repo = pkgs[0].db().unwrap();
-        let path = file(&repo).unwrap();
+        let path = file(repo).unwrap();
         let pkgs = pkgs.iter().map(|p| p.name()).collect::<Vec<_>>();
         remove(config, path, repo.name(), &pkgs)?;
     }

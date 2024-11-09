@@ -642,7 +642,7 @@ impl Installer {
                     .iter()
                     .find(|db| db.name() == *repo)
                     .unwrap();
-                let path = repo::file(&repo).unwrap();
+                let path = repo::file(repo).unwrap();
                 let name = repo.name().to_string();
                 repo::add(config, path, &name, &paths)?;
                 repo::refresh(config, &[name])?;
@@ -820,7 +820,7 @@ impl Installer {
         let (_, repo) = repo::repo_aur_dbs(config);
         let default_repo = repo.first();
         if let Some(repo) = default_repo {
-            let file = repo::file(&repo).unwrap();
+            let file = repo::file(repo).unwrap();
             repo::init(config, file, repo.name())?;
         }
 
@@ -833,7 +833,7 @@ impl Installer {
         }
 
         let repo_server =
-            default_repo.map(|r| (r.name().to_string(), repo::file(&r).unwrap().to_string()));
+            default_repo.map(|r| (r.name().to_string(), repo::file(r).unwrap().to_string()));
         drop(repo);
 
         for base in build {
@@ -1256,14 +1256,14 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
         warnings.missing = pkgs
             .iter()
             .filter(|pkg| !cache.contains(pkg.name()))
-            .filter(|pkg| !is_debug(**pkg))
+            .filter(|pkg| !is_debug(pkg))
             .map(|pkg| pkg.name())
             .filter(|pkg| !config.no_warn.is_match(pkg))
             .collect::<Vec<_>>();
 
         warnings.ood = pkgs
             .iter()
-            .filter(|pkg| !is_debug(**pkg))
+            .filter(|pkg| !is_debug(pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
@@ -1272,7 +1272,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
 
         warnings.orphans = pkgs
             .iter()
-            .filter(|pkg| !is_debug(**pkg))
+            .filter(|pkg| !is_debug(pkg))
             .filter_map(|pkg| cache.get(pkg.name()))
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
