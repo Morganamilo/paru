@@ -2613,13 +2613,3 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[patch.unused]]
-name = "alpm"
-version = "3.0.4"
-source = "git+https://github.com/archlinux/alpm.rs?rev=306342#306342efc6f24739c92de64c432f962a22891e63"
-
-[[patch.unused]]
-name = "aur-depends"
-version = "3.0.0"
-source = "git+https://github.com/Morganamilo/aur-depends?rev=30c2c1#30c2c15019f8dd80e803c9deefce3279079806af"

@@ -70,12 +70,3 @@ static = ["alpm/static"]
 mock = ["async-trait"]
 mock_chroot = ["mock"]
 #default = ["git", "generate"]
-
-[patch.crates-io]
-#alpm = { path = "../alpm.rs/alpm" }
-#alpm-utils = { path = "../alpm.rs/alpm-utils" }
-alpm = { git = "https://github.com/archlinux/alpm.rs", rev = "306342" }
-#alpm-utils = { git = "https://github.com/archlinux/alpm.rs", rev = "8da396" }
-#aur-depends = { path = "../aur-depends" }
-aur-depends = { git = "https://github.com/Morganamilo/aur-depends", rev = "30c2c1"}
-#aur-fetch = { path = "../aur-fetch" }
