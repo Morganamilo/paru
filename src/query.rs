@@ -38,7 +38,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         repo_ret = exec::pacman(config, &args)?.code();
     }
 
-    if !aur.is_empty() {
+    if !aur.is_empty() && (config.mode.pkgbuild() || config.mode.aur()) {
         let error = config.color.error;
 
         for &pkg in &aur {
