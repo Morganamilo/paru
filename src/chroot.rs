@@ -87,6 +87,11 @@ impl Chroot {
             .arg(&self.makepkg_conf)
             .arg(dir);
 
+        if Path::new(&format!("{}.d", self.makepkg_conf)).exists() {
+            cmd.arg("--bind-ro");
+            cmd.arg(format!("{}.d:/etc/makepkg.conf.d", self.makepkg_conf));
+        }
+
         for file in &self.ro {
             cmd.arg("--bind-ro");
             cmd.arg(file);
