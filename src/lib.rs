@@ -565,6 +565,9 @@ fn handle_chroot(config: &Config) -> Result<i32> {
 
     if config.install {
         let mut args = vec!["pacman", "-S"];
+        if config.no_confirm {
+            args.push("--noconfirm");
+        }
         args.extend(config.targets.iter().map(|s| s.as_str()));
         chroot.run(&args)?;
     } else if !config.sysupgrade || !config.targets.is_empty() {
