@@ -806,7 +806,10 @@ impl Config {
 
     [aur]
     SigLevel = PackageOptional DatabaseOptional
-    Server = file:///var/lib/repo/aur"
+    Server = file:///var/lib/repo/aur
+
+then initialise it with:
+    paru -Ly"
                 );
             }
 

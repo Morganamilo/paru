@@ -15,7 +15,7 @@ use std::process::Command;
 use alpm::{AlpmListMut, Db};
 use ansi_term::Style;
 use anyhow::{Context, Error, Result};
-use nix::unistd::{self, User};
+use nix::unistd::{Gid, Uid, User};
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
 
@@ -30,7 +30,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
         if pkgs.is_empty() {
             return Ok(());
         }
-        read_link(db).context("readlink")?
+        read_link(&db).context("readlink")?
     } else if !name.contains(".db.") {
         PathBuf::from(format!("{}.db.tar.gz", name))
     } else {
@@ -40,19 +40,20 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
     let path = path.as_ref();
     let file = path.join(name);
 
-    let user = unistd::getuid();
-    let group = unistd::getgid();
-
-    if !path.exists() {
-        let mut cmd = Command::new(&config.sudo_bin);
-        cmd.arg("install")
-            .arg("-dm755")
-            .arg("-o")
-            .arg(user.to_string())
-            .arg("-g")
-            .arg(group.to_string())
-            .arg(path);
-        exec::command(&mut cmd)?;
+    if !db.exists() {
+        let mut cmd = Command::new("install");
+        cmd.arg("-dm755").arg(path);
+        if exec::command_output(&mut cmd).is_err() {
+            let mut cmd = Command::new(&config.sudo_bin);
+            cmd.arg("install")
+                .arg("-dm755")
+                .arg("-o")
+                .arg(Uid::current().as_raw().to_string())
+                .arg("-g")
+                .arg(Gid::current().as_raw().to_string())
+                .arg(path);
+            exec::command(&mut cmd)?;
+        }
     }
 
     let pkgs = pkgs
@@ -78,7 +79,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     let err = exec::command(&mut cmd);
 
-    let user = User::from_uid(user).unwrap().unwrap();
+    let user = User::from_uid(Uid::current()).unwrap().unwrap();
 
     if err.is_err() {
         eprintln!(
