@@ -367,11 +367,26 @@ pub fn clean(config: &mut Config) -> Result<i32> {
         return Ok(1);
     }
 
-    for pkgs in rem {
+    for pkgs in &rem {
         let repo = pkgs[0].db().unwrap();
         let path = file(repo).unwrap();
         let pkgs = pkgs.iter().map(|p| p.name()).collect::<Vec<_>>();
         remove(config, path, repo.name(), &pkgs)?;
+    }
+
+    let mut rmfiles = Vec::new();
+
+    for pkg in rem.iter().flatten() {
+        let repo = pkg.db().unwrap();
+        let path = file(repo).unwrap();
+        let pkgfile = Path::new(path).join(pkg.filename().unwrap());
+        rmfiles.push(pkgfile);
+    }
+
+    if !rmfiles.is_empty() {
+        let mut cmd = Command::new(&config.sudo_bin);
+        cmd.arg("rm").args(rmfiles);
+        exec::command(&mut cmd)?;
     }
 
     let (_, repos) = repo_aur_dbs(config);
