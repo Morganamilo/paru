@@ -40,10 +40,9 @@ use crate::chroot::Chroot;
 use crate::config::{Config, Op};
 use crate::query::print_upgrade_list;
 
-use std::collections::HashMap;
 use std::env::{self, current_dir};
 use std::error::Error as StdError;
-use std::fs::{read_dir, read_to_string};
+use std::fs::read_to_string;
 use std::io::Write;
 
 use std::path::PathBuf;
@@ -374,8 +373,6 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
 }
 
 fn handle_repo(config: &mut Config) -> Result<i32> {
-    use std::os::unix::ffi::OsStrExt;
-
     let repoc = config.color.sl_repo;
     let pkgc = config.color.sl_pkg;
     let version = config.color.sl_version;
@@ -397,91 +394,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
         repo::refresh(config, &repos)?;
     }
 
-    let (_, mut repos) = repo::repo_aur_dbs(config);
-    repos.retain(|r| {
-        config.delete >= 1
-            || config.uninstall
-            || config.targets.is_empty()
-            || config.targets.contains(&r.name().to_string())
-    });
-
-    if config.delete >= 1 {
-        let mut remove = HashMap::<&str, Vec<&str>>::new();
-        let mut rmfiles = Vec::new();
-        for repo in &repos {
-            for pkg in repo.pkgs() {
-                if config.targets.iter().any(|p| p == pkg.name()) {
-                    remove.entry(repo.name()).or_default().push(pkg.name());
-                }
-            }
-        }
-
-        let cb = config.alpm.take_raw_log_cb();
-        for repo in &repos {
-            if let Some(pkgs) = remove.get(&repo.name()) {
-                let path = repo
-                    .servers()
-                    .first()
-                    .unwrap()
-                    .trim_start_matches("file://");
-                repo::remove(config, path, repo.name(), pkgs)?;
-
-                let files = read_dir(path)?;
-
-                for file in files {
-                    let file = file?;
-                    if let Ok(pkg) = config.alpm.pkg_load(
-                        file.path().as_os_str().as_bytes(),
-                        false,
-                        alpm::SigLevel::NONE,
-                    ) {
-                        if pkgs.contains(&pkg.name()) {
-                            rmfiles.push(file.path());
-
-                            let mut sig = file.path().to_path_buf().into_os_string();
-                            sig.push(".sig");
-                            let sig = PathBuf::from(sig);
-                            if sig.exists() {
-                                rmfiles.push(sig);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        config.alpm.set_raw_log_cb(cb);
-
-        if !rmfiles.is_empty() {
-            let mut cmd = Command::new(&config.sudo_bin);
-            cmd.arg("rm").args(rmfiles);
-            exec::command(&mut cmd)?;
-        }
-
-        let repos = repos
-            .into_iter()
-            .map(|r| r.name().to_string())
-            .collect::<Vec<_>>();
-        repo::refresh(config, &repos)?;
-
-        if config.delete >= 2 {
-            config.need_root = true;
-            let db = config.alpm.localdb();
-            let pkgs = config
-                .targets
-                .iter()
-                .map(|p| p.as_str())
-                .filter(|p| db.pkg(*p).is_ok());
-
-            let mut args = config.pacman_globals();
-            args.op("remove");
-            args.targets = pkgs.collect();
-            if !args.targets.is_empty() {
-                exec::pacman(config, &args)?.success()?;
-            }
-        }
-
-        return Ok(0);
-    }
+    repo::delete(config)?;
 
     if config.refresh || config.sysupgrade {
         return Ok(0);
@@ -494,44 +407,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
             || config.targets.contains(&r.name().to_string())
     });
 
-    for repo in repos {
-        if config.list {
-            for pkg in repo.pkgs() {
-                if config.quiet {
-                    println!("{}", pkg.name());
-                } else {
-                    print!(
-                        "{} {} {}",
-                        repoc.paint(repo.name()),
-                        pkgc.paint(pkg.name()),
-                        version.paint(pkg.version().as_str())
-                    );
-                    let local_pkg = config.alpm.localdb().pkg(pkg.name());
-
-                    if let Ok(local_pkg) = local_pkg {
-                        let installed = if local_pkg.version() != pkg.version() {
-                            tr!(" [installed: {}]", local_pkg.version())
-                        } else {
-                            tr!(" [installed]")
-                        };
-                        print!("{}", installedc.paint(installed));
-                    }
-                    println!();
-                }
-            }
-        } else if config.quiet {
-            println!("{}", repo.name());
-        } else {
-            println!(
-                "{} {}",
-                repo.name(),
-                repo.servers()
-                    .first()
-                    .unwrap()
-                    .trim_start_matches("file://")
-            );
-        }
-    }
+    repo::print(repos, config, repoc, pkgc, version, installedc);
 
     Ok(0)
 }

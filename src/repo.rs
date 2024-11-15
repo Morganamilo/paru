@@ -4,15 +4,17 @@ use crate::fmt::print_indent;
 use crate::printtr;
 use crate::util::ask;
 
+use std::collections::HashMap;
 use std::env::current_exe;
 use std::ffi::OsStr;
-use std::fs::read_link;
+use std::fs::{read_dir, read_link};
+use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use alpm::{AlpmListMut, Db};
 use ansi_term::Style;
-use anyhow::{Context, Result};
+use anyhow::{Context, Error, Result};
 use nix::unistd::{self, User};
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
@@ -167,6 +169,96 @@ pub fn repo_aur_dbs(config: &Config) -> (AlpmListMut<&Db>, AlpmListMut<&Db>) {
     (repo, aur)
 }
 
+pub fn delete(config: &mut Config) -> Result<(), Error> {
+    let (_, mut repos) = repo_aur_dbs(config);
+    repos.retain(|r| {
+        config.delete >= 1
+            || config.uninstall
+            || config.targets.is_empty()
+            || config.targets.contains(&r.name().to_string())
+    });
+
+    if config.delete >= 1 {
+        let mut rm = HashMap::<&str, Vec<&str>>::new();
+        let mut rmfiles = Vec::new();
+        for repo in &repos {
+            for pkg in repo.pkgs() {
+                if config.targets.iter().any(|p| p == pkg.name()) {
+                    rm.entry(repo.name()).or_default().push(pkg.name());
+                }
+            }
+        }
+
+        let cb = config.alpm.take_raw_log_cb();
+        for repo in &repos {
+            if let Some(pkgs) = rm.get(&repo.name()) {
+                let path = repo
+                    .servers()
+                    .first()
+                    .unwrap()
+                    .trim_start_matches("file://");
+                remove(config, path, repo.name(), pkgs)?;
+
+                let files = read_dir(path)?;
+
+                for file in files {
+                    let file = file?;
+                    if let Ok(pkg) = config.alpm.pkg_load(
+                        file.path().as_os_str().as_bytes(),
+                        false,
+                        alpm::SigLevel::NONE,
+                    ) {
+                        if pkgs.contains(&pkg.name()) {
+                            rmfiles.push(file.path());
+
+                            let mut sig = file.path().to_path_buf().into_os_string();
+                            sig.push(".sig");
+                            let sig = PathBuf::from(sig);
+                            if sig.exists() {
+                                rmfiles.push(sig);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        config.alpm.set_raw_log_cb(cb);
+
+        if !rmfiles.is_empty() {
+            let mut cmd = Command::new(&config.sudo_bin);
+            cmd.arg("rm").args(rmfiles);
+            exec::command(&mut cmd)?;
+        }
+
+        let repos = repos
+            .into_iter()
+            .map(|r| r.name().to_string())
+            .collect::<Vec<_>>();
+        refresh(config, &repos)?;
+
+        if config.delete >= 2 {
+            config.need_root = true;
+            let db = config.alpm.localdb();
+            let pkgs = config
+                .targets
+                .iter()
+                .map(|p| p.as_str())
+                .filter(|p| db.pkg(*p).is_ok());
+
+            let mut args = config.pacman_globals();
+            args.op("remove");
+            args.targets = pkgs.collect();
+            if !args.targets.is_empty() {
+                exec::pacman(config, &args)?.success()?;
+            }
+        }
+
+        return Ok(());
+    }
+
+    Ok(())
+}
+
 pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32> {
     let exe = current_exe().context(tr!("failed to get current exe"))?;
     let c = config.color;
@@ -291,4 +383,52 @@ pub fn clean(config: &mut Config) -> Result<i32> {
     refresh(config, &repo_names)?;
 
     Ok(0)
+}
+
+pub fn print(
+    repos: AlpmListMut<&alpm::Db>,
+    config: &Config,
+    repoc: Style,
+    pkgc: Style,
+    version: Style,
+    installedc: Style,
+) {
+    for repo in repos {
+        if config.list {
+            for pkg in repo.pkgs() {
+                if config.quiet {
+                    println!("{}", pkg.name());
+                } else {
+                    print!(
+                        "{} {} {}",
+                        repoc.paint(repo.name()),
+                        pkgc.paint(pkg.name()),
+                        version.paint(pkg.version().as_str())
+                    );
+                    let local_pkg = config.alpm.localdb().pkg(pkg.name());
+
+                    if let Ok(local_pkg) = local_pkg {
+                        let installed = if local_pkg.version() != pkg.version() {
+                            tr!(" [installed: {}]", local_pkg.version())
+                        } else {
+                            tr!(" [installed]")
+                        };
+                        print!("{}", installedc.paint(installed));
+                    }
+                    println!();
+                }
+            }
+        } else if config.quiet {
+            println!("{}", repo.name());
+        } else {
+            println!(
+                "{} {}",
+                repo.name(),
+                repo.servers()
+                    .first()
+                    .unwrap()
+                    .trim_start_matches("file://")
+            );
+        }
+    }
 }
