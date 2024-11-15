@@ -98,10 +98,10 @@ pub fn split_repo_aur_info<'a, T: AsTarg>(
         } else if !config.mode.aur() && !config.mode.pkgbuild() {
             local.push(targ);
         } else if let Some(repo) = targ.repo {
-            if repo == config.aur_namespace() || repo == "." {
-                aur.push(targ);
-            } else {
+            if config.alpm.syncdbs().iter().any(|db| db.name() == repo) {
                 local.push(targ);
+            } else {
+                aur.push(targ);
             }
         } else if dbs.pkg(targ.pkg).is_ok() {
             local.push(targ);
