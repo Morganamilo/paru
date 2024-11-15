@@ -261,14 +261,30 @@ impl Installer {
             }
 
             args.targets = targets;
+            let ask;
 
-            if !self.conflict
-                && !self.built.is_empty()
+            if !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
                     || config.combined_upgrade
                     || !config.mode.repo())
             {
-                args.arg("noconfirm");
+                if self.conflict {
+                    if config.use_ask {
+                        if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
+                            let num = arg.value.unwrap_or_default();
+                            let mut num = num.parse::<i32>().unwrap_or_default();
+                            num |= alpm::QuestionType::ConflictPkg as i32;
+                            ask = num.to_string();
+                            arg.value = Some(ask.as_str());
+                        } else {
+                            let value = alpm::QuestionType::ConflictPkg as i32;
+                            ask = value.to_string();
+                            args.push_value("ask", ask.as_str());
+                        }
+                    }
+                } else {
+                    args.arg("noconfirm");
+                }
             }
 
             if !args.targets.is_empty()
@@ -1195,6 +1211,13 @@ impl Installer {
             check_pgp_keys(config, actions, &self.srcinfos)?;
         }
 
+        self.conflicts = conflicts
+            .0
+            .iter()
+            .map(|c| c.pkg.clone())
+            .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
+            .collect::<HashSet<_>>();
+
         if !config.chroot {
             repo_install(config, &actions.install)?;
         } else {
@@ -1202,13 +1225,6 @@ impl Installer {
         }
 
         update_aur_list(config);
-
-        self.conflicts = conflicts
-            .0
-            .iter()
-            .map(|c| c.pkg.clone())
-            .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
-            .collect::<HashSet<_>>();
 
         if has_make {
             self.remove_make.extend(
