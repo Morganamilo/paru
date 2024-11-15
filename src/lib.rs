@@ -553,6 +553,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         mflags: config.mflags.clone(),
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
+        extra_pkgs: config.chroot_pkgs.clone(),
     };
 
     if config.print {

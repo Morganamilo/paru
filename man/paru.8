@@ -408,6 +408,19 @@ being passed to makechrootpkg. Multiple arguments may be passed by supplying a
 space separated list that is quoted by the shell.
 
 .TP
+.B \-\-chrootpkgs <package>
+Installs package into the chroot before building. Multiple packages can be
+specified by separating them with a comma.
+
+Useful when PKGBUILDs don't declare needed dependencies.
+
+Note that this is only a temp fix and only applies to this one build. You should
+ideally patch the package yourself or report the problem to the maintainer.
+
+If you want to permanently add a package to the chroot use \fBparu -Ci package\fR
+to install packages into the master chroot.
+
+.TP
 .B \-\-completioninterval <days>
 Time in days to refresh the completion cache. Setting this to 0 will cause the
 cache to be refreshed every time, while setting this to -1 will cause the cache

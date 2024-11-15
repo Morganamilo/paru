@@ -516,6 +516,12 @@ impl Installer {
             self.chroot
                 .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
                 .with_context(|| tr!("failed to download sources for '{}'"))?;
+
+            if !self.chroot.extra_pkgs.is_empty() {
+                let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
+                pkgs.extend(self.chroot.extra_pkgs.iter().map(|s| s.as_str()));
+                self.chroot.run_usr(&pkgs)?;
+            }
         } else {
             // download sources
             let mut args = vec!["--verifysource", "-Af"];
@@ -1776,6 +1782,7 @@ fn chroot(config: &Config) -> Chroot {
 
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
+        extra_pkgs: config.chroot_pkgs.clone(),
     };
 
     if config.args.count("d", "nodeps") > 1 {

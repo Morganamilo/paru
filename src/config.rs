@@ -515,6 +515,7 @@ pub struct Config {
     #[default(Path::new("/var/lib/aurbuild/").join(ARCH))]
     pub chroot_dir: PathBuf,
     pub chroot: bool,
+    pub chroot_pkgs: Vec<String>,
     pub install: bool,
     pub uninstall: bool,
     pub sysupgrade: bool,
