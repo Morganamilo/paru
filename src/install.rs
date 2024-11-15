@@ -27,6 +27,7 @@ use crate::{args, exec, news, print_error, printtr, repo};
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ};
+
 use ansi_term::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, Base, Conflict, DepMissing, RepoPackage};
@@ -141,7 +142,9 @@ impl Installer {
         if !config.sudo_loop.is_empty() {
             let mut flags = config.sudo_flags.clone();
             flags.extend(config.sudo_loop.clone());
-            exec::spawn_sudo(config.sudo_bin.clone(), flags)?;
+            let mut privilege_flags = vec![config.sudo_bin.clone()];
+            privilege_flags.extend(flags);
+            exec::spawn_privileged_command(privilege_flags)?;
         }
         Ok(())
     }
