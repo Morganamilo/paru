@@ -3,7 +3,7 @@ use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::info::get_terminal_width;
-use crate::pkgbuild::{PkgbuildRepos, RepoSource};
+use crate::pkgbuild::PkgbuildRepos;
 use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
@@ -965,8 +965,8 @@ impl Config {
         let repo = self.pkgbuild_repos.repo_mut(repo).unwrap();
 
         match key {
-            "Url" => repo.source = RepoSource::Url(Url::parse(value?)?),
-            "Path" => repo.source = RepoSource::Path(PathBuf::from(value?.to_string())),
+            "Url" => repo.source.set_url(Url::parse(value?)?),
+            "Path" => repo.source.set_path(value?.to_string()),
             "Depth" => repo.depth = value?.parse()?,
             "SkipReview" => repo.skip_review = true,
             "GenerateSrcinfo" => repo.force_srcinfo = true,

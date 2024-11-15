@@ -19,7 +19,7 @@ use crate::{config::Config, print_error};
 
 #[derive(Debug, Default, Clone)]
 pub enum RepoSource {
-    Url(Url),
+    Url(Url, Option<PathBuf>),
     Path(PathBuf),
     #[default]
     None,
@@ -28,8 +28,23 @@ pub enum RepoSource {
 impl RepoSource {
     pub fn url(&self) -> Option<&Url> {
         match self {
-            RepoSource::Url(url) => Some(url),
+            RepoSource::Url(url, _) => Some(url),
             _ => None,
+        }
+    }
+
+    pub fn set_path<P: Into<PathBuf>>(&mut self, p: P) {
+        match self {
+            RepoSource::Url(_, path) => *path = Some(p.into()),
+            _ => *self = RepoSource::Path(p.into()),
+        }
+    }
+
+    pub fn set_url(&mut self, u: Url) {
+        match self {
+            RepoSource::Url(url, _) => *url = u,
+            RepoSource::Path(path) => *self = RepoSource::Url(u, Some(path.clone())),
+            _ => *self = RepoSource::Url(u, None),
         }
     }
 }
@@ -65,10 +80,13 @@ impl PkgbuildRepo {
         }
     }
 
-    pub fn path(&self) -> Result<&Path> {
+    pub fn path(&self) -> Result<PathBuf> {
         match &self.source {
-            RepoSource::Url(_) => Ok(self.path.as_path()),
-            RepoSource::Path(path) => Ok(path.as_path()),
+            RepoSource::Url(_, Some(path)) => {
+                Ok(self.path.join(path.strip_prefix("/").unwrap_or(path)))
+            }
+            RepoSource::Url(_, None) => Ok(self.path.clone()),
+            RepoSource::Path(path) => Ok(path.clone()),
             RepoSource::None => bail!(tr!("repo {} does not have a URL or Path")),
         }
     }
@@ -126,7 +144,7 @@ impl PkgbuildRepo {
     }
 
     fn read_pkgs(&self, config: &Config) -> Vec<PkgbuildPkg> {
-        if matches!(self.source, RepoSource::Url(_)) && !self.path.join(".git").exists() {
+        if matches!(self.source, RepoSource::Url(_, _)) && !self.path.join(".git").exists() {
             eprintln!(
                 "{} {}",
                 config.color.warning.paint("::"),
@@ -200,7 +218,7 @@ impl PkgbuildRepo {
     ) -> Result<T> {
         let path = self.path()?;
         if path.exists() {
-            Self::try_for_each_pkgbuild_internal(&mut data, &f, path, self.depth)?;
+            Self::try_for_each_pkgbuild_internal(&mut data, &f, &path, self.depth)?;
         }
         Ok(data)
     }

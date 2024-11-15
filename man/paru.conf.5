@@ -404,6 +404,10 @@ Refreshing just PKGBUILD repositories can be done with \fBparu -Sya\fR.
 Git URL to the PKGBUILD repository. File paths may be used to point to git repos on
 disk.
 
+If \fBPath\fR is specified alongside \fBUrl\fR, the specified path will be treated as
+a subdirectory of the repository and paru will only search for pkgbuilds in that
+subdirectory.
+
 .TP
 .B Path = /path/to/repo
 Can be used as an alternative to \fBURL\fR to point to a PKGBUILD repository on disk.
