@@ -1480,9 +1480,9 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         args.remove("u").remove("sysupgrade");
     }
 
-    if config.globals.has_arg("asexplicit", "asexp") {
+    if config.args.has_arg("asexplicit", "asexp") {
         exp.extend(install.iter().map(|p| p.pkg.name()));
-    } else if config.globals.has_arg("asdeps", "asdep") {
+    } else if config.args.has_arg("asdeps", "asdep") {
         deps.extend(install.iter().map(|p| p.pkg.name()));
     } else {
         for pkg in install {
