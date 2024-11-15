@@ -555,6 +555,11 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         rw: config.pacman.cache_dir.clone(),
     };
 
+    if config.print {
+        println!("{}", config.chroot_dir.display());
+        return Ok(0);
+    }
+
     if !chroot.exists() {
         chroot.create(config, &["base-devel"])?;
     }
