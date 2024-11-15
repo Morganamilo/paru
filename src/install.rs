@@ -4,7 +4,7 @@ use std::env::var;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
 use std::fs::{read_dir, read_link, OpenOptions};
-use std::io::{Read, Write};
+use std::io::{BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
@@ -1578,6 +1578,7 @@ fn run_file_manager(config: &Config, fm: &str, dir: &Path) -> Result<()> {
 
 fn print_dir(
     config: &Config,
+    pkgdir: &Path,
     path: &Path,
     stdin: &mut impl Write,
     buf: &mut Vec<u8>,
@@ -1603,25 +1604,30 @@ fn print_dir(
                 if recurse == 0 {
                     continue;
                 }
-                print_dir(config, &file.path(), stdin, buf, bat, recurse - 1)?;
+                print_dir(config, pkgdir, &file.path(), stdin, buf, bat, recurse - 1)?;
             }
             if !has_pkgbuild {
                 continue;
             }
             if file.file_type()?.is_symlink() {
                 let s = format!(
-                    "{} -> {}\n\n\n",
-                    file.path().display(),
+                    "  {} -> {}\n\n",
+                    file.path().strip_prefix(pkgdir)?.display(),
                     read_link(file.path())?.display()
                 );
-                let _ = write!(stdin, "{}", c.bold.paint(s));
+                let _ = write!(stdin, "  {}", c.bold.paint(s));
                 continue;
             }
             if file.file_type()?.is_dir() {
                 continue;
             }
 
-            let _ = writeln!(stdin, "{}", c.bold.paint(file.path().display().to_string()));
+            let _ = writeln!(
+                stdin,
+                "  {}:",
+                c.bold
+                    .paint(file.path().strip_prefix(pkgdir)?.display().to_string())
+            );
             if bat {
                 let output = Command::new(&config.bat_bin)
                     .arg("-pp")
@@ -1637,7 +1643,11 @@ fn print_dir(
                             file.path().display()
                         )
                     })?;
-                let _ = stdin.write_all(&output.stdout);
+                for line in output.stdout.lines() {
+                    let _ = stdin.write_all(b"    ");
+                    let _ = stdin.write_all(line?.as_bytes());
+                    let _ = stdin.write_all(b"\n");
+                }
             } else {
                 let mut pkgfile = OpenOptions::new()
                     .read(true)
@@ -1648,18 +1658,27 @@ fn print_dir(
                 buf.clear();
                 pkgfile.read_to_end(buf)?;
 
-                let _ = match std::str::from_utf8(buf) {
-                    Ok(_) => stdin.write_all(buf),
+                match std::str::from_utf8(buf) {
+                    Ok(_) => {
+                        for line in buf.lines() {
+                            let _ = stdin.write_all(b"    ");
+                            let _ = stdin.write_all(line?.as_bytes());
+                            let _ = stdin.write_all(b"\n");
+                        }
+                    }
                     Err(_) => {
-                        write!(
+                        let file = file.path();
+                        let file = file.strip_prefix(pkgdir)?;
+                        let _ = write!(
                             stdin,
-                            "{}",
-                            tr!("binary file: {}", file.path().display().to_string())
-                        )
+                            "  {}",
+                            c.bold
+                                .paint(tr!("binary file: {}", file.display().to_string()))
+                        );
                     }
                 };
             }
-            let _ = stdin.write_all(b"\n\n");
+            let _ = stdin.write_all(b"\n");
         }
     }
 
@@ -1720,29 +1739,35 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 let mut stdin = command.stdin.take().unwrap();
 
                 if pager_unconfigured && pager == "less" {
-                    write!(
+                    let _ = write!(
                         stdin,
                         "{}",
-                        c.bold.paint(tr!(
-                            "# Paging with less. Press 'q' to quit or 'h' for help."
-                        ))
-                    )?;
+                        c.bold
+                            .paint(tr!("Paging with less. Press 'q' to quit or 'h' for help."))
+                    );
                     let _ = stdin.write_all(b"\n\n");
                 }
 
-                for diff in diffs {
-                    let _ = stdin.write_all(diff.as_bytes());
-                    let _ = stdin.write_all(b"\n\n\n");
+                for (&pkg, diff) in has_diff.iter().zip(diffs) {
+                    let _ = write!(
+                        stdin,
+                        "{} {}:\n    ",
+                        c.action.paint("::"),
+                        c.bold.paint(pkg)
+                    );
+                    let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
+                    let _ = stdin.write_all(b"\n\n");
                 }
 
                 let bat = config.color.enabled
                     && Command::new(&config.bat_bin).arg("-V").output().is_ok();
 
                 let mut buf = Vec::new();
-                for pkg in &unseen {
-                    if !has_diff.contains(pkg) {
+                for &pkg in &unseen {
+                    if !has_diff.contains(&pkg) {
                         let dir = fetch.clone_dir.join(pkg);
-                        print_dir(config, &dir, &mut stdin, &mut buf, bat, 1)?;
+                        let _ = writeln!(stdin, "{} {}:", c.action.paint("::"), c.bold.paint(pkg));
+                        print_dir(config, &dir, &dir, &mut stdin, &mut buf, bat, 1)?;
                     }
                 }
 
