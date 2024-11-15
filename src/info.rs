@@ -27,7 +27,7 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let longest = longest(conf) + 3;
 
     let (pkgbuild, aur) = aur.into_iter().partition::<Vec<_>, _>(|t| {
-        if !conf.mode.repo() {
+        if !conf.mode.aur() {
             return true;
         }
         if !conf.mode.pkgbuild() {
