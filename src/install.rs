@@ -1667,6 +1667,8 @@ fn print_dir(
 }
 
 pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+    let c = config.color;
+
     if pkgs.is_empty() {
         return Ok(());
     }
@@ -1688,6 +1690,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
+                let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
                 let pager = if Command::new("less").output().is_ok() {
                     "less"
                 } else {
@@ -1715,6 +1718,17 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                     .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
 
                 let mut stdin = command.stdin.take().unwrap();
+
+                if pager_unconfigured && pager == "less" {
+                    write!(
+                        stdin,
+                        "{}",
+                        c.bold.paint(tr!(
+                            "# Paging with less. Press 'q' to quit or 'h' for help."
+                        ))
+                    )?;
+                    let _ = stdin.write_all(b"\n\n");
+                }
 
                 for diff in diffs {
                     let _ = stdin.write_all(diff.as_bytes());
