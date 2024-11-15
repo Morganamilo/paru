@@ -282,7 +282,7 @@ async fn handle_show(config: &mut Config) -> Result<i32> {
 async fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
     if config.print {
         download::show_pkgbuilds(config).await
-    } else if config.comments {
+    } else if config.comments >= 1 {
         download::show_comments(config).await
     } else {
         download::getpkgbuilds(config).await

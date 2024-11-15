@@ -286,7 +286,7 @@ impl Config {
             Arg::Short('c') => {
                 self.complete = true;
                 self.clean += 1;
-                self.comments = true;
+                self.comments += 1;
             }
             Arg::Long("install") | Arg::Short('i') => self.install = true,
             Arg::Long("sysupgrade") | Arg::Short('u') => self.sysupgrade = true,
@@ -299,7 +299,7 @@ impl Config {
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
-            Arg::Long("comments") => self.comments = true,
+            Arg::Long("comments") => self.comments += 1,
             Arg::Long("ssh") => self.ssh = true,
             Arg::Long("failfast") => self.fail_fast = true,
             Arg::Long("nofailfast") => self.fail_fast = false,

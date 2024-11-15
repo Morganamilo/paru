@@ -461,7 +461,7 @@ pub struct Config {
     pub complete: bool,
     pub print: bool,
     pub news_on_upgrade: bool,
-    pub comments: bool,
+    pub comments: usize,
     pub ssh: bool,
     pub keep_repo_cache: bool,
     pub fail_fast: bool,
