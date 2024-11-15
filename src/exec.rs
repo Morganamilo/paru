@@ -39,19 +39,6 @@ pub static RAISE_SIGPIPE: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
     arc
 });
 
-#[derive(Debug, Clone)]
-pub struct PacmanError {
-    pub msg: String,
-}
-
-impl Display for PacmanError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.msg)
-    }
-}
-
-impl std::error::Error for PacmanError {}
-
 #[derive(Debug, Clone, Copy)]
 pub struct Status(pub i32);
 
