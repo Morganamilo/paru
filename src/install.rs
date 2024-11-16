@@ -1076,7 +1076,7 @@ impl Installer {
             bail!(tr!("--downloadonly can't be used for AUR packages"));
         }
 
-        let conflicts = check_actions(config, actions)?;
+        let conflicts = check_actions(config, actions, !config.chroot || self.install_targets)?;
         let c = config.color;
 
         print_warnings(config, cache, Some(actions));
@@ -1334,7 +1334,11 @@ fn fmt_stack(want: &DepMissing) -> String {
     }
 }
 
-fn check_actions(config: &Config, actions: &mut Actions) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
+fn check_actions(
+    config: &Config,
+    actions: &mut Actions,
+    check_conflicts: bool,
+) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
     let c = config.color;
     let dups = actions.duplicate_targets();
     ensure!(
@@ -1377,16 +1381,16 @@ fn check_actions(config: &Config, actions: &mut Actions) -> Result<(Vec<Conflict
         return Ok((Vec::new(), Vec::new()));
     }
 
-    if config.chroot && config.args.has_arg("w", "downloadonly") {
-        return Ok((Vec::new(), Vec::new()));
-    }
-
-    println!(
-        "{} {}",
-        c.action.paint("::"),
-        c.bold.paint(tr!("Calculating conflicts..."))
-    );
-    let conflicts = actions.calculate_conflicts(!config.chroot);
+    let conflicts = if check_conflicts {
+        println!(
+            "{} {}",
+            c.action.paint("::"),
+            c.bold.paint(tr!("Calculating conflicts..."))
+        );
+        actions.calculate_conflicts(!config.chroot)
+    } else {
+        Vec::new()
+    };
     println!(
         "{} {}",
         c.action.paint("::"),
