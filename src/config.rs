@@ -829,6 +829,9 @@ then initialise it with:
         if !self.assume_installed.is_empty() && !self.chroot {
             self.mflags.push("-d".to_string());
         }
+        if self.no_check {
+            self.mflags.push("--nocheck".to_string());
+        }
 
         if self.chroot {
             remove_var("PKGEXT");
