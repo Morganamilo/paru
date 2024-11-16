@@ -531,7 +531,7 @@ impl Installer {
             chroot_flags.push("-cu");
             self.chroot
                 .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
-                .with_context(|| tr!("failed to download sources for '{}'"))?;
+                .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
                 let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
@@ -617,18 +617,8 @@ impl Installer {
         debug_paths: &HashMap<String, String>,
     ) {
         let to_install: Vec<_> = match base {
-            Base::Aur(a) => a
-                .pkgs
-                .iter()
-                .filter(|a| !a.make)
-                .map(|a| a.pkg.name.as_str())
-                .collect(),
-            Base::Pkgbuild(c) => c
-                .pkgs
-                .iter()
-                .filter(|c| !c.make)
-                .map(|a| a.pkg.pkgname.as_str())
-                .collect(),
+            Base::Aur(a) => a.pkgs.iter().map(|a| a.pkg.name.as_str()).collect(),
+            Base::Pkgbuild(c) => c.pkgs.iter().map(|a| a.pkg.pkgname.as_str()).collect(),
         };
 
         let to_install = to_install
