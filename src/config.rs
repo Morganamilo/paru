@@ -437,7 +437,6 @@ pub struct Config {
     pub mode: Mode,
     pub aur_filter: bool,
     pub interactive: bool,
-
     #[default = 7]
     pub completion_interval: u64,
 
@@ -537,6 +536,9 @@ pub struct Config {
     pub ignore: Vec<String>,
     pub ignore_group: Vec<String>,
     pub ignore_devel_source: Vec<String>,
+    #[default = "doas"]
+    pub doas_bin: String,
+    pub doas_flags: Vec<String>,
     #[default(GlobSet::empty())]
     pub ignore_devel: GlobSet,
     #[default(GlobSetBuilder::new())]
@@ -1012,6 +1014,7 @@ then initialise it with:
             "Pkgctl" => self.pkgctl_bin = value,
             "Gpg" => self.gpg_bin = value,
             "Sudo" => self.sudo_bin = value,
+            "Doas" => self.doas_bin = value,
             "Pager" => self.pager_cmd = Some(value),
             "Bat" => self.bat_bin = value,
             "FileManager" => self.fm = Some(value),
@@ -1019,6 +1022,7 @@ then initialise it with:
             "GitFlags" => self.git_flags.extend(split),
             "GpgFlags" => self.gpg_flags.extend(split),
             "SudoFlags" => self.sudo_flags.extend(split),
+            "DoasFlags" => self.doas_flags.extend(split),
             "BatFlags" => self.bat_flags.extend(split),
             "FileManagerFlags" => self.fm_flags.extend(split),
             "ChrootFlags" => self.chroot_flags.extend(split),

@@ -76,6 +76,37 @@ fn command_err(cmd: &Command) -> String {
     )
 }
 
+pub fn get_privileged_command() -> String {
+    if Command::new("doas").output().is_ok() {
+        "doas".to_string()
+    } else {
+        "sudo".to_string()
+    }
+}
+
+pub fn spawn_privileged_command(flags: Vec<String>) -> Result<()> {
+    let privileged_cmd = get_privileged_command();
+    update_privileged_command(&privileged_cmd, &flags)?;
+    thread::spawn(move || privileged_command_loop(&privileged_cmd, &flags));
+    Ok(())
+}
+
+fn privileged_command_loop<S: AsRef<OsStr>>(cmd: &str, flags: &[S]) -> Result<()> {
+    loop {
+        thread::sleep(Duration::from_secs(250));
+        update_privileged_command(cmd, flags)?;
+    }
+}
+
+fn update_privileged_command<S: AsRef<OsStr>>(cmd: &str, flags: &[S]) -> Result<()> {
+    let mut cmd = Command::new(cmd);
+    cmd.args(flags);
+    let status = command_status(&mut cmd)?;
+    status.success()?;
+    Ok(())
+}
+
+
 fn command_status(cmd: &mut Command) -> Result<Status> {
     debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
@@ -128,27 +159,6 @@ pub fn command_output(cmd: &mut Command) -> Result<Output> {
     Ok(ret)
 }
 
-pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
-    update_sudo(&sudo, &flags)?;
-    thread::spawn(move || sudo_loop(&sudo, &flags));
-    Ok(())
-}
-
-fn sudo_loop<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    loop {
-        thread::sleep(Duration::from_secs(250));
-        update_sudo(sudo, flags)?;
-    }
-}
-
-fn update_sudo<S: AsRef<OsStr>>(sudo: &str, flags: &[S]) -> Result<()> {
-    let mut cmd = Command::new(sudo);
-    cmd.args(flags);
-    let status = command_status(&mut cmd)?;
-    status.success()?;
-    Ok(())
-}
-
 fn wait_for_lock(config: &Config) {
     let path = Path::new(config.alpm.dbpath()).join("db.lck");
     let c = config.color;
@@ -167,14 +177,21 @@ fn wait_for_lock(config: &Config) {
 }
 
 fn new_pacman<S: AsRef<str> + Display + Debug>(config: &Config, args: &Args<S>) -> Command {
-    let mut cmd = if config.need_root {
-        wait_for_lock(config);
+let mut cmd = if config.need_root {
+    wait_for_lock(config);
+    let cmd = if Path::new("/usr/bin/doas").exists() {
+        let mut cmd = Command::new(&config.doas_bin);
+        cmd.args(&config.doas_flags).arg(args.bin.as_ref());
+        cmd
+    } else {
         let mut cmd = Command::new(&config.sudo_bin);
         cmd.args(&config.sudo_flags).arg(args.bin.as_ref());
         cmd
-    } else {
-        Command::new(args.bin.as_ref())
-    };
+    };  
+    cmd
+} else {
+    Command::new(args.bin.as_ref())
+};
 
     if let Some(config) = &config.pacman_conf {
         cmd.args(["--config", config]);
