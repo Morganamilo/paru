@@ -659,9 +659,9 @@ impl Installer {
                 repo::add(config, path, &name, &paths)?;
                 repo::refresh(config, &[name])?;
             } else {
-                let path = repo.1;
-                repo::add(config, path, repo.0, &paths)?;
-                repo::refresh(config, &[repo.0])?;
+                let (name, path) = repo;
+                repo::add(config, path, name, &paths)?;
+                repo::refresh(config, &[name])?;
             }
             if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
                 self.devel_info
@@ -852,7 +852,7 @@ impl Installer {
             self.failed.push(base.clone());
             let repo_server = repo_server
                 .as_ref()
-                .map(|rs| (rs.0.as_str(), rs.1.as_str()));
+                .map(|(name, file)| (name.as_str(), file.as_str()));
 
             let err = self.build_install_pkgbuild(config, base, repo_server);
 
@@ -965,9 +965,9 @@ impl Installer {
             repo: Some(config.aur_namespace()),
             pkg: p,
         }));
-        targets.extend(self.upgrades.pkgbuild_keep.iter().map(|p| Targ {
-            repo: Some(&p.0),
-            pkg: &p.1,
+        targets.extend(self.upgrades.pkgbuild_keep.iter().map(|(repo, pkg)| Targ {
+            repo: Some(repo),
+            pkg,
         }));
 
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
@@ -1235,8 +1235,8 @@ impl Installer {
             self.remove_make.extend(
                 actions
                     .iter_pkgbuilds()
-                    .filter(|p| p.1.make)
-                    .map(|p| p.1.pkg.pkgname.clone()),
+                    .filter(|(_, p)| p.make)
+                    .map(|(_, p)| p.pkg.pkgname.clone()),
             );
         }
 
@@ -1843,7 +1843,7 @@ fn chroot(config: &Config) -> Chroot {
 
 fn trim_dep_ver(dep: &str, trim: bool) -> &str {
     if trim {
-        dep.split_once(is_ver_char).map_or(dep, |x| x.0)
+        dep.split_once(is_ver_char).map_or(dep, |(x, _)| x)
     } else {
         dep
     }

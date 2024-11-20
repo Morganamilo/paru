@@ -115,7 +115,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
     let ignore = &config.ignore;
 
-    let mut aur = split_repo_aur_pkgs(config, &pkgs).1;
+    let (_, mut aur) = split_repo_aur_pkgs(config, &pkgs);
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
 
     aur.retain(|pkg| {
@@ -321,11 +321,11 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
 
     let mut split = rest.splitn(2, '#');
     let remote = split.next().unwrap();
-    let remote = remote.split_once('?').map_or(remote, |x| x.0);
+    let remote = remote.split_once('?').map_or(remote, |(x, _)| x);
     let remote = format!("{}://{}", protocol, remote);
 
     let branch = if let Some(fragment) = split.next() {
-        let fragment = fragment.split_once('?').map_or(fragment, |x| x.0);
+        let fragment = fragment.split_once('?').map_or(fragment, |(x, _)| x);
         let mut split = fragment.splitn(2, '=');
         let frag_type = split.next().unwrap();
 

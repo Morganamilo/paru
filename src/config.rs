@@ -796,7 +796,7 @@ impl Config {
         }
 
         if self.repos != LocalRepos::None {
-            let repos = repo::repo_aur_dbs(self).1;
+            let (_, repos) = repo::repo_aur_dbs(self);
 
             if repos.is_empty() {
                 bail!(
@@ -1170,10 +1170,7 @@ pub fn version() {
     println!(" - libalpm v{}", alpm::version());
 }
 
-fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
-    let no_confirm = data.0;
-    let c = data.1;
-
+fn question(question: AnyQuestion, (no_confirm, c): &mut (bool, Colors)) {
     match question.question() {
         Question::SelectProvider(mut question) => {
             let providers = question.providers();
@@ -1203,7 +1200,7 @@ fn question(question: AnyQuestion, data: &mut (bool, Colors)) {
                 print!("{}) {}  ", n + 1, pkg.name());
             }
 
-            let index = get_provider(len, no_confirm);
+            let index = get_provider(len, *no_confirm);
             question.set_index(index as i32);
         }
         Question::InstallIgnorepkg(mut question) => {
