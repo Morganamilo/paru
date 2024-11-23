@@ -63,6 +63,11 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 `paru -Bi .` -- Build and install a PKGBUILD in the current directory.
 
+## Default Configuration
+
+Paru will read `/etc/paru.conf` or `~/.config/paru/paru.conf` (if available) to load the default configuration.
+See the Paru's man page `man paru` for the configuration details, or the default [paru.conf](./paru.conf) configuration as a reference.
+
 ## IRC
 
 Paru now has an IRC. #paru on [Libera Chat](https://libera.chat/). Feel free to join for discussion and help with paru.
