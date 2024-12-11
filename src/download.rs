@@ -87,7 +87,7 @@ pub struct Warnings<'a> {
     pub orphans: Vec<&'a str>,
 }
 
-impl<'a> Warnings<'a> {
+impl Warnings<'_> {
     pub fn missing(&self, color: Colors, cols: Option<usize>) -> &Self {
         if !self.missing.is_empty() {
             let b = color.bold;
