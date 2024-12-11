@@ -18,7 +18,7 @@ use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
-use crate::pkgbuild::PkgbuildRepo;
+use crate::pkgbuild::{edit_pkgbuilds, PkgbuildRepo};
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{get_upgrades, Upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
@@ -199,6 +199,7 @@ impl Installer {
                 bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
             }
         }
+
         Ok(())
     }
 
@@ -1109,7 +1110,12 @@ impl Installer {
         };
 
         if !config.skip_review && actions.iter_aur_pkgs().next().is_some() {
-            if !ask(config, &tr!("Proceed to review?"), true) {
+            let msg = if config.edit_menu {
+                tr!("Proceed to edit and review?")
+            } else {
+                tr!("Proceed to review?")
+            };
+            if !ask(config, &msg, true) {
                 return Status::err(1);
             }
         } else if !ask(config, &tr!("Proceed with installation?"), true) {
@@ -1125,6 +1131,16 @@ impl Installer {
 
         let bases = actions.iter_aur_pkgs().cloned().collect();
         self.download_pkgbuilds(config, &bases).await?;
+
+        if config.edit_menu {
+            let paths: Vec<PathBuf> = bases
+                .bases
+                .iter()
+                .map(|base| config.build_dir.join(base.package_base()))
+                .collect();
+
+            edit_pkgbuilds(config, &paths)?;
+        }
 
         for pkg in &actions.build {
             match pkg {
@@ -1155,6 +1171,7 @@ impl Installer {
                     Base::Pkgbuild(_) => None,
                 })
                 .collect::<Vec<_>>();
+
             review(config, &config.fetch, &pkgs)?;
         }
 
@@ -1260,7 +1277,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     if !config.mode.aur() && !config.mode.pkgbuild() {
         return;
     }
-
     if config.args.has_arg("u", "sysupgrade") && config.mode.aur() {
         let (_, mut pkgs) = repo_aur_pkgs(config);
         pkgs.retain(|pkg| config.pkgbuild_repos.pkg(config, pkg.name()).is_none());

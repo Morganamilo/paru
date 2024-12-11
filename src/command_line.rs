@@ -184,7 +184,9 @@ impl Config {
             Arg::Long("fm") => self.fm = Some(value?.to_string()),
             Arg::Long("pager") => self.pager_cmd = Some(value?.to_string()),
             Arg::Long("config") => self.pacman_conf = Some(value?.to_string()),
-
+            Arg::Long("editor") => self.editor = Some(value?.to_string()),
+            Arg::Long("editorflags") => self.editor_flags.extend(split_whitespace(value?)),
+            Arg::Long("editmenu") => self.edit_menu = true,
             Arg::Long("builddir") | Arg::Long("clonedir") => self.build_dir = value?.into(),
             Arg::Long("develfile") => self.devel_path = value?.into(),
             Arg::Long("makepkgconf") => self.makepkg_conf = Some(value?.to_string()),
@@ -198,11 +200,9 @@ impl Config {
             Arg::Long("chrootpkgs") => self
                 .chroot_pkgs
                 .extend(value?.split(',').map(|s| s.to_string())),
-
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
             Arg::Long("noinstalldebug") => self.install_debug = false,
-
             Arg::Long("completioninterval") => {
                 self.completion_interval = value?
                     .parse()
@@ -295,7 +295,6 @@ impl Config {
             Arg::Long("list") | Arg::Short('l') => self.list = true,
             Arg::Long("delete") | Arg::Short('d') => self.delete += 1,
             Arg::Long("noinstall") => self.no_install = true,
-
             Arg::Long("print") | Arg::Short('p') => self.print = true,
             Arg::Long("newsonupgrade") => self.news_on_upgrade = true,
             Arg::Long("nonewsonupgrade") => self.news_on_upgrade = false,
