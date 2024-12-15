@@ -114,15 +114,11 @@ pub fn color_repo(enabled: bool, name: &str) -> String {
         return name.to_string();
     }
 
-    let mut col: u32 = 5;
-
-    for &b in name.as_bytes() {
-        col = (b as u32).wrapping_add((col << 4).wrapping_add(col));
-    }
-
-    col = (col % 6) + 9;
-    let col = Style::from(Color::Fixed(col as u8)).bold();
-    col.paint(name).to_string()
+    let color = 9 + (name.len() % 6) as u8;
+    Style::from(Color::Fixed(color))
+        .bold()
+        .paint(name)
+        .to_string()
 }
 
 pub fn print_target(targ: &str, quiet: bool) {
@@ -443,13 +439,38 @@ pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet
         });
 
         for pkg in &install {
-            println!(
-                "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
-                format!("{}/{}", pkg.pkg.db().unwrap().name(), pkg.pkg.name()),
+            let repo_name = pkg.pkg.db().unwrap().name();
+            let colored_repo = color_repo(config.color.enabled, repo_name);
+            let pkg_str = format!("{}/{}", colored_repo, pkg.pkg.name());
+            let visible_width = repo_name.len() + 1 + pkg.pkg.name().len(); // Calculate visible width without ANSI codes
+            let padding = " ".repeat(package_len.saturating_sub(visible_width));
+
+            let (old_colored, new_colored) = colorize_version_diff(
                 db.pkg(pkg.pkg.name())
                     .map(|pkg| pkg.version().as_str())
                     .unwrap_or(""),
                 pkg.pkg.version().as_str(),
+            );
+
+            // Calculate visible width of the colored versions
+            let old_visible_width = db
+                .pkg(pkg.pkg.name())
+                .map(|pkg| pkg.version().as_str().len())
+                .unwrap_or(0);
+            let new_visible_width = pkg.pkg.version().as_str().len();
+
+            // Add padding to maintain alignment
+            let old_padding = " ".repeat(old_len.saturating_sub(old_visible_width));
+            let new_padding = " ".repeat(new_len.saturating_sub(new_visible_width));
+
+            println!(
+                "{}{}  {}{}  {}{}  {}",
+                pkg_str,
+                padding,
+                old_colored,
+                old_padding,
+                new_colored,
+                new_padding,
                 if pkg.make { &yes } else { &no }
             );
         }
@@ -475,37 +496,83 @@ pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet
             match pkg {
                 Base::Aur(base) => {
                     for pkg in &base.pkgs {
+                        let repo_name = repo(config, &pkg.pkg.name);
+                        let colored_repo = color_repo(config.color.enabled, &repo_name);
+                        let pkg_str = format!("{}/{}", colored_repo, pkg.pkg.name);
+                        let visible_width = repo_name.len() + 1 + pkg.pkg.name.len();
+                        let padding = " ".repeat(package_len.saturating_sub(visible_width));
+
                         let ver = if devel.contains(&pkg.pkg.name) {
                             "latest-commit"
                         } else {
                             &pkg.pkg.version
                         };
+
+                        let old_version = old_ver(config, &pkg.pkg.name)
+                            .map(|v| v.as_str())
+                            .unwrap_or_default();
+
+                        // Colorize the versions
+                        let (old_colored, new_colored) = colorize_version_diff(old_version, ver);
+
+                        // Calculate visible width of the colored versions
+                        let old_visible_width = old_version.len();
+                        let new_visible_width = ver.len();
+
+                        // Add padding to maintain alignment
+                        let old_padding = " ".repeat(old_len.saturating_sub(old_visible_width));
+                        let new_padding = " ".repeat(new_len.saturating_sub(new_visible_width));
+
                         println!(
-                            "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
-                            format!("{}/{}", repo(config, &pkg.pkg.name), pkg.pkg.name),
-                            old_ver(config, &pkg.pkg.name)
-                                .map(|v| v.as_str())
-                                .unwrap_or_default(),
-                            ver,
+                            "{}{}  {}{}  {}{}  {}",
+                            pkg_str,
+                            padding,
+                            old_colored,
+                            old_padding,
+                            new_colored,
+                            new_padding,
                             if pkg.make { &yes } else { &no }
                         );
                     }
                 }
                 Base::Pkgbuild(base) => {
                     for pkg in &base.pkgs {
+                        let repo_name = &base.repo;
+                        let colored_repo = color_repo(config.color.enabled, repo_name);
+                        let pkg_str = format!("{}/{}", colored_repo, pkg.pkg.pkgname);
+                        let visible_width = repo_name.len() + 1 + pkg.pkg.pkgname.len();
+                        let padding = " ".repeat(package_len.saturating_sub(visible_width));
+
                         let ver = base.srcinfo.version();
                         let ver = if devel.contains(&pkg.pkg.pkgname) {
                             "latest-commit"
                         } else {
                             &ver
                         };
+
+                        let old_version = old_ver(config, &pkg.pkg.pkgname)
+                            .map(|v| v.as_str())
+                            .unwrap_or_default();
+
+                        // Colorize the versions
+                        let (old_colored, new_colored) = colorize_version_diff(old_version, ver);
+
+                        // Calculate visible width of the colored versions
+                        let old_visible_width = old_version.len();
+                        let new_visible_width = ver.len();
+
+                        // Add padding to maintain alignment
+                        let old_padding = " ".repeat(old_len.saturating_sub(old_visible_width));
+                        let new_padding = " ".repeat(new_len.saturating_sub(new_visible_width));
+
                         println!(
-                            "{:<package_len$}  {:<old_len$}  {:<new_len$}  {}",
-                            format!("{}/{}", base.repo, pkg.pkg.pkgname),
-                            old_ver(config, &pkg.pkg.pkgname)
-                                .map(|v| v.as_str())
-                                .unwrap_or_default(),
-                            ver,
+                            "{}{}  {}{}  {}{}  {}",
+                            pkg_str,
+                            padding,
+                            old_colored,
+                            old_padding,
+                            new_colored,
+                            new_padding,
                             if pkg.make { &yes } else { &no }
                         );
                     }
@@ -515,4 +582,54 @@ pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet
     }
 
     println!();
+}
+
+fn colorize_version_diff(old_ver: &str, new_ver: &str) -> (String, String) {
+    if old_ver.is_empty() {
+        return (
+            String::new(),
+            Style::new().fg(Color::Green).paint(new_ver).to_string(), // all green for new version
+        );
+    }
+
+    let mut old_colored = String::new();
+    let mut new_colored = String::new();
+
+    // Split versions into characters
+    let old_chars: Vec<char> = old_ver.chars().collect();
+    let new_chars: Vec<char> = new_ver.chars().collect();
+
+    // Find common prefix
+    let mut common_len = 0;
+    for (a, b) in old_chars.iter().zip(new_chars.iter()) {
+        if a == b {
+            common_len += 1;
+        } else {
+            break;
+        }
+    }
+
+    // Color the old version (red for different parts)
+    old_colored.push_str(&old_ver[..common_len]);
+    if common_len < old_ver.len() {
+        old_colored.push_str(
+            &Style::new()
+                .fg(Color::Red)
+                .paint(&old_ver[common_len..])
+                .to_string(),
+        );
+    }
+
+    // Color the new version (green for different parts)
+    new_colored.push_str(&new_ver[..common_len]);
+    if common_len < new_ver.len() {
+        new_colored.push_str(
+            &Style::new()
+                .fg(Color::Green)
+                .paint(&new_ver[common_len..])
+                .to_string(),
+        );
+    }
+
+    (old_colored, new_colored)
 }
