@@ -12,12 +12,12 @@ use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
 use log::debug;
-use once_cell::sync::Lazy;
 use signal_hook::consts::signal::*;
 use signal_hook::flag as signal_flag;
+use std::sync::LazyLock;
 use tr::tr;
 
-pub static DEFAULT_SIGNALS: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+pub static DEFAULT_SIGNALS: LazyLock<Arc<AtomicBool>> = LazyLock::new(|| {
     let arc = Arc::new(AtomicBool::new(true));
     signal_flag::register_conditional_default(SIGTERM, Arc::clone(&arc)).unwrap();
     signal_flag::register_conditional_default(SIGINT, Arc::clone(&arc)).unwrap();
@@ -25,7 +25,7 @@ pub static DEFAULT_SIGNALS: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
     arc
 });
 
-static CAUGHT_SIGNAL: Lazy<Arc<AtomicUsize>> = Lazy::new(|| {
+static CAUGHT_SIGNAL: LazyLock<Arc<AtomicUsize>> = LazyLock::new(|| {
     let arc = Arc::new(AtomicUsize::new(0));
     signal_flag::register_usize(SIGTERM, Arc::clone(&arc), SIGTERM as usize).unwrap();
     signal_flag::register_usize(SIGINT, Arc::clone(&arc), SIGINT as usize).unwrap();
@@ -33,7 +33,7 @@ static CAUGHT_SIGNAL: Lazy<Arc<AtomicUsize>> = Lazy::new(|| {
     arc
 });
 
-pub static RAISE_SIGPIPE: Lazy<Arc<AtomicBool>> = Lazy::new(|| {
+pub static RAISE_SIGPIPE: LazyLock<Arc<AtomicBool>> = LazyLock::new(|| {
     let arc = Arc::new(AtomicBool::new(true));
     signal_flag::register_conditional_default(SIGPIPE, Arc::clone(&arc)).unwrap();
     arc
