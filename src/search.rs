@@ -6,7 +6,7 @@ use crate::fmt::{color_repo, print_indent};
 use crate::util::{input, NumberMenu};
 use crate::{info, printtr};
 
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{ensure, Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};

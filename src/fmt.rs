@@ -8,7 +8,7 @@ use crate::repo;
 use alpm::Ver;
 use aur_depends::{Actions, Base};
 
-use ansi_term::Style;
+use ansiterm::Style;
 use chrono::{Local, TimeZone, Utc};
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
@@ -107,7 +107,7 @@ pub fn print_indent<S: AsRef<str>>(
     println!();
 }
 
-use ansi_term::Color;
+use ansiterm::Color;
 
 pub fn color_repo(enabled: bool, name: &str) -> String {
     if !enabled {

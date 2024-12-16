@@ -27,7 +27,7 @@ use crate::{args, exec, news, print_error, printtr, repo};
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ};
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, Base, Conflict, DepMissing, RepoPackage};
 use log::debug;

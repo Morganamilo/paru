@@ -3,7 +3,7 @@ use crate::fmt::print_indent;
 
 use std::str::Chars;
 
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{bail, Result};
 use htmlescape::decode_html;
 use rss::Channel;
