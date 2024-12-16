@@ -32,7 +32,7 @@ futures = "0.3.31"
 globset = "0.4.15"
 htmlescape = "0.3.1"
 indicatif = "0.17.9"
-scraper = "0.21.0"
+scraper = "0.22.0"
 nix = { version = "0.28.0", features = ["fs", "user"] }
 reqwest = { version = "0.11.27", features = ["gzip", "socks"] }
 rss = { version = "2.0.9", default-features = false }
