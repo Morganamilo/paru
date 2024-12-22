@@ -10,7 +10,7 @@ use ansi_term::Style;
 use anyhow::{ensure, Context, Result};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
-use regex::RegexSet;
+use regex_lite::Regex;
 use reqwest::get;
 use srcinfo::Srcinfo;
 use tr::tr;
@@ -81,25 +81,33 @@ fn search_pkgbuilds<'a>(
         return Ok(Vec::new());
     }
 
-    let regex = RegexSet::new(targets)?;
+    let regexes: Result<Vec<Regex>, _> =
+        targets.iter().map(|pattern| Regex::new(pattern)).collect();
+    let regexes = regexes?;
     let mut ret = Vec::new();
 
     for repo in &config.pkgbuild_repos.repos {
         for base in repo.pkgs(config) {
             let base = &base.srcinfo;
             for pkg in &base.pkgs {
-                if targets.is_empty()
-                    || regex.is_match(&base.base.pkgbase)
-                    || regex.is_match(&pkg.pkgname)
-                    || pkg.pkgdesc.iter().any(|d| regex.is_match(d))
-                    || pkg
-                        .provides
-                        .iter()
-                        .flat_map(|p| &p.vec)
-                        .any(|p| regex.is_match(p))
-                    || pkg.groups.iter().any(|g| regex.is_match(g))
-                {
-                    ret.push((repo.name.as_str(), base, pkg))
+                let matches_any_regex = |input: &str| regexes.iter().any(|regex| regex.is_match(input));
+    
+                fn iter_matches_any<'a>(
+                    mut iter: impl Iterator<Item = &'a String>,
+                    matches_any_regex: &impl Fn(&str) -> bool,
+                ) -> bool {
+                    iter.any(|item| matches_any_regex(item))
+                }
+    
+                let matches_any = targets.is_empty()
+                    || matches_any_regex(&base.base.pkgbase)
+                    || matches_any_regex(&pkg.pkgname)
+                    || iter_matches_any(pkg.pkgdesc.iter(), &matches_any_regex)
+                    || iter_matches_any(pkg.provides.iter().flat_map(|p| &p.vec), &matches_any_regex)
+                    || iter_matches_any(pkg.groups.iter(), &matches_any_regex);
+    
+                if matches_any {
+                    ret.push((repo.name.as_str(), base, pkg));
                 }
             }
         }
@@ -174,14 +182,18 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
 
     let data = resp.text().await?;
 
-    let regex = RegexSet::new(targets)?;
+    let regexes: Result<Vec<Regex>, _> =
+        targets.iter().map(|pattern| Regex::new(pattern)).collect();
+    let regexes = regexes?;
 
     let pkgs = data
         .lines()
         .skip(1)
-        .filter(|pkg| regex.is_match(pkg))
+        .filter(|pkg| regexes.iter().any(|regex| regex.is_match(pkg)))
         .collect::<Vec<_>>();
+
     ensure!(pkgs.len() < 2000, "too many packages");
+
     let pkgs = config.raur.info(&pkgs).await?;
     Ok(pkgs)
 }
@@ -409,7 +421,7 @@ pub fn interactive_search_local(config: &mut Config) -> Result<()> {
     if targs.is_empty() && !was_results {
         printtr!(" there is nothing to do");
     }
-    config.targets = targs.clone();
+    config.targets.clone_from(&targs);
     config.args.targets = targs;
     Ok(())
 }
@@ -435,7 +447,7 @@ pub async fn interactive_search(config: &mut Config, install: bool) -> Result<()
     if targs.is_empty() && !was_results {
         printtr!(" there is nothing to do");
     }
-    config.targets = targs.clone();
+    config.targets.clone_from(&targs);
     config.args.targets = targs;
     Ok(())
 }
