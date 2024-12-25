@@ -18,6 +18,23 @@ use tr::tr;
 
 pub fn clean(config: &Config) -> Result<()> {
     if config.mode.repo() {
+        if let Some(pkg_cache) = config.pacman.cache_dir.first() {
+            let pkg_cache = Path::new(pkg_cache);
+            if pkg_cache.exists() {
+                for entry in read_dir(pkg_cache)? {
+                    let entry = entry?;
+                    let path = entry.path();
+                    if path.is_dir() {
+                        let mut cmd = Command::new(&config.sudo_bin);
+                        cmd.args(&config.sudo_flags)
+                            .arg("rm")
+                            .arg("-rf")
+                            .arg(&path);
+                        exec::command(&mut cmd)?;
+                    }
+                }
+            }
+        }
         exec::pacman(config, &config.args)?;
     }
 
