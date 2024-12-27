@@ -1,5 +1,3 @@
-use std::os::fd::AsRawFd;
-
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
@@ -13,7 +11,7 @@ use anyhow::Error;
 use globset::GlobSet;
 use raur::ArcPackage as Package;
 use srcinfo::ArchVec;
-use terminal_size::terminal_size_using_fd;
+use terminal_size::terminal_size_of;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
 
@@ -301,5 +299,5 @@ fn print_info<'a>(
 
 #[must_use]
 pub fn get_terminal_width() -> Option<usize> {
-    terminal_size_using_fd(std::io::stdout().as_raw_fd()).map(|(w, _h)| w.0 as usize)
+    terminal_size_of(std::io::stdout()).map(|(w, _h)| w.0 as usize)
 }
