@@ -572,8 +572,6 @@ impl Installer {
             bail!(tr!("package list does not match srcinfo"));
         }
 
-        let debug_paths = self.debug_paths(config, base, &pkgdests)?;
-
         let needs_build = needs_build(config, base, &pkgdests, &version);
         if needs_build {
             // actual build
@@ -611,6 +609,8 @@ impl Installer {
                 )
             )
         }
+
+        let debug_paths = self.debug_paths(config, base, &pkgdests)?;
 
         self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
         self.queue_install(base, &pkgdests, &debug_paths);
