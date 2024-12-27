@@ -15,7 +15,7 @@ rust-version = "1.78"
 
 
 [dependencies]
-alpm = "4.0.1"
+alpm = "4.0.2"
 alpm-utils = "4.0.1"
 aur-depends = "4.0.3"
 aur-fetch = "0.11.3"
