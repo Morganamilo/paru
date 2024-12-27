@@ -319,6 +319,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
         })?;
 
         pb.finish();
+        println!();
     }
 
     Ok(())

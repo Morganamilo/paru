@@ -378,6 +378,7 @@ impl PkgbuildRepos {
             })?;
 
             pb.finish();
+            println!();
         }
 
         let review_repos = repos
