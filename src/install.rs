@@ -1069,6 +1069,14 @@ impl Installer {
         }
 
         let conflicts = check_actions(config, actions, !config.chroot || self.install_targets)?;
+
+        self.conflicts = conflicts
+            .0
+            .iter()
+            .map(|c| c.pkg.clone())
+            .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
+            .collect::<HashSet<_>>();
+
         let c = config.color;
 
         print_warnings(config, cache, Some(actions));
@@ -1110,7 +1118,7 @@ impl Installer {
 
         if actions.build.is_empty() {
             if !config.chroot {
-                repo_install(config, &actions.install)?;
+                repo_install(config, &actions.install, &self.conflicts)?;
             }
             return Ok(());
         }
@@ -1193,15 +1201,8 @@ impl Installer {
             check_pgp_keys(config, actions, &self.srcinfos)?;
         }
 
-        self.conflicts = conflicts
-            .0
-            .iter()
-            .map(|c| c.pkg.clone())
-            .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
-            .collect::<HashSet<_>>();
-
         if !config.chroot {
-            repo_install(config, &actions.install)?;
+            repo_install(config, &actions.install, &self.conflicts)?;
         } else {
             return Ok(());
         }
@@ -1367,10 +1368,6 @@ fn check_actions(
         );
     }
 
-    if actions.build.is_empty() {
-        return Ok((Vec::new(), Vec::new()));
-    }
-
     let conflicts = if check_conflicts {
         println!(
             "{} {}",
@@ -1452,7 +1449,11 @@ fn check_actions(
     Ok((conflicts, inner_conflicts))
 }
 
-fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
+fn repo_install(
+    config: &Config,
+    install: &[RepoPackage],
+    conflicts: &HashSet<String>,
+) -> Result<i32> {
     if install.is_empty() {
         return Ok(0);
     }
@@ -1472,8 +1473,11 @@ fn repo_install(config: &Config, install: &[RepoPackage]) -> Result<i32> {
         .remove("asexp")
         .remove("y")
         .remove("i")
-        .remove("refresh")
-        .arg("noconfirm");
+        .remove("refresh");
+
+    if !install.iter().any(|pkg| conflicts.contains(pkg.pkg.name())) {
+        args.arg("noconfirm");
+    }
     args.targets = targets.iter().map(|s| s.as_str()).collect();
 
     if !config.combined_upgrade || !config.mode.repo() {
