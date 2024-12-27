@@ -134,8 +134,8 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
     let mut config = match Config::new() {
         Ok(config) => config,
         Err(err) => {
-            let code = if let Some(e) = err.downcast_ref::<install::Status>() {
-                e.0
+            let code = if let Some(&install::Status(e)) = err.downcast_ref() {
+                e
             } else {
                 1
             };
@@ -146,8 +146,8 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
 
     match run2(&mut config, args).await {
         Err(err) => {
-            let code = if let Some(e) = err.downcast_ref::<install::Status>() {
-                e.0
+            let code = if let Some(&install::Status(e)) = err.downcast_ref() {
+                e
             } else {
                 1
             };
