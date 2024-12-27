@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use alpm::{AlpmListMut, Db};
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{Context, Error, Result};
 use nix::unistd::{Gid, Uid, User};
 use tr::tr;

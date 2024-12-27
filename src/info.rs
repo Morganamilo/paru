@@ -7,7 +7,7 @@ use crate::fmt::{date, opt, print_indent};
 use crate::util::split_repo_aur_info;
 
 use alpm_utils::Targ;
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::Error;
 
 use globset::GlobSet;

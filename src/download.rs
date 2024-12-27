@@ -11,7 +11,7 @@ use std::result::Result as StdResult;
 
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::AurBase;
 

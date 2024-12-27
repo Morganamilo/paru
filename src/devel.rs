@@ -14,7 +14,7 @@ use std::iter::FromIterator;
 use std::time::Duration;
 
 use alpm_utils::{DbListExt, Target};
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{anyhow, bail, Context, Result};
 use aur_depends::Base;
 use futures::future::{join_all, select_ok, FutureExt};

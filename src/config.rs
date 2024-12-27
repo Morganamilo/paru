@@ -18,8 +18,8 @@ use std::str::FromStr;
 use alpm::{
     AnyDownloadEvent, AnyQuestion, Depend, DownloadEvent, DownloadResult, LogLevel, Question,
 };
-use ansi_term::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
-use ansi_term::Style;
+use ansiterm::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
+use ansiterm::Style;
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
 
 use bitflags::bitflags;
@@ -136,7 +136,7 @@ impl Colors {
             code: Style::new().fg(Cyan),
             news_date: Style::new().fg(Cyan).bold(),
             old_version: Style::new().fg(Red),
-            install_version: Style::new().fg(ansi_term::Color::Fixed(243)),
+            install_version: Style::new().fg(ansiterm::Color::Fixed(243)),
             new_version: Style::new().fg(Green),
             number_menu: Style::new().fg(Purple),
             group: Style::new().fg(Blue).bold(),

@@ -48,7 +48,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 
-use ansi_term::Style;
+use ansiterm::Style;
 use anyhow::{bail, Error, Result};
 use cini::Ini;
 use fmt::print_target;
