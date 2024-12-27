@@ -53,6 +53,8 @@ impl Status {
 }
 
 struct Installer {
+    refresh: usize,
+    sysupgrade: usize,
     install_targets: bool,
     done_something: bool,
     ran_pacman: bool,
@@ -100,6 +102,8 @@ impl Installer {
         fetch.diff_dir = fetch.diff_dir.join("repo");
 
         Self {
+            sysupgrade: config.args.count("u", "sysupgrade"),
+            refresh: config.args.count("y", "refresh"),
             install_targets: true,
             done_something: false,
             ran_pacman: false,
@@ -119,21 +123,24 @@ impl Installer {
         }
     }
 
-    fn early_refresh(&self, config: &Config) -> Result<()> {
+    fn early_refresh(&self, config: &mut Config) -> Result<()> {
         let mut args = config.pacman_globals();
         for _ in 0..config.args.count("y", "refresh") {
             args.arg("y");
         }
         args.targets.clear();
         exec::pacman(config, &args)?.success()?;
+        config.args.remove("y").remove("refresh");
         Ok(())
     }
 
-    fn early_pacman(&mut self, config: &Config, targets: Vec<String>) -> Result<()> {
+    fn early_pacman(&mut self, config: &mut Config, targets: Vec<String>) -> Result<()> {
         let mut args = config.pacman_args();
         args.targets.clear();
         args.targets(targets.iter().map(|i| i.as_str()));
         exec::pacman(config, &args)?.success()?;
+        config.args.remove("y").remove("refresh");
+        config.args.remove("u").remove("sysupgrade");
         Ok(())
     }
 
@@ -149,7 +156,7 @@ impl Installer {
     async fn news(&self, config: &Config) -> Result<()> {
         let c = config.color;
 
-        if config.news_on_upgrade && config.args.has_arg("u", "sysupgrade") {
+        if config.news_on_upgrade && self.sysupgrade != 0 {
             let mut ret = 0;
             match news::news(config).await {
                 Ok(v) => ret = v,
@@ -236,7 +243,7 @@ impl Installer {
                 }
             }
 
-            if config.args.has_arg("u", "sysupgrade") {
+            if config.sysupgrade {
                 targets.retain(|&p| config.alpm.localdb().pkg(p).is_ok());
             }
 
@@ -888,10 +895,7 @@ impl Installer {
         let targets = args::parse_targets(targets_str);
         let (mut repo_targets, aur_targets) = split_repo_aur_targets(config, &targets)?;
 
-        if targets_str.is_empty()
-            && !config.args.has_arg("u", "sysupgrade")
-            && !config.args.has_arg("y", "refresh")
-        {
+        if targets_str.is_empty() && self.sysupgrade == 0 && !self.sysupgrade == 0 {
             bail!(tr!("no targets specified (use -h for help)"));
         }
 
@@ -914,16 +918,13 @@ impl Installer {
             }
         }
 
-        if targets_str.is_empty()
-            && !config.args.has_arg("u", "sysupgrade")
-            && !config.args.has_arg("y", "refresh")
-        {
+        if targets_str.is_empty() && self.sysupgrade == 0 && self.refresh == 0 {
             return Ok(());
         }
 
         config.init_alpm()?;
 
-        if config.args.has_arg("y", "refresh") {
+        if self.refresh != 0 {
             config.pkgbuild_repos.refresh(config)?;
             self.done_something = true;
         }
@@ -945,7 +946,7 @@ impl Installer {
         let repos = repos.aur_depends_repo(config);
         let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, repos, flags);
 
-        if config.args.has_arg("u", "sysupgrade") {
+        if self.sysupgrade != 0 {
             // TODO?
             let upgrades = get_upgrades(config, &mut resolver).await?;
             for pkg in &upgrades.repo_skip {
@@ -972,21 +973,12 @@ impl Installer {
 
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
-        if Self::shoud_just_pacman(
-            config.mode,
-            &config.args,
-            aur_targets,
-            &self.upgrades,
-            self.ran_pacman,
-        ) {
+        if self.shoud_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
             print_warnings(config, &cache, None);
             let mut args = config.pacman_args();
             let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
             args.targets = targets.iter().map(|s| s.as_str()).collect();
 
-            if config.combined_upgrade {
-                args.remove("y").remove("refresh");
-            }
             if !args.targets.is_empty()
                 || args.has_arg("u", "sysupgrade")
                 || args.has_arg("y", "refresh")
@@ -998,9 +990,9 @@ impl Installer {
             return Ok(());
         }
 
-        if targets.is_empty() && !upgrade_later(config) {
+        if targets.is_empty() && !self.upgrade_later(config) {
             print_warnings(config, &cache, None);
-            if !self.done_something || config.args.has_arg("u", "sysupgrade") {
+            if !self.done_something || self.sysupgrade != 0 {
                 printtr!(" there is nothing to do");
             }
             return Ok(());
@@ -1045,8 +1037,8 @@ impl Installer {
     }
 
     fn shoud_just_pacman(
+        &self,
         mode: Mode,
-        args: &Args<String>,
         aur_targets: &[Targ<'_>],
         upgrades: &Upgrades,
         ran_pacman: bool,
@@ -1054,7 +1046,7 @@ impl Installer {
         if !mode.aur() && !mode.pkgbuild() {
             return true;
         }
-        if args.has_arg("u", "sysupgrade") || args.has_arg("y", "refresh") {
+        if self.sysupgrade != 0 || self.refresh != 0 {
             return false;
         }
         if ran_pacman {
@@ -1242,6 +1234,10 @@ impl Installer {
 
         Ok(())
     }
+
+    fn upgrade_later(&self, config: &Config) -> bool {
+        config.mode.repo() && config.chroot && (self.sysupgrade != 0 || self.refresh != 0)
+    }
 }
 
 fn is_debug(pkg: &alpm::Package) -> bool {
@@ -1319,12 +1315,6 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     warnings.orphans.dedup();
 
     warnings.all(config.color, config.cols);
-}
-
-fn upgrade_later(config: &Config) -> bool {
-    config.mode.repo()
-        && config.chroot
-        && (config.args.has_arg("u", "sysupgrade") || config.args.has_arg("y", "refresh"))
 }
 
 fn fmt_stack(want: &DepMissing) -> String {
