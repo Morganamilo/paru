@@ -229,7 +229,7 @@ pub fn print_aur_info(
         print(
             "AUR URL",
             conf.aur_url
-                .join(&format!("packages/{}", pkg.package_base))?
+                .join(&format!("packages/{}", pkg.name))?
                 .as_str(),
         );
         print_list(&tr!("Groups"), &pkg.groups);
