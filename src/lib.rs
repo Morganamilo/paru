@@ -118,9 +118,10 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
             .format(|buf, record| {
                 writeln!(
                     buf,
-                    "{}: <{}> {}",
+                    "{}: <{}:{}> {}",
                     record.level().to_string().to_lowercase(),
                     record.module_path().unwrap_or("unknown"),
+                    record.line().unwrap_or_default(),
                     record.args()
                 )
             })
