@@ -138,21 +138,22 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
     let mut missing = Vec::new();
     let mut ood = Vec::new();
     let mut orphaned = Vec::new();
-    let mut aur_pkgs = raur.cache_info(cache, pkgs).await?;
 
+    let mut aur_pkgs = raur.cache_info(cache, pkgs).await?;
     aur_pkgs.retain(|pkg1| pkgs.iter().any(|pkg2| pkg1.name == pkg2.as_ref()));
 
+    let should_warn =
+        |pkg: &str| !no_warn.is_match(pkg) && !ignore.iter().any(|ignored| ignored == pkg);
+
     for pkg in pkgs {
-        if !no_warn.is_match(pkg.as_ref())
-            && !ignore.iter().any(|p| p == pkg.as_ref())
-            && !cache.contains(pkg.as_ref())
-        {
-            missing.push(pkg.as_ref())
+        let pkg_name = pkg.as_ref();
+        if should_warn(pkg_name) && !cache.contains(pkg_name) {
+            missing.push(pkg_name);
         }
     }
 
     for pkg in &aur_pkgs {
-        if no_warn.is_match(&pkg.name) && !ignore.iter().any(|p| p.as_str() == pkg.name) {
+        if should_warn(&pkg.name) {
             if pkg.out_of_date.is_some() {
                 ood.push(cache.get(pkg.name.as_str()).unwrap().name.as_str());
             }
@@ -163,14 +164,14 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
         }
     }
 
-    let ret = Warnings {
+    let warnings = Warnings {
         pkgs: aur_pkgs,
         missing,
         ood,
         orphans: orphaned,
     };
 
-    Ok(ret)
+    Ok(warnings)
 }
 
 pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
