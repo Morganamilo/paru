@@ -471,6 +471,7 @@ pub struct Config {
     pub sign_db: Sign,
 
     pub pre_build_command: Option<String>,
+    pub post_build_command: Option<String>,
 
     #[default = "makepkg"]
     pub makepkg_bin: String,
@@ -1023,6 +1024,7 @@ then initialise it with:
             "FileManagerFlags" => self.fm_flags.extend(split),
             "ChrootFlags" => self.chroot_flags.extend(split),
             "PreBuildCommand" => self.pre_build_command = Some(value),
+            "PostBuildCommand" => self.post_build_command = Some(value),
             _ => eprintln!(
                 "{}",
                 tr!("error: unknown option '{}' in section [bin]", key)
