@@ -26,29 +26,29 @@ srcinfo = "1.2.0"
 
 
 ansiterm = "0.12.2"
-anyhow = { version = "1.0.93", features = ["backtrace"] }
-chrono = { version = "0.4.38", default-features = false, features = ["clock"] }
+anyhow = { version = "1.0.95", features = ["backtrace"] }
+chrono = { version = "0.4.39", default-features = false, features = ["clock"] }
 dirs = "5.0.1"
 futures = "0.3.31"
 globset = "0.4.15"
 htmlescape = "0.3.1"
 indicatif = "0.17.9"
-scraper = "0.21.0"
-nix = { version = "0.28.0", features = ["fs", "user"] }
-reqwest = { version = "0.11.27", features = ["gzip", "socks"] }
-rss = { version = "2.0.9", default-features = false }
-serde = { version = "1.0.215", features = ["derive"] }
-serde_json = "1.0.132"
+scraper = "0.22.0"
+nix = { version = "0.29.0", features = ["fs", "user"] }
+reqwest = { version = "0.11.0", features = ["gzip", "socks"] }
+rss = { version = "2.0.11", default-features = false }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.134"
 smart-default = "0.7.1"
 tempfile = "3.14.0"
 terminal_size = "0.4.1"
-tokio = { version = "1.41.1", features = [
+tokio = { version = "1.42.0", features = [
     "process",
     "macros",
     "rt-multi-thread",
 ] }
-url = "2.5.3"
-env_logger = "0.11.5"
+url = "2.5.4"
+env_logger = "0.11.6"
 log = "0.4.22"
 async-trait = { version = "0.1.83", optional = true }
 tr = "0.1.10"
