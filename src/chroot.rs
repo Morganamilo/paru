@@ -92,6 +92,19 @@ impl Chroot {
             cmd.arg(format!("{}.d:/etc/makepkg.conf.d", self.makepkg_conf));
         }
 
+        let xdg_config = std::env::var_os("XDG_CONFIG_HOME")
+            .map(|p| PathBuf::from(p).join("pacman/makepkg.conf"));
+
+        if let Some(xdg_config) = xdg_config {
+            if xdg_config.exists() {
+                cmd.arg("--bind-ro");
+                cmd.arg(format!(
+                    "{}:/etc/makepkg.conf.d/xdg.conf",
+                    xdg_config.display()
+                ));
+            }
+        }
+
         for file in &self.ro {
             cmd.arg("--bind-ro");
             cmd.arg(file);
