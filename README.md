@@ -15,7 +15,7 @@ Paru is your standard pacman wrapping AUR helper with lots of features and minim
 ## Installation
 
 ```
-sudo pacman -S --needed base-devel
+sudo pacman -S --needed base-devel debugedit
 git clone https://aur.archlinux.org/paru.git
 cd paru
 makepkg -si
