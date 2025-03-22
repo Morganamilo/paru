@@ -109,11 +109,11 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
-    let mut lines = data
+    let mut lines: Vec<_> = data
         .split(|&c| c == b'\n')
         .skip(1)
         .filter(|l| !l.is_empty())
-        .collect::<Vec<_>>();
+        .collect();
 
     lines.sort_unstable();
 

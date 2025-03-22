@@ -5,7 +5,7 @@ use std::ffi::OsStr;
 use std::fmt::Write as _;
 use std::fs::{read_dir, read_link, OpenOptions};
 use std::io::{BufRead, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
@@ -79,16 +79,19 @@ pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> 
     installer.install(config, targets_str).await
 }
 
-pub async fn build_dirs(config: &mut Config, dirs: Vec<PathBuf>) -> Result<()> {
+pub async fn build_dirs(
+    config: &mut Config,
+    dirs: impl IntoIterator<Item = impl AsRef<Path>>,
+) -> Result<()> {
     let mut installer = Installer::new(config);
-    let repo = PkgbuildRepo::from_pkgbuilds(config, &dirs)?;
+    let repo = PkgbuildRepo::from_pkgbuilds(config, dirs)?;
 
-    let targets = repo
+    let targets: Vec<_> = repo
         .pkgs(config)
         .iter()
         .flat_map(|s| s.srcinfo.names())
         .map(|name| format!("./{}", name))
-        .collect::<Vec<_>>();
+        .collect();
 
     config.pkgbuild_repos.repos.push(repo);
     installer.install_targets = config.install;
@@ -431,11 +434,7 @@ impl Installer {
         }
 
         if !self.failed.is_empty() {
-            let failed = self
-                .failed
-                .iter()
-                .map(|f| f.to_string())
-                .collect::<Vec<_>>();
+            let failed: Vec<_> = self.failed.iter().map(|f| f.to_string()).collect();
             bail!(tr!("packages failed to build: {}", failed.join("  ")));
         }
 
@@ -525,19 +524,23 @@ impl Installer {
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
         let pkgdest = repo.map(|r| r.1);
-        let mut env = config.env.clone();
-        env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
+        let env = config.env.iter().map(|(a, b)| (a.as_str(), b.as_str()));
+        let env = env.chain(pkgdest.map(|p| ("PKGDEST", p)));
 
         if config.chroot {
             let mut extra = Vec::new();
             if config.repos == LocalRepos::None {
                 extra.extend(self.built.iter().map(|s| s.as_str()));
             }
-            let mut chroot_flags: Vec<&str> =
-                config.chroot_flags.iter().map(|s| s.as_str()).collect();
-            chroot_flags.push("-cu");
+            let chroot_flags = config.chroot_flags.iter().map(|s| s.as_str());
             self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+                .build(
+                    dir,
+                    &extra,
+                    chroot_flags.chain(["-cu"]),
+                    &["-ofA"],
+                    config.env.iter().map(|(a, b)| (a.as_str(), b.as_str())),
+                )
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
@@ -586,7 +589,7 @@ impl Installer {
                         &extra,
                         &config.chroot_flags,
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                        &env,
+                        env,
                     )
                     .with_context(|| tr!("failed to build '{}'", base))?;
             } else {
@@ -623,14 +626,13 @@ impl Installer {
         pkgdest: &HashMap<String, String>,
         debug_paths: &HashMap<String, String>,
     ) {
-        let to_install: Vec<_> = match base {
-            Base::Aur(a) => a.pkgs.iter().map(|a| a.pkg.name.as_str()).collect(),
-            Base::Pkgbuild(c) => c.pkgs.iter().map(|a| a.pkg.pkgname.as_str()).collect(),
+        let to_install: Box<dyn Iterator<Item = &str>> = match base {
+            Base::Aur(a) => Box::new(a.pkgs.iter().map(|a| a.pkg.name.as_str())),
+            Base::Pkgbuild(c) => Box::new(c.pkgs.iter().map(|a| a.pkg.pkgname.as_str())),
         };
 
         let to_install = to_install
-            .iter()
-            .filter_map(|p| pkgdest.get(*p))
+            .filter_map(|p| pkgdest.get(p))
             .chain(debug_paths.values())
             .cloned();
 
@@ -645,12 +647,12 @@ impl Installer {
         pkgdest: &HashMap<String, String>,
         debug_paths: &HashMap<String, String>,
     ) -> Result<()> {
-        let paths = base
+        let paths: Vec<_> = base
             .packages()
             .filter_map(|p| pkgdest.get(p))
             .chain(debug_paths.values())
             .map(|s| s.as_str())
-            .collect::<Vec<_>>();
+            .collect();
         sign_pkg(config, &paths, false)?;
 
         if let Some(ref repo) = repo {
@@ -910,8 +912,7 @@ impl Installer {
                     || !repo_targets.is_empty()
                     || config.mode == Mode::REPO)
             {
-                let targets = repo_targets.iter().map(|t| t.to_string()).collect();
-                repo_targets.clear();
+                let targets = repo_targets.drain(..).map(|t| t.to_string()).collect();
                 self.done_something = true;
                 self.ran_pacman = true;
                 self.early_pacman(config, targets)?;
@@ -976,7 +977,7 @@ impl Installer {
         if self.shoud_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
             print_warnings(config, &cache, None);
             let mut args = config.pacman_args();
-            let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
+            let targets: Vec<_> = targets.iter().map(|t| t.to_string()).collect();
             args.targets = targets.iter().map(|s| s.as_str()).collect();
 
             if !args.targets.is_empty()
@@ -1006,12 +1007,12 @@ impl Installer {
 
         let mut actions = resolver.resolve_targets(&targets).await?;
         debug!("{:#?}", actions);
-        let repo_targs = actions
+        let repo_targs: Vec<_> = actions
             .install
             .iter()
             .filter(|p| p.target)
             .map(|p| p.pkg.name().to_string())
-            .collect::<Vec<_>>();
+            .collect();
 
         self.prepare_build(config, &cache, &mut actions).await?;
 
@@ -1075,7 +1076,7 @@ impl Installer {
             .iter()
             .map(|c| c.pkg.clone())
             .chain(conflicts.1.iter().map(|c| c.pkg.clone()))
-            .collect::<HashSet<_>>();
+            .collect();
 
         let c = config.color;
 
@@ -1146,7 +1147,7 @@ impl Installer {
         }
 
         if !config.skip_review {
-            let pkgs = actions
+            let pkgs: Vec<_> = actions
                 .build
                 .iter()
                 .filter(|b| b.build())
@@ -1154,7 +1155,7 @@ impl Installer {
                     Base::Aur(pkg) => Some(pkg.package_base()),
                     Base::Pkgbuild(_) => None,
                 })
-                .collect::<Vec<_>>();
+                .collect();
             review(config, &config.fetch, &pkgs)?;
         }
 
@@ -1164,14 +1165,14 @@ impl Installer {
             .first()
             .context(tr!("no architecture"))?;
 
-        let incompatible = self
+        let mut incompatible = self
             .srcinfos
             .values()
             .flat_map(|s| &s.pkgs)
             .filter(|p| !p.arch.iter().any(|a| a == "any") && !p.arch.iter().any(|a| a == arch))
-            .collect::<Vec<_>>();
+            .peekable();
 
-        if !incompatible.is_empty() {
+        if incompatible.peek().is_some() {
             println!(
                 "{} {}",
                 c.error.paint("::"),
@@ -1186,7 +1187,7 @@ impl Installer {
                 4,
                 config.cols,
                 "  ",
-                incompatible.iter().map(|i| i.pkgname.as_str()),
+                incompatible.map(|i| i.pkgname.as_str()),
             );
             if !ask(
                 config,
@@ -1215,8 +1216,7 @@ impl Installer {
                     .install
                     .iter()
                     .filter(|p| p.make)
-                    .map(|p| p.pkg.name().to_string())
-                    .collect::<Vec<_>>(),
+                    .map(|p| p.pkg.name().to_string()),
             );
 
             self.remove_make.extend(
@@ -1268,7 +1268,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| !is_debug(pkg))
             .map(|pkg| pkg.name())
             .filter(|pkg| !config.no_warn.is_match(pkg))
-            .collect::<Vec<_>>();
+            .collect();
 
         warnings.ood = pkgs
             .iter()
@@ -1277,7 +1277,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| pkg.out_of_date.is_some())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.is_match(pkg))
-            .collect::<Vec<_>>();
+            .collect();
 
         warnings.orphans = pkgs
             .iter()
@@ -1286,7 +1286,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
             .filter(|pkg| pkg.maintainer.is_none())
             .map(|pkg| pkg.name.as_str())
             .filter(|pkg| !config.no_warn.is_match(pkg))
-            .collect::<Vec<_>>();
+            .collect();
     }
 
     if let Some(actions) = actions {
@@ -1461,10 +1461,10 @@ fn repo_install(
     let mut deps = Vec::new();
     let mut exp = Vec::new();
 
-    let targets = install
+    let targets: Vec<_> = install
         .iter()
         .map(|p| format!("{}/{}", p.pkg.db().unwrap().name(), p.pkg.name()))
-        .collect::<Vec<_>>();
+        .collect();
 
     let mut args = config.pacman_args();
     args.remove("asdeps")
@@ -2056,7 +2056,7 @@ fn parse_package_list(
     for line in output.trim().lines() {
         let file = line.rsplit('/').next().unwrap();
 
-        let split = file.split('-').collect::<Vec<_>>();
+        let split: Vec<_> = file.split('-').collect();
         ensure!(
             split.len() >= 4,
             "{}",

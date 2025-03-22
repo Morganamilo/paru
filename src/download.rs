@@ -87,7 +87,7 @@ pub struct Warnings<'a> {
     pub orphans: Vec<&'a str>,
 }
 
-impl<'a> Warnings<'a> {
+impl Warnings<'_> {
     pub fn missing(&self, color: Colors, cols: Option<usize>) -> &Self {
         if !self.missing.is_empty() {
             let b = color.bold;
@@ -175,11 +175,7 @@ pub async fn cache_info_with_warnings<'a, S: AsRef<str> + Send + Sync>(
 }
 
 pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
-    let pkgs = config
-        .targets
-        .iter()
-        .map(|t| t.as_str())
-        .collect::<Vec<_>>();
+    let pkgs: Vec<_> = config.targets.iter().map(|t| t.as_str()).collect();
 
     let (repo, aur) = split_repo_aur_pkgbuilds(config, &pkgs);
     let mut ret = 0;
@@ -189,7 +185,7 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() {
-        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
+        let aur: Vec<_> = aur.iter().map(|t| t.pkg).collect();
         let action = config.color.action;
         let bold = config.color.bold;
         println!(
@@ -263,11 +259,7 @@ pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
 }
 
 async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
-    let download = bases
-        .bases
-        .iter()
-        .map(|p| p.package_base())
-        .collect::<Vec<_>>();
+    let download: Vec<_> = bases.bases.iter().map(|p| p.package_base()).collect();
 
     let cols = config.cols.unwrap_or(0);
 
@@ -337,11 +329,7 @@ pub async fn new_aur_pkgbuilds(
         return Ok(());
     }
 
-    let all_pkgs = bases
-        .bases
-        .iter()
-        .map(|b| b.package_base())
-        .collect::<Vec<_>>();
+    let all_pkgs: Vec<_> = bases.bases.iter().map(|b| b.package_base()).collect();
 
     if config.redownload == YesNoAll::All {
         aur_pkgbuilds(config, bases).await?;
@@ -418,10 +406,10 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
             .select(&comments_selector)
             .map(|node| node.text().collect::<String>());
 
-        let iter = titles.zip(comments).collect::<Vec<_>>();
+        let iter: Vec<_> = titles.zip(comments).collect();
 
         if config.sort_mode == SortMode::TopDown {
-            for (title, comment) in iter.into_iter() {
+            for (title, comment) in iter {
                 print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
 
                 for line in comment.trim().split('\n') {
@@ -544,7 +532,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     }
 
     if !aur.is_empty() {
-        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
+        let aur: Vec<_> = aur.iter().map(|t| t.pkg).collect();
 
         let warnings = cache_info_with_warnings(
             &config.raur,

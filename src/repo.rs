@@ -58,8 +58,7 @@ pub fn add<P: AsRef<Path>, S: AsRef<OsStr>>(
 
     let pkgs = pkgs
         .iter()
-        .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()))
-        .collect::<Vec<_>>();
+        .map(|p| path.join(Path::new(p.as_ref()).file_name().unwrap()));
 
     let mut cmd = Command::new("repo-add");
 
@@ -231,10 +230,7 @@ pub fn delete(config: &mut Config) -> Result<(), Error> {
             exec::command(&mut cmd)?;
         }
 
-        let repos = repos
-            .into_iter()
-            .map(|r| r.name().to_string())
-            .collect::<Vec<_>>();
+        let repos: Vec<_> = repos.into_iter().map(|r| r.name().to_string()).collect();
         refresh(config, &repos)?;
 
         if config.delete >= 2 {
@@ -322,17 +318,15 @@ pub fn refresh<S: AsRef<OsStr>>(config: &mut Config, repos: &[S]) -> Result<i32>
 
 pub fn clean(config: &mut Config) -> Result<i32> {
     let c = config.color;
-    let (_, repos) = repo_aur_dbs(config);
-    let repo_names = repos
-        .iter()
-        .map(|r| r.name().to_string())
-        .collect::<Vec<_>>();
-    drop(repos);
+    let repo_names: Vec<_> = {
+        let (_, repos) = repo_aur_dbs(config);
+        repos.iter().map(Db::name).collect()
+    };
     refresh(config, &repo_names)?;
     let (_, repos) = repo_aur_dbs(config);
     let db = config.alpm.localdb();
 
-    let mut rem = repos
+    let rem: Vec<_> = repos
         .iter()
         .map(|repo| {
             repo.pkgs()
@@ -340,8 +334,8 @@ pub fn clean(config: &mut Config) -> Result<i32> {
                 .filter(|pkg| db.pkg(pkg.name()).is_err())
                 .collect::<Vec<_>>()
         })
-        .collect::<Vec<_>>();
-    rem.retain(|r| !r.is_empty());
+        .filter(|r| !r.is_empty())
+        .collect();
     drop(repos);
 
     if rem.is_empty() {
@@ -350,7 +344,7 @@ pub fn clean(config: &mut Config) -> Result<i32> {
     }
 
     println!();
-    let count = rem.iter().fold(0, |acc, r| acc + r.len());
+    let count = rem.iter().flatten().count();
     let fmt = format!("{} ({}) ", tr!("Packages"), count);
     let start = fmt.width();
     print!("{}", c.bold.paint(fmt));
@@ -371,31 +365,30 @@ pub fn clean(config: &mut Config) -> Result<i32> {
     for pkgs in &rem {
         let repo = pkgs[0].db().unwrap();
         let path = file(repo).unwrap();
-        let pkgs = pkgs.iter().map(|p| p.name()).collect::<Vec<_>>();
+        let pkgs: Vec<_> = pkgs.iter().map(|p| p.name()).collect();
         remove(config, path, repo.name(), &pkgs)?;
     }
 
-    let mut rmfiles = Vec::new();
+    let mut rmfiles = rem
+        .iter()
+        .flatten()
+        .map(|pkg| {
+            let repo = pkg.db().unwrap();
+            let path = file(repo).unwrap();
+            Path::new(path).join(pkg.filename().unwrap())
+        })
+        .peekable();
 
-    for pkg in rem.iter().flatten() {
-        let repo = pkg.db().unwrap();
-        let path = file(repo).unwrap();
-        let pkgfile = Path::new(path).join(pkg.filename().unwrap());
-        rmfiles.push(pkgfile);
-    }
-
-    if !rmfiles.is_empty() {
+    if rmfiles.peek().is_some() {
         let mut cmd = Command::new(&config.sudo_bin);
         cmd.arg("rm").args(rmfiles);
         exec::command(&mut cmd)?;
     }
 
-    let (_, repos) = repo_aur_dbs(config);
-    let repo_names = repos
-        .iter()
-        .map(|r| r.name().to_string())
-        .collect::<Vec<_>>();
-    drop(repos);
+    let repo_names: Vec<&str> = {
+        let (_, repos) = repo_aur_dbs(config);
+        repos.iter().map(|r| r.name()).collect()
+    };
     refresh(config, &repo_names)?;
 
     Ok(0)
