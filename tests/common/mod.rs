@@ -172,12 +172,12 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     if repo {
         let mut args = args.clone();
         args.push("-Ly");
-        let ret = paru::run(&args).await;
+        let ret = paru::run(args.iter()).await;
         assert_eq!(ret, 0);
     }
 
     args.extend(run_args);
-    let ret = paru::run(&args).await;
+    let ret = paru::run(args.iter()).await;
 
     for pkg in std::fs::read_dir(dir.join("cache/pkg"))? {
         let path = pkg?.path();
