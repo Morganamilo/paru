@@ -45,7 +45,6 @@ use std::error::Error as StdError;
 use std::fs::read_to_string;
 use std::io::Write;
 
-use std::path::PathBuf;
 use std::process::Command;
 
 use ansiterm::Style;
@@ -108,7 +107,7 @@ fn print_error(color: Style, err: Error) {
     eprintln!();
 }
 
-pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
+pub async fn run(args: impl ExactSizeIterator<Item = impl AsRef<str>>) -> i32 {
     tr_init!(env::var("LOCALE_DIR")
         .as_deref()
         .unwrap_or("/usr/share/locale/"));
@@ -129,8 +128,8 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
             .try_init();
     }
 
-    let _ = &*exec::DEFAULT_SIGNALS;
-    let _ = &*exec::RAISE_SIGPIPE;
+    std::sync::LazyLock::force(&exec::DEFAULT_SIGNALS);
+    std::sync::LazyLock::force(&exec::RAISE_SIGPIPE);
 
     let mut config = match Config::new() {
         Ok(config) => config,
@@ -159,14 +158,17 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
     }
 }
 
-async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
+async fn run2(
+    config: &mut Config,
+    args: impl ExactSizeIterator<Item = impl AsRef<str>>,
+) -> Result<i32> {
     if let Some(ref config_path) = config.config_path {
         let file = read_to_string(config_path)?;
         let name = config_path.display().to_string();
         config.parse(Some(name.as_str()), &file)?;
     };
 
-    if args.is_empty() {
+    if args.len() == 0 {
         config.parse_args(["-Syu"])?;
     } else {
         config.parse_args(args)?;
@@ -228,22 +230,20 @@ async fn handle_cmd(config: &mut Config) -> Result<i32> {
 }
 
 async fn handle_upgrade(config: &mut Config) -> Result<i32> {
-    if config.targets.is_empty() {
-        let dir = current_dir()?;
-        install::build_dirs(config, vec![dir]).await?;
-        Ok(0)
-    } else {
-        Ok(exec::pacman(config, &config.args)?.code())
+    if !config.targets.is_empty() {
+        return Ok(exec::pacman(config, &config.args)?.code());
     }
+    let dir = current_dir()?;
+    install::build_dirs(config, [dir]).await?;
+    Ok(0)
 }
 
 async fn handle_build(config: &mut Config) -> Result<i32> {
     if config.targets.is_empty() {
         bail!(tr!("no targets specified (use -h for help)"));
-    } else {
-        let dirs = config.targets.iter().map(PathBuf::from).collect();
-        install::build_dirs(config, dirs).await?;
     }
+    let dirs: Vec<String> = config.targets.clone();
+    install::build_dirs(config, dirs).await?;
     Ok(0)
 }
 
@@ -383,11 +383,11 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
     }
 
     let (_, repos) = repo::repo_aur_dbs(config);
-    let repos = repos
+    let repos: Vec<_> = repos
         .into_iter()
         .map(|r| r.name().to_string())
         .filter(|r| config.delete >= 1 || config.targets.is_empty() || config.targets.contains(r))
-        .collect::<Vec<_>>();
+        .collect();
 
     if config.refresh || config.sysupgrade {
         repo::refresh(config, &repos)?;

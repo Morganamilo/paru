@@ -22,7 +22,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
     }
 
     let targets: Vec<_> = if config.targets.is_empty() {
-        db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>()
+        db.pkgs().iter().map(|p| p.name()).collect()
     } else {
         config.targets.iter().map(|s| s.as_str()).collect()
     };
@@ -57,7 +57,7 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         let output = exec::pacman_output(config, &args)?;
         let aur = String::from_utf8(output.stdout)?;
 
-        let mut aur = aur.trim().lines().collect::<Vec<_>>();
+        let mut aur: Vec<_> = aur.trim().lines().collect();
 
         if config.mode.pkgbuild() {
             aur.retain(|&target| {

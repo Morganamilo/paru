@@ -17,7 +17,7 @@ enum Arg<'a> {
     Long(&'a str),
 }
 
-impl<'a> fmt::Display for Arg<'a> {
+impl fmt::Display for Arg<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Arg::Short(c) => write!(f, "-{}", c),
@@ -26,7 +26,7 @@ impl<'a> fmt::Display for Arg<'a> {
     }
 }
 
-impl<'a> Arg<'a> {
+impl Arg<'_> {
     fn arg(self) -> String {
         match self {
             Arg::Long(arg) => arg.to_string(),

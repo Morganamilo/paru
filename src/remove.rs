@@ -16,12 +16,12 @@ pub fn remove(config: &mut Config) -> Result<i32> {
 
     let mut devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
-    let bases = config
+    let bases: Vec<_> = config
         .targets
         .iter()
         .filter_map(|pkg| db.pkg(pkg.as_str()).ok())
         .map(pkg_base_or_name)
-        .collect::<Vec<_>>();
+        .collect();
 
     let mut db_map: HashMap<String, Vec<String>> = HashMap::new();
     let (_, local_repos) = repo::repo_aur_dbs(config);
