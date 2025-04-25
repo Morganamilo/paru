@@ -1,15 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Serhii Starovoitov <drommer.94@gmail.com>, 2025.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.0.3\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2025-04-14 22:00+3000\n"
+"PO-Revision-Date: 2025-04-25 21:25+3000\n"
 "Last-Translator: Serhii Starovoitov <drommer.94@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "Language: uk\n"
@@ -281,7 +280,7 @@ msgstr "Нова версія"
 
 #: src/fmt.rs:321
 msgid "Make Only"
-msgstr "Тільки збірка"
+msgstr "Тільки збирання"
 
 #: src/fmt.rs:322
 msgid "Yes"
@@ -569,11 +568,11 @@ msgstr "    --[no]chroot           Збирати пакунки у chroot"
 
 #: src/help.rs:83
 msgid "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]failfast         Завершувати роботу одразу у разі невдалої збірки пакета з AUR"
+msgstr "    --[no]failfast         Завершувати роботу одразу у разі невдалого збирання пакета з AUR"
 
 #: src/help.rs:84
 msgid "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]keepsrc          Зберігати каталоги src/ та pkg/ після збірки пакунків"
+msgstr "    --[no]keepsrc          Зберігати каталоги src/ та pkg/ після збирання пакунків"
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
@@ -645,7 +644,7 @@ msgstr "Опції для --build"
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Встановлювати пакунок після збірки"
+msgstr "    -i --install          Встановлювати пакунок після збирання"
 
 #: src/info.rs:57 src/info.rs:182 src/query.rs:49
 msgid "package '{}' was not found"
@@ -681,7 +680,7 @@ msgstr "Залежить від"
 
 #: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Make Deps"
-msgstr "Залежності для збірки"
+msgstr "Залежності для збирання"
 
 #: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Check Deps"
@@ -785,7 +784,7 @@ msgstr "список пакунка не відповідає SRCINFO"
 
 #: src/install.rs:579
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} в актуальному стані - збірка пропускається"
+msgstr "{}-{} в актуальному стані - збирання пропускається"
 
 #: src/install.rs:744
 msgid "can't build {base}, deps not satisfied: {deps}"
@@ -817,7 +816,7 @@ msgstr "--downloadonly не можна використовувати для п�
 
 #: src/install.rs:1089
 msgid "Remove make dependencies after install?"
-msgstr "Видалити залежності збірки після встановлення?"
+msgstr "Видалити залежності збирання після встановлення?"
 
 #: src/install.rs:1100
 msgid "Proceed to review?"
@@ -1115,7 +1114,7 @@ msgstr "\n"
 
 #: src/lib.rs:210
 msgid "can not use chroot builds: devtools is not installed"
-msgstr "не можливо використовувати chroot-збірки: не встановлено devtools"
+msgstr "не можливо використовувати chroot-збирання: не встановлено devtools"
 
 #: src/lib.rs:317
 msgid "no operation specified (use -h for help)"
