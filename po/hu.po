@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2024-11-09 12:40+0100\n"
+"PO-Revision-Date: 2025-05-01 12:35+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -16,22 +16,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
 "X-Language: hu_HU\n"
 "X-Source-Language: C\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Biztosan el akarja távolítani az ÖSSZES AUR csomagot a gyorsítótárból?"
+msgstr "Biztosan el akarja távolítani az ÖSSZES AUR-csomagot a gyorsítótárból?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
 msgstr ""
-"Biztosan el akarja távolítani az összes többi AUR csomagot a gyorsítótárból?"
+"Biztosan el akarja távolítani az összes többi AUR-csomagot a gyorsítótárból?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
-msgstr "Klónkönyvtár: {}"
+msgstr "Klónozási könyvtár: {}"
 
 #: src/clean.rs:47
 msgid ""
@@ -55,7 +55,7 @@ msgstr "nem sikerült eltávolítani a következőt: „{}”"
 
 #: src/clean.rs:95
 msgid "can't open clone dir: {}"
-msgstr "nem sikerült megnyitni a klónkönyvtárat: {}"
+msgstr "nem sikerült megnyitni a klónozási könyvtárat: {}"
 
 #: src/clean.rs:141
 msgid "could not parse .SRCINFO for '{}'"
@@ -79,11 +79,11 @@ msgstr "ismeretlen kapcsoló -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
-msgstr "nem sikerült megnyitni a cache fájlt „{}”"
+msgstr "nem sikerült megnyitni a cache-fájlt „{}”"
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
-msgstr "nem sikerült frissíteni az AUR gyorsítótárát"
+msgstr "nem sikerült frissíteni az AUR-gyorsítótárát"
 
 #: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
@@ -127,7 +127,7 @@ msgstr "nem található a(z) „{}” nevezetű helyi tároló a pacman.conf-ban
 
 #: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "nem sikerült inicializálni az alpm-et: root={} dbpath={}"
+msgstr "nem sikerült előkészíteni az ALPM-et: root={} dbpath={}"
 
 #: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
@@ -192,11 +192,11 @@ msgstr "Devel tárolók keresése..."
 
 #: src/devel.rs:210
 msgid "failed to save devel info"
-msgstr "nem sikerült elmenteni a devel infót"
+msgstr "nem sikerült elmenteni a devel-információt"
 
 #: src/devel.rs:218
 msgid "failed to create state directory: {}"
-msgstr "nem sikerült létrehozni a state könyvtárat: {}"
+msgstr "nem sikerült létrehozni a state-könyvtárat: {}"
 
 #: src/devel.rs:233
 msgid "failed to create temporary file: {}"
@@ -265,15 +265,15 @@ msgstr "Tároló"
 
 #: src/fmt.rs:244
 msgid "Repo Make"
-msgstr "Tároló fordítás"
+msgstr "Tárolófordítás"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "Pkgbuilds fordítás"
+msgstr "Pkgbuilds-fordítás"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
-msgstr "AUR fordítás"
+msgstr "AUR-fordítás"
 
 #: src/fmt.rs:311
 msgid "Repo ({})"
@@ -422,11 +422,11 @@ msgstr "    --mode      <mode>     Beállítja, hogy a paru hol keressen céloka
 
 #: src/help.rs:37
 msgid ""
-"    --interactive          Enable interactive package selection for -S, -R, -"
-"Ss and -Qs"
+"    --interactive          Enable interactive package selection for -S, -R, "
+"-Ss and -Qs"
 msgstr ""
-"    --interactive          Interaktív csomag kiválasztás engedélyezése az -"
-"S, -R, -Ss és -Qs-hez"
+"    --interactive          Interaktív csomag kiválasztás engedélyezése az "
+"-S, -R, -Ss és -Qs-hez"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -528,7 +528,7 @@ msgstr ""
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
-msgstr "    -x --regex             Regex engedélyezése az aur kereséshez"
+msgstr "    -x --regex             Regex engedélyezése az AUR-kereséshez"
 
 #: src/help.rs:64
 msgid "    --skipreview           Skip the review process"
@@ -592,15 +592,15 @@ msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Frissítéskor egyszerre hajtsa végre a repo és az "
-"AUR frissítéseket"
+"    --[no]combinedupgrade  Frissítéskor egyszerre hajtsa végre a tároló és "
+"az AUR-frissítéseket"
 
 #: src/help.rs:77
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
-"    --[no]batchinstall     Több AUR csomag összeállítása, majd azok "
+"    --[no]batchinstall     Több AUR-csomag összeállítása, majd azok "
 "egyszerre történő telepítése"
 
 #: src/help.rs:78
@@ -640,7 +640,7 @@ msgstr "    --[no]chroot           Csomagok összeállítása egy chroot-ban"
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
-"    --[no]failfast         Lépjen ki, amint egy AUR csomag összeállítása "
+"    --[no]failfast         Lépjen ki, amint egy AUR-csomag összeállítása "
 "meghiúsul"
 
 #: src/help.rs:84
@@ -724,7 +724,7 @@ msgstr "    -p --print            A pkgbuild kiírása az stdout-ra"
 
 #: src/help.rs:101
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr "    -c --comments         AUR megjegyzések kiírása a pkgbuild számára"
+msgstr "    -c --comments         AUR-megjegyzések kiírása a pkgbuild számára"
 
 #: src/help.rs:102
 msgid "    -s --ssh              Clone package using SSH"
@@ -760,11 +760,11 @@ msgstr "Csoportok"
 
 #: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Licenses"
-msgstr "Engedélyek"
+msgstr "Licencek"
 
 #: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Provides"
-msgstr "Biztosítja"
+msgstr "Szolgáltatja"
 
 #: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Depends On"
@@ -812,11 +812,11 @@ msgstr "Elavult"
 
 #: src/info.rs:105 src/info.rs:256
 msgid "ID"
-msgstr "ID"
+msgstr "Azonosító"
 
 #: src/info.rs:106 src/info.rs:257
 msgid "Package Base ID"
-msgstr "Csomag azonosító-alap"
+msgstr "Csomagalap-azonosító"
 
 #: src/info.rs:107 src/info.rs:258
 msgid "Keywords"
@@ -903,11 +903,11 @@ msgstr "Függőségek feloldása..."
 
 #: src/install.rs:1061
 msgid "can't install AUR package as root"
-msgstr "nem lehet telepíteni az AUR csomagot root felhasználóként"
+msgstr "nem lehet telepíteni az AUR-csomagot rendszergazdaként"
 
 #: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
-msgstr "--downloadonly nem használható az AUR csomagokhoz"
+msgstr "--downloadonly nem használható az AUR-csomagokhoz"
 
 #: src/install.rs:1089
 msgid "Remove make dependencies after install?"
@@ -1090,7 +1090,7 @@ msgstr "Biztosan törli?"
 
 #: src/search.rs:40
 msgid "aur search failed"
-msgstr "az AUR keresés sikertelen"
+msgstr "az AUR-keresés sikertelen"
 
 #: src/search.rs:275 src/search.rs:316 src/search.rs:370
 msgid "[Installed: {}]"
@@ -1114,11 +1114,11 @@ msgstr "egyetlen csomag sem felel meg a keresésnek"
 
 #: src/search.rs:489
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "Telepítendő csomagok (pl.: 1 2 3, 1-3):"
+msgstr "Telepítendő csomagok (például: 1 2 3, 1-3):"
 
 #: src/search.rs:491
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Csomagok kiválasztása (pl.: 1 2 3, 1-3):"
+msgstr "Csomagok kiválasztása (például: 1 2 3, 1-3):"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
@@ -1126,11 +1126,11 @@ msgstr "Összes telepített csomag: {}"
 
 #: src/stats.rs:94
 msgid "Aur packages: {}"
-msgstr "AUR csomagok: {}"
+msgstr "AUR-csomagok: {}"
 
 #: src/stats.rs:98
 msgid "Repo packages: {}"
-msgstr "Tároló csomagok: {}"
+msgstr "Tárolócsomagok: {}"
 
 #: src/stats.rs:102
 msgid "Explicitly installed packages: {}"
@@ -1154,7 +1154,7 @@ msgstr "PKGBUILD frissítések keresése..."
 
 #: src/upgrade.rs:136
 msgid "Looking for AUR upgrades..."
-msgstr "AUR frissítések keresése..."
+msgstr "AUR-frissítések keresése..."
 
 #: src/upgrade.rs:167
 msgid "Looking for devel upgrades..."
