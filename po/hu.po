@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2024-09-18 23:38+0000\n"
-"PO-Revision-Date: 2025-06-25 14:20+0200\n"
+"PO-Revision-Date: 2025-06-25 14:49+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -79,7 +79,7 @@ msgstr "ismeretlen kapcsoló: -{}"
 
 #: src/completion.rs:27
 msgid "failed to open cache file '{}'"
-msgstr "nem sikerült megnyitni a cache fájlt „{}”"
+msgstr "nem sikerült megnyitni a gyorsítótár-fájlt „{}”"
 
 #: src/completion.rs:65
 msgid "could not update aur cache"
@@ -95,7 +95,7 @@ msgstr "ismeretlen mód: {}"
 
 #: src/config.rs:561
 msgid "section can not be called {}"
-msgstr "a következő szakasz nem hívható meg {}"
+msgstr "nem hívható meg a következő szakasz: {}"
 
 #: src/config.rs:578
 msgid "failed to find cache directory"
@@ -127,7 +127,7 @@ msgstr "nem található a(z) „{}” nevezetű helyi tároló a pacman.conf-ban
 
 #: src/config.rs:857
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "nem sikerült előkészíteni az alpm-et: root={} dbpath={}"
+msgstr "nem sikerült előkészíteni az ALPM-et: root={} dbpath={}"
 
 #: src/config.rs:932 src/config.rs:1093
 msgid "value can not be empty for key '{}'"
@@ -180,7 +180,7 @@ msgstr "  nem sikerült szinkronizálni a következőt: {}"
 
 #: src/devel.rs:136 src/download.rs:197
 msgid "Querying AUR..."
-msgstr "AUR lekérdezése..."
+msgstr "Az AUR lekérdezése..."
 
 #: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
 msgid "failed to parse srcinfo for '{}'"
@@ -528,7 +528,9 @@ msgstr ""
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
-msgstr "    -x --regex             Regex engedélyezése az AUR-kereséshez"
+msgstr ""
+"    -x --regex             Reguláris kifejezés engedélyezése az AUR-"
+"kereséshez"
 
 #: src/help.rs:64
 msgid "    --skipreview           Skip the review process"
@@ -629,7 +631,7 @@ msgstr ""
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
-"    --[no]sudoloop         Sudo hívások hurkolása a háttérben az időtúllépés "
+"    --[no]sudoloop         Sudo-hívások hurkolása a háttérben az időtúllépés "
 "elkerülése érdekében"
 
 #: src/help.rs:82
@@ -640,8 +642,7 @@ msgstr "    --[no]chroot           Csomagok összeállítása egy chroot-ban"
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
-"    --[no]failfast         Lépjen ki, amint egy AUR csomag összeállítása "
-"meghiúsul"
+"    --[no]failfast         kilépés, ha egy AUR-csomag összeállítása meghiúsul"
 
 #: src/help.rs:84
 msgid ""
@@ -716,7 +717,7 @@ msgstr "    -w --news             Arch hírek megjelenítése"
 
 #: src/help.rs:99
 msgid "getpkgbuild specific options:"
-msgstr "a getpkgbuild speciális kapcsolói:"
+msgstr "A getpkgbuild speciális kapcsolói:"
 
 #: src/help.rs:100
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -732,11 +733,11 @@ msgstr "    -s --ssh              Csomag klónozása SSH használatával"
 
 #: src/help.rs:104
 msgid "Build specific options:"
-msgstr "A build speciális kapcsolói:"
+msgstr "Az összeállítás speciális kapcsolói:"
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Csomagösszeállítás és telepítés"
+msgstr "    -i --install          Csomag-összeállítás és telepítés"
 
 #: src/info.rs:57 src/info.rs:182 src/query.rs:49
 msgid "package '{}' was not found"
@@ -853,7 +854,7 @@ msgstr ""
 
 #: src/install.rs:416
 msgid "packages failed to build: {}"
-msgstr "a következő csomago(ka)t nem sikerült összeállítani: {}"
+msgstr "nem sikerült összeállítani a következő csomagokat : {}"
 
 #: src/install.rs:488
 msgid "adding {} to the install list"
@@ -865,7 +866,7 @@ msgstr "a(z) „{}” forrásait nem sikerült letölteni"
 
 #: src/install.rs:536 src/install.rs:564 src/install.rs:572
 msgid "failed to build '{}'"
-msgstr "nem sikerült összeállítani a következőt: „{}”"
+msgstr "nem sikerült összeállítani a következő csomagot: „{}”"
 
 #: src/install.rs:539 src/install.rs:753
 msgid "{}: parsing pkg list..."
@@ -904,7 +905,7 @@ msgstr "Függőségek feloldása..."
 
 #: src/install.rs:1061
 msgid "can't install AUR package as root"
-msgstr "nem lehet telepíteni az AUR-csomagot rendszegazdaként"
+msgstr "nem lehet telepíteni az AUR-csomagot rendszergazdaként"
 
 #: src/install.rs:1064
 msgid "--downloadonly can't be used for AUR packages"
@@ -1088,7 +1089,7 @@ msgstr "Csomagok"
 
 #: src/repo.rs:274
 msgid "Proceed with removal?"
-msgstr "Folytatja az elávolítással?"
+msgstr "Folytatja az eltávolítással?"
 
 #: src/search.rs:40
 msgid "aur search failed"
@@ -1116,11 +1117,11 @@ msgstr "egyetlen csomag sem felel meg a keresésnek"
 
 #: src/search.rs:489
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "Telepítendő csomagok (például.: 1 2 3, 1-3):"
+msgstr "Telepítendő csomagok (például: 1 2 3, 1-3):"
 
 #: src/search.rs:491
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Csomagok kiválasztása (például.: 1 2 3, 1-3):"
+msgstr "Csomagok kiválasztása (például: 1 2 3, 1-3):"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
@@ -1172,7 +1173,7 @@ msgstr "{pkg}: a csomagfrissítés figyelmen kívül hagyása ({old} => {new})"
 
 #: src/upgrade.rs:406
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Kihagyandó csomagok (pl.: 1 2 3, 1-3):"
+msgstr "Kihagyandó csomagok (például: 1 2 3, 1-3):"
 
 #: src/util.rs:120
 msgid "[Y/n]:"
@@ -1192,7 +1193,7 @@ msgstr "igen"
 
 #: src/util.rs:339
 msgid "Enter a number (default=1): "
-msgstr "Adjon megy egy számot (alapértelmezett = 1): "
+msgstr "Adjon meg egy számot (alapértelmezett = 1): "
 
 #: src/util.rs:356
 msgid "invalid number: {}"
