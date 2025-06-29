@@ -3,7 +3,9 @@ use crate::exec;
 use anyhow::{Context, Result};
 use nix::unistd::{Uid, User};
 use std::ffi::OsStr;
+use std::fs::Permissions;
 use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -21,6 +23,8 @@ pub struct Chroot {
 
 fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     let mut tmp = tempfile::NamedTempFile::new()?;
+    tmp.as_file()
+        .set_permissions(Permissions::from_mode(0o644))?;
     let conf = pacmanconf::Config::expand_with_opts(None, Some(pacman_conf), Some("/"))?;
 
     // Bug with dbpath in pacstrap
