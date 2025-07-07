@@ -260,7 +260,7 @@ msgstr " PKGBUILDit ovat ajantasalla"
 
 #: src/exec.rs:173
 msgid "Pacman is currently in use, please wait..."
-msgstr "Pacman on tällä hetkellä käytässö, odota..."
+msgstr "Pacman on tällä hetkellä käytössä, odota..."
 
 #: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
 msgid "None"
