@@ -126,13 +126,13 @@ impl Chroot {
         self.run(&["pacman", "-Syu", "--noconfirm"])
     }
 
-    pub fn build<S: AsRef<OsStr>>(
+    pub fn build<'e, S: AsRef<OsStr>>(
         &self,
         pkgbuild: &Path,
         pkgs: &[&str],
-        chroot_flags: &[S],
+        chroot_flags: impl IntoIterator<Item = S>,
         flags: &[&str],
-        env: &[(String, String)],
+        env: impl IntoIterator<Item = (&'e str, &'e str)>,
     ) -> Result<()> {
         let mut cmd = Command::new("makechrootpkg");
 

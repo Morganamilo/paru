@@ -53,7 +53,7 @@ pub fn check_pgp_keys(
             c.bold.paint(tr!("keys need to be imported:"))
         );
         for (key, base) in &import {
-            let base = base.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+            let base: Vec<_> = base.iter().map(|s| s.to_string()).collect();
             printtr!(
                 "     {key} wanted by: {base}",
                 key = c.bold.paint(*key),

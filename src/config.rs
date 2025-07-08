@@ -167,9 +167,7 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
             .find(|(name, _)| name == &value)
             .map(|(_, res)| *res);
 
-        if let Some(val) = val {
-            Ok(val)
-        } else {
+        let Some(val) = val else {
             let okvalues = Self::VALUE_LOOKUP
                 .iter()
                 .map(|v| v.0)
@@ -181,7 +179,8 @@ pub trait ConfigEnum: Sized + PartialEq + Copy + Clone + fmt::Debug + 'static {
                 key = key,
                 exp = okvalues
             ))
-        }
+        };
+        Ok(val)
     }
 }
 

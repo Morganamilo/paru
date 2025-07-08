@@ -112,7 +112,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     let bold = config.color.bold;
 
     let db = config.alpm.localdb();
-    let pkgs = db.pkgs().iter().map(|p| p.name()).collect::<Vec<_>>();
+    let pkgs: Vec<_> = db.pkgs().iter().map(|p| p.name()).collect();
     let ignore = &config.ignore;
 
     let (_, mut aur) = split_repo_aur_pkgs(config, &pkgs);
@@ -193,7 +193,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         }
     }
 
-    let bases = bases.bases.into_iter().map(Base::Aur).collect::<Vec<_>>();
+    let bases: Vec<_> = bases.bases.into_iter().map(Base::Aur).collect();
 
     println!(
         "{} {}",
@@ -378,16 +378,13 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
 
     let updates = join_all(futures).await;
 
-    let mut updates = updates
+    let updates = updates
         .into_iter()
         .flatten()
         .map(|s| s.to_string())
-        .collect::<Vec<_>>();
+        .collect::<std::collections::BTreeSet<_>>();
 
-    updates.sort_unstable();
-    updates.dedup();
-
-    Ok(updates)
+    Ok(updates.into_iter().collect())
 }
 
 pub async fn filter_devel_updates(
@@ -421,10 +418,10 @@ pub async fn filter_devel_updates(
     }
 
     config.raur.cache_info(cache, &aur).await?;
-    let aur = aur
+    let aur: Vec<_> = aur
         .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
-        .collect::<Vec<_>>();
+        .collect();
 
     let mut updates = Vec::new();
 
@@ -447,10 +444,10 @@ pub async fn filter_devel_updates(
     Ok(updates)
 }
 
-pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
-    config: &'cfg Config,
+pub async fn pkg_has_update<'pkg>(
+    config: &Config,
     pkg: &'pkg str,
-    info: &'info HashSet<RepoInfo>,
+    info: &HashSet<RepoInfo>,
 ) -> Option<&'pkg str> {
     if info.is_empty() {
         return None;

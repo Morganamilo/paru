@@ -68,11 +68,7 @@ pub async fn stats(config: &Config) -> Result<i32> {
     let c = config.color;
     let info = collect_info(config, 10).await?;
     let (repo, possible_aur) = repo_aur_pkgs(config);
-    let aur_packages = possible_aur
-        .iter()
-        .map(|pkg| pkg.name())
-        .map(|s| s.to_owned())
-        .collect::<Vec<_>>();
+    let aur_packages: Vec<_> = possible_aur.iter().map(|pkg| pkg.name()).collect();
 
     let warnings = cache_info_with_warnings(
         &config.raur,

@@ -49,13 +49,13 @@ fn word_len(s: &str) -> usize {
     len
 }
 
-pub fn print_indent<S: AsRef<str>>(
+pub fn print_indent(
     color: Style,
     start: usize,
     indent: usize,
     cols: Option<usize>,
     sep: &str,
-    value: impl IntoIterator<Item = S>,
+    value: impl IntoIterator<Item = impl AsRef<str>>,
 ) {
     let v = value.into_iter();
 
@@ -165,7 +165,7 @@ fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> To
     let c = config.color;
     let dash = c.install_version.paint("-");
 
-    let install = actions
+    let install: Vec<_> = actions
         .install
         .iter()
         .filter(|p| !p.make)
@@ -177,8 +177,8 @@ fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> To
                 c.install_version.paint(p.pkg.version().to_string())
             )
         })
-        .collect::<Vec<_>>();
-    let make_install = actions
+        .collect();
+    let make_install: Vec<_> = actions
         .install
         .iter()
         .filter(|p| p.make)
@@ -190,7 +190,7 @@ fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> To
                 c.install_version.paint(p.pkg.version().to_string())
             )
         })
-        .collect::<Vec<_>>();
+        .collect();
 
     let mut build = actions.build.clone();
     for base in &mut build {
@@ -203,7 +203,7 @@ fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> To
     let build = build
         .iter()
         .map(|p| base_string(config, p, devel))
-        .collect::<Vec<_>>();
+        .collect();
 
     let mut make_build = actions.build.clone();
     for base in &mut make_build {
@@ -216,7 +216,7 @@ fn to_install(config: &Config, actions: &Actions, devel: &HashSet<String>) -> To
     let make_build = make_build
         .iter()
         .map(|p| base_string(config, p, devel))
-        .collect::<Vec<_>>();
+        .collect();
 
     ToInstall {
         install,
