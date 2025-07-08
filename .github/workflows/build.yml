@@ -40,7 +40,7 @@ jobs:
           version: latest
           install: true
       - run: docker build --platform=linux/${{ matrix.platform.docker }} -o . .
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: paru-${{ matrix.platform.arch }}
           path: paru.tar.zst
