@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2024-09-18 23:38+0000\n"
+"POT-Creation-Date: 2025-07-08 05:28+0000\n"
 "PO-Revision-Date: 2022-06-30 21:10+0900\n"
 "Last-Translator: livewing.net <dev@livewing.net>\n"
 "Language-Team: \n"
@@ -63,23 +63,23 @@ msgstr "'{}' の .SRCINFO を見つけられませんでした"
 msgid "option {} expects a value"
 msgstr "オプション {} は値が必要です"
 
-#: src/command_line.rs:165 src/command_line.rs:376
+#: src/command_line.rs:165 src/command_line.rs:379
 msgid "option {} does not allow a value"
 msgstr "オプション {} は値を許可しません"
 
-#: src/command_line.rs:367
+#: src/command_line.rs:370
 msgid "unknown option --{}"
 msgstr "不明なオプション --{}"
 
-#: src/command_line.rs:370
+#: src/command_line.rs:373
 msgid "unknown option -{}"
 msgstr "不明なオプション -{}"
 
-#: src/completion.rs:27
+#: src/completion.rs:31
 msgid "failed to open cache file '{}'"
 msgstr "キャッシュファイル '{}' のオープンに失敗しました"
 
-#: src/completion.rs:65
+#: src/completion.rs:69
 msgid "could not update aur cache"
 msgstr "AUR キャッシュを更新できませんでした"
 
@@ -92,98 +92,98 @@ msgstr "キー '{key}' に対して値 '{val}' は不正です、期待される
 msgid "unknown mode {}"
 msgstr "不明なオプション -{}"
 
-#: src/config.rs:561
+#: src/config.rs:562
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:578
+#: src/config.rs:579
 msgid "failed to find cache directory"
 msgstr "キャッシュディレクトリが見つかりません"
 
-#: src/config.rs:581
+#: src/config.rs:582
 msgid "failed to find config directory"
 msgstr "設定ディレクトリが見つかりません"
 
-#: src/config.rs:585
+#: src/config.rs:586
 #, fuzzy
 msgid "failed to find state directory"
 msgstr "キャッシュディレクトリが見つかりません"
 
-#: src/config.rs:632
+#: src/config.rs:633
 msgid "config file '{}' does not exist"
 msgstr "設定ファイル '{}' は存在しません"
 
-#: src/config.rs:681
+#: src/config.rs:682
 msgid "only one operation may be used at a time"
 msgstr "一度にできる操作はひとつだけです"
 
-#: src/config.rs:792
+#: src/config.rs:793
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:815
+#: src/config.rs:819
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "pacman.conf でローカルリポジトリ '{}' を見つけられません"
 
-#: src/config.rs:857
+#: src/config.rs:864
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "alpm を初期化できません: root={} dbpath={}"
 
-#: src/config.rs:932 src/config.rs:1093
+#: src/config.rs:939 src/config.rs:1100
 msgid "value can not be empty for key '{}'"
 msgstr "キー '{}' の値は空にできません"
 
-#: src/config.rs:948
+#: src/config.rs:955
 msgid "key '{}' does not belong to a section"
 msgstr "キー '{}' はセクションに属しません"
 
-#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
+#: src/config.rs:969 src/config.rs:986 src/config.rs:988 src/config.rs:1003
 msgid "key can not be empty"
 msgstr "キーは空にできません"
 
-#: src/config.rs:972
+#: src/config.rs:979
 #, fuzzy
 msgid "error: unknown option '{}' in repo"
 msgstr "エラー: セクション [bin] の不明なオプション '{}'"
 
-#: src/config.rs:982
+#: src/config.rs:989
 msgid "key can not contain null bytes"
 msgstr "キーに null バイトを含めることはできません"
 
-#: src/config.rs:985
+#: src/config.rs:992
 msgid "value can not contain null bytes"
 msgstr "値に null バイトを含めることはできません"
 
-#: src/config.rs:1021
+#: src/config.rs:1028
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "エラー: セクション [bin] の不明なオプション '{}'"
 
-#: src/config.rs:1137
+#: src/config.rs:1144
 msgid "error: unknown option '{}' in section [options]"
 msgstr "エラー: セクション [options] の不明なオプション '{}'"
 
-#: src/config.rs:1142
+#: src/config.rs:1149
 msgid "option '{}' does not take a value"
 msgstr "オプション '{}' は値をとりません"
 
-#: src/config.rs:1177 src/resolver.rs:137
+#: src/config.rs:1181 src/resolver.rs:136
 msgid "There are {n} providers available for {pkg}:"
 msgstr "{n} 個の選択肢が {pkg} にはあります:"
 
-#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
-#: src/resolver.rs:96 src/resolver.rs:145
+#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
+#: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
 msgstr "リポジトリ"
 
-#: src/config.rs:1217
+#: src/config.rs:1221
 msgid "  failed to sync {}"
 msgstr "  {} の同期に失敗しました"
 
-#: src/devel.rs:136 src/download.rs:197
+#: src/devel.rs:136 src/download.rs:198
 msgid "Querying AUR..."
 msgstr "AUR を検索しています..."
 
-#: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
+#: src/devel.rs:157 src/devel.rs:181 src/install.rs:202
 msgid "failed to parse srcinfo for '{}'"
 msgstr "'{}' の SRCINFO の解析に失敗しました"
 
@@ -239,28 +239,28 @@ msgstr "古いバージョンとしてマーク: "
 msgid "orphans: "
 msgstr "孤児: "
 
-#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
-#: src/install.rs:1732
+#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
+#: src/install.rs:1781
 msgid "failed to run:"
 msgstr "実行に失敗しました:"
 
-#: src/download.rs:257
+#: src/download.rs:258
 msgid "downloading: {pkg}"
 msgstr "{pkg} をダウンロードしています"
 
-#: src/download.rs:279
+#: src/download.rs:280
 msgid "Downloading PKGBUILDs..."
 msgstr "PKGBUILD をダウンロードしています..."
 
-#: src/download.rs:283
+#: src/download.rs:284
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD は最新です"
 
-#: src/exec.rs:173
+#: src/exec.rs:160
 msgid "Pacman is currently in use, please wait..."
 msgstr "現在 Pacman は使用中です、しばらくお待ちください..."
 
-#: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
+#: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
 msgid "None"
 msgstr "なし"
 
@@ -300,7 +300,7 @@ msgstr "Makeのみ"
 msgid "Yes"
 msgstr "はい"
 
-#: src/fmt.rs:323 src/info.rs:223
+#: src/fmt.rs:323 src/info.rs:221
 msgid "No"
 msgstr "いいえ"
 
@@ -425,8 +425,8 @@ msgstr ""
 
 #: src/help.rs:37
 msgid ""
-"    --interactive          Enable interactive package selection for -S, -R, -"
-"Ss and -Qs"
+"    --interactive          Enable interactive package selection for -S, -R, "
+"-Ss and -Qs"
 msgstr ""
 
 #: src/help.rs:39
@@ -720,204 +720,204 @@ msgstr "getpkgbuild 特有のオプション:"
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install          ビルドと同時にパッケージをインストール"
 
-#: src/info.rs:57 src/info.rs:182 src/query.rs:49
+#: src/info.rs:55 src/info.rs:180 src/query.rs:49
 msgid "package '{}' was not found"
 msgstr "パッケージ '{}' は見つかりませんでした"
 
-#: src/info.rs:88 src/info.rs:193 src/info.rs:227
+#: src/info.rs:86 src/info.rs:191 src/info.rs:225
 msgid "Name"
 msgstr "名前"
 
-#: src/info.rs:89 src/info.rs:194 src/info.rs:228
+#: src/info.rs:87 src/info.rs:192 src/info.rs:226
 msgid "Version"
 msgstr "バージョン"
 
-#: src/info.rs:90 src/info.rs:195 src/info.rs:229
+#: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Description"
 msgstr "説明"
 
-#: src/info.rs:91 src/info.rs:197 src/info.rs:237
+#: src/info.rs:89 src/info.rs:195 src/info.rs:235
 msgid "Groups"
 msgstr "グループ"
 
-#: src/info.rs:92 src/info.rs:198 src/info.rs:238
+#: src/info.rs:90 src/info.rs:196 src/info.rs:236
 msgid "Licenses"
 msgstr "ライセンス"
 
-#: src/info.rs:93 src/info.rs:199 src/info.rs:239
+#: src/info.rs:91 src/info.rs:197 src/info.rs:237
 msgid "Provides"
 msgstr "提供"
 
-#: src/info.rs:94 src/info.rs:200 src/info.rs:240
+#: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Depends On"
 msgstr "依存パッケージ"
 
-#: src/info.rs:95 src/info.rs:201 src/info.rs:241
+#: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Make Deps"
 msgstr "ビルド時の依存パッケージ"
 
-#: src/info.rs:96 src/info.rs:202 src/info.rs:242
+#: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Check Deps"
 msgstr "チェック時の依存パッケージ"
 
-#: src/info.rs:97 src/info.rs:203 src/info.rs:243
+#: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Optional Deps"
 msgstr "提案パッケージ"
 
-#: src/info.rs:98 src/info.rs:204 src/info.rs:244
+#: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Conflicts With"
 msgstr "衝突パッケージ"
 
-#: src/info.rs:99 src/info.rs:245
+#: src/info.rs:97 src/info.rs:243
 msgid "Maintainer"
 msgstr "メンテナ"
 
-#: src/info.rs:100 src/info.rs:246
+#: src/info.rs:98 src/info.rs:244
 msgid "Votes"
 msgstr "投票"
 
-#: src/info.rs:101 src/info.rs:247
+#: src/info.rs:99 src/info.rs:245
 msgid "Popularity"
 msgstr "人気度"
 
-#: src/info.rs:102 src/info.rs:248
+#: src/info.rs:100 src/info.rs:246
 msgid "First Submitted"
 msgstr "最初の投稿"
 
-#: src/info.rs:103 src/info.rs:249
+#: src/info.rs:101 src/info.rs:247
 msgid "Last Modified"
 msgstr "最終更新"
 
-#: src/info.rs:104 src/info.rs:251
+#: src/info.rs:102 src/info.rs:249
 msgid "Out Of Date"
 msgstr "古いバージョンとしてマーク"
 
-#: src/info.rs:105 src/info.rs:256
+#: src/info.rs:103 src/info.rs:254
 msgid "ID"
 msgstr "ID"
 
-#: src/info.rs:106 src/info.rs:257
+#: src/info.rs:104 src/info.rs:255
 msgid "Package Base ID"
 msgstr "パッケージベース ID"
 
-#: src/info.rs:107 src/info.rs:258
+#: src/info.rs:105 src/info.rs:256
 msgid "Keywords"
 msgstr "キーワード"
 
-#: src/info.rs:108 src/info.rs:260
+#: src/info.rs:106 src/info.rs:258
 msgid "Snapshot URL"
 msgstr "スナップショット URL"
 
-#: src/info.rs:109 src/info.rs:205
+#: src/info.rs:107 src/info.rs:203
 msgid "Path"
 msgstr ""
 
-#: src/install.rs:158 src/query.rs:48 src/lib.rs:104
+#: src/install.rs:165 src/query.rs:48 src/lib.rs:101
 msgid "error:"
 msgstr "エラー:"
 
-#: src/install.rs:159
+#: src/install.rs:166
 msgid "could not get news"
 msgstr "ニュースを取得できませんでした"
 
-#: src/install.rs:164 src/install.rs:1103
+#: src/install.rs:171 src/install.rs:1115
 msgid "Proceed with installation?"
 msgstr "インストールを行いますか？"
 
-#: src/install.rs:199
+#: src/install.rs:206
 msgid "could not find .SRCINFO for '{}'"
 msgstr "'{}' の .SRCINFO を見つけられませんでした"
 
-#: src/install.rs:329
+#: src/install.rs:352
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr "'{base}' のパッケージリストにパッケージ '{pkg}' が見つかりませんでした"
 
-#: src/install.rs:416
+#: src/install.rs:439
 msgid "packages failed to build: {}"
 msgstr "パッケージのビルドに失敗しました: {}"
 
-#: src/install.rs:488
+#: src/install.rs:511
 msgid "adding {} to the install list"
 msgstr "インストールリストに {} を追加しています"
 
-#: src/install.rs:518 src/install.rs:527
+#: src/install.rs:541 src/install.rs:556
 msgid "failed to download sources for '{}'"
 msgstr "'{}' のソースのダウンロードに失敗しました"
 
-#: src/install.rs:536 src/install.rs:564 src/install.rs:572
+#: src/install.rs:565 src/install.rs:591 src/install.rs:599
 msgid "failed to build '{}'"
 msgstr "'{}' のビルドに失敗しました"
 
-#: src/install.rs:539 src/install.rs:753
+#: src/install.rs:568 src/install.rs:772
 msgid "{}: parsing pkg list..."
 msgstr "{}: パッケージリストを解析しています..."
 
-#: src/install.rs:543
+#: src/install.rs:572
 msgid "package list does not match srcinfo"
 msgstr "パッケージリストはsrcinfoに一致しません"
 
-#: src/install.rs:579
+#: src/install.rs:606
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} は最新です -- ビルドをスキップ"
 
-#: src/install.rs:744
+#: src/install.rs:763
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "依存関係{deps}が満たされないため、{base}をビルドできませんでした"
 
-#: src/install.rs:815
+#: src/install.rs:834
 msgid "fetching devel info..."
 msgstr "開発情報を取得しています..."
 
-#: src/install.rs:883 src/lib.rs:244
+#: src/install.rs:899 src/lib.rs:242
 msgid "no targets specified (use -h for help)"
 msgstr "対象が指定されていません (-h を使ってヘルプを見て下さい)"
 
-#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
-#: src/lib.rs:308
+#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
+#: src/lib.rs:306
 msgid " there is nothing to do"
 msgstr " 何も行うことがありません"
 
-#: src/install.rs:1000
+#: src/install.rs:1004
 msgid "Resolving dependencies..."
 msgstr "依存関係を解決しています..."
 
-#: src/install.rs:1061
+#: src/install.rs:1065
 msgid "can't install AUR package as root"
 msgstr "root で AUR パッケージをインストールできません"
 
-#: src/install.rs:1064
+#: src/install.rs:1068
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1089
+#: src/install.rs:1101
 msgid "Remove make dependencies after install?"
 msgstr "ビルド時の依存パッケージをインストール後に削除しますか？"
 
-#: src/install.rs:1100
+#: src/install.rs:1112
 msgid "Proceed to review?"
 msgstr "レビューを続行しますか？"
 
-#: src/install.rs:1153
+#: src/install.rs:1165
 msgid "no architecture"
 msgstr "アーキテクチャなし"
 
-#: src/install.rs:1167
+#: src/install.rs:1179
 msgid "The following packages are not compatible with your architecture:"
 msgstr "次のパッケージはアーキテクチャの互換性がありません:"
 
-#: src/install.rs:1181
+#: src/install.rs:1193
 msgid "Would you like to try build them anyway?"
 msgstr "それでもビルドしますか？"
 
-#: src/install.rs:1330
+#: src/install.rs:1337
 msgid "duplicate packages: {}"
 msgstr "重複したパッケージ: {}"
 
-#: src/install.rs:1334
+#: src/install.rs:1341
 msgid "could not find all required packages:"
 msgstr "必要なパッケージを全て見つけることができません:"
 
-#: src/install.rs:1346
+#: src/install.rs:1353
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -925,7 +925,7 @@ msgstr ""
 "\n"
 "    {missing} (必要としているパッケージ: {stack})"
 
-#: src/install.rs:1360 src/install.rs:2065
+#: src/install.rs:1367 src/install.rs:2115
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} は最新です -- スキップ"
 
@@ -933,63 +933,67 @@ msgstr "{}-{} は最新です -- スキップ"
 msgid "Calculating conflicts..."
 msgstr "衝突を確認しています..."
 
-#: src/install.rs:1381
+#: src/install.rs:1384
 msgid "Calculating inner conflicts..."
 msgstr "内部衝突を確認しています..."
 
-#: src/install.rs:1393
+#: src/install.rs:1396
 msgid "Inner conflicts found:"
 msgstr "内部衝突が見つかりました:"
 
-#: src/install.rs:1415
+#: src/install.rs:1418
 msgid "Conflicts found:"
 msgstr "衝突が見つかりました:"
 
-#: src/install.rs:1438
+#: src/install.rs:1441
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "衝突しているパッケージを手動で確認する必要があります"
 
-#: src/install.rs:1442
+#: src/install.rs:1445
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "--noconfirm で衝突するパッケージをインストールできません"
 
-#: src/install.rs:1565
+#: src/install.rs:1575
 msgid "failed to execute file manager: {}"
 msgstr "ファイルマネージャの実行に失敗しました"
 
-#: src/install.rs:1568
+#: src/install.rs:1578
 msgid "file manager did not execute successfully"
 msgstr "ファイルマネージャを正しく実行できません"
 
-#: src/install.rs:1585
+#: src/install.rs:1596
 msgid "failed to read dir: {}"
 msgstr "ディレクトリの読み込みに失敗しました: {}"
 
-#: src/install.rs:1640
+#: src/install.rs:1660
 msgid "failed to open: {}"
 msgstr "オープンに失敗しました: {}"
 
-#: src/install.rs:1651
+#: src/install.rs:1680
 msgid "binary file: {}"
 msgstr "バイナリファイル: {}"
 
-#: src/install.rs:1671 src/install.rs:1735
+#: src/install.rs:1702 src/install.rs:1784
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1739
+#: src/install.rs:1750
+msgid "Paging with less. Press 'q' to quit or 'h' for help."
+msgstr ""
+
+#: src/install.rs:1788
 msgid " nothing new to review"
 msgstr " 新しくレビューするものはありません"
 
-#: src/install.rs:2013
+#: src/install.rs:2063
 msgid "can't find package name in packagelist: {}"
 msgstr "パッケージリストにパッケージの名前を見つけることができません: {}"
 
-#: src/install.rs:2085
+#: src/install.rs:2135
 msgid "Signing packages..."
 msgstr "パッケージへ署名をしています..."
 
-#: src/install.rs:2123
+#: src/install.rs:2173
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} は最新です -- インストールをスキップ"
 
@@ -1013,30 +1017,30 @@ msgstr "タイトルなし"
 msgid "no new news"
 msgstr "新しいニュースはありません"
 
-#: src/pkgbuild.rs:72
+#: src/pkgbuild.rs:90
 #, fuzzy
 msgid "repo {} does not have a URL or Path"
 msgstr "オプション '{}' は値をとりません"
 
-#: src/pkgbuild.rs:134
+#: src/pkgbuild.rs:152
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
 
-#: src/pkgbuild.rs:181
+#: src/pkgbuild.rs:199
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr ""
 
-#: src/pkgbuild.rs:259
+#: src/pkgbuild.rs:277
 #, fuzzy
 msgid "failed to parse srcinfo \"{}\""
 msgstr "'{}' の SRCINFO の解析に失敗しました"
 
-#: src/pkgbuild.rs:337
+#: src/pkgbuild.rs:355
 #, fuzzy
 msgid "Downloading PKGBUILD Repos..."
 msgstr "PKGBUILD をダウンロードしています..."
 
-#: src/pkgbuild.rs:390
+#: src/pkgbuild.rs:409
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr "makepkg で作られた SRCINFO の解析に失敗しました"
 
@@ -1044,29 +1048,37 @@ msgstr "makepkg で作られた SRCINFO の解析に失敗しました"
 msgid " [ignored]"
 msgstr " [無視]"
 
-#: src/repo.rs:171
+#: src/repo.rs:264
 msgid "failed to get current exe"
 msgstr "現在の実行ファイルの取得に失敗しました"
 
-#: src/repo.rs:218
+#: src/repo.rs:311
 msgid "syncing local databases..."
 msgstr "ローカルデータベースの同期中..."
 
-#: src/repo.rs:224
+#: src/repo.rs:317
 msgid "  nothing to do"
 msgstr "  何も行うことがありません"
 
-#: src/repo.rs:255
+#: src/repo.rs:348
 msgid "there is nothing to do"
 msgstr "何も行うことがありません"
 
-#: src/repo.rs:261
+#: src/repo.rs:354
 msgid "Packages"
 msgstr "パッケージ"
 
-#: src/repo.rs:274
+#: src/repo.rs:367
 msgid "Proceed with removal?"
 msgstr "削除を続行しますか？"
+
+#: src/repo.rs:428
+msgid " [installed: {}]"
+msgstr " [インストール済み: {}]"
+
+#: src/repo.rs:430 src/sync.rs:146
+msgid " [installed]"
+msgstr " [インストール済み]"
 
 #: src/search.rs:40
 msgid "aur search failed"
@@ -1125,68 +1137,64 @@ msgstr "合計パッケージ容量: {}"
 msgid "Ten biggest packages:"
 msgstr "最も大きい 10 個のパッケージ:"
 
-#: src/sync.rs:146 src/lib.rs:515
-msgid " [installed]"
-msgstr " [インストール済み]"
-
-#: src/upgrade.rs:128
+#: src/upgrade.rs:126
 #, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
 msgstr "AUR の更新を確認しています..."
 
-#: src/upgrade.rs:136
+#: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
 msgstr "AUR の更新を確認しています..."
 
-#: src/upgrade.rs:167
+#: src/upgrade.rs:165
 msgid "Looking for devel upgrades..."
 msgstr "開発の更新を確認しています..."
 
-#: src/upgrade.rs:195 src/upgrade.rs:208
+#: src/upgrade.rs:193 src/upgrade.rs:206
 msgid "warning:"
 msgstr "警告:"
 
-#: src/upgrade.rs:197 src/upgrade.rs:210
+#: src/upgrade.rs:195 src/upgrade.rs:208
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
 msgstr "{pkg}: パッケージのアップグレードを無視 ({old} => {new})"
 
-#: src/upgrade.rs:406
+#: src/upgrade.rs:400
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr "除外するパッケージ (例: 1 2 3, 1-3):"
 
-#: src/util.rs:120
+#: src/util.rs:119
 msgid "[Y/n]:"
 msgstr "[Y/n]:"
 
-#: src/util.rs:122
+#: src/util.rs:121
 msgid "[y/N]:"
 msgstr "[y/N]:"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "y"
 msgstr "y"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "yes"
 msgstr "yes"
 
-#: src/util.rs:339
+#: src/util.rs:338
 msgid "Enter a number (default=1): "
 msgstr "数字を入力してください (デフォルト=1): "
 
-#: src/util.rs:356
+#: src/util.rs:355
 msgid "invalid number: {}"
 msgstr "不正な数字: {}"
 
-#: src/util.rs:366
+#: src/util.rs:365
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "不正な値です: {n} が 1 と {max} の間に収まっていません"
 
-#: src/resolver.rs:84
+#: src/resolver.rs:83
 msgid "There are {} members in group"
 msgstr "{} 個のパッケージがグループに存在します"
 
-#: src/resolver.rs:109
+#: src/resolver.rs:108
 msgid ""
 "\n"
 "\n"
@@ -1196,17 +1204,13 @@ msgstr ""
 "\n"
 "選択して下さい (デフォルト=all): "
 
-#: src/lib.rs:210
+#: src/lib.rs:208
 msgid "can not use chroot builds: devtools is not installed"
 msgstr "chroot してビルドできません: devtools がインストールされていません"
 
-#: src/lib.rs:317
+#: src/lib.rs:315
 msgid "no operation specified (use -h for help)"
 msgstr "対象が指定されていません (-h を使ってヘルプを見て下さい)"
-
-#: src/lib.rs:513
-msgid " [installed: {}]"
-msgstr " [インストール済み: {}]"
 
 #~ msgid "Aur ({})"
 #~ msgstr "Aur ({})"
