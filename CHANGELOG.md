@@ -1,5 +1,46 @@
 # Changelog
 
+## Paru v2.0.4 (2026-07-08)
+
+### Added
+
+- Add `--chrootpkgs` flag 64ab502
+- Add `--print` flag for `-C` 2fa517c
+- Support `--noconfirm` on `-Ci` f6262fa
+- Add `-Gcc` flag to print all comments for AUR packages 211f78b
+
+### Changed
+
+- Tell user to initialise local repo after changing pacman.conf ed9e287
+- Revamp diff printing e2277b4
+- Print help message for paging during review b488b5a
+- Allow specifying Url and Path together for pkgbuild repos a1a0021
+- Remove package files when running `-Lc` c43eb20
+
+### Fixed
+
+- Don't check conflicts when chroot and not installing 6527db3
+- Fix chroot conflicts c652669
+- Fix chroot builds 5bca838 2f5e6e1
+- Fix debug package installs d0329e3
+- Fix `-Si` not working with split packages 1003495
+- Fix `--nocheck` not working for chroot builds c9c4a23
+- Fix provider menu from showing on interactive install 6af6674
+- Fix `-a` not working during `-Si` e8d9c01
+- Fix `-Si <repo>/<package>` for pkgbuild repos b23382f
+- Pass makepkg dropin config files to the chroot 25ab260
+- Exclude AUR packages when running `-Qn` c1edcd3
+- Fix `--asexp` and `--asdeps` not always being passed to pacman41f5862
+- Fix typos #1267 #1364
+
+### Localization
+
+- Update sk locale #1265
+- Update cs locale #1264
+- Update fi locale #1378
+- Update hu locale #1359 #1274 #1263
+- Add uk locale #1352
+
 ## Paru v2.0.4 (2024-09-20)
 
 ### Added
