@@ -1,18 +1,20 @@
+mod unneeded_pkgs;
+
 use crate::config::{Config, LocalRepos};
 use crate::repo;
 
-use std::cell::Cell;
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stderr, stdin, stdout, BufRead, Write};
 use std::ops::Range;
 use std::os::fd::AsFd;
 
-use alpm::{Package, PackageReason};
+use alpm::Package;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
 use nix::unistd::dup2;
 use tr::tr;
+
+pub use unneeded_pkgs::unneeded_pkgs;
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {
@@ -161,94 +163,6 @@ pub fn input(config: &Config, question: &str) -> String {
     let _ = stdin.read_line(&mut input);
     input
 }
-
-#[derive(Hash, PartialEq, Eq, SmartDefault, Copy, Clone)]
-enum State {
-    #[default]
-    Remove,
-    CheckDeps,
-    Keep,
-}
-
-pub fn unneeded_pkgs(config: &Config, keep_make: bool, keep_optional: bool) -> Vec<&str> {
-    let mut states = HashMap::new();
-    let mut remove = Vec::new();
-    let mut providers = HashMap::<_, Vec<_>>::new();
-    let db = config.alpm.localdb();
-
-    for pkg in db.pkgs() {
-        providers
-            .entry(pkg.name().to_string())
-            .or_default()
-            .push(pkg.name());
-        for dep in pkg.provides() {
-            providers
-                .entry(dep.name().to_string())
-                .or_default()
-                .push(pkg.name())
-        }
-
-        if pkg.reason() == PackageReason::Explicit {
-            states.insert(pkg.name(), Cell::new(State::CheckDeps));
-        } else {
-            states.insert(pkg.name(), Cell::new(State::Remove));
-        }
-    }
-
-    let mut again = true;
-
-    while again {
-        again = false;
-
-        let mut check_deps = |deps: alpm::AlpmList<&alpm::Dep>| {
-            for dep in deps {
-                if let Some(deps) = providers.get(dep.name()) {
-                    for dep in deps {
-                        let state = states.get(dep).unwrap();
-
-                        if state.get() != State::Keep {
-                            state.set(State::CheckDeps);
-                            again = true;
-                        }
-                    }
-                }
-            }
-        };
-
-        for (&pkg, state) in &states {
-            if state.get() != State::CheckDeps {
-                continue;
-            }
-
-            if let Ok(pkg) = db.pkg(pkg) {
-                state.set(State::Keep);
-                check_deps(pkg.depends());
-
-                if keep_optional {
-                    check_deps(pkg.optdepends());
-                }
-
-                if keep_make {
-                    continue;
-                }
-
-                if config.alpm.syncdbs().pkg(pkg.name()).is_err() {
-                    check_deps(pkg.makedepends());
-                    check_deps(pkg.checkdepends());
-                }
-            }
-        }
-    }
-
-    for pkg in db.pkgs() {
-        if states.get(pkg.name()).unwrap().get() == State::Remove {
-            remove.push(pkg.name());
-        }
-    }
-
-    remove
-}
-
 impl<'a> NumberMenu<'a> {
     pub fn new(input: &'a str) -> Self {
         let mut include_range = Vec::new();
