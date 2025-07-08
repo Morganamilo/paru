@@ -71,7 +71,7 @@ jobs:
       matrix:
           arch: [x86_64, aarch64, armv7h]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: paru-${{ matrix.arch }}
       - uses: actions/upload-release-asset@v1
