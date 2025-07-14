@@ -42,7 +42,7 @@ cargo test --features mock
 ## Translating
 
 See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization.
-You probably want to subscribe to this to be nodified when translations need to be updated.
+You probably want to subscribe to this to be notified when translations need to be updated.
 
 ### New Languages
 
