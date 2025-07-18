@@ -2339,7 +2339,9 @@ pub(crate) fn review(
             let diffs = review_diffs(fetch, &has_diff, config.color.enabled)?;
 
             if printed {
-                let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
+                let pager_unconfigured = config.pager_cmd.is_none()
+                    && var("PARU_PAGER").is_err()
+                    && var("PAGER").is_err();
                 let pager = if has_command("less") { "less" } else { "cat" };
 
                 let pager = config
@@ -2371,13 +2373,18 @@ pub(crate) fn review(
                 }
 
                 for (repo, diff) in has_diff.iter().zip(diffs) {
-                    let _ = write!(
+                    let _ = writeln!(
                         stdin,
-                        "{} {}:\n    ",
+                        "{} {}:",
                         c.action.paint("::"),
                         c.bold.paint(&repo.name)
                     );
-                    let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
+                    if pager_unconfigured {
+                        let _ = stdin.write_all(b"    ");
+                        let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
+                    } else {
+                        let _ = stdin.write_all(diff.trim_end().as_bytes());
+                    }
                     let _ = stdin.write_all(b"\n\n");
                 }
 
