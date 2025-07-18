@@ -651,7 +651,7 @@ impl Installer {
             .chain(debug_paths.values())
             .map(|s| s.as_str())
             .collect::<Vec<_>>();
-        sign_pkg(config, &paths, false)?;
+        sign_pkg(config, &paths, true)?;
 
         if let Some(ref repo) = repo {
             if let Some(repo) = self.upgrades.aur_repos.get(base.package_base()) {
