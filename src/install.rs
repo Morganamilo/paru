@@ -1713,7 +1713,9 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
-                let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
+                let pager_unconfigured = config.pager_cmd.is_none()
+                    && var("PARU_PAGER").is_err()
+                    && var("PAGER").is_err();
                 let pager = if Command::new("less").output().is_ok() {
                     "less"
                 } else {
@@ -1759,7 +1761,11 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                         c.action.paint("::"),
                         c.bold.paint(pkg)
                     );
-                    let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
+                    if pager_unconfigured {
+                        let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
+                    } else {
+                        let _ = stdin.write_all(diff.trim_end().as_bytes());
+                    }
                     let _ = stdin.write_all(b"\n\n");
                 }
 
