@@ -20,6 +20,7 @@ use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
+use crate::timing::TimingContext;
 use crate::upgrade::{get_upgrades, Upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
@@ -71,6 +72,7 @@ struct Installer {
     devel_info: DevelInfo,
     new_devel_info: DevelInfo,
     built: Vec<String>,
+    timing_context: Option<TimingContext>,
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
@@ -120,6 +122,11 @@ impl Installer {
             devel_info: DevelInfo::default(),
             new_devel_info: DevelInfo::default(),
             built: Vec::new(),
+            timing_context: if config.timing {
+                Some(TimingContext::new())
+            } else {
+                None
+            },
         }
     }
 
@@ -528,6 +535,11 @@ impl Installer {
         let mut env = config.env.clone();
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
+        // Start timing for this package
+        if let Some(ref mut timing) = self.timing_context {
+            timing.start_package(base.package_base());
+        }
+
         if config.chroot {
             let mut extra = Vec::new();
             if config.repos == LocalRepos::None {
@@ -551,9 +563,19 @@ impl Installer {
             if !config.keep_src {
                 args.push("-Cc");
             }
-            exec::makepkg(config, dir, &args)?
-                .success()
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+
+            if let Some(ref mut timing) = self.timing_context {
+                timing.start_phase();
+                let (status, _duration) = exec::makepkg_timed(config, dir, &args)?;
+                timing.end_phase("download");
+                status
+                    .success()
+                    .with_context(|| tr!("failed to download sources for '{}'", base))?;
+            } else {
+                exec::makepkg(config, dir, &args)?
+                    .success()
+                    .with_context(|| tr!("failed to download sources for '{}'", base))?;
+            }
 
             // pkgver bump
             let mut args = vec!["-ofA"];
@@ -594,9 +616,20 @@ impl Installer {
                 if !config.keep_src {
                     args.push("-c");
                 }
-                exec::makepkg_dest(config, dir, &args, pkgdest)?
-                    .success()
-                    .with_context(|| tr!("failed to build '{}'", base))?;
+
+                if let Some(ref mut timing) = self.timing_context {
+                    timing.start_phase();
+                    let (status, _duration) =
+                        exec::makepkg_dest_timed(config, dir, &args, pkgdest)?;
+                    timing.end_phase("build");
+                    status
+                        .success()
+                        .with_context(|| tr!("failed to build '{}'", base))?;
+                } else {
+                    exec::makepkg_dest(config, dir, &args, pkgdest)?
+                        .success()
+                        .with_context(|| tr!("failed to build '{}'", base))?;
+                }
             }
         } else {
             println!(
@@ -614,6 +647,12 @@ impl Installer {
 
         self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
         self.queue_install(base, &pkgdests, &debug_paths);
+
+        // End timing for this package
+        if let Some(ref mut timing) = self.timing_context {
+            timing.end_package();
+        }
+
         Ok((pkgdests, version))
     }
 
@@ -1033,6 +1072,16 @@ impl Installer {
         }
 
         self.build_cleanup(config, &build)?;
+
+        // Print timing summary if enabled
+        if let Some(ref timing) = self.timing_context {
+            if config.timing_detailed {
+                timing.print_detailed(config);
+            } else {
+                timing.print_summary(config);
+            }
+        }
+
         err
     }
 

@@ -213,6 +213,11 @@ impl Config {
             Arg::Long("limit") => self.limit = value?.parse()?,
             Arg::Long("news") | Arg::Short('w') => self.news += 1,
             Arg::Long("stats") => self.stats = true,
+            Arg::Long("timing") => self.timing = true,
+            Arg::Long("timing-detailed") => {
+                self.timing = true;
+                self.timing_detailed = true;
+            }
             Arg::Short('s') => {
                 self.stats = true;
                 self.ssh = true;

@@ -8,7 +8,7 @@ use std::process::{Command, Output, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use anyhow::{bail, Context, Result};
 use log::debug;
@@ -197,6 +197,17 @@ pub fn pacman_output<S: AsRef<str> + Display + std::fmt::Debug>(
     command_output(&mut cmd)
 }
 
+#[allow(dead_code)]
+pub fn pacman_timed<S: AsRef<str> + Display + Debug>(
+    config: &Config,
+    args: &Args<S>,
+) -> Result<(Status, Duration)> {
+    let start = Instant::now();
+    let status = pacman(config, args)?;
+    let duration = start.elapsed();
+    Ok((status, duration))
+}
+
 fn new_makepkg<S: AsRef<OsStr>>(
     config: &Config,
     dir: &Path,
@@ -240,4 +251,27 @@ pub fn makepkg_output_dest<S: AsRef<OsStr>>(
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
     makepkg_output_dest(config, dir, args, None)
+}
+
+pub fn makepkg_timed<S: AsRef<OsStr>>(
+    config: &Config,
+    dir: &Path,
+    args: &[S],
+) -> Result<(Status, Duration)> {
+    let start = Instant::now();
+    let status = makepkg(config, dir, args)?;
+    let duration = start.elapsed();
+    Ok((status, duration))
+}
+
+pub fn makepkg_dest_timed<S: AsRef<OsStr>>(
+    config: &Config,
+    dir: &Path,
+    args: &[S],
+    pkgdest: Option<&str>,
+) -> Result<(Status, Duration)> {
+    let start = Instant::now();
+    let status = makepkg_dest(config, dir, args, pkgdest)?;
+    let duration = start.elapsed();
+    Ok((status, duration))
 }

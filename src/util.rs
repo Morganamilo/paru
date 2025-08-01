@@ -422,6 +422,6 @@ pub fn reopen_stdin() -> Result<()> {
 
 pub fn reopen_stdout(file: &File) -> Result<()> {
     let mut stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2(&file, &mut stdout)?;
+    dup2(file, &mut stdout)?;
     Ok(())
 }

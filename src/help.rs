@@ -95,6 +95,8 @@ pub fn help() {
     printtr!("    -c --complete         Used for completions");
     printtr!("    -s --stats            Display system package statistics");
     printtr!("    -w --news             Print arch news");
+    printtr!("       --timing           Display package build time statistics");
+    printtr!("       --timing-detailed  Display detailed package build time statistics");
     println!();
     printtr!("getpkgbuild specific options:");
     printtr!("    -p --print            Print pkgbuild to stdout");
