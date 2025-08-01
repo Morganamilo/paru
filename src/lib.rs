@@ -21,6 +21,7 @@ mod repo;
 mod search;
 mod stats;
 mod sync;
+mod timing;
 mod upgrade;
 mod util;
 

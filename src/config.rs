@@ -417,6 +417,8 @@ pub struct Config {
 
     pub news: u32,
     pub stats: bool,
+    pub timing: bool,
+    pub timing_detailed: bool,
     pub order: bool,
     pub gendb: bool,
 
