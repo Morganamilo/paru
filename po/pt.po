@@ -1,14 +1,14 @@
 # Portuguese translation of paru.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# Hugo Carvalho <hugokarvalho@hotmail.com>, 2021, 2022, 2023, 2024.
+# Hugo Carvalho <hugokarvalho@hotmail.com>, 2021, 2022, 2023, 2024, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2025-07-08 05:28+0000\n"
-"PO-Revision-Date: 2024-03-22 11:54+0000\n"
+"PO-Revision-Date: 2025-08-29 10:29+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <hugokarvalho@hotmail.com>\n"
 "Language: pt\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.6\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Deseja limpar TODOS os pacotes AUR do cache?"
+msgstr "Pretende limpar TODOS os pacotes AUR do cache?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "Deseja limpar todos os outros pacotes AUR do cache?"
+msgstr "Pretende limpar todos os outros pacotes AUR do cache?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -250,7 +250,7 @@ msgstr " PKGBUILDs atualizadas"
 
 #: src/exec.rs:160
 msgid "Pacman is currently in use, please wait..."
-msgstr "Pacman está a ser usado, aguarde..."
+msgstr "O Pacman está em utilização, aguarde..."
 
 #: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
 msgid "None"
@@ -760,7 +760,7 @@ msgstr "Fornece"
 
 #: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Depends On"
-msgstr "Depende em"
+msgstr "Depende de"
 
 #: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Make Deps"
@@ -990,7 +990,7 @@ msgstr "Aceitar alterações?"
 
 #: src/install.rs:1750
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
-msgstr ""
+msgstr "Chamada com menos. Prima ‘q’ para sair ou ‘h’ para obter ajuda."
 
 #: src/install.rs:1788
 msgid " nothing new to review"
@@ -1010,7 +1010,7 @@ msgstr "{}-{} está atualizado -- a ignorar instalação"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
-msgstr "chaves precisam ser importadas:"
+msgstr "as chaves precisam de ser importadas:"
 
 #: src/keys.rs:58
 msgid "     {key} wanted by: {base}"
@@ -1026,7 +1026,7 @@ msgstr "Sem título"
 
 #: src/news.rs:69
 msgid "no new news"
-msgstr "sem notícias novas"
+msgstr "sem novas notícias"
 
 #: src/pkgbuild.rs:90
 msgid "repo {} does not have a URL or Path"
