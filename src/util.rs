@@ -6,12 +6,12 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{stderr, stdin, stdout, BufRead, Write};
 use std::ops::Range;
-use std::os::fd::AsFd;
+use std::os::fd::{AsFd, OwnedFd};
 
 use alpm::{Package, PackageReason};
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
-use nix::unistd::dup2;
+use nix::unistd::{dup2_stdin, dup2_stdout};
 use tr::tr;
 
 #[derive(Debug)]
@@ -407,21 +407,19 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Packag
     }
 }
 
-pub fn redirect_to_stderr() -> Result<File> {
-    let mut stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2(stderr(), &mut stdout)?;
-    Ok(File::from(stdout))
+pub fn redirect_to_stderr() -> Result<OwnedFd> {
+    let stdout = stdout().as_fd().try_clone_to_owned()?;
+    dup2_stdout(&stderr())?;
+    Ok(stdout)
 }
 
 pub fn reopen_stdin() -> Result<()> {
     let file = File::open("/dev/tty")?;
-    let mut stdin = stdin().as_fd().try_clone_to_owned()?;
-    dup2(&file, &mut stdin)?;
+    dup2_stdin(&file)?;
     Ok(())
 }
 
-pub fn reopen_stdout(file: &File) -> Result<()> {
-    let mut stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2(&file, &mut stdout)?;
+pub fn reopen_stdout<Fd: AsFd>(file: Fd) -> Result<()> {
+    dup2_stdout(file)?;
     Ok(())
 }
