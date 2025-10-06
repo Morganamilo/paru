@@ -294,7 +294,7 @@ async fn handle_default(config: &mut Config) -> Result<i32> {
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
-        let unneeded = util::unneeded_pkgs(config, config.clean == 1, !config.optional);
+        let unneeded = util::unneeded_pkgs(config, !config.optional);
         if !unneeded.is_empty() {
             let mut args = config.pacman_args();
             args.remove("c").remove("clean");
