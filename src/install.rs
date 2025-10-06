@@ -651,7 +651,7 @@ impl Installer {
             .chain(debug_paths.values())
             .map(|s| s.as_str())
             .collect::<Vec<_>>();
-        sign_pkg(config, &paths, false)?;
+        sign_pkg(config, &paths)?;
 
         if let Some(ref repo) = repo {
             if let Some(repo) = self.upgrades.aur_repos.get(base.package_base()) {
@@ -2126,7 +2126,7 @@ fn needs_build(
         .all(|p| Path::new(pkgdest.get(p).unwrap()).exists())
 }
 
-fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
+fn sign_pkg(config: &Config, paths: &[&str]) -> Result<()> {
     if config.sign != Sign::No {
         let c = config.color;
         println!(
@@ -2137,21 +2137,13 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
 
         for path in paths {
             let mut cmd = Command::new("gpg");
-            cmd.args(["--detach-sign", "--no-armor", "--batch"]);
+            cmd.args(["--detach-sign", "--no-armor", "--batch", "--yes"]);
 
             if let Sign::Key(ref k) = config.sign {
                 cmd.arg("-u").arg(k);
             }
 
             let sig = format!("{}.sig", path);
-            if Path::new(&sig).exists() {
-                if delete_sig {
-                    std::fs::remove_file(&sig)?;
-                } else {
-                    continue;
-                }
-            }
-
             cmd.arg("--output").arg(&sig).arg(path);
 
             exec::command(&mut cmd)?;
