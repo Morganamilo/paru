@@ -27,11 +27,7 @@ pub async fn search(config: &Config) -> Result<i32> {
 
     let repo_pkgs = search_repos(config, &config.targets)?;
 
-    let targets = config
-        .targets
-        .iter()
-        .map(|t| t.to_lowercase())
-        .collect::<Vec<_>>();
+    let targets: Vec<_> = config.targets.iter().map(|t| t.to_lowercase()).collect();
 
     let custom_pkgs = search_pkgbuilds(config, &targets)?;
 
@@ -176,11 +172,11 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
 
     let regex = RegexSet::new(targets)?;
 
-    let pkgs = data
+    let pkgs: Vec<_> = data
         .lines()
         .skip(1)
         .filter(|pkg| regex.is_match(pkg))
-        .collect::<Vec<_>>();
+        .collect();
     ensure!(pkgs.len() < 2000, "too many packages");
     let pkgs = config.raur.info(&pkgs).await?;
     Ok(pkgs)
@@ -194,7 +190,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
     let mut matches = if config.args.has_arg("x", "regex") {
         search_aur_regex(config, targets).await?
     } else {
-        let mut targets = targets.iter().map(|t| t.to_lowercase()).collect::<Vec<_>>();
+        let mut targets: Vec<_> = targets.iter().map(|t| t.to_lowercase()).collect();
         targets.sort_by_key(|t| t.len());
 
         let mut matches = Vec::new();
@@ -452,7 +448,7 @@ pub fn interactive_menu(
         return Ok(Vec::new());
     }
 
-    let indexes = all_pkgs
+    let indexes: Vec<_> = all_pkgs
         .iter()
         .enumerate()
         .filter_map(|(n, pkg)| {
@@ -468,9 +464,9 @@ pub fn interactive_menu(
                 None
             }
         })
-        .collect::<Vec<_>>();
+        .collect();
 
-    for (i, n) in indexes.iter().rev().enumerate() {
+    for (i, n) in indexes.into_iter().rev().enumerate() {
         let pkg = all_pkgs.remove(i + n);
         all_pkgs.insert(0, pkg);
     }

@@ -17,7 +17,7 @@ use unicode_width::UnicodeWidthStr;
 
 pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let targets = conf.targets.clone();
-    let targets = targets.iter().map(Targ::from).collect::<Vec<_>>();
+    let targets: Vec<_> = targets.iter().map(Targ::from).collect();
 
     let (repo, aur) = split_repo_aur_info(conf, &targets)?;
     let mut ret = 0;
@@ -44,7 +44,7 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
 
     let aur = if !aur.is_empty() {
         let color = conf.color;
-        let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
+        let aur: Vec<_> = aur.iter().map(|t| t.pkg).collect();
         let warnings =
             cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &[], &GlobSet::empty())
                 .await?;
@@ -62,7 +62,7 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     };
 
     if !repo.is_empty() {
-        let targets = repo.into_iter().map(|t| t.to_string()).collect::<Vec<_>>();
+        let targets: Vec<_> = repo.into_iter().map(|t| t.to_string()).collect();
         let mut args = conf.pacman_args();
         args.targets.clear();
         args.targets(targets.iter().map(|t| t.as_str()));

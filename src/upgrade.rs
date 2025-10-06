@@ -30,21 +30,18 @@ pub fn repo_upgrades(config: &Config) -> Result<Vec<&alpm::Package>> {
         .alpm
         .sync_sysupgrade(config.args.count("u", "sysupgrade") > 1)?;
 
-    let mut pkgs = config.alpm.trans_add().iter().collect::<Vec<_>>();
     let (dbs, _) = repo::repo_aur_dbs(config);
+    let mut pkgs: Vec<_> = config
+        .alpm
+        .trans_add()
+        .iter()
+        .filter(|p| dbs.iter().any(|db| db.name() == p.db().unwrap().name()))
+        .collect();
 
-    pkgs.retain(|p| dbs.iter().any(|db| db.name() == p.db().unwrap().name()));
-
-    pkgs.sort_by(|a, b| {
+    pkgs.sort_by_key(|p| {
         dbs.iter()
-            .position(|db| db.name() == a.db().unwrap().name())
+            .position(|db| db.name() == p.db().unwrap().name())
             .unwrap()
-            .cmp(
-                &dbs.iter()
-                    .position(|db| db.name() == b.db().unwrap().name())
-                    .unwrap(),
-            )
-            .then(a.name().cmp(b.name()))
     });
     //config.alpm.trans_release();
     Ok(pkgs)
@@ -112,9 +109,9 @@ fn print_upgrade(
     );
 }
 
-async fn get_resolver_upgrades<'a, 'b>(
+async fn get_resolver_upgrades<'a>(
     config: &Config,
-    resolver: &mut Resolver<'a, 'b, RaurHandle>,
+    resolver: &mut Resolver<'a, '_, RaurHandle>,
     print: bool,
 ) -> Result<Updates<'a>> {
     if print {
@@ -169,8 +166,8 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
     possible_devel_updates(config).await
 }
 
-pub async fn net_upgrades<'res, 'conf>(
-    config: &'conf Config,
+pub async fn net_upgrades<'res>(
+    config: &Config,
     resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
 ) -> Result<(Updates<'res>, Vec<String>)> {
@@ -180,9 +177,9 @@ pub async fn net_upgrades<'res, 'conf>(
     )
 }
 
-pub async fn get_upgrades<'a, 'b>(
+pub async fn get_upgrades(
     config: &Config,
-    resolver: &mut Resolver<'a, 'b, RaurHandle>,
+    resolver: &mut Resolver<'_, '_, RaurHandle>,
 ) -> Result<Upgrades> {
     let (upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
@@ -250,15 +247,12 @@ pub async fn get_upgrades<'a, 'b>(
     }
 
     if !config.upgrade_menu {
-        let mut aur = aur_upgrades
-            .iter()
-            .map(|p| p.remote.name.clone())
-            .collect::<Vec<_>>();
+        let mut aur: Vec<_> = aur_upgrades.iter().map(|p| p.remote.name.clone()).collect();
 
-        let mut pkgbuild_updates = pkgbuild_upgrades
+        let mut pkgbuild_updates: Vec<_> = pkgbuild_upgrades
             .iter()
             .map(|u| (u.repo.clone(), u.local.name().to_string()))
-            .collect::<Vec<_>>();
+            .collect();
 
         for devel in &devel_upgrades {
             if devel.repo.as_deref() == Some(config.aur_namespace()) {

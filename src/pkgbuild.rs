@@ -125,12 +125,15 @@ impl PkgbuildRepo {
         Ok(repo)
     }
 
-    pub fn from_pkgbuilds(config: &Config, dirs: &[PathBuf]) -> Result<PkgbuildRepo> {
+    pub fn from_pkgbuilds(
+        config: &Config,
+        dirs: impl IntoIterator<Item = impl AsRef<Path>>,
+    ) -> Result<PkgbuildRepo> {
         let mut pkgs = Vec::new();
         let mut repo = Self::from_cwd(config)?;
 
         for dir in dirs {
-            let dir = dir.canonicalize()?;
+            let dir = dir.as_ref().canonicalize()?;
             repo.print_generate_srcinfo(config, &dir.file_name().unwrap().to_string_lossy());
             let srcinfo = read_srcinfo_from_pkgbuild(config, &dir)?;
             pkgs.push(PkgbuildPkg {
@@ -344,7 +347,7 @@ impl PkgbuildRepos {
         let action = config.color.action;
         let bold = config.color.bold;
 
-        let repos = self
+        let repos: Vec<_> = self
             .repos
             .iter()
             .filter_map(|r| {
@@ -356,7 +359,7 @@ impl PkgbuildRepos {
                         name: n.to_string(),
                     })
             })
-            .collect::<Vec<_>>();
+            .collect();
 
         if repos.is_empty() {
             return Ok(());
@@ -394,7 +397,7 @@ impl PkgbuildRepos {
             println!();
         }
 
-        let review_repos = repos
+        let review_repos: Vec<_> = repos
             .iter()
             .filter(|r| {
                 !config
@@ -404,10 +407,10 @@ impl PkgbuildRepos {
                     .unwrap_or(false)
             })
             .map(|r| r.name.as_str())
-            .collect::<Vec<_>>();
+            .collect();
         review(config, &self.fetch, &review_repos)?;
 
-        let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+        let all_repos: Vec<_> = repos.iter().map(|r| r.name.as_str()).collect();
         self.fetch.merge(&all_repos)?;
 
         self.repos.iter().for_each(|r| r.generate_srcinfos(config));
