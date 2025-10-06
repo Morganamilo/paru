@@ -184,50 +184,19 @@ fn do_remove(config: &Config, path: &Path, rm: bool) -> Result<()> {
 }
 
 pub fn clean_untracked(config: &Config, path: &Path) -> Result<()> {
-    let output = Command::new(&config.git_bin)
-        .args(&config.git_flags)
+    let mut cmd = Command::new(&config.git_bin);
+    cmd.args(&config.git_flags)
         .current_dir(path)
-        .args(["reset", "--hard", "HEAD"])
-        .output()
-        .with_context(|| {
-            format!(
-                "{} {} reset --hard HEAD",
-                config.git_bin,
-                config.git_flags.join(" "),
-            )
-        })?;
+        .args(["restore", "-SWq", "."]);
+    exec::command_output(&mut cmd)?;
 
-    if !output.status.success() {
-        bail!(
-            "{} {} reset --hard HEAD: {}",
-            config.git_bin,
-            config.git_flags.join(" "),
-            String::from_utf8_lossy(&output.stderr)
-        )
-    }
-
-    let output = Command::new(&config.git_bin)
-        .args(&config.git_flags)
+    let mut cmd = Command::new(&config.git_bin);
+    cmd.args(&config.git_flags)
         .current_dir(path)
         .arg("clean")
         .arg("-fx")
-        .output()
-        .with_context(|| {
-            format!(
-                "{} {} clean -fx",
-                config.git_bin,
-                config.git_flags.join(" "),
-            )
-        })?;
-
-    if !output.status.success() {
-        bail!(
-            "{} {} clean -fx: {}",
-            config.git_bin,
-            config.git_flags.join(" "),
-            String::from_utf8_lossy(&output.stderr)
-        )
-    }
+        .arg(".");
+    exec::command_output(&mut cmd)?;
 
     Ok(())
 }
