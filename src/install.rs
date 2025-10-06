@@ -422,7 +422,18 @@ impl Installer {
 
         if config.clean_after {
             for base in build {
-                let path = config.build_dir.join(base.package_base());
+                let path = match base {
+                    Base::Aur(base) => config.build_dir.join(base.package_base()),
+                    Base::Pkgbuild(base) => config
+                        .pkgbuild_repos
+                        .repo(&base.repo)
+                        .unwrap()
+                        .base(config, base.package_base())
+                        .unwrap()
+                        .path
+                        .clone(),
+                };
+
                 if let Err(err) = clean_untracked(config, &path) {
                     print_error(config.color.error, err);
                     ret = 1;
