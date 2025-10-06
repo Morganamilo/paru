@@ -90,11 +90,25 @@ fn repo_list<W: Write>(config: &Config, w: &mut W) {
     }
 }
 
+fn pkgbuild_list<W: Write>(config: &Config, w: &mut W) {
+    for db in &config.pkgbuild_repos.repos {
+        for base in db.pkgs(config) {
+            for pkg in base.srcinfo.names() {
+                let _ = w.write_all(pkg.as_bytes());
+                let _ = w.write_all(b" ");
+                let _ = w.write_all(db.name.as_bytes());
+                let _ = w.write_all(b"\n");
+            }
+        }
+    }
+}
+
 pub async fn print(config: &Config, timeout: Option<u64>) -> i32 {
     let stdout = stdout();
     let mut stdout = stdout.lock();
 
     repo_list(config, &mut stdout);
+    pkgbuild_list(config, &mut stdout);
 
     if let Err(err) = aur_list(config, &mut stdout, timeout).await {
         print_error(config.color.error, err);

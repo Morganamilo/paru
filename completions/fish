@@ -4,6 +4,12 @@
 
 set -l progname paru
 
+function __fish_print_paru_repos --description "Print the repositories configured for paru"
+    string match -er "\[.*\]" </etc/pacman.conf | string match -r -v "^#|options" | string replace -ra "\[|\]" ""
+    paru -Sl --pkgbuilds | cut -d ' ' -f1 | uniq
+end
+
+
 # paru constants
 set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb'
 set -l listall "(paru -Pc | string replace ' ' \t)"
@@ -15,7 +21,7 @@ set -l chrootctl '__fish_contains_opt -s C chrootctl'
 
 # Pacman constants
 set -l listinstalled "(pacman -Q | string replace ' ' \t)"
-set -l listrepos "(__fish_print_pacman_repos)"
+set -l listrepos "(__fish_print_paru_repos)"
 set -l listgroups "(pacman -Sg)\t'Package Group'"
 set -l database '__fish_contains_opt -s D database'
 set -l query '__fish_contains_opt -s Q query'
