@@ -12,7 +12,7 @@ use std::path::Path;
 use std::process::Command;
 
 use alpm_utils::DbListExt;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use srcinfo::Srcinfo;
 use tr::tr;
 
