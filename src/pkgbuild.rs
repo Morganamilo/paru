@@ -8,6 +8,7 @@ use std::{
 };
 
 use crate::{download::print_download, exec, install::review};
+use alpm_utils::Targ;
 use anyhow::{anyhow, bail, Context, Result};
 use aur_fetch::Fetch;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -303,6 +304,18 @@ impl PkgbuildRepos {
 
     pub fn repo(&self, name: &str) -> Option<&PkgbuildRepo> {
         self.repos.iter().find(|r| r.name == name)
+    }
+
+    pub fn target(
+        &self,
+        config: &Config,
+        target: Targ,
+    ) -> Option<(&PkgbuildPkg, &srcinfo::Package)> {
+        if let Some(repo) = target.repo {
+            self.repo(repo).and_then(|r| r.pkg(config, target.pkg))
+        } else {
+            self.pkg(config, target.pkg)
+        }
     }
 
     pub fn pkg(&self, config: &Config, name: &str) -> Option<(&PkgbuildPkg, &srcinfo::Package)> {
