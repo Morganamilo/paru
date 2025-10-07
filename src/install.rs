@@ -1079,7 +1079,7 @@ impl Installer {
             bail!(tr!("--downloadonly can't be used for AUR packages"));
         }
 
-        let conflicts = check_actions(config, actions, !config.chroot || self.install_targets)?;
+        let conflicts = check_actions(config, actions, self.install_targets)?;
 
         self.conflicts = conflicts
             .0
@@ -1339,7 +1339,7 @@ fn fmt_stack(want: &DepMissing) -> String {
 fn check_actions(
     config: &Config,
     actions: &mut Actions,
-    check_conflicts: bool,
+    install_targets: bool,
 ) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
     let c = config.color;
     let dups = actions.duplicate_targets();
@@ -1379,13 +1379,27 @@ fn check_actions(
         );
     }
 
-    let conflicts = if check_conflicts {
+    let conflicts = if !config.chroot && install_targets {
         println!(
             "{} {}",
             c.action.paint("::"),
             c.bold.paint(tr!("Calculating conflicts..."))
         );
-        actions.calculate_conflicts(!config.chroot)
+        // Hack to ignore conflicts on -B
+        // Only ignores conflicts for the last package instead of all targets
+        // As in theory one target could depend on another and thus must be installed
+        let mut conflicts = actions.calculate_conflicts(!config.chroot);
+        if !install_targets {
+            if let Some(build) = actions.build.last() {
+                let pkgs = build.packages().map(|s| s.to_string()).collect::<Vec<_>>();
+                conflicts.retain(|c| {
+                    !c.conflicting
+                        .iter()
+                        .all(|conflicting| pkgs.contains(&conflicting.pkg))
+                });
+            }
+        }
+        conflicts
     } else {
         Vec::new()
     };
