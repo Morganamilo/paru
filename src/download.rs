@@ -1,6 +1,7 @@
 use crate::config::{Colors, Config, SortMode, YesNoAll};
 use crate::fmt::print_indent;
 use crate::printtr;
+use crate::util::is_arch_repo;
 use crate::RaurHandle;
 
 use std::collections::btree_map::Entry;
@@ -559,22 +560,7 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
             }
         }
 
-        if config.mode.repo()
-            && matches!(
-                targ.repo,
-                Some(
-                    "testing"
-                        | "community-testing"
-                        | "core"
-                        | "extra"
-                        | "community"
-                        | "multilib"
-                        | "core-testing"
-                        | "extra-testing"
-                        | "multilib-testing"
-                )
-            )
-        {
+        if config.mode.repo() && targ.repo.map_or(false, |repo| is_arch_repo(repo)) {
             local.push(targ);
             continue;
         }

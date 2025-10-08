@@ -2,8 +2,8 @@ use std::path::Path;
 
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
-use crate::fmt::{color_repo, print_indent};
-use crate::util::{input, NumberMenu};
+use crate::fmt::{color_repo, link_str, print_indent};
+use crate::util::{input, is_arch_repo, NumberMenu};
 use crate::{info, printtr};
 
 use ansiterm::Style;
@@ -263,10 +263,17 @@ fn print_pkgbuild_pkg(
     }
 
     let c = config.color;
+
+    let name = if let Some(url) = &pkg.url {
+        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), &url)
+    } else {
+        c.ss_name.paint(&pkg.pkgname).to_string()
+    };
+
     print!(
         "{}/{} {}",
         color_repo(c.enabled, repo),
-        c.ss_name.paint(&pkg.pkgname),
+        name,
         c.ss_ver.paint(srcinfo.version()),
     );
 
@@ -298,10 +305,22 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
 
     let c = config.color;
     let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity);
+
+    let aur = color_repo(c.enabled, "aur");
+    let aur = if let Ok(url) = config.aur_url.join(&format!("packages/{}", pkg.name)) {
+        link_str(c.enabled, &aur, url.as_str())
+    } else {
+        aur
+    };
+    let name = if let Some(url) = &pkg.url {
+        link_str(c.enabled, &c.ss_name.paint(&pkg.name), &url)
+    } else {
+        c.ss_name.paint(&pkg.name).to_string()
+    };
     print!(
         "{}/{} {} [{}]",
-        color_repo(c.enabled, "aur"),
-        c.ss_name.paint(&pkg.name),
+        color_repo(c.enabled, &aur),
+        c.ss_name.paint(name),
         c.ss_ver.paint(&pkg.version),
         c.ss_stats.paint(stats),
     );
@@ -357,10 +376,28 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
         HumanBytes(pkg.isize() as u64)
     );
     let ver: &str = pkg.version().as_ref();
+    let mut repo = color_repo(c.enabled, pkg.db().unwrap().name());
+    if is_arch_repo(pkg.db().unwrap().name()) {
+        if let Ok(url) = config.arch_url.join(&format!(
+            "packages/{}/{}/{}/",
+            pkg.db().unwrap().name(),
+            pkg.arch().unwrap_or("any"),
+            pkg.name()
+        )) {
+            repo = link_str(c.enabled, &repo, url.as_str());
+        }
+    }
+
+    let name = if let Some(url) = pkg.url() {
+        link_str(c.enabled, &c.ss_name.paint(pkg.name()), &url)
+    } else {
+        c.ss_name.paint(pkg.name()).to_string()
+    };
+
     print!(
         "{}/{} {} [{}]",
-        color_repo(c.enabled, pkg.db().unwrap().name()),
-        c.ss_name.paint(pkg.name()),
+        color_repo(c.enabled, &repo),
+        c.ss_name.paint(name),
         c.ss_ver.paint(ver),
         c.ss_stats.paint(stats),
     );

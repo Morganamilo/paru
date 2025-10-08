@@ -385,3 +385,18 @@ pub fn reopen_stdout<Fd: AsFd>(file: Fd) -> Result<()> {
     dup2_stdout(file)?;
     Ok(())
 }
+
+pub fn is_arch_repo(name: &str) -> bool {
+    matches!(
+        name,
+        "testing"
+            | "community-testing"
+            | "core"
+            | "extra"
+            | "community"
+            | "multilib"
+            | "core-testing"
+            | "extra-testing"
+            | "multilib-testing"
+    )
+}
