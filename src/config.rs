@@ -516,6 +516,8 @@ pub struct Config {
     pub chroot_dir: PathBuf,
     pub chroot: bool,
     pub chroot_pkgs: Vec<String>,
+    #[default(vec!["base-devel".to_string()])]
+    pub root_chroot_pkgs: Vec<String>,
     pub install: bool,
     pub uninstall: bool,
     pub sysupgrade: bool,
@@ -1100,6 +1102,10 @@ then initialise it with:
             .ok_or_else(|| anyhow!(tr!("value can not be empty for key '{}'", key)));
 
         match key {
+            "RootChrootPkgs" => {
+                self.root_chroot_pkgs
+                    .extend(value?.split_whitespace().map(|s| s.to_string()));
+            }
             "AurUrl" => self.aur_url = value?.parse()?,
             "AurRpcUrl" => self.aur_rpc_url = Some(value?.parse()?),
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),

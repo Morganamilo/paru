@@ -86,6 +86,9 @@ pub fn help() {
     printtr!("    --[no]signdb           Sign databases with gpg");
     printtr!("    --[no]localrepo        Build packages into a local repo");
     printtr!("    --nocheck              Don't resolve checkdepends or run the check function");
+    printtr!(
+        "    --rootchrootpkgs       Packages to install in the root chroot (default: base-devel)"
+    );
     printtr!("    --develsuffixes        Suffixes used to decide if a package is a devel package");
     printtr!("    --ignoredevel          Ignore devel upgrades for specified packages");
     printtr!("    --bottomup             Shows AUR's packages first and then repository's");

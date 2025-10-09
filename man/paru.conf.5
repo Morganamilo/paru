@@ -363,6 +363,19 @@ where makechrootpkg is called by paru. Arguments are split on whitespace before
 being passed to makechrootpkg.
 
 .TP
+.B RootChrootPkgs = Packages...
+Space-separated list of packages to install when creating the root chroot.
+
+Defaults to "base-devel" if not specified.
+
+Unlike \-\-chrootpkgs (which installs packages temporarily before each build),
+\-\-rootchrootpkgs packages become part of the root chroot and persist across
+all builds.
+
+This only affects chroot creation. To apply changes to an existing chroot,
+you must delete and recreate it.
+
+.TP
 .B Pager = Command
 Command to use for paging
 

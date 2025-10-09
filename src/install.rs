@@ -856,7 +856,7 @@ impl Installer {
 
         if config.chroot {
             if !self.chroot.exists() {
-                self.chroot.create(config, &["base-devel"])?;
+                self.chroot.create(config)?;
             } else {
                 self.chroot.update()?;
             }
@@ -1851,6 +1851,7 @@ fn chroot(config: &Config) -> Chroot {
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
         extra_pkgs: config.chroot_pkgs.clone(),
+        root_pkgs: config.root_chroot_pkgs.clone(),
     };
 
     if config.args.count("d", "nodeps") > 1 {
