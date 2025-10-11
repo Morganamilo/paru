@@ -168,8 +168,8 @@ msgstr "opção '{}' não aceita valor"
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Há {n} provedores disponíveis para {pkg}:"
 
-#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224 src/resolver.rs:95
-#: src/resolver.rs:144
+#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
+#: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
 msgstr "Repositório"
 
@@ -233,7 +233,8 @@ msgstr "marcados como desatualizados: "
 msgid "orphans: "
 msgstr "órfãos: "
 
-#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741 src/install.rs:1781
+#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
+#: src/install.rs:1781
 msgid "failed to run:"
 msgstr "falha ao executar:"
 
@@ -386,7 +387,8 @@ msgid "    -c --clean            Remove unneeded dependencies"
 msgstr "    -c --clean            Remove dependências desnecessárias"
 
 #: src/help.rs:29
-msgid "       --gendb            Generates development package DB used for updating"
+msgid ""
+"       --gendb            Generates development package DB used for updating"
 msgstr ""
 "       --gendb            Gera banco de dados de pacotes de desenvolvimento usado para atualizações"
 
@@ -399,8 +401,10 @@ msgid "       --repo              Assume targets are from the repositories"
 msgstr "       --repo              Assume que os alvos são dos repositórios"
 
 #: src/help.rs:33
-msgid "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --pkgbuilds         Assume que os alvos são de repositórios pkgbuild"
+msgid ""
+"       --pkgbuilds         Assume targets are from pkgbuild repositories"
+msgstr ""
+"       --pkgbuilds         Assume que os alvos são de repositórios pkgbuild"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -411,16 +415,21 @@ msgid "    --mode      <mode>     Sets where paru looks for targets"
 msgstr "    --mode      <modo>     Define onde o paru procura por alvos"
 
 #: src/help.rs:37
-msgid "    --interactive          Enable interactive package selection for -S, -R, -Ss and -Qs"
-msgstr "    --interactive          Habilita seleção interativa de pacotes para -S, -R, -Ss e -Qs"
+msgid ""
+"    --interactive          Enable interactive package selection for -S, -R, "
+"-Ss and -Qs"
+msgstr ""
+"    --interactive          Habilita seleção interativa de pacotes para -S, -R, -Ss e -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      Define uma URL alternativa do AUR"
 
 #: src/help.rs:40
-msgid "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aurrpcur  <url>      Define uma URL alternativa para o endpoint /rpc do AUR"
+msgid ""
+"    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
+msgstr ""
+"    --aurrpcur  <url>      Define uma URL alternativa para o endpoint /rpc do AUR"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -487,16 +496,20 @@ msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr "    --completioninterval   <n> Tempo em dias para atualizar o cache de conclusão"
 
 #: src/help.rs:59
-msgid "    --sortby    <field>    Sort AUR results by a specific field during search"
-msgstr "    --sortby    <field>    Ordena resultados do AUR por um campo específico durante a busca"
+msgid ""
+"    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr ""
+"    --sortby    <field>    Ordena resultados do AUR por um campo específico durante a busca"
 
 #: src/help.rs:60
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr "    --searchby  <field>    Busca por pacotes usando um campo especificado"
 
 #: src/help.rs:61
-msgid "    --limit     <limit>    Limits the number of items returned in a search"
-msgstr "    --limit     <limit>    Limita o número de itens retornados em uma busca"
+msgid ""
+"    --limit     <limit>    Limits the number of items returned in a search"
+msgstr ""
+"    --limit     <limit>    Limita o número de itens retornados em uma busca"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
@@ -535,39 +548,57 @@ msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr "    --[no]pgpfetch         Solicita importação de chaves PGP dos PKGBUILDs"
 
 #: src/help.rs:73
-msgid "    --[no]useask           Automatically resolve conflicts using pacman's ask flag"
-msgstr "    --[no]useask           Resolve conflitos automaticamente usando a flag ask do pacman"
+msgid ""
+"    --[no]useask           Automatically resolve conflicts using pacman's "
+"ask flag"
+msgstr ""
+"    --[no]useask           Resolve conflitos automaticamente usando a flag ask do pacman"
 
 #: src/help.rs:74
-msgid "    --[no]savechanges      Commit changes to pkgbuilds made during review"
-msgstr "    --[no]savechanges      Confirma alterações feitas nos pkgbuilds durante a revisão"
+msgid ""
+"    --[no]savechanges      Commit changes to pkgbuilds made during review"
+msgstr ""
+"    --[no]savechanges      Confirma alterações feitas nos pkgbuilds durante a revisão"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr "    --[no]newsonupgrade    Exibe novas notícias durante sysupgrade"
 
 #: src/help.rs:76
-msgid "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together"
-msgstr "    --[no]combinedupgrade  Atualiza e depois executa as atualizações de repo e AUR juntas"
+msgid ""
+"    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
+"together"
+msgstr ""
+"    --[no]combinedupgrade  Atualiza e depois executa as atualizações de repo e AUR juntas"
 
 #: src/help.rs:77
-msgid "    --[no]batchinstall     Build multiple AUR packages then install them together"
-msgstr "    --[no]batchinstall     Compila múltiplos pacotes AUR e depois os instala juntos"
+msgid ""
+"    --[no]batchinstall     Build multiple AUR packages then install them "
+"together"
+msgstr ""
+"    --[no]batchinstall     Compila múltiplos pacotes AUR e depois os instala juntos"
 
 #: src/help.rs:78
-msgid "    --[no]provides         Look for matching providers when searching for packages"
-msgstr "    --[no]provides         Procura por provedores correspondentes ao buscar por pacotes"
+msgid ""
+"    --[no]provides         Look for matching providers when searching for "
+"packages"
+msgstr ""
+"    --[no]provides         Procura por provedores correspondentes ao buscar por pacotes"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr "    --[no]devel            Verifica pacotes de desenvolvimento durante sysupgrade"
 
 #: src/help.rs:80
-msgid "    --[no]installdebug     Also install debug packages when a package provides them"
-msgstr "    --[no]installdebug     Também instala pacotes de depuração quando um pacote os fornece"
+msgid ""
+"    --[no]installdebug     Also install debug packages when a package "
+"provides them"
+msgstr ""
+"    --[no]installdebug     Também instala pacotes de depuração quando um pacote os fornece"
 
 #: src/help.rs:81
-msgid "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgid ""
+"    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
 "    --[no]sudoloop         Executa chamadas sudo em loop em segundo plano para evitar timeout"
 
@@ -576,12 +607,16 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           Compila pacotes em um chroot"
 
 #: src/help.rs:83
-msgid "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]failfast         Sai assim que a compilação de um pacote AUR falhar"
+msgid ""
+"    --[no]failfast         Exit as soon as building an AUR package fails"
+msgstr ""
+"    --[no]failfast         Sai assim que a compilação de um pacote AUR falhar"
 
 #: src/help.rs:84
-msgid "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]keepsrc          Mantém diretórios src/ e pkg/ após compilar pacotes"
+msgid ""
+"    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
+msgstr ""
+"    --[no]keepsrc          Mantém diretórios src/ e pkg/ após compilar pacotes"
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
@@ -596,24 +631,34 @@ msgid "    --[no]localrepo        Build packages into a local repo"
 msgstr "    --[no]localrepo        Compila pacotes em um repositório local"
 
 #: src/help.rs:88
-msgid "    --nocheck              Don't resolve checkdepends or run the check function"
-msgstr "    --nocheck              Não resolve checkdepends nem executa a função de verificação"
+msgid ""
+"    --nocheck              Don't resolve checkdepends or run the check "
+"function"
+msgstr ""
+"    --nocheck              Não resolve checkdepends nem executa a função de verificação"
 
 #: src/help.rs:89
-msgid "    --develsuffixes        Suffixes used to decide if a package is a devel package"
-msgstr "    --develsuffixes        Sufixos usados para decidir se um pacote é um pacote devel"
+msgid ""
+"    --develsuffixes        Suffixes used to decide if a package is a devel "
+"package"
+msgstr ""
+"    --develsuffixes        Sufixos usados para decidir se um pacote é um pacote devel"
 
 #: src/help.rs:90
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr "    --ignoredevel          Ignora atualizações devel para pacotes especificados"
 
 #: src/help.rs:91
-msgid "    --bottomup             Shows AUR's packages first and then repository's"
-msgstr "    --bottomup             Mostra primeiro os pacotes do AUR e depois os do repositório"
+msgid ""
+"    --bottomup             Shows AUR's packages first and then repository's"
+msgstr ""
+"    --bottomup             Mostra primeiro os pacotes do AUR e depois os do repositório"
 
 #: src/help.rs:92
-msgid "    --topdown              Shows repository's packages first and then AUR's"
-msgstr "    --topdown              Mostra primeiro os pacotes do repositório e depois os do AUR"
+msgid ""
+"    --topdown              Shows repository's packages first and then AUR's"
+msgstr ""
+"    --topdown              Mostra primeiro os pacotes do repositório e depois os do AUR"
 
 #: src/help.rs:94
 msgid "show specific options:"
@@ -807,7 +852,8 @@ msgstr "buscando informações devel..."
 msgid "no targets specified (use -h for help)"
 msgstr "nenhum alvo especificado (use -h para ajuda)"
 
-#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436 src/lib.rs:306
+#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
+#: src/lib.rs:306
 msgid " there is nothing to do"
 msgstr " não há nada a fazer"
 
@@ -1140,67 +1186,3 @@ msgstr "não é possível usar compilações em chroot: devtools não está inst
 #: src/lib.rs:315
 msgid "no operation specified (use -h for help)"
 msgstr "nenhuma operação especificada (use -h para ajuda)"
-
-#~ msgid "Aur ({})"
-#~ msgstr "Aur ({})"
-
-#~ msgid "Pkgbuilds ({})"
-#~ msgstr "Pkgbuilds ({})"
-
-#~ msgid "could not get current directory"
-#~ msgstr "não foi possível obter o diretório atual"
-
-#~ msgid "can not get repo packages: asp is not installed"
-#~ msgstr "não foi possível obter pacotes dos repositórios: asp não está instalado"
-
-#~ msgid "Missing ABS packages "
-#~ msgstr "Pacotes ABS faltando "
-
-#~ msgid "does not contain PKGBUILD: skipping"
-#~ msgstr "não possui uma PKGBUILD: pulando"
-
-#~ msgid "{} is not installed: can not get repo packages"
-#~ msgstr "{} não está instalado: impossível obter pacotes dos repositórios"
-
-#~ msgid "asp returned {}"
-#~ msgstr "asp retornou {}"
-
-#~ msgid "    --asp       <file>     asp command to use"
-#~ msgstr "    --asp       <arquivo>       Comando asp a ser usado"
-
-#~ msgid "Generating .SRCINFO for {dir}..."
-#~ msgstr "Gerando .SRCINFO para {dir}..."
-
-#~ msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-#~ msgstr "pkgbase {base} já existe no repositório {repo} -- ignorando)"
-
-#~ msgid "upgrade specific options:"
-#~ msgstr "opções específicas de atualização:"
-
-#~ msgid "error: unknown section '{}'"
-#~ msgstr "seção '{}' desconhecida"
-
-#~ msgid "can't build package as root"
-#~ msgstr "não é possível compilar o pacote como root"
-
-#~ msgid "failed to download sources"
-#~ msgstr "falha ao baixar fontes"
-
-#~ msgid "failed to build"
-#~ msgstr "falha ao compilar"
-
-#~ msgid "parsing pkg list..."
-#~ msgstr "analisando lista de pkg..."
-
-#~ msgid ""
-#~ "{} is a directory\n"
-#~ "\n"
-#~ msgstr ""
-#~ "{} é um diretório\n"
-#~ "\n"
-
-#~ msgid "n"
-#~ msgstr "n"
-
-#~ msgid "no"
-#~ msgstr "não"
