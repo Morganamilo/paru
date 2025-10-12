@@ -279,9 +279,9 @@ fn print_pkgbuild_pkg(
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.pkgname) {
         let installed = if repo_pkg.version().as_str() != srcinfo.version() {
-            tr!("[Installed: {}]", repo_pkg.version())
+            tr!("[installed: {}]", repo_pkg.version())
         } else {
-            tr!("[Installed]")
+            tr!("[installed]")
         };
 
         print!(" {}", c.ss_installed.paint(installed));
@@ -326,22 +326,22 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     );
 
     if let Some(date) = pkg.out_of_date {
-        let date = tr!("[Out-of-date: {}]", crate::fmt::ymd(date));
+        let date = tr!("[out-of-date: {}]", crate::fmt::ymd(date));
         print!(" {}", c.ss_ood.paint(date));
     }
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.name) {
         let installed = if repo_pkg.version().as_str() != pkg.version {
-            tr!("[Installed: {}]", repo_pkg.version())
+            tr!("[installed: {}]", repo_pkg.version())
         } else {
-            tr!("[Installed]")
+            tr!("[installed]")
         };
 
         print!(" {}", c.ss_installed.paint(installed));
     }
 
     if pkg.maintainer.is_none() {
-        print!(" {}", c.ss_orphaned.paint(tr!("[Orphaned]")));
+        print!(" {}", c.ss_orphaned.paint(tr!("[orphaned]")));
     }
 
     let none = tr!("None");
@@ -404,9 +404,9 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(pkg.name()) {
         let installed = if repo_pkg.version() != pkg.version() {
-            tr!("[Installed: {}]", repo_pkg.version())
+            tr!("[installed: {}]", repo_pkg.version())
         } else {
-            tr!("[Installed]")
+            tr!("[installed]")
         };
 
         print!(" {}", c.ss_installed.paint(installed));
