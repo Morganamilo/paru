@@ -429,6 +429,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
         extra_pkgs: config.chroot_pkgs.clone(),
+        root_pkgs: config.root_chroot_pkgs.clone(),
     };
 
     if config.print {
@@ -437,7 +438,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
     }
 
     if !chroot.exists() {
-        chroot.create(config, &["base-devel"])?;
+        chroot.create(config)?;
     }
 
     if config.sysupgrade {

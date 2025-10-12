@@ -198,6 +198,9 @@ impl Config {
             Arg::Long("chrootpkgs") => self
                 .chroot_pkgs
                 .extend(value?.split(',').map(|s| s.to_string())),
+            Arg::Long("rootchrootpkgs") => self
+                .root_chroot_pkgs
+                .extend(value?.split(',').map(|s| s.to_string())),
 
             Arg::Long("develsuffixes") => self.devel_suffixes = split_whitespace(value?),
             Arg::Long("installdebug") => self.install_debug = true,
@@ -412,6 +415,7 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("fmflags") => TakesValue::Required,
         Arg::Long("chrootflags") => TakesValue::Required,
         Arg::Long("chrootpkgs") => TakesValue::Required,
+        Arg::Long("rootchrootpkgs") => TakesValue::Required,
         Arg::Long("completioninterval") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,
         Arg::Long("searchby") => TakesValue::Required,

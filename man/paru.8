@@ -420,7 +420,21 @@ Note that this is only a temp fix and only applies to this one build. You should
 ideally patch the package yourself or report the problem to the maintainer.
 
 If you want to permanently add a package to the chroot use \fBparu -Ci package\fR
-to install packages into the master chroot.
+to install packages into the root chroot, or use \-\-rootchrootpkgs to specify
+packages that should be installed when the chroot is created.
+
+.TP
+.B \-\-rootchrootpkgs <packages>
+Comma-separated list of packages to install when creating the root chroot.
+
+Defaults to "base-devel" if not specified.
+
+Unlike \-\-chrootpkgs (which installs packages temporarily before each build),
+\-\-rootchrootpkgs packages become part of the root chroot and persist across
+all builds.
+
+This only affects chroot creation. To apply changes to an existing chroot,
+you must delete and recreate it.
 
 .TP
 .B \-\-completioninterval <days>
