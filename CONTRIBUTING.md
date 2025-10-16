@@ -17,7 +17,7 @@ cargo build
 To run paru use:
 
 ```
-`cargo run -- <args>
+cargo run -- <args>
 ```
 
 Paru has a couple of feature flags which you may want to enable:
