@@ -1,3 +1,4 @@
+use std::io::Read;
 use std::path::Path;
 
 use crate::config::SortBy;
@@ -8,6 +9,7 @@ use crate::{info, printtr};
 
 use ansiterm::Style;
 use anyhow::{ensure, Context, Result};
+use flate2::read::GzDecoder;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
@@ -172,11 +174,16 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
     let success = resp.status().is_success();
     ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.text().await?;
+    let data = resp.bytes().await?;
+    let mut extracted = Vec::new();
+    let data = match GzDecoder::new(&data[..]).read_to_end(&mut extracted) {
+        Ok(_) => extracted.into(),
+        Err(_) => data,
+    };
 
     let regex = RegexSet::new(targets)?;
 
-    let pkgs = data
+    let pkgs = str::from_utf8(&data)?
         .lines()
         .skip(1)
         .filter(|pkg| regex.is_match(pkg))

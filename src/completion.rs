@@ -2,11 +2,12 @@ use crate::config::Config;
 use crate::print_error;
 
 use std::fs::{create_dir_all, metadata, OpenOptions};
-use std::io::{stdout, BufRead, BufReader, Write};
+use std::io::{stdout, BufRead, BufReader, Read, Write};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
+use flate2::read::GzDecoder;
 use reqwest::get;
 use tr::tr;
 use url::Url;
@@ -20,6 +21,11 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     ensure!(success, "get {}: {}", url, resp.status());
 
     let data = resp.bytes().await?;
+    let mut extracted = Vec::new();
+    let data = match GzDecoder::new(&data[..]).read_to_end(&mut extracted) {
+        Ok(_) => extracted.into(),
+        Err(_) => data,
+    };
 
     create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");

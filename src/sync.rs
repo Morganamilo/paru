@@ -2,9 +2,10 @@ use crate::config::Config;
 use crate::pkgbuild::PkgbuildRepos;
 use crate::{exec, print_error};
 
-use std::io::Write;
+use std::io::{Read, Write};
 
 use anyhow::{anyhow, ensure, Context, Result};
+use flate2::read::GzDecoder;
 
 use raur::Raur;
 use tr::tr;
@@ -105,6 +106,11 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     ensure!(success, "get {}: {}", url, resp.status());
 
     let data = resp.bytes().await?;
+    let mut extracted = Vec::new();
+    let data = match GzDecoder::new(&data[..]).read_to_end(&mut extracted) {
+        Ok(_) => extracted.into(),
+        Err(_) => data,
+    };
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
