@@ -371,7 +371,7 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Packag
 
 pub fn redirect_to_stderr() -> Result<OwnedFd> {
     let stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2_stdout(&stderr())?;
+    dup2_stdout(stderr())?;
     Ok(stdout)
 }
 
