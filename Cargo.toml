@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2021"
 
@@ -15,9 +15,9 @@ rust-version = "1.80"
 
 
 [dependencies]
-alpm = "4.0.3"
-alpm-utils = "4.0.1"
-aur-depends = "4.0.5"
+alpm = { git = "https://github.com/archlinux/alpm.rs.git", rev = "19b315335aca7d49d5a507631f39354e2de7a5f8" }
+alpm-utils = { git = "https://github.com/archlinux/alpm.rs.git", rev = "19b315335aca7d49d5a507631f39354e2de7a5f8" }
+aur-depends = { git = "https://github.com/Derppening/aur-depends.git", branch = "enhance/bump-alpm-v5" }
 aur-fetch = "0.11.3"
 cini = "1.0.0"
 pacmanconf = "3.0.0"
