@@ -539,41 +539,27 @@ impl Installer {
         let mut env = config.env.clone();
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
-        if config.chroot {
-            let mut extra = Vec::new();
-            if config.repos == LocalRepos::None {
-                extra.extend(self.built.iter().map(|s| s.as_str()));
-            }
-            let mut chroot_flags: Vec<&str> =
-                config.chroot_flags.iter().map(|s| s.as_str()).collect();
-            chroot_flags.push("-cu");
-            self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+        // Security: Chroot is required for building packages to prevent
+        // arbitrary code execution from potentially malicious PKGBUILDs
+        if !config.chroot {
+            bail!(tr!("building packages requires chroot to be enabled for security reasons"));
+        }
 
-            if !self.chroot.extra_pkgs.is_empty() {
-                let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
-                pkgs.extend(self.chroot.extra_pkgs.iter().map(|s| s.as_str()));
-                self.chroot.run_usr(&pkgs)?;
-            }
-        } else {
-            // download sources
-            let mut args = vec!["--verifysource", "-Af"];
-            if !config.keep_src {
-                args.push("-Cc");
-            }
-            exec::makepkg(config, dir, &args)?
-                .success()
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+        let mut extra = Vec::new();
+        if config.repos == LocalRepos::None {
+            extra.extend(self.built.iter().map(|s| s.as_str()));
+        }
+        let mut chroot_flags: Vec<&str> =
+            config.chroot_flags.iter().map(|s| s.as_str()).collect();
+        chroot_flags.push("-cu");
+        self.chroot
+            .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+            .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
-            // pkgver bump
-            let mut args = vec!["-ofA"];
-            if !config.keep_src {
-                args.push("-C");
-            }
-            exec::makepkg(config, dir, &args)?
-                .success()
-                .with_context(|| tr!("failed to build '{}'", base))?;
+        if !self.chroot.extra_pkgs.is_empty() {
+            let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
+            pkgs.extend(self.chroot.extra_pkgs.iter().map(|s| s.as_str()));
+            self.chroot.run_usr(&pkgs)?;
         }
 
         printtr!("{}: parsing pkg list...", base);
@@ -586,29 +572,19 @@ impl Installer {
         let needs_build = needs_build(config, base, &pkgdests, &version);
         if needs_build {
             // actual build
-            if config.chroot {
-                let mut extra = Vec::new();
-                if config.repos == LocalRepos::None {
-                    extra.extend(self.built.iter().map(|s| s.as_str()));
-                }
-                self.chroot
-                    .build(
-                        dir,
-                        &extra,
-                        &config.chroot_flags,
-                        &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                        &env,
-                    )
-                    .with_context(|| tr!("failed to build '{}'", base))?;
-            } else {
-                let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
-                if !config.keep_src {
-                    args.push("-c");
-                }
-                exec::makepkg_dest(config, dir, &args, pkgdest)?
-                    .success()
-                    .with_context(|| tr!("failed to build '{}'", base))?;
+            let mut extra = Vec::new();
+            if config.repos == LocalRepos::None {
+                extra.extend(self.built.iter().map(|s| s.as_str()));
             }
+            self.chroot
+                .build(
+                    dir,
+                    &extra,
+                    &config.chroot_flags,
+                    &["-feA", "--noconfirm", "--noprepare", "--holdver"],
+                    &env,
+                )
+                .with_context(|| tr!("failed to build '{}'", base))?;
         } else {
             println!(
                 "{} {}",

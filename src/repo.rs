@@ -198,24 +198,31 @@ pub fn delete(config: &mut Config) -> Result<(), Error> {
                     .first()
                     .unwrap()
                     .trim_start_matches("file://");
+                let repo_path = PathBuf::from(path);
                 remove(config, path, repo.name(), pkgs)?;
 
                 let files = read_dir(path)?;
 
                 for file in files {
                     let file = file?;
+                    let file_path = file.path();
+                    // Validate that the file is within the repository directory (path traversal check)
+                    if !file_path.starts_with(&repo_path) {
+                        continue;
+                    }
                     if let Ok(pkg) = config.alpm.pkg_load(
-                        file.path().as_os_str().as_bytes(),
+                        file_path.as_os_str().as_bytes(),
                         false,
                         alpm::SigLevel::NONE,
                     ) {
                         if pkgs.contains(&pkg.name()) {
-                            rmfiles.push(file.path());
+                            rmfiles.push(file_path);
 
-                            let mut sig = file.path().to_path_buf().into_os_string();
+                            let mut sig = file_path.to_path_buf().into_os_string();
                             sig.push(".sig");
                             let sig = PathBuf::from(sig);
-                            if sig.exists() {
+                            // Validate signature file path as well
+                            if sig.starts_with(&repo_path) && sig.exists() {
                                 rmfiles.push(sig);
                             }
                         }
