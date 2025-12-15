@@ -24,28 +24,28 @@ impl Mock {
         for dir in std::fs::read_dir(clone)? {
             let dir = dir?;
 
-            let srcinfo = Srcinfo::parse_file(dir.path().join(".SRCINFO"))?;
+            let srcinfo = Srcinfo::from_path(dir.path().join(".SRCINFO"))?;
             let base = srcinfo.base;
 
             for pkg in srcinfo.pkgs {
                 let name = pkg.pkgname;
                 let depends = pkg
                     .depends
-                    .into_iter()
-                    .find(|v| v.arch.is_none())
-                    .map(|v| v.vec)
+                    .iter()
+                    .find(|v| v.arch().is_none())
+                    .map(|v| v.values().iter().cloned().collect())
                     .unwrap_or_default();
                 let make_depends = base
                     .makedepends
                     .iter()
-                    .find(|v| v.arch.is_none())
-                    .map(|v| v.vec.clone())
+                    .find(|v| v.arch().is_none())
+                    .map(|v| v.values().to_vec())
                     .unwrap_or_default();
                 let check_depends = base
                     .checkdepends
                     .iter()
-                    .find(|v| v.arch.is_none())
-                    .map(|v| v.vec.clone())
+                    .find(|v| v.arch().is_none())
+                    .map(|v| v.values().to_vec())
                     .unwrap_or_default();
 
                 let pkg = Package {
