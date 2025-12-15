@@ -1,12 +1,12 @@
 use crate::config::Config;
 use crate::print_error;
 
-use std::fs::{create_dir_all, metadata, OpenOptions};
-use std::io::{stdout, BufRead, BufReader, Write};
+use std::fs::{OpenOptions, create_dir_all, metadata};
+use std::io::{BufRead, BufReader, Write, stdout};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use reqwest::get;
 use tr::tr;
 use url::Url;
@@ -93,7 +93,7 @@ fn repo_list<W: Write>(config: &Config, w: &mut W) {
 fn pkgbuild_list<W: Write>(config: &Config, w: &mut W) {
     for db in &config.pkgbuild_repos.repos {
         for base in db.pkgs(config) {
-            for pkg in base.srcinfo.names() {
+            for pkg in base.srcinfo.pkgnames() {
                 let _ = w.write_all(pkg.as_bytes());
                 let _ = w.write_all(b" ");
                 let _ = w.write_all(db.name.as_bytes());

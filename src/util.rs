@@ -1,10 +1,10 @@
 use crate::config::{Config, LocalRepos};
 use crate::repo;
 
-use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
+use std::collections::btree_map::Entry;
 use std::fs::File;
-use std::io::{stderr, stdin, stdout, BufRead, Write};
+use std::io::{BufRead, Write, stderr, stdin, stdout};
 use std::mem::take;
 use std::ops::Range;
 use std::os::fd::{AsFd, OwnedFd};
@@ -371,7 +371,7 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Packag
 
 pub fn redirect_to_stderr() -> Result<OwnedFd> {
     let stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2_stdout(&stderr())?;
+    dup2_stdout(stderr())?;
     Ok(stdout)
 }
 

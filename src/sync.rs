@@ -4,7 +4,7 @@ use crate::{exec, print_error};
 
 use std::io::Write;
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 
 use raur::Raur;
 use tr::tr;
@@ -80,7 +80,7 @@ pub fn list_pkgbuilds(config: &Config, repos: &PkgbuildRepos, repo: &str) {
 
     if let Some(repo) = repos.repo(repo) {
         for pkg in repo.pkgs(config) {
-            for name in pkg.srcinfo.names() {
+            for name in pkg.srcinfo.pkgnames() {
                 print_pkg(
                     config,
                     &mut stdout,

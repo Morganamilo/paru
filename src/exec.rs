@@ -5,12 +5,12 @@ use std::ffi::OsStr;
 use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::thread;
 use std::time::Duration;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use log::debug;
 use signal_hook::consts::signal::*;
 use signal_hook::flag as signal_flag;
@@ -56,11 +56,7 @@ impl Status {
     }
 
     pub fn success(self) -> Result<i32, Status> {
-        if self.0 == 0 {
-            Ok(0)
-        } else {
-            Err(self)
-        }
+        if self.0 == 0 { Ok(0) } else { Err(self) }
     }
 }
 

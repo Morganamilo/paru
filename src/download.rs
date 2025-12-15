@@ -1,8 +1,8 @@
+use crate::RaurHandle;
 use crate::config::{Colors, Config, SortMode, YesNoAll};
 use crate::fmt::print_indent;
 use crate::printtr;
 use crate::util::is_arch_repo;
-use crate::RaurHandle;
 
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, HashMap};
@@ -16,7 +16,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
@@ -560,7 +560,7 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
             }
         }
 
-        if config.mode.repo() && targ.repo.map_or(false, |repo| is_arch_repo(repo)) {
+        if config.mode.repo() && targ.repo.is_some_and(is_arch_repo) {
             local.push(targ);
             continue;
         }

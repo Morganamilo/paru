@@ -1,5 +1,5 @@
 use crate::config::{Config, LocalRepos};
-use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::download::{self, Bases, cache_info_with_warnings};
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -7,7 +7,7 @@ use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fs::{create_dir_all, read_to_string, OpenOptions};
+use std::fs::{OpenOptions, create_dir_all, read_to_string};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
@@ -15,9 +15,9 @@ use std::time::Duration;
 
 use alpm_utils::{DbListExt, Target};
 use ansiterm::Style;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use aur_depends::Base;
-use futures::future::{join_all, select_ok, FutureExt};
+use futures::future::{FutureExt, join_all, select_ok};
 use log::debug;
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
@@ -153,7 +153,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
-            let srcinfo = Srcinfo::parse_file(path)
+            let srcinfo = Srcinfo::from_path(path)
                 .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
             match srcinfo {
@@ -177,7 +177,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
-                let srcinfo = Srcinfo::parse_file(path)
+                let srcinfo = Srcinfo::from_path(path)
                     .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
                 match srcinfo {
@@ -447,10 +447,10 @@ pub async fn filter_devel_updates(
     Ok(updates)
 }
 
-pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
-    config: &'cfg Config,
+pub async fn pkg_has_update<'pkg>(
+    config: &Config,
     pkg: &'pkg str,
-    info: &'info HashSet<RepoInfo>,
+    info: &HashSet<RepoInfo>,
 ) -> Option<&'pkg str> {
     if info.is_empty() {
         return None;
@@ -511,7 +511,7 @@ pub async fn fetch_devel_info(
             None => continue,
         };
 
-        for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
+        for url in srcinfo.base.source.iter().flat_map(|v| v.values()) {
             if let Some((remote, _, branch)) = parse_url(url) {
                 let future = ls_remote(
                     config.color.error,
@@ -558,7 +558,7 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
         Ok(file) => file,
         _ => return Ok(None),
     };
-    let devel_info = DevelInfo::deserialize(toml::Deserializer::new(&file))
+    let devel_info: DevelInfo = toml::from_str(&file)
         .with_context(|| tr!("invalid toml: {}", config.devel_path.display()))?;
 
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();

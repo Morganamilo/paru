@@ -10,8 +10,8 @@ use crate::{alpm_debug_enabled, help, printtr, repo};
 use std::env::consts::ARCH;
 use std::env::{remove_var, set_var, var};
 use std::fmt;
-use std::fs::{remove_file, OpenOptions};
-use std::io::{stderr, stdin, stdout, BufRead, IsTerminal};
+use std::fs::{OpenOptions, remove_file};
+use std::io::{BufRead, IsTerminal, stderr, stdin, stdout};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -20,7 +20,7 @@ use alpm::{
 };
 use ansiterm::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansiterm::Style;
-use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+use anyhow::{Context, Error, Result, anyhow, bail, ensure};
 
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
@@ -836,7 +836,8 @@ then initialise it with:
         }
 
         if self.chroot {
-            remove_var("PKGEXT");
+            // SAFETY: paru is single-threaded at this point
+            unsafe { remove_var("PKGEXT") };
         }
 
         Ok(())
@@ -995,7 +996,8 @@ then initialise it with:
         );
 
         self.env.push((key.to_owned(), value.to_string()));
-        set_var(key, value);
+        // SAFETY: paru is single-threaded at this point
+        unsafe { set_var(key, value) };
         Ok(())
     }
 

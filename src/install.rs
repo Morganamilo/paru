@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
-use std::fs::{read_dir, read_link, OpenOptions};
+use std::fs::{OpenOptions, read_dir, read_link};
 use std::io::{BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -14,13 +14,13 @@ use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
-use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
+use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
-use crate::upgrade::{get_upgrades, Upgrades};
+use crate::upgrade::{Upgrades, get_upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
 
@@ -28,7 +28,7 @@ use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use aur_depends::{Actions, Base, Conflict, DepMissing, RepoPackage};
 use log::debug;
 use raur::Cache;
@@ -86,7 +86,7 @@ pub async fn build_dirs(config: &mut Config, dirs: Vec<PathBuf>) -> Result<()> {
     let targets = repo
         .pkgs(config)
         .iter()
-        .flat_map(|s| s.srcinfo.names())
+        .flat_map(|s| s.srcinfo.pkgnames())
         .map(|name| format!("./{}", name))
         .collect::<Vec<_>>();
 
@@ -180,7 +180,7 @@ impl Installer {
         for base in &bases.bases {
             let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
             if path.exists() {
-                let srcinfo = Srcinfo::parse_file(path);
+                let srcinfo = Srcinfo::from_path(path);
                 if let Ok(srcinfo) = srcinfo {
                     self.srcinfos
                         .insert(srcinfo.base.pkgbase.to_string(), srcinfo);
@@ -198,7 +198,7 @@ impl Installer {
             if path.exists() {
                 if let Entry::Vacant(vacant) = self.srcinfos.entry(base.package_base().to_string())
                 {
-                    let srcinfo = Srcinfo::parse_file(path)
+                    let srcinfo = Srcinfo::from_path(path)
                         .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
                     vacant.insert(srcinfo);
                 }
@@ -450,11 +450,7 @@ impl Installer {
             bail!(tr!("packages failed to build: {}", failed.join("  ")));
         }
 
-        if ret != 0 {
-            Status::err(ret)
-        } else {
-            Ok(())
-        }
+        if ret != 0 { Status::err(ret) } else { Ok(()) }
     }
 
     fn debug_paths(
@@ -757,7 +753,7 @@ impl Installer {
             Base::Pkgbuild(c) => {
                 for pkg in &c.pkgs {
                     missing.retain(|mis| {
-                        let provides = ArchVec::supported(&pkg.pkg.provides, arch).map(Depend::new);
+                        let provides = pkg.pkg.provides.arch(arch).map(Depend::new);
                         let v = Version::new(c.version().as_str());
                         if ver {
                             !satisfies(Depend::new(*mis), &pkg.pkg.pkgname, v, provides)
@@ -1905,7 +1901,9 @@ fn check_deps_sync<'a>(
 
 fn supported_deps<'a>(config: &'a Config, deps: &'a [ArchVec]) -> impl Iterator<Item = &'a str> {
     let arch = config.alpm.architectures().first().unwrap_or_default();
-    ArchVec::supported(deps, arch)
+    deps.iter()
+        .filter(move |v| v.supports(arch))
+        .flat_map(|v| v.values().iter().map(|s| s.as_str()))
 }
 
 fn deps_not_satisfied<'a>(config: &'a Config, base: &'a Base) -> Result<Vec<&'a str>> {

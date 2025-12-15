@@ -5,7 +5,7 @@ use crate::print_error;
 use crate::printtr;
 use crate::util::ask;
 
-use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
+use std::fs::{DirEntry, read_dir, remove_dir_all, remove_file, set_permissions};
 
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
@@ -135,7 +135,7 @@ fn clean_aur_pkg(
         return do_remove(config, &file.path(), rm);
     }
 
-    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO")).with_context(|| {
+    let srcinfo = Srcinfo::from_path(file.path().join(".SRCINFO")).with_context(|| {
         let file_name = file.file_name();
         tr!(
             "could not parse .SRCINFO for '{}'",

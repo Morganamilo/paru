@@ -49,7 +49,7 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use ansiterm::Style;
-use anyhow::{bail, Error, Result};
+use anyhow::{Error, Result, bail};
 use cini::Ini;
 use fmt::print_target;
 
@@ -109,9 +109,11 @@ fn print_error(color: Style, err: Error) {
 }
 
 pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
-    tr_init!(env::var("LOCALE_DIR")
-        .as_deref()
-        .unwrap_or("/usr/share/locale/"));
+    tr_init!(
+        env::var("LOCALE_DIR")
+            .as_deref()
+            .unwrap_or("/usr/share/locale/")
+    );
     if debug_enabled() {
         let _ = env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)

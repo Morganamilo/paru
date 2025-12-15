@@ -3,11 +3,11 @@ use std::path::Path;
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, NumberMenu};
+use crate::util::{NumberMenu, input, is_arch_repo};
 use crate::{info, printtr};
 
 use ansiterm::Style;
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
@@ -95,7 +95,7 @@ fn search_pkgbuilds<'a>(
                     || pkg
                         .provides
                         .iter()
-                        .flat_map(|p| &p.vec)
+                        .flat_map(|p| p.values())
                         .any(|p| regex.is_match(p))
                     || pkg.groups.iter().any(|g| regex.is_match(g))
                 {
@@ -265,7 +265,7 @@ fn print_pkgbuild_pkg(
     let c = config.color;
 
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), &url)
+        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), url)
     } else {
         c.ss_name.paint(&pkg.pkgname).to_string()
     };
@@ -313,7 +313,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         aur
     };
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.name), &url)
+        link_str(c.enabled, &c.ss_name.paint(&pkg.name), url)
     } else {
         c.ss_name.paint(&pkg.name).to_string()
     };
@@ -389,7 +389,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 
     let name = if let Some(url) = pkg.url() {
-        link_str(c.enabled, &c.ss_name.paint(pkg.name()), &url)
+        link_str(c.enabled, &c.ss_name.paint(pkg.name()), url)
     } else {
         c.ss_name.paint(pkg.name()).to_string()
     };
