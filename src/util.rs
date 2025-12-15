@@ -1,10 +1,10 @@
 use crate::config::{Config, LocalRepos};
 use crate::repo;
 
-use std::collections::btree_map::Entry;
 use std::collections::BTreeMap;
+use std::collections::btree_map::Entry;
 use std::fs::File;
-use std::io::{stderr, stdin, stdout, BufRead, Write};
+use std::io::{BufRead, Write, stderr, stdin, stdout};
 use std::mem::take;
 use std::ops::Range;
 use std::os::fd::{AsFd, OwnedFd};

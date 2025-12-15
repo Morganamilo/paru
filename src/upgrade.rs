@@ -1,8 +1,8 @@
 use crate::config::{Config, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
-use crate::util::{input, NumberMenu};
-use crate::{repo, RaurHandle};
+use crate::util::{NumberMenu, input};
+use crate::{RaurHandle, repo};
 
 use std::collections::{HashMap, HashSet};
 

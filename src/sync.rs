@@ -4,7 +4,7 @@ use crate::{exec, print_error};
 
 use std::io::Write;
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 
 use raur::Raur;
 use tr::tr;

@@ -6,7 +6,7 @@ use crate::config::{
 
 use std::fmt;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use globset::Glob;
 use tr::tr;
 use url::Url;

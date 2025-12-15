@@ -4,7 +4,7 @@ use crate::fmt::print_indent;
 use std::str::Chars;
 
 use ansiterm::Style;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use htmlescape::decode_html;
 use rss::Channel;
 use tr::tr;

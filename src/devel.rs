@@ -1,5 +1,5 @@
 use crate::config::{Config, LocalRepos};
-use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::download::{self, Bases, cache_info_with_warnings};
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -7,7 +7,7 @@ use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fs::{create_dir_all, read_to_string, OpenOptions};
+use std::fs::{OpenOptions, create_dir_all, read_to_string};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
@@ -15,9 +15,9 @@ use std::time::Duration;
 
 use alpm_utils::{DbListExt, Target};
 use ansiterm::Style;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use aur_depends::Base;
-use futures::future::{join_all, select_ok, FutureExt};
+use futures::future::{FutureExt, join_all, select_ok};
 use log::debug;
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};

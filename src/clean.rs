@@ -5,7 +5,7 @@ use crate::print_error;
 use crate::printtr;
 use crate::util::ask;
 
-use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
+use std::fs::{DirEntry, read_dir, remove_dir_all, remove_file, set_permissions};
 
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;

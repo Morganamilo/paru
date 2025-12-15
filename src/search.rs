@@ -3,11 +3,11 @@ use std::path::Path;
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, NumberMenu};
+use crate::util::{NumberMenu, input, is_arch_repo};
 use crate::{info, printtr};
 
 use ansiterm::Style;
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
