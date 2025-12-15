@@ -560,7 +560,7 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
             }
         }
 
-        if config.mode.repo() && targ.repo.map_or(false, |repo| is_arch_repo(repo)) {
+        if config.mode.repo() && targ.repo.is_some_and(is_arch_repo) {
             local.push(targ);
             continue;
         }

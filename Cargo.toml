@@ -11,17 +11,17 @@ documentation = "https://docs.rs/paru"
 license = "GPL-3.0"
 keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
-rust-version = "1.85"
+rust-version = "1.87"
 
 
 [dependencies]
 alpm = "5.0.0"
 alpm-utils = "5.0.0"
-aur-depends = "4.0.5"
+aur-depends = "4.0.6"
 aur-fetch = "0.11.3"
 cini = "1.0.0"
 pacmanconf = "3.0.0"
-raur = "7.0.0"
+raur = "7.0.1"
 srcinfo = "2.0.0"
 
 

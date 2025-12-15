@@ -140,8 +140,7 @@ async fn get_resolver_upgrades<'a, 'b>(
             LocalRepos::None => None,
             _ => {
                 let (_, dbs) = repo::repo_aur_dbs(config);
-                let dbs = Some(dbs.into_iter().map(|db| db.name()).collect::<Vec<_>>());
-                dbs
+                Some(dbs.into_iter().map(|db| db.name()).collect::<Vec<_>>())
             }
         };
         let updates = resolver.updates(dbs.as_deref()).await?;
@@ -169,8 +168,8 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
     possible_devel_updates(config).await
 }
 
-pub async fn net_upgrades<'res, 'conf>(
-    config: &'conf Config,
+pub async fn net_upgrades<'res>(
+    config: &Config,
     resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
 ) -> Result<(Updates<'res>, Vec<String>)> {
