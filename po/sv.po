@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2024-09-18 23:38+0000\n"
+"POT-Creation-Date: 2025-07-08 05:28+0000\n"
 "PO-Revision-Date: 2024-01-15 10:22+0000\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
@@ -62,23 +62,23 @@ msgstr "kunde inte analysera .SRCINFO för '{}'"
 msgid "option {} expects a value"
 msgstr "parametern {} förväntar sig ett värde"
 
-#: src/command_line.rs:165 src/command_line.rs:376
+#: src/command_line.rs:165 src/command_line.rs:379
 msgid "option {} does not allow a value"
 msgstr "parametern {} tillåter inte ett värde"
 
-#: src/command_line.rs:367
+#: src/command_line.rs:370
 msgid "unknown option --{}"
 msgstr "okänd parameter --{}"
 
-#: src/command_line.rs:370
+#: src/command_line.rs:373
 msgid "unknown option -{}"
 msgstr "okänd parameter -{}"
 
-#: src/completion.rs:27
+#: src/completion.rs:31
 msgid "failed to open cache file '{}'"
 msgstr "misslyckades med att öppna cachefilen '{}'"
 
-#: src/completion.rs:65
+#: src/completion.rs:69
 msgid "could not update aur cache"
 msgstr "kunde inte updatera aur-cachen"
 
@@ -90,96 +90,96 @@ msgstr "ogiltigt värde '{val}' för nyckel '{key}', förväntade sig: {exp}"
 msgid "unknown mode {}"
 msgstr "okänt läge {}"
 
-#: src/config.rs:561
+#: src/config.rs:562
 msgid "section can not be called {}"
 msgstr "sektionen kan inte kallas {}"
 
-#: src/config.rs:578
+#: src/config.rs:579
 msgid "failed to find cache directory"
 msgstr "misslyckades med att hitta cachekatalogen"
 
-#: src/config.rs:581
+#: src/config.rs:582
 msgid "failed to find config directory"
 msgstr "misslyckades med att hitta konfigurationskatalogen"
 
-#: src/config.rs:585
+#: src/config.rs:586
 msgid "failed to find state directory"
 msgstr "misslyckades med att hitta tillståndskatalogen"
 
-#: src/config.rs:632
+#: src/config.rs:633
 msgid "config file '{}' does not exist"
 msgstr "konfigurationsfilen '{}' existerar inte"
 
-#: src/config.rs:681
+#: src/config.rs:682
 msgid "only one operation may be used at a time"
 msgstr "endast en operation åt gången får användas"
 
-#: src/config.rs:792
+#: src/config.rs:793
 msgid "no local repo named {}"
 msgstr "inget lokalt förvar {}"
 
-#: src/config.rs:815
+#: src/config.rs:819
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "kan inte hitta lokalt förvar '{}' i pacman.conf"
 
-#: src/config.rs:857
+#: src/config.rs:864
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "misslyckades med att initialisera alpm: root={} dbpath={}"
 
-#: src/config.rs:932 src/config.rs:1093
+#: src/config.rs:939 src/config.rs:1100
 msgid "value can not be empty for key '{}'"
 msgstr "värdet får inte vara tomt för nyckeln '{}'"
 
-#: src/config.rs:948
+#: src/config.rs:955
 msgid "key '{}' does not belong to a section"
 msgstr "nyckeln '{}' tillhör ingen sektion"
 
-#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
+#: src/config.rs:969 src/config.rs:986 src/config.rs:988 src/config.rs:1003
 msgid "key can not be empty"
 msgstr "nyckeln får inte vara tom"
 
-#: src/config.rs:972
+#: src/config.rs:979
 msgid "error: unknown option '{}' in repo"
 msgstr "okänt alternativ '{}' i förvar"
 
-#: src/config.rs:982
+#: src/config.rs:989
 msgid "key can not contain null bytes"
 msgstr "nyckel kan inte innehålla null bytes"
 
-#: src/config.rs:985
+#: src/config.rs:992
 msgid "value can not contain null bytes"
 msgstr "värde kan inte innehålla null bytes"
 
-#: src/config.rs:1021
+#: src/config.rs:1028
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "okänt alternativ '{}' i sektion [bin]"
 
-#: src/config.rs:1137
+#: src/config.rs:1144
 msgid "error: unknown option '{}' in section [options]"
 msgstr "okänt alternativ '{}' i sektion [options]"
 
-#: src/config.rs:1142
+#: src/config.rs:1149
 msgid "option '{}' does not take a value"
 msgstr "alternativet '{}' tar inget värde"
 
-#: src/config.rs:1177 src/resolver.rs:137
+#: src/config.rs:1181 src/resolver.rs:136
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Det finns {n} leverantörer tillgängliga för {pkg}:"
 
-#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226
-#: src/resolver.rs:96 src/resolver.rs:145
+#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
+#: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
 msgstr "Förvaringsplats"
 
-#: src/config.rs:1217
+#: src/config.rs:1221
 msgid "  failed to sync {}"
 msgstr "  misslyckades med att synkronisera {}"
 
-#: src/devel.rs:136 src/download.rs:197
+#: src/devel.rs:136 src/download.rs:198
 msgid "Querying AUR..."
 msgstr "Frågar AUR..."
 
-#: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
+#: src/devel.rs:157 src/devel.rs:181 src/install.rs:202
 msgid "failed to parse srcinfo for '{}'"
 msgstr "misslyckades med att analysera srcinfo för '{}'"
 
@@ -231,28 +231,28 @@ msgstr "markerat som utdaterat: "
 msgid "orphans: "
 msgstr "övergivna: "
 
-#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
-#: src/install.rs:1732
+#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
+#: src/install.rs:1781
 msgid "failed to run:"
 msgstr "misslyckades med att köra:"
 
-#: src/download.rs:257
+#: src/download.rs:258
 msgid "downloading: {pkg}"
 msgstr "laddar ner: {pkg}"
 
-#: src/download.rs:279
+#: src/download.rs:280
 msgid "Downloading PKGBUILDs..."
 msgstr "Laddar ner PKGBUILD-filer..."
 
-#: src/download.rs:283
+#: src/download.rs:284
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILD-filer är aktuella"
 
-#: src/exec.rs:173
+#: src/exec.rs:160
 msgid "Pacman is currently in use, please wait..."
 msgstr "Pacman används just nu, var god vänta..."
 
-#: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
+#: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
 msgid "None"
 msgstr "Inga"
 
@@ -292,7 +292,7 @@ msgstr "Make endast"
 msgid "Yes"
 msgstr "Ja"
 
-#: src/fmt.rs:323 src/info.rs:223
+#: src/fmt.rs:323 src/info.rs:221
 msgid "No"
 msgstr "Nej"
 
@@ -414,8 +414,8 @@ msgstr "    --mode      <mode>     Ställer in var paru letar efter mål"
 
 #: src/help.rs:37
 msgid ""
-"    --interactive          Enable interactive package selection for -S, -R, -"
-"Ss and -Qs"
+"    --interactive          Enable interactive package selection for -S, -R, "
+"-Ss and -Qs"
 msgstr ""
 "    --interactive            Aktivera interaktivt paketval för -S, -R, -Ss "
 "och -Qs"
@@ -720,204 +720,204 @@ msgstr "Bygg specifika alternativ:"
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install          Installera paket samt bygg"
 
-#: src/info.rs:57 src/info.rs:182 src/query.rs:49
+#: src/info.rs:55 src/info.rs:180 src/query.rs:49
 msgid "package '{}' was not found"
 msgstr "paket '{}' hittades inte"
 
-#: src/info.rs:88 src/info.rs:193 src/info.rs:227
+#: src/info.rs:86 src/info.rs:191 src/info.rs:225
 msgid "Name"
 msgstr "Namn"
 
-#: src/info.rs:89 src/info.rs:194 src/info.rs:228
+#: src/info.rs:87 src/info.rs:192 src/info.rs:226
 msgid "Version"
 msgstr "Version"
 
-#: src/info.rs:90 src/info.rs:195 src/info.rs:229
+#: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Description"
 msgstr "Beskrivning"
 
-#: src/info.rs:91 src/info.rs:197 src/info.rs:237
+#: src/info.rs:89 src/info.rs:195 src/info.rs:235
 msgid "Groups"
 msgstr "Grupper"
 
-#: src/info.rs:92 src/info.rs:198 src/info.rs:238
+#: src/info.rs:90 src/info.rs:196 src/info.rs:236
 msgid "Licenses"
 msgstr "Licenser"
 
-#: src/info.rs:93 src/info.rs:199 src/info.rs:239
+#: src/info.rs:91 src/info.rs:197 src/info.rs:237
 msgid "Provides"
 msgstr "Tillhandahåller"
 
-#: src/info.rs:94 src/info.rs:200 src/info.rs:240
+#: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Depends On"
 msgstr "Beror På"
 
-#: src/info.rs:95 src/info.rs:201 src/info.rs:241
+#: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Make Deps"
 msgstr "Make-beroenden"
 
-#: src/info.rs:96 src/info.rs:202 src/info.rs:242
+#: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Check Deps"
 msgstr "Check-beroenden"
 
-#: src/info.rs:97 src/info.rs:203 src/info.rs:243
+#: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Optional Deps"
 msgstr "Frivilliga Beroenden"
 
-#: src/info.rs:98 src/info.rs:204 src/info.rs:244
+#: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Conflicts With"
 msgstr "I Konflikt Med"
 
-#: src/info.rs:99 src/info.rs:245
+#: src/info.rs:97 src/info.rs:243
 msgid "Maintainer"
 msgstr "Underhållare"
 
-#: src/info.rs:100 src/info.rs:246
+#: src/info.rs:98 src/info.rs:244
 msgid "Votes"
 msgstr "Röster"
 
-#: src/info.rs:101 src/info.rs:247
+#: src/info.rs:99 src/info.rs:245
 msgid "Popularity"
 msgstr "Popularitet"
 
-#: src/info.rs:102 src/info.rs:248
+#: src/info.rs:100 src/info.rs:246
 msgid "First Submitted"
 msgstr "Först Framlagt"
 
-#: src/info.rs:103 src/info.rs:249
+#: src/info.rs:101 src/info.rs:247
 msgid "Last Modified"
 msgstr "Sist Modifierat"
 
-#: src/info.rs:104 src/info.rs:251
+#: src/info.rs:102 src/info.rs:249
 msgid "Out Of Date"
 msgstr "Utdaterat"
 
-#: src/info.rs:105 src/info.rs:256
+#: src/info.rs:103 src/info.rs:254
 msgid "ID"
 msgstr "ID"
 
-#: src/info.rs:106 src/info.rs:257
+#: src/info.rs:104 src/info.rs:255
 msgid "Package Base ID"
 msgstr "Paket Bas ID"
 
-#: src/info.rs:107 src/info.rs:258
+#: src/info.rs:105 src/info.rs:256
 msgid "Keywords"
 msgstr "Nyckelord"
 
-#: src/info.rs:108 src/info.rs:260
+#: src/info.rs:106 src/info.rs:258
 msgid "Snapshot URL"
 msgstr "URL Till Ögonblicksbild"
 
-#: src/info.rs:109 src/info.rs:205
+#: src/info.rs:107 src/info.rs:203
 msgid "Path"
 msgstr "Sökväg"
 
-#: src/install.rs:158 src/query.rs:48 src/lib.rs:104
+#: src/install.rs:165 src/query.rs:48 src/lib.rs:101
 msgid "error:"
 msgstr "fel:"
 
-#: src/install.rs:159
+#: src/install.rs:166
 msgid "could not get news"
 msgstr "kunde inte hämta nyheter"
 
-#: src/install.rs:164 src/install.rs:1103
+#: src/install.rs:171 src/install.rs:1115
 msgid "Proceed with installation?"
 msgstr "Gå vidare till installation?"
 
-#: src/install.rs:199
+#: src/install.rs:206
 msgid "could not find .SRCINFO for '{}'"
 msgstr "kunde inte hitta .SRCINFO för '{}'"
 
-#: src/install.rs:329
+#: src/install.rs:352
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr "kunde inte hitta paket '{pkg}' i paketlistan för '{base}'"
 
-#: src/install.rs:416
+#: src/install.rs:439
 msgid "packages failed to build: {}"
 msgstr "bygge misslyckat för paket: {}"
 
-#: src/install.rs:488
+#: src/install.rs:511
 msgid "adding {} to the install list"
 msgstr "lägger {} till installationslistan"
 
-#: src/install.rs:518 src/install.rs:527
+#: src/install.rs:541 src/install.rs:556
 msgid "failed to download sources for '{}'"
 msgstr "misslyckades med att hämta källor för '{}'"
 
-#: src/install.rs:536 src/install.rs:564 src/install.rs:572
+#: src/install.rs:565 src/install.rs:591 src/install.rs:599
 msgid "failed to build '{}'"
 msgstr "misslyckades med att bygga '{}'"
 
-#: src/install.rs:539 src/install.rs:753
+#: src/install.rs:568 src/install.rs:772
 msgid "{}: parsing pkg list..."
 msgstr "{}: analyserar pkg-lista..."
 
-#: src/install.rs:543
+#: src/install.rs:572
 msgid "package list does not match srcinfo"
 msgstr "paketlistan matchar inte srcinfo"
 
-#: src/install.rs:579
+#: src/install.rs:606
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} är aktuell -- hoppar över bygge"
 
-#: src/install.rs:744
+#: src/install.rs:763
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "kan inte bygga {base}, deps inte tillfredsställda: {deps}"
 
-#: src/install.rs:815
+#: src/install.rs:834
 msgid "fetching devel info..."
 msgstr "hämtar devel information..."
 
-#: src/install.rs:883 src/lib.rs:244
+#: src/install.rs:899 src/lib.rs:242
 msgid "no targets specified (use -h for help)"
 msgstr "inga mål specificerade (använd -h för hjälp)"
 
-#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
-#: src/lib.rs:308
+#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
+#: src/lib.rs:306
 msgid " there is nothing to do"
 msgstr " det finns inget att göra"
 
-#: src/install.rs:1000
+#: src/install.rs:1004
 msgid "Resolving dependencies..."
 msgstr "Löser beroenden..."
 
-#: src/install.rs:1061
+#: src/install.rs:1065
 msgid "can't install AUR package as root"
 msgstr "kan inte installera AUR-paket som root"
 
-#: src/install.rs:1064
+#: src/install.rs:1068
 msgid "--downloadonly can't be used for AUR packages"
 msgstr "--downloadonly kan inte användas för AUR-paket"
 
-#: src/install.rs:1089
+#: src/install.rs:1101
 msgid "Remove make dependencies after install?"
 msgstr "Ta bort make-beroenden efter installation?"
 
-#: src/install.rs:1100
+#: src/install.rs:1112
 msgid "Proceed to review?"
 msgstr "Gå vidare till granskning?"
 
-#: src/install.rs:1153
+#: src/install.rs:1165
 msgid "no architecture"
 msgstr "ingen arkitektur"
 
-#: src/install.rs:1167
+#: src/install.rs:1179
 msgid "The following packages are not compatible with your architecture:"
 msgstr "Följande paket är inte kompatibla med din arkitektur:"
 
-#: src/install.rs:1181
+#: src/install.rs:1193
 msgid "Would you like to try build them anyway?"
 msgstr "Vill ni försöka bygga de ändå?"
 
-#: src/install.rs:1330
+#: src/install.rs:1337
 msgid "duplicate packages: {}"
 msgstr "duplicerade paket: {}"
 
-#: src/install.rs:1334
+#: src/install.rs:1341
 msgid "could not find all required packages:"
 msgstr "kunde inte hitta alla nödvändiga paket:"
 
-#: src/install.rs:1346
+#: src/install.rs:1353
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -925,7 +925,7 @@ msgstr ""
 "\n"
 "    {missing} (eftersökt av: {stack})"
 
-#: src/install.rs:1360 src/install.rs:2065
+#: src/install.rs:1367 src/install.rs:2115
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} är aktuell -- hoppar över"
 
@@ -933,63 +933,67 @@ msgstr "{}-{} är aktuell -- hoppar över"
 msgid "Calculating conflicts..."
 msgstr "Beräknar konflikter..."
 
-#: src/install.rs:1381
+#: src/install.rs:1384
 msgid "Calculating inner conflicts..."
 msgstr "Beräknar inre konflikter..."
 
-#: src/install.rs:1393
+#: src/install.rs:1396
 msgid "Inner conflicts found:"
 msgstr "Inre konflikter funna:"
 
-#: src/install.rs:1415
+#: src/install.rs:1418
 msgid "Conflicts found:"
 msgstr "Konflikter funna:"
 
-#: src/install.rs:1438
+#: src/install.rs:1441
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Paket i konflikt kommer behöva konfimeras manuellt"
 
-#: src/install.rs:1442
+#: src/install.rs:1445
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "kan inte installera paket i konflikt med --noconfirm"
 
-#: src/install.rs:1565
+#: src/install.rs:1575
 msgid "failed to execute file manager: {}"
 msgstr "misslyckades med att exekvera filhanterare: {}"
 
-#: src/install.rs:1568
+#: src/install.rs:1578
 msgid "file manager did not execute successfully"
 msgstr "filhanteraren exekverades inte lyckat"
 
-#: src/install.rs:1585
+#: src/install.rs:1596
 msgid "failed to read dir: {}"
 msgstr "misslyckades med att läsa katalogen: {}"
 
-#: src/install.rs:1640
+#: src/install.rs:1660
 msgid "failed to open: {}"
 msgstr "misslyckades med att öppna: {}"
 
-#: src/install.rs:1651
+#: src/install.rs:1680
 msgid "binary file: {}"
 msgstr "binärfil: {}"
 
-#: src/install.rs:1671 src/install.rs:1735
+#: src/install.rs:1702 src/install.rs:1784
 msgid "Accept changes?"
 msgstr "Acceptera ändringar?"
 
-#: src/install.rs:1739
+#: src/install.rs:1750
+msgid "Paging with less. Press 'q' to quit or 'h' for help."
+msgstr ""
+
+#: src/install.rs:1788
 msgid " nothing new to review"
 msgstr " inget nytt att granska"
 
-#: src/install.rs:2013
+#: src/install.rs:2063
 msgid "can't find package name in packagelist: {}"
 msgstr "kan inte hitta paketnamn i packagelist: {}"
 
-#: src/install.rs:2085
+#: src/install.rs:2135
 msgid "Signing packages..."
 msgstr "Signerar paket..."
 
-#: src/install.rs:2123
+#: src/install.rs:2173
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} är aktuell -- hoppar över installation"
 
@@ -1013,27 +1017,27 @@ msgstr "Ingen Titel"
 msgid "no new news"
 msgstr "inga nyheter"
 
-#: src/pkgbuild.rs:72
+#: src/pkgbuild.rs:90
 msgid "repo {} does not have a URL or Path"
 msgstr "förvar {} har ingen URL eller sökväg"
 
-#: src/pkgbuild.rs:134
+#: src/pkgbuild.rs:152
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr "förvar {} inte nedladdad (använd -Sy --pkgbuilds för att ladda ner)"
 
-#: src/pkgbuild.rs:181
+#: src/pkgbuild.rs:199
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr "Genererar .SRCINFO för {repo}/{dir}..."
 
-#: src/pkgbuild.rs:259
+#: src/pkgbuild.rs:277
 msgid "failed to parse srcinfo \"{}\""
 msgstr "misslyckades att tolka srcinfo \"{}\""
 
-#: src/pkgbuild.rs:337
+#: src/pkgbuild.rs:355
 msgid "Downloading PKGBUILD Repos..."
 msgstr "Laddar ner PKGBUILD Förvar..."
 
-#: src/pkgbuild.rs:390
+#: src/pkgbuild.rs:409
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr "misslyckades med att analysera srcinfo genererad av makepkg"
 
@@ -1041,29 +1045,37 @@ msgstr "misslyckades med att analysera srcinfo genererad av makepkg"
 msgid " [ignored]"
 msgstr " [ignorerad]"
 
-#: src/repo.rs:171
+#: src/repo.rs:264
 msgid "failed to get current exe"
 msgstr "misslyckades med att få nuvarande exe"
 
-#: src/repo.rs:218
+#: src/repo.rs:311
 msgid "syncing local databases..."
 msgstr "synkroniserar locala databaser..."
 
-#: src/repo.rs:224
+#: src/repo.rs:317
 msgid "  nothing to do"
 msgstr "  inget att göra"
 
-#: src/repo.rs:255
+#: src/repo.rs:348
 msgid "there is nothing to do"
 msgstr "det finns inget att göra"
 
-#: src/repo.rs:261
+#: src/repo.rs:354
 msgid "Packages"
 msgstr "Paket"
 
-#: src/repo.rs:274
+#: src/repo.rs:367
 msgid "Proceed with removal?"
 msgstr "Fortsätt med borttagning?"
+
+#: src/repo.rs:428
+msgid " [installed: {}]"
+msgstr " [installerade: {}]"
+
+#: src/repo.rs:430 src/sync.rs:146
+msgid " [installed]"
+msgstr " [installerad]"
 
 #: src/search.rs:40
 msgid "aur search failed"
@@ -1121,67 +1133,63 @@ msgstr "Total Storlek upptaget av paket: {}"
 msgid "Ten biggest packages:"
 msgstr "Tio största paket:"
 
-#: src/sync.rs:146 src/lib.rs:515
-msgid " [installed]"
-msgstr " [installerad]"
-
-#: src/upgrade.rs:128
+#: src/upgrade.rs:126
 msgid "Looking for PKGBUILD upgrades..."
 msgstr "Letar efter PKGBUILD-uppgraderingar..."
 
-#: src/upgrade.rs:136
+#: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
 msgstr "Letar efter AUR-uppgraderingar..."
 
-#: src/upgrade.rs:167
+#: src/upgrade.rs:165
 msgid "Looking for devel upgrades..."
 msgstr "Letar efter devel-upgraderingar..."
 
-#: src/upgrade.rs:195 src/upgrade.rs:208
+#: src/upgrade.rs:193 src/upgrade.rs:206
 msgid "warning:"
 msgstr "varning:"
 
-#: src/upgrade.rs:197 src/upgrade.rs:210
+#: src/upgrade.rs:195 src/upgrade.rs:208
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
 msgstr "{pkg}: ignoerar paketuppgradering ({old} => {new})"
 
-#: src/upgrade.rs:406
+#: src/upgrade.rs:400
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr "Paket att exkludera (t.ex.: 1 2 3, 1-3)"
 
-#: src/util.rs:120
+#: src/util.rs:119
 msgid "[Y/n]:"
 msgstr "[J/n]:"
 
-#: src/util.rs:122
+#: src/util.rs:121
 msgid "[y/N]:"
 msgstr "[j/N]:"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "y"
 msgstr "j"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "yes"
 msgstr "ja"
 
-#: src/util.rs:339
+#: src/util.rs:338
 msgid "Enter a number (default=1): "
 msgstr "Mata in ett nummer (grundantagande=1): "
 
-#: src/util.rs:356
+#: src/util.rs:355
 msgid "invalid number: {}"
 msgstr "ogiltigt nummer: {}"
 
-#: src/util.rs:366
+#: src/util.rs:365
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "ogiltigt värde: {n} är inte mellan 1 och {max}"
 
-#: src/resolver.rs:84
+#: src/resolver.rs:83
 msgid "There are {} members in group"
 msgstr "Det finns {} medlemmar i gruppen"
 
-#: src/resolver.rs:109
+#: src/resolver.rs:108
 msgid ""
 "\n"
 "\n"
@@ -1191,17 +1199,13 @@ msgstr ""
 "\n"
 "Mata in ett val (grundantagande=alla): "
 
-#: src/lib.rs:210
+#: src/lib.rs:208
 msgid "can not use chroot builds: devtools is not installed"
 msgstr "kan inte använda chroot-byggen: devtools är inte installerat"
 
-#: src/lib.rs:317
+#: src/lib.rs:315
 msgid "no operation specified (use -h for help)"
 msgstr "ingen operation specificerad (använd -h för hjälp)"
-
-#: src/lib.rs:513
-msgid " [installed: {}]"
-msgstr " [installerade: {}]"
 
 #~ msgid "Aur ({})"
 #~ msgstr "Aur ({})"

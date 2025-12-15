@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2024-09-18 23:38+0000\n"
+"POT-Creation-Date: 2025-07-08 05:28+0000\n"
 "PO-Revision-Date: 2024-10-14 13:14+0200\n"
 "Last-Translator: Jose Riha <jose1711@gmail.com>\n"
 "Language-Team: \n"
@@ -61,23 +61,23 @@ msgstr "nedá sa načítať .SRCINFO pre '{}'"
 msgid "option {} expects a value"
 msgstr "voľba {} očakáva hodnotu"
 
-#: src/command_line.rs:165 src/command_line.rs:376
+#: src/command_line.rs:165 src/command_line.rs:379
 msgid "option {} does not allow a value"
 msgstr "voľba {} nepovoľuje hodnotu"
 
-#: src/command_line.rs:367
+#: src/command_line.rs:370
 msgid "unknown option --{}"
 msgstr "neznáma voľba --{}"
 
-#: src/command_line.rs:370
+#: src/command_line.rs:373
 msgid "unknown option -{}"
 msgstr "neznáma voľba -{}"
 
-#: src/completion.rs:27
+#: src/completion.rs:31
 msgid "failed to open cache file '{}'"
 msgstr "nepodarilo sa otvoriť súbor cache '{}'"
 
-#: src/completion.rs:65
+#: src/completion.rs:69
 msgid "could not update aur cache"
 msgstr "nepodarilo sa aktualizovať aur cache"
 
@@ -89,96 +89,96 @@ msgstr "neplatná hodnota '{val}' pre kľúč '{key}', očakávané: {exp}"
 msgid "unknown mode {}"
 msgstr "neznámy režim {}"
 
-#: src/config.rs:561
+#: src/config.rs:562
 msgid "section can not be called {}"
 msgstr "oddiel sa nedá pomenovať {}"
 
-#: src/config.rs:578
+#: src/config.rs:579
 msgid "failed to find cache directory"
 msgstr "nepodarilo sa nájsť adresár cache"
 
-#: src/config.rs:581
+#: src/config.rs:582
 msgid "failed to find config directory"
 msgstr "nepodarilo sa nájsť adresár s konfiguráciou"
 
-#: src/config.rs:585
+#: src/config.rs:586
 msgid "failed to find state directory"
 msgstr "nepodarilo sa nájsť adresár pre stavy"
 
-#: src/config.rs:632
+#: src/config.rs:633
 msgid "config file '{}' does not exist"
 msgstr "konfiguračný súbor '{}' neexistuje"
 
-#: src/config.rs:681
+#: src/config.rs:682
 msgid "only one operation may be used at a time"
 msgstr "naraz môžete použiť iba jednu operáciu"
 
-#: src/config.rs:792
+#: src/config.rs:793
 msgid "no local repo named {}"
 msgstr "neexistuje lokálny repozitár s menom {}"
 
-#: src/config.rs:815
+#: src/config.rs:819
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "nedá sa nájsť lokálny repozitár '{}' v pacman.conf"
 
-#: src/config.rs:857
+#: src/config.rs:864
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "nepodarilo sa inicializovať alpm: root={} dbpath={}"
 
-#: src/config.rs:932 src/config.rs:1093
+#: src/config.rs:939 src/config.rs:1100
 msgid "value can not be empty for key '{}'"
 msgstr "hodnota pre kľúč '{}' nemôže byť prázdna"
 
-#: src/config.rs:948
+#: src/config.rs:955
 msgid "key '{}' does not belong to a section"
 msgstr "kľúč '{}' nepatrí do oddielu"
 
-#: src/config.rs:962 src/config.rs:979 src/config.rs:981 src/config.rs:996
+#: src/config.rs:969 src/config.rs:986 src/config.rs:988 src/config.rs:1003
 msgid "key can not be empty"
 msgstr "kľúč nemôže byť prázdny"
 
-#: src/config.rs:972
+#: src/config.rs:979
 msgid "error: unknown option '{}' in repo"
 msgstr "chyba: neznáma voľba '{}' v repozitári"
 
-#: src/config.rs:982
+#: src/config.rs:989
 msgid "key can not contain null bytes"
 msgstr "kľúč nesmie obsahovať nulové bajty"
 
-#: src/config.rs:985
+#: src/config.rs:992
 msgid "value can not contain null bytes"
 msgstr "hodnota nesmie obsahovať nulové bajty"
 
-#: src/config.rs:1021
+#: src/config.rs:1028
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "chyba: neznáma voľba '{}' v oddiele [bin]"
 
-#: src/config.rs:1137
+#: src/config.rs:1144
 msgid "error: unknown option '{}' in section [options]"
 msgstr "chyba: neznáma voľba '{}' v oddiele [options]"
 
-#: src/config.rs:1142
+#: src/config.rs:1149
 msgid "option '{}' does not take a value"
 msgstr "voľba '{}' neprijíma hodnotu"
 
-#: src/config.rs:1177 src/resolver.rs:137
+#: src/config.rs:1181 src/resolver.rs:136
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Pre {pkg} je dostupných {n} poskytovateľov:"
 
-#: src/config.rs:1191 src/info.rs:87 src/info.rs:192 src/info.rs:226 src/resolver.rs:96
-#: src/resolver.rs:145
+#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
+#: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
 msgstr "Repozitár"
 
-#: src/config.rs:1217
+#: src/config.rs:1221
 msgid "  failed to sync {}"
 msgstr "  synchronizácia {} sa nepodarila"
 
-#: src/devel.rs:136 src/download.rs:197
+#: src/devel.rs:136 src/download.rs:198
 msgid "Querying AUR..."
 msgstr "Posielam požiadavku do AUR..."
 
-#: src/devel.rs:157 src/devel.rs:181 src/install.rs:195
+#: src/devel.rs:157 src/devel.rs:181 src/install.rs:202
 msgid "failed to parse srcinfo for '{}'"
 msgstr "nepodarilo sa načítať srcinfo pre '{}'"
 
@@ -230,28 +230,28 @@ msgstr "označené ako zastarané: "
 msgid "orphans: "
 msgstr "osamotené: "
 
-#: src/download.rs:241 src/exec.rs:83 src/install.rs:1629 src/install.rs:1709
-#: src/install.rs:1732
+#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
+#: src/install.rs:1781
 msgid "failed to run:"
 msgstr "nepodarilo sa spustiť:"
 
-#: src/download.rs:257
+#: src/download.rs:258
 msgid "downloading: {pkg}"
 msgstr "sťahujem: {pkg}"
 
-#: src/download.rs:279
+#: src/download.rs:280
 msgid "Downloading PKGBUILDs..."
 msgstr "Sťahujem PKGBUILDy..."
 
-#: src/download.rs:283
+#: src/download.rs:284
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDy sú aktuálne"
 
-#: src/exec.rs:173
+#: src/exec.rs:160
 msgid "Pacman is currently in use, please wait..."
 msgstr "Pacman je zaneprázdnený, prosím čakajte..."
 
-#: src/fmt.rs:24 src/info.rs:277 src/search.rs:283 src/search.rs:328
+#: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
 msgid "None"
 msgstr "Žiadny"
 
@@ -291,7 +291,7 @@ msgstr "Iba Make"
 msgid "Yes"
 msgstr "Áno"
 
-#: src/fmt.rs:323 src/info.rs:223
+#: src/fmt.rs:323 src/info.rs:221
 msgid "No"
 msgstr "Nie"
 
@@ -384,10 +384,11 @@ msgid "    -c --clean            Remove unneeded dependencies"
 msgstr "    -c --clean            Odobrať nepotrebné závislosti"
 
 #: src/help.rs:29
-msgid "       --gendb            Generates development package DB used for updating"
+msgid ""
+"       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            Vygenerovať databázu vývojových balíčkov použitých na "
-"aktualizáciu"
+"       --gendb            Vygenerovať databázu vývojových balíčkov použitých "
+"na aktualizáciu"
 
 #: src/help.rs:31
 msgid "New options:"
@@ -395,12 +396,15 @@ msgstr "Nové voľby:"
 
 #: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
-msgstr "       --repo              Predpokladať, že ciele pochádzajú z repozitárov"
+msgstr ""
+"       --repo              Predpokladať, že ciele pochádzajú z repozitárov"
 
 #: src/help.rs:33
-msgid "       --pkgbuilds         Assume targets are from pkgbuild repositories"
+msgid ""
+"       --pkgbuilds         Assume targets are from pkgbuild repositories"
 msgstr ""
-"       --pkgbuilds         Predpokladať, že ciele pochádzajú z pkgbuild repozitárov"
+"       --pkgbuilds         Predpokladať, že ciele pochádzajú z pkgbuild "
+"repozitárov"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
@@ -412,22 +416,27 @@ msgstr "    --mode      <režim>   Nastaviť, kde bude paru hľadať ciele"
 
 #: src/help.rs:37
 msgid ""
-"    --interactive          Enable interactive package selection for -S, -R, -Ss and -"
-"Qs"
+"    --interactive          Enable interactive package selection for -S, -R, "
+"-Ss and -Qs"
 msgstr ""
-"    --interactive          Zapnúť interaktívny výber balíčkov pre -S, -R, -Ss a -Qs"
+"    --interactive          Zapnúť interaktívny výber balíčkov pre -S, -R, "
+"-Ss a -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
 msgstr "    --aururl    <url>      Nastaviť alternatívnu URL adresu AUR"
 
 #: src/help.rs:40
-msgid "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aurrpcur  <url>      Nastaviť alternatívnu URL adresu AUR /rpc endpointu"
+msgid ""
+"    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
+msgstr ""
+"    --aurrpcur  <url>      Nastaviť alternatívnu URL adresu AUR /rpc "
+"endpointu"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
-msgstr "    --clonedir  <adresár>      Adresár pre sťahovanie a spúšťanie PKGBUILDov"
+msgstr ""
+"    --clonedir  <adresár>      Adresár pre sťahovanie a spúšťanie PKGBUILDov"
 
 #: src/help.rs:43
 msgid "    --makepkg   <file>     makepkg command to use"
@@ -488,23 +497,29 @@ msgstr "    --fmflags   <argumen>  Odovzdať argumenty pre súborového manažé
 #: src/help.rs:58
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr ""
-"    --completioninterval   <n> Čas v dňoch do ďalšej aktualizácie cache dokončenia"
+"    --completioninterval   <n> Čas v dňoch do ďalšej aktualizácie cache "
+"dokončenia"
 
 #: src/help.rs:59
-msgid "    --sortby    <field>    Sort AUR results by a specific field during search"
-msgstr "    --sortby    <pole>    Radiť výsledky hľadania v AUR podľa určeného poľa"
+msgid ""
+"    --sortby    <field>    Sort AUR results by a specific field during search"
+msgstr ""
+"    --sortby    <pole>    Radiť výsledky hľadania v AUR podľa určeného poľa"
 
 #: src/help.rs:60
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr "    --searchby  <pole>    Hľadať balíčky podľa určeného poľa"
 
 #: src/help.rs:61
-msgid "    --limit     <limit>    Limits the number of items returned in a search"
+msgid ""
+"    --limit     <limit>    Limits the number of items returned in a search"
 msgstr "    --limit     <limit>    Obmedziť počet výsledkov hľadania"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
-msgstr "    -x --regex             Povoliť regulárne výrazy (regex) pre vyhľadávanie v AUR"
+msgstr ""
+"    -x --regex             Povoliť regulárne výrazy (regex) pre vyhľadávanie "
+"v AUR"
 
 #: src/help.rs:64
 msgid "    --skipreview           Skip the review process"
@@ -517,7 +532,8 @@ msgstr "    --review               Nepreskakovať proces kontroly"
 #: src/help.rs:66
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
-"    --[no]upgrademenu      Zobraziť interaktívne menu na preskakovanie aktualizácií"
+"    --[no]upgrademenu      Zobraziť interaktívne menu na preskakovanie "
+"aktualizácií"
 
 #: src/help.rs:67
 msgid "    --[no]removemake       Remove makedepends after install"
@@ -541,38 +557,47 @@ msgstr "    --[no]pgpfetch         Vyzvať na import PGP kľúčov z PKGBUILDov"
 
 #: src/help.rs:73
 msgid ""
-"    --[no]useask           Automatically resolve conflicts using pacman's ask flag"
+"    --[no]useask           Automatically resolve conflicts using pacman's "
+"ask flag"
 msgstr ""
-"    --[no]useask           Automaticky vyriešiť konflikty podľa ask prepínača pacmanu"
+"    --[no]useask           Automaticky vyriešiť konflikty podľa ask "
+"prepínača pacmanu"
 
 #: src/help.rs:74
-msgid "    --[no]savechanges      Commit changes to pkgbuilds made during review"
+msgid ""
+"    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      Prevziať zmeny vykonané počas kontroly do PKGBUILDov"
+"    --[no]savechanges      Prevziať zmeny vykonané počas kontroly do "
+"PKGBUILDov"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
-msgstr "    --[no]newsonupgrade    Zobraziť novinky počas systémovej aktualizácie"
+msgstr ""
+"    --[no]newsonupgrade    Zobraziť novinky počas systémovej aktualizácie"
 
 #: src/help.rs:76
 msgid ""
-"    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade together"
+"    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
+"together"
 msgstr ""
-"    --[no]combinedupgrade  Obnoviť a potom vykonať aktualizáciu repozitára a AUR "
-"naraz"
+"    --[no]combinedupgrade  Obnoviť a potom vykonať aktualizáciu repozitára a "
+"AUR naraz"
 
 #: src/help.rs:77
 msgid ""
-"    --[no]batchinstall     Build multiple AUR packages then install them together"
+"    --[no]batchinstall     Build multiple AUR packages then install them "
+"together"
 msgstr ""
-"    --[no]batchinstall     Zostaviť viacero AUR balíčkov a potom ich nainštalovať "
-"naraz"
+"    --[no]batchinstall     Zostaviť viacero AUR balíčkov a potom ich "
+"nainštalovať naraz"
 
 #: src/help.rs:78
 msgid ""
-"    --[no]provides         Look for matching providers when searching for packages"
+"    --[no]provides         Look for matching providers when searching for "
+"packages"
 msgstr ""
-"    --[no]provides         Pri hľadaní balíčkov nájsť zodpovedajúcich poskytovateľov"
+"    --[no]provides         Pri hľadaní balíčkov nájsť zodpovedajúcich "
+"poskytovateľov"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
@@ -582,12 +607,15 @@ msgstr ""
 
 #: src/help.rs:80
 msgid ""
-"    --[no]installdebug     Also install debug packages when a package provides them"
+"    --[no]installdebug     Also install debug packages when a package "
+"provides them"
 msgstr ""
-"    --[no]installdebug     Nainštalovať balíčky pre ladenie, ak ich balíček poskytuje"
+"    --[no]installdebug     Nainštalovať balíčky pre ladenie, ak ich balíček "
+"poskytuje"
 
 #: src/help.rs:81
-msgid "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
+msgid ""
+"    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
 "    --[no]sudoloop         Zacykliť sudo volania na pozadí, aby sa predišlo "
 "vypršaniu časového limitu"
@@ -597,13 +625,18 @@ msgid "    --[no]chroot           Build packages in a chroot"
 msgstr "    --[no]chroot           Zostaviť balíčky v chroote"
 
 #: src/help.rs:83
-msgid "    --[no]failfast         Exit as soon as building an AUR package fails"
+msgid ""
+"    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
-"    --[no]failfast         Skončiť akonáhle zostavenie AUR balíčka skončí s chybou"
+"    --[no]failfast         Skončiť akonáhle zostavenie AUR balíčka skončí s "
+"chybou"
 
 #: src/help.rs:84
-msgid "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
-msgstr "    --[no]keepsrc          Ponechať src/ a pkg/ adresáre po zostavení balíčkov"
+msgid ""
+"    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
+msgstr ""
+"    --[no]keepsrc          Ponechať src/ a pkg/ adresáre po zostavení "
+"balíčkov"
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
@@ -618,27 +651,36 @@ msgid "    --[no]localrepo        Build packages into a local repo"
 msgstr "    --[no]localrepo        Zostaviť balíčky do lokálneho repozitára"
 
 #: src/help.rs:88
-msgid "    --nocheck              Don't resolve checkdepends or run the check function"
-msgstr "    --nocheck              Neriešiť checkdepends alebo spúšťať funkciu check"
+msgid ""
+"    --nocheck              Don't resolve checkdepends or run the check "
+"function"
+msgstr ""
+"    --nocheck              Neriešiť checkdepends alebo spúšťať funkciu check"
 
 #: src/help.rs:89
 msgid ""
-"    --develsuffixes        Suffixes used to decide if a package is a devel package"
+"    --develsuffixes        Suffixes used to decide if a package is a devel "
+"package"
 msgstr "    --develsuffixes        Prípony označujúce vývojové balíčky"
 
 #: src/help.rs:90
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
-msgstr "    --ignoredevel          Ignorovať vývojové aktualizácie pre určené balíčky"
+msgstr ""
+"    --ignoredevel          Ignorovať vývojové aktualizácie pre určené balíčky"
 
 #: src/help.rs:91
-msgid "    --bottomup             Shows AUR's packages first and then repository's"
+msgid ""
+"    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
-"    --bottomup             Zobraziť najskôr balíčky AUR a potom balíčky z repozitára"
+"    --bottomup             Zobraziť najskôr balíčky AUR a potom balíčky z "
+"repozitára"
 
 #: src/help.rs:92
-msgid "    --topdown              Shows repository's packages first and then AUR's"
+msgid ""
+"    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
-"    --topdown              Zobraziť najskôr balíčky z repozitára a potom balíčky AUR"
+"    --topdown              Zobraziť najskôr balíčky z repozitára a potom "
+"balíčky AUR"
 
 #: src/help.rs:94
 msgid "show specific options:"
@@ -646,7 +688,8 @@ msgstr "špecifické voľby pre show:"
 
 #: src/help.rs:95
 msgid "    -c --complete         Used for completions"
-msgstr "    -c --complete         Použité na dokončovanie príkazov a argumentov"
+msgstr ""
+"    -c --complete         Použité na dokončovanie príkazov a argumentov"
 
 #: src/help.rs:96
 msgid "    -s --stats            Display system package statistics"
@@ -680,204 +723,204 @@ msgstr "Špecifické voľby pre zostavenie:"
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install          Nainštalovať a zostaviť balíček"
 
-#: src/info.rs:57 src/info.rs:182 src/query.rs:49
+#: src/info.rs:55 src/info.rs:180 src/query.rs:49
 msgid "package '{}' was not found"
 msgstr "balíček '{}' nebol nájdený"
 
-#: src/info.rs:88 src/info.rs:193 src/info.rs:227
+#: src/info.rs:86 src/info.rs:191 src/info.rs:225
 msgid "Name"
 msgstr "Meno"
 
-#: src/info.rs:89 src/info.rs:194 src/info.rs:228
+#: src/info.rs:87 src/info.rs:192 src/info.rs:226
 msgid "Version"
 msgstr "Verzia"
 
-#: src/info.rs:90 src/info.rs:195 src/info.rs:229
+#: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Description"
 msgstr "Popis"
 
-#: src/info.rs:91 src/info.rs:197 src/info.rs:237
+#: src/info.rs:89 src/info.rs:195 src/info.rs:235
 msgid "Groups"
 msgstr "Skupiny"
 
-#: src/info.rs:92 src/info.rs:198 src/info.rs:238
+#: src/info.rs:90 src/info.rs:196 src/info.rs:236
 msgid "Licenses"
 msgstr "Licencie"
 
-#: src/info.rs:93 src/info.rs:199 src/info.rs:239
+#: src/info.rs:91 src/info.rs:197 src/info.rs:237
 msgid "Provides"
 msgstr "Poskytuje"
 
-#: src/info.rs:94 src/info.rs:200 src/info.rs:240
+#: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Depends On"
 msgstr "Závisí na"
 
-#: src/info.rs:95 src/info.rs:201 src/info.rs:241
+#: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Make Deps"
 msgstr "Závislosti pre zostavenie"
 
-#: src/info.rs:96 src/info.rs:202 src/info.rs:242
+#: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Check Deps"
 msgstr "Závislosti pre check"
 
-#: src/info.rs:97 src/info.rs:203 src/info.rs:243
+#: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Optional Deps"
 msgstr "Voliteľné závislosti"
 
-#: src/info.rs:98 src/info.rs:204 src/info.rs:244
+#: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Conflicts With"
 msgstr "V konflikte s"
 
-#: src/info.rs:99 src/info.rs:245
+#: src/info.rs:97 src/info.rs:243
 msgid "Maintainer"
 msgstr "Správca"
 
-#: src/info.rs:100 src/info.rs:246
+#: src/info.rs:98 src/info.rs:244
 msgid "Votes"
 msgstr "Hlasy"
 
-#: src/info.rs:101 src/info.rs:247
+#: src/info.rs:99 src/info.rs:245
 msgid "Popularity"
 msgstr "Popularita"
 
-#: src/info.rs:102 src/info.rs:248
+#: src/info.rs:100 src/info.rs:246
 msgid "First Submitted"
 msgstr "Prvýkrát zverejnené"
 
-#: src/info.rs:103 src/info.rs:249
+#: src/info.rs:101 src/info.rs:247
 msgid "Last Modified"
 msgstr "Posledná úprava"
 
-#: src/info.rs:104 src/info.rs:251
+#: src/info.rs:102 src/info.rs:249
 msgid "Out Of Date"
 msgstr "Zastarané"
 
-#: src/info.rs:105 src/info.rs:256
+#: src/info.rs:103 src/info.rs:254
 msgid "ID"
 msgstr "ID"
 
-#: src/info.rs:106 src/info.rs:257
+#: src/info.rs:104 src/info.rs:255
 msgid "Package Base ID"
 msgstr "Základné ID aplikácie"
 
-#: src/info.rs:107 src/info.rs:258
+#: src/info.rs:105 src/info.rs:256
 msgid "Keywords"
 msgstr "Kľúčové slová"
 
-#: src/info.rs:108 src/info.rs:260
+#: src/info.rs:106 src/info.rs:258
 msgid "Snapshot URL"
 msgstr "URL adresa snapshotu"
 
-#: src/info.rs:109 src/info.rs:205
+#: src/info.rs:107 src/info.rs:203
 msgid "Path"
 msgstr "Cesta"
 
-#: src/install.rs:158 src/query.rs:48 src/lib.rs:104
+#: src/install.rs:165 src/query.rs:48 src/lib.rs:101
 msgid "error:"
 msgstr "chyba:"
 
-#: src/install.rs:159
+#: src/install.rs:166
 msgid "could not get news"
 msgstr "nepodarilo sa získať novinky"
 
-#: src/install.rs:164 src/install.rs:1103
+#: src/install.rs:171 src/install.rs:1115
 msgid "Proceed with installation?"
 msgstr "Pokračovať v inštalácii?"
 
-#: src/install.rs:199
+#: src/install.rs:206
 msgid "could not find .SRCINFO for '{}'"
 msgstr "nepodarilo sa nájsť .SRCINFO pre '{}'"
 
-#: src/install.rs:329
+#: src/install.rs:352
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr "nepodarilo sa nájsť balíčky '{pkg}' v zozname balíčkov pre '{base}'"
 
-#: src/install.rs:416
+#: src/install.rs:439
 msgid "packages failed to build: {}"
 msgstr "balíčky, ktoré sa nepodarilo zostaviť: {}"
 
-#: src/install.rs:488
+#: src/install.rs:511
 msgid "adding {} to the install list"
 msgstr "pridávam {} do zoznamu na inštaláciu"
 
-#: src/install.rs:518 src/install.rs:527
+#: src/install.rs:541 src/install.rs:556
 msgid "failed to download sources for '{}'"
 msgstr "nepodarilo sa stiahnuť zdroje pre '{}'"
 
-#: src/install.rs:536 src/install.rs:564 src/install.rs:572
+#: src/install.rs:565 src/install.rs:591 src/install.rs:599
 msgid "failed to build '{}'"
 msgstr "nepodarilo sa zostaviť '{}'"
 
-#: src/install.rs:539 src/install.rs:753
+#: src/install.rs:568 src/install.rs:772
 msgid "{}: parsing pkg list..."
 msgstr "{}: načítavam pkg zoznam..."
 
-#: src/install.rs:543
+#: src/install.rs:572
 msgid "package list does not match srcinfo"
 msgstr "zoznamov balíčkov nesúhlasí so srcinfo"
 
-#: src/install.rs:579
+#: src/install.rs:606
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} je aktuálny -- preskakujem zostavenie"
 
-#: src/install.rs:744
+#: src/install.rs:763
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "nemôžem zostaviť {base}, závislosti nie sú vyriešené: {deps}"
 
-#: src/install.rs:815
+#: src/install.rs:834
 msgid "fetching devel info..."
 msgstr "získavam informácie pre vývoj..."
 
-#: src/install.rs:883 src/lib.rs:244
+#: src/install.rs:899 src/lib.rs:242
 msgid "no targets specified (use -h for help)"
 msgstr "neboli určené ciele (použite -h pre nápovedu)"
 
-#: src/install.rs:992 src/install.rs:1073 src/search.rs:410 src/search.rs:436
-#: src/lib.rs:308
+#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
+#: src/lib.rs:306
 msgid " there is nothing to do"
 msgstr " nie je čo robiť"
 
-#: src/install.rs:1000
+#: src/install.rs:1004
 msgid "Resolving dependencies..."
 msgstr "Riešim závislosti..."
 
-#: src/install.rs:1061
+#: src/install.rs:1065
 msgid "can't install AUR package as root"
 msgstr "nemôžem nainštalovať AUR balíček ako root"
 
-#: src/install.rs:1064
+#: src/install.rs:1068
 msgid "--downloadonly can't be used for AUR packages"
 msgstr "--downloadonly sa nedá použiť pre balíčky AUR"
 
-#: src/install.rs:1089
+#: src/install.rs:1101
 msgid "Remove make dependencies after install?"
 msgstr "Odobrať make závislosti po inštalácii?"
 
-#: src/install.rs:1100
+#: src/install.rs:1112
 msgid "Proceed to review?"
 msgstr "Pokračovať ku kontrole?"
 
-#: src/install.rs:1153
+#: src/install.rs:1165
 msgid "no architecture"
 msgstr "žiadna architektúra"
 
-#: src/install.rs:1167
+#: src/install.rs:1179
 msgid "The following packages are not compatible with your architecture:"
 msgstr "Nasledujúce balíčky nie sú kompatibilné s vašou architektúrou:"
 
-#: src/install.rs:1181
+#: src/install.rs:1193
 msgid "Would you like to try build them anyway?"
 msgstr "Prajete si ich aj napriek tomu zostaviť?"
 
-#: src/install.rs:1330
+#: src/install.rs:1337
 msgid "duplicate packages: {}"
 msgstr "duplicitné balíčky: {}"
 
-#: src/install.rs:1334
+#: src/install.rs:1341
 msgid "could not find all required packages:"
 msgstr "nepodarilo sa nájsť všetky potrebné balíčky:"
 
-#: src/install.rs:1346
+#: src/install.rs:1353
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -885,7 +928,7 @@ msgstr ""
 "\n"
 "    {missing} (požadované: {stack})"
 
-#: src/install.rs:1360 src/install.rs:2065
+#: src/install.rs:1367 src/install.rs:2115
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} je aktuálne -- preskakujem"
 
@@ -893,63 +936,67 @@ msgstr "{}-{} je aktuálne -- preskakujem"
 msgid "Calculating conflicts..."
 msgstr "Počítam konflikty..."
 
-#: src/install.rs:1381
+#: src/install.rs:1384
 msgid "Calculating inner conflicts..."
 msgstr "Počítam vnútorné konflikty..."
 
-#: src/install.rs:1393
+#: src/install.rs:1396
 msgid "Inner conflicts found:"
 msgstr "Nájdené vnútorné konflikty:"
 
-#: src/install.rs:1415
+#: src/install.rs:1418
 msgid "Conflicts found:"
 msgstr "Nájdené konflikty:"
 
-#: src/install.rs:1438
+#: src/install.rs:1441
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Konfliktné balíčky musíte potvrdiť ručne"
 
-#: src/install.rs:1442
+#: src/install.rs:1445
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "nemôžem inštalovať konfliktné balíčky s --noconfirm"
 
-#: src/install.rs:1565
+#: src/install.rs:1575
 msgid "failed to execute file manager: {}"
 msgstr "nepodarilo sa spustiť správcu súborov: {}"
 
-#: src/install.rs:1568
+#: src/install.rs:1578
 msgid "file manager did not execute successfully"
 msgstr "správca súborov sa nespustil"
 
-#: src/install.rs:1585
+#: src/install.rs:1596
 msgid "failed to read dir: {}"
 msgstr "nepodarilo sa načítať adresár: {}"
 
-#: src/install.rs:1640
+#: src/install.rs:1660
 msgid "failed to open: {}"
 msgstr "nepodarilo sa otvoriť: {}"
 
-#: src/install.rs:1651
+#: src/install.rs:1680
 msgid "binary file: {}"
 msgstr "binárny súbor: {}"
 
-#: src/install.rs:1671 src/install.rs:1735
+#: src/install.rs:1702 src/install.rs:1784
 msgid "Accept changes?"
 msgstr "Potvrdiť zmeny?"
 
-#: src/install.rs:1739
+#: src/install.rs:1750
+msgid "Paging with less. Press 'q' to quit or 'h' for help."
+msgstr ""
+
+#: src/install.rs:1788
 msgid " nothing new to review"
 msgstr " nič nové na kontrolu"
 
-#: src/install.rs:2013
+#: src/install.rs:2063
 msgid "can't find package name in packagelist: {}"
 msgstr "nemôžem nájsť meno balíčka v packagelist: {}"
 
-#: src/install.rs:2085
+#: src/install.rs:2135
 msgid "Signing packages..."
 msgstr "Podpisujem balíčky..."
 
-#: src/install.rs:2123
+#: src/install.rs:2173
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} je aktuálny -- preskakujem aktualizáciu"
 
@@ -973,27 +1020,27 @@ msgstr "Žiadny názov"
 msgid "no new news"
 msgstr "žiadne novinky"
 
-#: src/pkgbuild.rs:72
+#: src/pkgbuild.rs:90
 msgid "repo {} does not have a URL or Path"
 msgstr "repozitár {} nemá adresu URL alebo cestu"
 
-#: src/pkgbuild.rs:134
+#: src/pkgbuild.rs:152
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr "repozitár {} sa nestiahol (použite -Sy --pkgbuilds na stiahnutie)"
 
-#: src/pkgbuild.rs:181
+#: src/pkgbuild.rs:199
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr "Vytváram .SRCINFO pre {repo}/{dir}..."
 
-#: src/pkgbuild.rs:259
+#: src/pkgbuild.rs:277
 msgid "failed to parse srcinfo \"{}\""
 msgstr "nepodarilo sa načítať srcinfo \"{}\""
 
-#: src/pkgbuild.rs:337
+#: src/pkgbuild.rs:355
 msgid "Downloading PKGBUILD Repos..."
 msgstr "Sťahujem PKGBUILD repozitáre..."
 
-#: src/pkgbuild.rs:390
+#: src/pkgbuild.rs:409
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr "nepodarilo sa načítať srcinfo vytvorené makepkg"
 
@@ -1001,29 +1048,37 @@ msgstr "nepodarilo sa načítať srcinfo vytvorené makepkg"
 msgid " [ignored]"
 msgstr " [ignorované]"
 
-#: src/repo.rs:171
+#: src/repo.rs:264
 msgid "failed to get current exe"
 msgstr "nepodarilo sa získať aktuálne exe"
 
-#: src/repo.rs:218
+#: src/repo.rs:311
 msgid "syncing local databases..."
 msgstr "synchronizujem lokálne databáze..."
 
-#: src/repo.rs:224
+#: src/repo.rs:317
 msgid "  nothing to do"
 msgstr "  nie je čo robiť"
 
-#: src/repo.rs:255
+#: src/repo.rs:348
 msgid "there is nothing to do"
 msgstr "nie je čo robiť"
 
-#: src/repo.rs:261
+#: src/repo.rs:354
 msgid "Packages"
 msgstr "Balíčky"
 
-#: src/repo.rs:274
+#: src/repo.rs:367
 msgid "Proceed with removal?"
 msgstr "Pokračovať v odoberaní?"
+
+#: src/repo.rs:428
+msgid " [installed: {}]"
+msgstr " [nainštalované: {}]"
+
+#: src/repo.rs:430 src/sync.rs:146
+msgid " [installed]"
+msgstr " [nainštalované]"
 
 #: src/search.rs:40
 msgid "aur search failed"
@@ -1081,67 +1136,63 @@ msgstr "Celková veľkosť obsadená balíčkami: {}"
 msgid "Ten biggest packages:"
 msgstr "Desať najväčších balíčkov:"
 
-#: src/sync.rs:146 src/lib.rs:515
-msgid " [installed]"
-msgstr " [nainštalované]"
-
-#: src/upgrade.rs:128
+#: src/upgrade.rs:126
 msgid "Looking for PKGBUILD upgrades..."
 msgstr "Hľadám aktualizácie PKGBUILD..."
 
-#: src/upgrade.rs:136
+#: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
 msgstr "Hľadám aktualizácie AUR..."
 
-#: src/upgrade.rs:167
+#: src/upgrade.rs:165
 msgid "Looking for devel upgrades..."
 msgstr "Vyhľadávam aktualizáciu vývojových balíčkov..."
 
-#: src/upgrade.rs:195 src/upgrade.rs:208
+#: src/upgrade.rs:193 src/upgrade.rs:206
 msgid "warning:"
 msgstr "varovanie:"
 
-#: src/upgrade.rs:197 src/upgrade.rs:210
+#: src/upgrade.rs:195 src/upgrade.rs:208
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
 msgstr "{pkg}: ignorujem aktualizáciu balíčka ({old} => {new})"
 
-#: src/upgrade.rs:406
+#: src/upgrade.rs:400
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr "Balíčky, ktoré sa vynechajú (napr. 1 2 3, 1-3):"
 
-#: src/util.rs:120
+#: src/util.rs:119
 msgid "[Y/n]:"
 msgstr "[A/n]:"
 
-#: src/util.rs:122
+#: src/util.rs:121
 msgid "[y/N]:"
 msgstr "[a/N]:"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "y"
 msgstr "a"
 
-#: src/util.rs:141
+#: src/util.rs:140
 msgid "yes"
 msgstr "áno"
 
-#: src/util.rs:339
+#: src/util.rs:338
 msgid "Enter a number (default=1): "
 msgstr "Zadajte číslo (predvolené=1): "
 
-#: src/util.rs:356
+#: src/util.rs:355
 msgid "invalid number: {}"
 msgstr "neplatné číslo: {}"
 
-#: src/util.rs:366
+#: src/util.rs:365
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "neplatná hodnota: {n} nie je medzi 1 a {max}"
 
-#: src/resolver.rs:84
+#: src/resolver.rs:83
 msgid "There are {} members in group"
 msgstr "V skupine je {} členov"
 
-#: src/resolver.rs:109
+#: src/resolver.rs:108
 msgid ""
 "\n"
 "\n"
@@ -1151,14 +1202,10 @@ msgstr ""
 "\n"
 "Zadajte výber (predvolené=all): "
 
-#: src/lib.rs:210
+#: src/lib.rs:208
 msgid "can not use chroot builds: devtools is not installed"
 msgstr "nedá sa použiť zostavenie v chroote: devtools nie sú nainštalované"
 
-#: src/lib.rs:317
+#: src/lib.rs:315
 msgid "no operation specified (use -h for help)"
 msgstr "nebola špecifikovaná žiadna operácia (použite -h pre nápovedu)"
-
-#: src/lib.rs:513
-msgid " [installed: {}]"
-msgstr " [nainštalované: {}]"

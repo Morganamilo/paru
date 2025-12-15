@@ -1,18 +1,19 @@
 use crate::config::{Config, LocalRepos};
 use crate::repo;
 
-use std::cell::Cell;
-use std::collections::HashMap;
+use std::collections::btree_map::Entry;
+use std::collections::BTreeMap;
 use std::fs::File;
-use std::io::{stdin, stdout, BufRead, Write};
+use std::io::{stderr, stdin, stdout, BufRead, Write};
+use std::mem::take;
 use std::ops::Range;
-use std::os::fd::{AsFd, AsRawFd};
+use std::os::fd::{AsFd, OwnedFd};
 
 use alpm::{Package, PackageReason};
+use alpm_utils::depends::{satisfies_dep, satisfies_provide};
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
-use nix::libc::{STDERR_FILENO, STDIN_FILENO, STDOUT_FILENO};
-use nix::unistd::dup2;
+use nix::unistd::{dup2_stdin, dup2_stdout};
 use tr::tr;
 
 #[derive(Debug)]
@@ -163,91 +164,51 @@ pub fn input(config: &Config, question: &str) -> String {
     input
 }
 
-#[derive(Hash, PartialEq, Eq, SmartDefault, Copy, Clone)]
-enum State {
-    #[default]
-    Remove,
-    CheckDeps,
-    Keep,
-}
-
-pub fn unneeded_pkgs(config: &Config, keep_make: bool, keep_optional: bool) -> Vec<&str> {
-    let mut states = HashMap::new();
-    let mut remove = Vec::new();
-    let mut providers = HashMap::<_, Vec<_>>::new();
+pub fn unneeded_pkgs(config: &Config, keep_optional: bool) -> Vec<&str> {
     let db = config.alpm.localdb();
+    let mut next = db
+        .pkgs()
+        .into_iter()
+        .filter(|p| p.reason() == PackageReason::Explicit)
+        .collect::<Vec<_>>();
+    let mut deps = db
+        .pkgs()
+        .into_iter()
+        .filter(|p| p.reason() != PackageReason::Explicit)
+        .map(|p| (p.name(), p))
+        .collect::<BTreeMap<_, _>>();
 
-    for pkg in db.pkgs() {
-        providers
-            .entry(pkg.name().to_string())
-            .or_default()
-            .push(pkg.name());
-        for dep in pkg.provides() {
-            providers
-                .entry(dep.name().to_string())
-                .or_default()
-                .push(pkg.name())
-        }
-
-        if pkg.reason() == PackageReason::Explicit {
-            states.insert(pkg.name(), Cell::new(State::CheckDeps));
-        } else {
-            states.insert(pkg.name(), Cell::new(State::Remove));
+    let mut provides: BTreeMap<_, Vec<_>> = BTreeMap::new();
+    for dep in deps.values() {
+        for prov in dep.provides() {
+            provides.entry(prov.name()).or_default().push((*dep, prov));
         }
     }
 
-    let mut again = true;
+    while !next.is_empty() {
+        for new in take(&mut next) {
+            let opt = keep_optional.then(|| new.optdepends());
+            let depends = new.depends().into_iter().chain(opt.into_iter().flatten());
 
-    while again {
-        again = false;
-
-        let mut check_deps = |deps: alpm::AlpmList<&alpm::Dep>| {
-            for dep in deps {
-                if let Some(deps) = providers.get(dep.name()) {
-                    for dep in deps {
-                        let state = states.get(dep).unwrap();
-
-                        if state.get() != State::Keep {
-                            state.set(State::CheckDeps);
-                            again = true;
-                        }
+            for dep in depends {
+                if let Entry::Occupied(entry) = deps.entry(dep.name()) {
+                    let pkg = entry.get();
+                    if satisfies_dep(dep, pkg.name(), pkg.version()) {
+                        next.push(entry.remove());
                     }
                 }
-            }
-        };
-
-        for (&pkg, state) in &states {
-            if state.get() != State::CheckDeps {
-                continue;
-            }
-
-            if let Ok(pkg) = db.pkg(pkg) {
-                state.set(State::Keep);
-                check_deps(pkg.depends());
-
-                if keep_optional {
-                    check_deps(pkg.optdepends());
-                }
-
-                if keep_make {
-                    continue;
-                }
-
-                if config.alpm.syncdbs().pkg(pkg.name()).is_err() {
-                    check_deps(pkg.makedepends());
-                    check_deps(pkg.checkdepends());
-                }
+                if let Entry::Occupied(mut entry) = provides.entry(dep.name()) {
+                    let provides = entry
+                        .get_mut()
+                        .extract_if(.., |(_, prov)| satisfies_provide(dep, prov))
+                        .filter_map(|(pkg, _)| deps.remove(pkg.name()));
+                    next.extend(provides);
+                };
             }
         }
     }
 
-    for pkg in db.pkgs() {
-        if states.get(pkg.name()).unwrap().get() == State::Remove {
-            remove.push(pkg.name());
-        }
-    }
-
-    remove
+    deps.into_keys().collect::<Vec<_>>()
 }
 
 impl<'a> NumberMenu<'a> {
@@ -408,19 +369,34 @@ pub fn repo_aur_pkgs(config: &Config) -> (Vec<&alpm::Package>, Vec<&alpm::Packag
     }
 }
 
-pub fn redirect_to_stderr() -> Result<File> {
+pub fn redirect_to_stderr() -> Result<OwnedFd> {
     let stdout = stdout().as_fd().try_clone_to_owned()?;
-    dup2(STDERR_FILENO, STDOUT_FILENO)?;
-    Ok(File::from(stdout))
+    dup2_stdout(&stderr())?;
+    Ok(stdout)
 }
 
 pub fn reopen_stdin() -> Result<()> {
     let file = File::open("/dev/tty")?;
-    dup2(file.as_raw_fd(), STDIN_FILENO)?;
+    dup2_stdin(&file)?;
     Ok(())
 }
 
-pub fn reopen_stdout(file: &File) -> Result<()> {
-    dup2(file.as_raw_fd(), STDOUT_FILENO)?;
+pub fn reopen_stdout<Fd: AsFd>(file: Fd) -> Result<()> {
+    dup2_stdout(file)?;
     Ok(())
+}
+
+pub fn is_arch_repo(name: &str) -> bool {
+    matches!(
+        name,
+        "testing"
+            | "community-testing"
+            | "core"
+            | "extra"
+            | "community"
+            | "multilib"
+            | "core-testing"
+            | "extra-testing"
+            | "multilib-testing"
+    )
 }

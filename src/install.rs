@@ -422,7 +422,18 @@ impl Installer {
 
         if config.clean_after {
             for base in build {
-                let path = config.build_dir.join(base.package_base());
+                let path = match base {
+                    Base::Aur(base) => config.build_dir.join(base.package_base()),
+                    Base::Pkgbuild(base) => config
+                        .pkgbuild_repos
+                        .repo(&base.repo)
+                        .unwrap()
+                        .base(config, base.package_base())
+                        .unwrap()
+                        .path
+                        .clone(),
+                };
+
                 if let Err(err) = clean_untracked(config, &path) {
                     print_error(config.color.error, err);
                     ret = 1;
@@ -651,7 +662,7 @@ impl Installer {
             .chain(debug_paths.values())
             .map(|s| s.as_str())
             .collect::<Vec<_>>();
-        sign_pkg(config, &paths, false)?;
+        sign_pkg(config, &paths)?;
 
         if let Some(ref repo) = repo {
             if let Some(repo) = self.upgrades.aur_repos.get(base.package_base()) {
@@ -845,7 +856,7 @@ impl Installer {
 
         if config.chroot {
             if !self.chroot.exists() {
-                self.chroot.create(config, &["base-devel"])?;
+                self.chroot.create(config)?;
             } else {
                 self.chroot.update()?;
             }
@@ -1068,7 +1079,7 @@ impl Installer {
             bail!(tr!("--downloadonly can't be used for AUR packages"));
         }
 
-        let conflicts = check_actions(config, actions, !config.chroot || self.install_targets)?;
+        let conflicts = check_actions(config, actions, self.install_targets)?;
 
         self.conflicts = conflicts
             .0
@@ -1258,7 +1269,7 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
         return;
     }
 
-    if config.args.has_arg("u", "sysupgrade") && config.mode.aur() {
+    if config.sysupgrade && config.mode.aur() {
         let (_, mut pkgs) = repo_aur_pkgs(config);
         pkgs.retain(|pkg| config.pkgbuild_repos.pkg(config, pkg.name()).is_none());
 
@@ -1328,7 +1339,7 @@ fn fmt_stack(want: &DepMissing) -> String {
 fn check_actions(
     config: &Config,
     actions: &mut Actions,
-    check_conflicts: bool,
+    install_targets: bool,
 ) -> Result<(Vec<Conflict>, Vec<Conflict>)> {
     let c = config.color;
     let dups = actions.duplicate_targets();
@@ -1368,13 +1379,27 @@ fn check_actions(
         );
     }
 
-    let conflicts = if check_conflicts {
+    let conflicts = if !config.chroot && install_targets {
         println!(
             "{} {}",
             c.action.paint("::"),
             c.bold.paint(tr!("Calculating conflicts..."))
         );
-        actions.calculate_conflicts(!config.chroot)
+        // Hack to ignore conflicts on -B
+        // Only ignores conflicts for the last package instead of all targets
+        // As in theory one target could depend on another and thus must be installed
+        let mut conflicts = actions.calculate_conflicts(!config.chroot);
+        if !install_targets {
+            if let Some(build) = actions.build.last() {
+                let pkgs = build.packages().map(|s| s.to_string()).collect::<Vec<_>>();
+                conflicts.retain(|c| {
+                    !c.conflicting
+                        .iter()
+                        .all(|conflicting| pkgs.contains(&conflicting.pkg))
+                });
+            }
+        }
+        conflicts
     } else {
         Vec::new()
     };
@@ -1826,6 +1851,7 @@ fn chroot(config: &Config) -> Chroot {
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
         extra_pkgs: config.chroot_pkgs.clone(),
+        root_pkgs: config.root_chroot_pkgs.clone(),
     };
 
     if config.args.count("d", "nodeps") > 1 {
@@ -2126,7 +2152,7 @@ fn needs_build(
         .all(|p| Path::new(pkgdest.get(p).unwrap()).exists())
 }
 
-fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
+fn sign_pkg(config: &Config, paths: &[&str]) -> Result<()> {
     if config.sign != Sign::No {
         let c = config.color;
         println!(
@@ -2137,21 +2163,13 @@ fn sign_pkg(config: &Config, paths: &[&str], delete_sig: bool) -> Result<()> {
 
         for path in paths {
             let mut cmd = Command::new("gpg");
-            cmd.args(["--detach-sign", "--no-armor", "--batch"]);
+            cmd.args(["--detach-sign", "--no-armor", "--batch", "--yes"]);
 
             if let Sign::Key(ref k) = config.sign {
                 cmd.arg("-u").arg(k);
             }
 
             let sig = format!("{}.sig", path);
-            if Path::new(&sig).exists() {
-                if delete_sig {
-                    std::fs::remove_file(&sig)?;
-                } else {
-                    continue;
-                }
-            }
-
             cmd.arg("--output").arg(&sig).arg(path);
 
             exec::command(&mut cmd)?;

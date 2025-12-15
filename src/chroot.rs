@@ -3,7 +3,9 @@ use crate::exec;
 use anyhow::{Context, Result};
 use nix::unistd::{Uid, User};
 use std::ffi::OsStr;
+use std::fs::Permissions;
 use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -17,10 +19,13 @@ pub struct Chroot {
     pub ro: Vec<String>,
     pub rw: Vec<String>,
     pub extra_pkgs: Vec<String>,
+    pub root_pkgs: Vec<String>,
 }
 
 fn pacman_conf(pacman_conf: &str) -> Result<tempfile::NamedTempFile> {
     let mut tmp = tempfile::NamedTempFile::new()?;
+    tmp.as_file()
+        .set_permissions(Permissions::from_mode(0o644))?;
     let conf = pacmanconf::Config::expand_with_opts(None, Some(pacman_conf), Some("/"))?;
 
     // Bug with dbpath in pacstrap
@@ -40,7 +45,7 @@ impl Chroot {
         self.path.join("root").exists()
     }
 
-    pub fn create<S: AsRef<OsStr>>(&self, config: &Config, pkgs: &[S]) -> Result<()> {
+    pub fn create(&self, config: &Config) -> Result<()> {
         let mut cmd = Command::new(&config.sudo_bin);
         cmd.arg("install").arg("-dm755").arg(&self.path);
         exec::command(&mut cmd)?;
@@ -55,7 +60,7 @@ impl Chroot {
             .arg("-M")
             .arg(&self.makepkg_conf)
             .arg(dir)
-            .args(pkgs);
+            .args(&self.root_pkgs);
 
         exec::command(&mut cmd)?;
         Ok(())

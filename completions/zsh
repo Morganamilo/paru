@@ -449,7 +449,8 @@ _pacman_completions_all_packages() {
 		typeset -U packages
 		${seq} _wanted packages expl "packages" compadd ${sep[@]} - "${(@)packages}"
 
-		repositories=($(pacman-conf --repo-list))
+		repositories=($(pacman-conf --repo-list) \
+			$(_call_program packages paru -Sl --pkgbuilds | cut -d ' ' -f1 | uniq))
 		typeset -U repositories
 		_wanted repo_packages expl "repository/package" compadd -S "/" $repositories
 	fi
@@ -493,7 +494,8 @@ _pacman_all_packages() {
 # provides completions for repository names
 _pacman_completions_repositories() {
 	local -a cmd repositories
-	repositories=($(pacman-conf --repo-list))
+	repositories=($(pacman-conf --repo-list) \
+		$(_call_program packages paru -Sl --pkgbuilds | cut -d ' ' -f1 | uniq))
 	# Uniq the array
 	typeset -U repositories
 	compadd "$@" -a repositories

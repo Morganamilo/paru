@@ -1,33 +1,32 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Serhii Starovoitov <drommer.94@gmail.com>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: paru  1.11.1\n"
+"Project-Id-Version: paru  2.0.3\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2025-07-08 05:28+0000\n"
-"PO-Revision-Date: 2022-10-23 21:00+0200\n"
-"Last-Translator: Sebin Nyshkim <sebin.nyshkim@icloud.com>\n"
-"Language-Team: \n"
-"Language: de\n"
+"PO-Revision-Date: 2025-04-25 21:25+3000\n"
+"Last-Translator: Serhii Starovoitov <drommer.94@gmail.com>\n"
+"Language-Team: Ukrainian <uk@li.org>\n"
+"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.1.1\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "ALLE AUR-Pakete aus dem Cache entfernen?"
+msgstr "Хочете видалити з кешу ВСІ пакунки з AUR?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "Alle anderen AUR-Pakete aus dem Cache entfernen?"
+msgstr "Хочете видалити з кешу всі інші пакунки з AUR?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
-msgstr "Clone-Verzeichnis: {}"
+msgstr "Каталог для клонування: {}"
 
 #: src/clean.rs:47
 msgid ""
@@ -35,235 +34,229 @@ msgid ""
 "Diff Directory: {}"
 msgstr ""
 "\n"
-"Diff-Verzeichnis: {}"
+"Каталог для відмінностей: {}"
 
 #: src/clean.rs:49
 msgid "Do you want to remove all saved diffs?"
-msgstr "Alle gespeicherten Diffs entfernen?"
+msgstr "Хочете видалити всі збережені відмінності?"
 
 #: src/clean.rs:65
 msgid "can't open diff dir: {}"
-msgstr "Diff-Verzeichnis kann nicht geöffnet werden: {}"
+msgstr "не вдалося відкрити каталог з відмінностями: {}"
 
 #: src/clean.rs:76 src/clean.rs:180
 msgid "could not remove '{}'"
-msgstr "‚{}‘ konnte nicht entfernt werden"
+msgstr "не вдалося видалити '{}'"
 
 #: src/clean.rs:95
 msgid "can't open clone dir: {}"
-msgstr "Clone-Verzeichnis konnte nicht geöffnet werden: {}"
+msgstr "не вдалося відкрити каталог для клонування: {}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr ".SRCINFO zu ‚{}‘ konnte nicht gefunden werden"
+msgstr "не вдалося розібрати .SRCINFO для '{}'"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
-msgstr "Option {} erwartet einen Wert"
+msgstr "опція {} очікує на значення"
 
 #: src/command_line.rs:165 src/command_line.rs:379
 msgid "option {} does not allow a value"
-msgstr "Option {} erlaubt keinen Wert"
+msgstr "опція {} не потребує значення"
 
 #: src/command_line.rs:370
 msgid "unknown option --{}"
-msgstr "unbekannte Option --{}"
+msgstr "невідома опція --{}"
 
 #: src/command_line.rs:373
 msgid "unknown option -{}"
-msgstr "unbekannte Option -{}"
+msgstr "невідома опція --{}"
 
 #: src/completion.rs:31
 msgid "failed to open cache file '{}'"
-msgstr "Cache-Datei ‚{}‘ konnte nicht geöffnet werden"
+msgstr "не вдалося відкрити файл кешу '{}'"
 
 #: src/completion.rs:69
 msgid "could not update aur cache"
-msgstr "AUR-Cache konnte nicht aktualisiert werden"
+msgstr "не вдалося оновити кеш AUR"
 
 #: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
-msgstr "Wert ‚{val}‘ für Schlüssel ‚{key}‘ ist ungültig, erwartet: {exp}"
+msgstr "недійсне значення '{val}' для ключа '{key}', очікується: {exp}"
 
 #: src/config.rs:332
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "unbekannte Option -{}"
+msgstr "невідомий режим {}"
 
 #: src/config.rs:562
 msgid "section can not be called {}"
-msgstr "Abschnitt kann nicht {} genannt werden"
+msgstr "розділ не може бути викликано {}"
 
 #: src/config.rs:579
 msgid "failed to find cache directory"
-msgstr "Cache-Verzeichnis konnte nicht gefunden werden"
+msgstr "каталог кешу не знайдено"
 
 #: src/config.rs:582
 msgid "failed to find config directory"
-msgstr "Konfigurationsverzeichnis konnte nicht gefunden werden"
+msgstr "каталог налаштувань не знайдено"
 
 #: src/config.rs:586
 msgid "failed to find state directory"
-msgstr "State-Verzeichnis konnte nicht gefunden werden"
+msgstr "каталог стану не знайдено"
 
 #: src/config.rs:633
 msgid "config file '{}' does not exist"
-msgstr "Konfigurationsdatei ‚{}‘ existiert nicht"
+msgstr "не існує файлу конфігурації '{}'"
 
 #: src/config.rs:682
 msgid "only one operation may be used at a time"
-msgstr "es darf nur eine Operation gleichzeitig benutzt werden"
+msgstr "одночасно можна виконувати тільки одну операцію"
 
 #: src/config.rs:793
 msgid "no local repo named {}"
-msgstr ""
+msgstr "немає локального репозитарію із назвою {}"
 
 #: src/config.rs:819
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "Lokales Repositorium ‚{}‘ in pacman.conf nicht gefunden"
+msgstr "локальне сховище '{}' не знайдено у pacman.conf"
 
 #: src/config.rs:864
 msgid "failed to initialize alpm: root={} dbpath={}"
-msgstr "alpm konnte nicht initialisiert werden: root={} dbpath={}"
+msgstr "не вдалося ініціалізувати alpm: root={} dbpath={}"
 
 #: src/config.rs:939 src/config.rs:1100
 msgid "value can not be empty for key '{}'"
-msgstr "Wert für Schlüssel ‚{}‘ darf nicht leer sein"
+msgstr "значення для ключа '{}' не може бути порожнім"
 
 #: src/config.rs:955
 msgid "key '{}' does not belong to a section"
-msgstr "Schlüssel ‚{}‘ gehört zu keinem Abschnitt"
+msgstr "ключ '{}' не належить до розділу"
 
 #: src/config.rs:969 src/config.rs:986 src/config.rs:988 src/config.rs:1003
 msgid "key can not be empty"
-msgstr "Schlüssel darf nicht leer sein"
+msgstr "ключ не може бути порожнім"
 
 #: src/config.rs:979
 msgid "error: unknown option '{}' in repo"
-msgstr "Fehler: Unbekannte Option ‚{}‘ in Repositorium"
+msgstr "помилка: невідома опція '{}' у репозиторії"
 
 #: src/config.rs:989
 msgid "key can not contain null bytes"
-msgstr "Schlüssel darf keine Null-Bytes enthalten"
+msgstr "ключ не може містити нульових байтів"
 
 #: src/config.rs:992
 msgid "value can not contain null bytes"
-msgstr "Wert darf keine Null-Bytes enthalten"
+msgstr "значення не може містити нульових байтів"
 
 #: src/config.rs:1028
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "Fehler: Unbekannte Option ‚{}‘ in Abschnitt [bin]"
+msgstr "помилка: невідома опція '{}' у розділі [bin]"
 
 #: src/config.rs:1144
 msgid "error: unknown option '{}' in section [options]"
-msgstr "Fehler: Unbekannte Option ‚{}‘ in Abschnitt [options]"
+msgstr "помилка: невідома опція '{}' у розділі [options]"
 
 #: src/config.rs:1149
 msgid "option '{}' does not take a value"
-msgstr "Option ‚{}‘ akzeptiert keinen Wert"
+msgstr "опція '{}' не приймає значення"
 
 #: src/config.rs:1181 src/resolver.rs:136
 msgid "There are {n} providers available for {pkg}:"
-msgstr "Es sind {n} Anbieter für {pkg} verfügbar:"
+msgstr "Для {pkg} знайдено {n} постачальників:"
 
 #: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
 #: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
-msgstr "Repositorium"
+msgstr "Репозиторій"
 
 #: src/config.rs:1221
 msgid "  failed to sync {}"
-msgstr "  {} konnte nicht synchronisiert werden"
+msgstr "  не вдалося синхронізувати {}"
 
 #: src/devel.rs:136 src/download.rs:198
 msgid "Querying AUR..."
-msgstr "AUR abfragen…"
+msgstr "Запит до AUR..."
 
 #: src/devel.rs:157 src/devel.rs:181 src/install.rs:202
 msgid "failed to parse srcinfo for '{}'"
-msgstr ".SRCINFO für ‚{}‘ konnte nicht eingelesen werden"
+msgstr "не вдалося розібрати srcinfo для '{}'"
 
 #: src/devel.rs:201
 msgid "Looking for devel repos..."
-msgstr "Suche nach devel Repos…"
+msgstr "Шукаємо репозиторії розробки..."
 
 #: src/devel.rs:210
 msgid "failed to save devel info"
-msgstr "devel Informationen konnten nicht gespeichert werden"
+msgstr "не вдалося зберегти інформацію розробки"
 
 #: src/devel.rs:218
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "State-Verzeichnis konnte nicht gefunden werden"
+msgstr "не вдалося створити каталог стану: {}"
 
 #: src/devel.rs:233
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "Dateimanager konnte nicht ausgeführt werden: {}"
+msgstr "не вдалося створити тимчасовий файл: {}"
 
 #: src/devel.rs:238
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "Verzeichnis konnte nicht gelesen werden: {}"
+msgstr "не вдалося записати до тимчасового файлу: {}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr ""
+msgstr "не вдалося перейменувати '{temp}' на '{devel_toml}'."
 
 #: src/devel.rs:490
 msgid "package does not have an update"
-msgstr "keine Updates für Paket verfügbar"
+msgstr "немає оновлення для пакунка"
 
 #: src/devel.rs:534
 msgid "failed to lookup: {}"
-msgstr "nicht gefunden: {}"
+msgstr "не вдалося знайти: {}"
 
 #: src/devel.rs:562
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "ungültiges JSON: {}"
+msgstr "недійсний toml: {}"
 
 #: src/download.rs:95
 msgid "packages not in the AUR: "
-msgstr "Pakete nicht im AUR vorhanden: "
+msgstr "пакунки, яких немає в AUR: "
 
 #: src/download.rs:106
 msgid "marked out of date: "
-msgstr "als veraltet markiert: "
+msgstr "позначені як застарілі: "
 
 #: src/download.rs:117
 msgid "orphans: "
-msgstr "verwaist: "
+msgstr "сироти: "
 
 #: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
 #: src/install.rs:1781
 msgid "failed to run:"
-msgstr "Ausführung fehlgeschlagen:"
+msgstr "не вдалося виконати:"
 
 #: src/download.rs:258
 msgid "downloading: {pkg}"
-msgstr "Herunterladen: {pkg}"
+msgstr "завантаження: {pkg}"
 
 #: src/download.rs:280
 msgid "Downloading PKGBUILDs..."
-msgstr "Lade PKGBUILDs herunter…"
+msgstr "Завантаження сценаріїв PKGBUILD..."
 
 #: src/download.rs:284
 msgid " PKGBUILDs up to date"
-msgstr " PKGBUILDs sind aktuell"
+msgstr " сценарії PKGBUILD в актуальному стані"
 
 #: src/exec.rs:160
 msgid "Pacman is currently in use, please wait..."
-msgstr "Pacman wird gerade ausgeführt, bitte warten…"
+msgstr "Pacman зараз використовується, зачекайте..."
 
 #: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
 msgid "None"
-msgstr "Keine"
+msgstr "Нічого"
 
 #: src/fmt.rs:237
 msgid "Repo"
-msgstr "Repo"
+msgstr "Репозиторій"
 
 #: src/fmt.rs:244
 msgid "Repo Make"
@@ -271,43 +264,43 @@ msgstr "Repo Make"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "PKGBUILDs Make"
+msgstr "Pkgbuilds Make"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
-msgstr "AUR Make"
+msgstr "Aur Make"
 
 #: src/fmt.rs:311
 msgid "Repo ({})"
-msgstr "Repo ({})"
+msgstr "Репозиторій ({})"
 
 #: src/fmt.rs:319
 msgid "Old Version"
-msgstr "Alte Version"
+msgstr "Стара версія"
 
 #: src/fmt.rs:320
 msgid "New Version"
-msgstr "Neue Version"
+msgstr "Нова версія"
 
 #: src/fmt.rs:321
 msgid "Make Only"
-msgstr "Nur Make"
+msgstr "Тільки збирання"
 
 #: src/fmt.rs:322
 msgid "Yes"
-msgstr "Ja"
+msgstr "Так"
 
 #: src/fmt.rs:323 src/info.rs:221
 msgid "No"
-msgstr "Nein"
+msgstr "Ні"
 
 #: src/fmt.rs:411
 msgid "insufficient columns available for table display"
-msgstr "zu wenig Spalten für Tabellenanzeige vorhanden"
+msgstr "недостатньо стовпців для відображення таблиці"
 
 #: src/help.rs:4
 msgid "Usage:"
-msgstr "Benutzung:"
+msgstr "Використання:"
 
 #: src/help.rs:5
 msgid "    paru"
@@ -315,15 +308,15 @@ msgstr "    paru"
 
 #: src/help.rs:6
 msgid "    paru <operation> [...]"
-msgstr "    paru <Operation> [...]"
+msgstr "    paru <операція> [...]"
 
 #: src/help.rs:7
 msgid "    paru <package(s)>"
-msgstr "    paru <Paket(e)>"
+msgstr "    paru <пакунок(и)>"
 
 #: src/help.rs:9
 msgid "Pacman operations:"
-msgstr "Pacman Operationen:"
+msgstr "Операції Pacman:"
 
 #: src/help.rs:10
 msgid "    paru {-h --help}"
@@ -335,486 +328,476 @@ msgstr "    paru {-V --version}"
 
 #: src/help.rs:12
 msgid "    paru {-D --database}    <options> <package(s)>"
-msgstr "    paru {-D --database}    <Optionen> <Paket(e)>"
+msgstr "    paru {-D --database}    <опції> <пакунок(и)>"
 
 #: src/help.rs:13
 msgid "    paru {-F --files}       [options] [package(s)]"
-msgstr "    paru {-F --files}       [Optionen] [Paket(e)]"
+msgstr "    paru {-F --files}       [опції] [пакунок(и)]"
 
 #: src/help.rs:14
 msgid "    paru {-Q --query}       [options] [package(s)]"
-msgstr "    paru {-Q --query}       [Optionen] [Paket(e)]"
+msgstr "    paru {-Q --query}       [опції] [пакунок(и)]"
 
 #: src/help.rs:15
 msgid "    paru {-R --remove}      [options] <package(s)>"
-msgstr "    paru {-R --remove}      [Optionen] <Paket(e)>"
+msgstr "    paru {-R --remove}      [опції] <пакунок(и)>"
 
 #: src/help.rs:16
 msgid "    paru {-S --sync}        [options] [package(s)]"
-msgstr "    paru {-S --sync}        [Optionen] [Paket(e)]"
+msgstr "    paru {-S --sync}        [опції] [пакунок(и)]"
 
 #: src/help.rs:17
 msgid "    paru {-T --deptest}     [options] [package(s)]"
-msgstr "    paru {-T --deptest}     [Optionen] [Paket(e)]"
+msgstr "    paru {-T --deptest}     [опції] [пакунок(и)]"
 
 #: src/help.rs:18
 msgid "    paru {-U --upgrade}     [options] [file(s)]"
-msgstr "    paru {-U --upgrade}     [Optionen] [Paket(e)]"
+msgstr "    paru {-U --upgrade}     [опції] [файл(и)]"
 
 #: src/help.rs:20
 msgid "New operations:"
-msgstr "Neue Operationen:"
+msgstr "Нові операції:"
 
 #: src/help.rs:21
 msgid "    paru {-P --show}        [options]"
-msgstr "    paru {-P --show}        [Optionen]"
+msgstr "    paru {-P --show}        [опції]"
 
 #: src/help.rs:22
 msgid "    paru {-G --getpkgbuild} [package(s)]"
-msgstr "    paru {-G --getpkgbuild} [Paket(e)]"
+msgstr "    paru {-G --getpkgbuild} [пакунок(и)]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [Optionen]"
+msgstr "    paru {-B --build}       [каталог(и)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
-msgstr "Wenn keine Argumente angegeben werden, wird ‚paru -Syu‘ ausgeführt"
+msgstr "Якщо жодних аргументів не надано, буде виконано команду 'paru -Syu'"
 
 #: src/help.rs:27
 msgid "Options without operation:"
-msgstr "Optionen ohne Operation:"
+msgstr "Опції без параметрів:"
 
 #: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "    -c --clean            Unnötige Abhängigkeiten entfernen"
+msgstr "    -c --clean            Видалити непотрібні залежності"
 
 #: src/help.rs:29
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            Erzeugt Entwicklungspaket-DB für die Aktualisierung"
+"       --gendb            Сформувати БД пакунків розробки, що "
+"використовується для оновлення"
 
 #: src/help.rs:31
 msgid "New options:"
-msgstr "Neue Optionen:"
+msgstr "Нові опції:"
 
 #: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
-msgstr ""
-"       --repo              Annehmen, dass die Ziele aus den Repositorien "
-"stammen"
+msgstr "       --repo              Обирати пакунки з репозиторіїв"
 
 #: src/help.rs:33
-#, fuzzy
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr ""
-"       --repo              Annehmen, dass die Ziele aus den Repositorien "
-"stammen"
+msgstr "       --pkgbuilds         Обирати пакунки з репозиторіїв PKGBUILD"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr ""
-"    -a --aur               Annehmen, dass die Ziele aus dem AUR stammen"
+msgstr "    -a --aur               Обирати пакунки з AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr ""
+msgstr "    --mode      <режим>    Встановити де paru шукатиме пакунки"
 
 #: src/help.rs:37
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, "
 "-Ss and -Qs"
 msgstr ""
+"    --interactive          Увімкнути інтерактивний вибір пакетів для -S, -R, "
+"-Ss та -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Legt eine alternative AUR-URL fest"
+msgstr "    --aururl    <url>      Встановити альтернативну URL-адресу AUR"
 
 #: src/help.rs:40
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr ""
-"    --aurrpcurl    <url>      Legt eine alternative URL für den AUR /rpc "
-"Endpunkt fest"
+"    --aurrpcur  <url>      Встановити альтернативну URL-адресу для кінцевої "
+"точки AUR /rpc"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
-"    --clonedir  <Verzeichnis>      Verzeichnis für das Herunterladen und "
-"Ausführen von PKGBUILDs"
+"    --clonedir  <каталог>  Каталог для завантаження та запуску сценаріїв "
+"PKGBUILD"
 
 #: src/help.rs:43
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr "    --makepkg   <Datei>     Zu verwendender makepkg-Befehl"
+msgstr "    --makepkg   <файл>     Команда makepkg, яку слід використовувати"
 
 #: src/help.rs:44
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr "    --mflags    <flags>    Argumente für makepkg"
+msgstr "    --mflags    <опції>    Передати аргументи до makepkg"
 
 #: src/help.rs:45
 msgid "    --pacman    <file>     pacman command to use"
-msgstr "    --pacman    <Datei>     Zu verwendender pacman-Befehl"
+msgstr "    --pacman    <файл>     Команда pacman, яку слід використовувати"
 
 #: src/help.rs:46
 msgid "    --git       <file>     git command to use"
-msgstr "    --git       <Datei>     Zu verwendender git-Befehl"
+msgstr "    --git       <файл>     Команда git, яку слід використовувати"
 
 #: src/help.rs:47
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <flags>    Argumente für git"
+msgstr "    --gitflags  <опції>    Передати аргументи до git"
 
 #: src/help.rs:48
 msgid "    --sudo      <file>     sudo command to use"
-msgstr "    --sudo      <Datei>     Zu verwendender sudo-Befehl"
+msgstr "    --sudo      <файл>     Команда sudo, яку слід використовувати"
 
 #: src/help.rs:49
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr "    --sudoflags <flags>    Argumente für sudo"
+msgstr "    --sudoflags <опції>    Передати аргументи до sudo"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <Datei>     Zu verwendender git-Befehl"
+msgstr "    --pkgctl    <файл>     Команда pkgctl, яку слід використовувати"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
-msgstr "    --bat       <Datei>     Zu verwendender bat-Befehl"
+msgstr "    --bat       <файл>     Команда bat, яку слід використовувати"
 
 #: src/help.rs:52
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr "    --batflags  <flags>    Argumente für bat"
+msgstr "    --batflags  <опції>    Передати аргументи до bat"
 
 #: src/help.rs:53
 msgid "    --gpg       <file>     gpg command to use"
-msgstr "    --gpg       <Datei>     Zu verwendender gpg-Befehl"
+msgstr "    --gpg       <файл>     Команда gpg, яку слід використовувати"
 
 #: src/help.rs:54
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr "    --gpgflags  <flags>    Argumente für gpg"
+msgstr "    --gpgflags  <опції>    Передати аргументи до gpg"
 
 #: src/help.rs:55
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
-msgstr ""
-"    --fm        <Datei>     Dateimanager für die Überprüfung von PKGBUILDs"
+msgstr "    --fm        <файл>     Файловий менеджер для перегляду PKGBUILD"
 
 #: src/help.rs:56
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
-msgstr "    --fmflags   <flags>    Argumente für Dateimanager"
+msgstr "    --fmflags   <опції>    Передати аргументи до файлового менеджера"
 
 #: src/help.rs:58
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr ""
-"    --completioninterval   <n> Zeit in Tagen bis zur Aktualisierung des "
-"Vervollständigungs-Caches"
+"    --completioninterval   <n> Час у днях для оновлення кешу завершення"
 
 #: src/help.rs:59
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
-"    --sortby    <Feld>    AUR-Ergebnisse bei Suche nach einem bestimmten "
-"Feld sortieren"
+"    --sortby    <поле>     Сортувати результати з AUR за певним критерієм "
+"під час пошуку"
 
 #: src/help.rs:60
 msgid "    --searchby  <field>    Search for packages using a specified field"
-msgstr ""
-"    --searchby  <Feld>    Suche nach Paketen anhand des angegebenen Feldes"
+msgstr "    --searchby  <поле>     Пошук пакунків за вказаним параметром"
 
 #: src/help.rs:61
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
-"    --limit     <Limit>    Begrenzt die Anzahl der zurückgegebenen "
-"Ergebnisse bei einer Suche"
+"    --limit     <limit>    Обмежити кількість елементів у результатах пошуку"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
-msgstr "    -x --regex             Reguläre Ausdrücke für AUR-Suche aktivieren"
+msgstr "    -x --regex             Увімкнути regex для пошуку по AUR"
 
 #: src/help.rs:64
 msgid "    --skipreview           Skip the review process"
-msgstr "    --skipreview           Den Überprüfungsprozess überspringen"
+msgstr "    --skipreview           Пропустити процес перегляду"
 
 #: src/help.rs:65
 msgid "    --review               Don't skip the review process"
-msgstr "    --review               Den Überprüfungsprozess nicht überspringen"
+msgstr "    --review               Не пропускати процес перегляду"
 
 #: src/help.rs:66
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
-"    --[no]upgrademenu      Interaktives Menü zum Überspringen von Upgrades "
-"anzeigen"
+"    --[no]upgrademenu      Показувати інтерактивне меню для пропуску оновлень"
 
 #: src/help.rs:67
 msgid "    --[no]removemake       Remove makedepends after install"
-msgstr "    --[no]removemake       Makedepends nach der Installation entfernen"
+msgstr ""
+"    --[no]removemake       Видаляти залежності для збирання після "
+"встановлення"
 
 #: src/help.rs:68
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr ""
-"    --[no]cleanafter       Paketquellen nach der Installation entfernen"
+"    --[no]cleanafter       Видаляти вихідний код пакунків після встановлення"
 
 #: src/help.rs:69
 msgid "    --[no]rebuild          Always build target packages"
-msgstr "    --[no]rebuild          Zielpakete immer bauen"
+msgstr "    --[no]rebuild          Завжди збирати цільові пакунки"
 
 #: src/help.rs:70
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr "    --[no]redownload       PKGBUILDs von Zielen immer herunterladen"
+msgstr ""
+"    --[no]redownload       Завжди завантажувати PKGBUILD для цільових "
+"пакунків"
 
 #: src/help.rs:72
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
-msgstr ""
-"    --[no]pgpfetch         Aufforderung zum Importieren von PGP-Schlüsseln "
-"aus PKGBUILDs"
+msgstr "    --[no]pgpfetch         Запит на імпорт ключів PGP з PKGBUILD"
 
 #: src/help.rs:73
 msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
-"    --[no]useask           Konflikte automatisch mit dem ask-Flag von pacman "
-"auflösen"
+"    --[no]useask           Автоматично вирішувати конфлікти за допомогою "
+"опції ask (pacman)"
 
 #: src/help.rs:74
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      Änderungen an PKGBUILDs übernehmen, die während "
-"der Überprüfung vorgenommen wurden"
+"    --[no]savechanges      Фіксувати зміни, зроблені під час перегляду, до "
+"pkgbuild"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Neue Nachrichten während System-Upgrades anzeigen"
+"    --[no]newsonupgrade    Показувати останні новини під час оновлення "
+"системи"
 
 #: src/help.rs:76
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Auf Aktualisierungen prüfen und Repo- und AUR-"
-"Upgrade zusammen durchführen"
+"    --[no]combinedupgrade  Синхронізувати та виконувати оновлення з "
+"репозиторіїв та AUR разом"
 
 #: src/help.rs:77
 msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
-"    --[no]batchinstall     Mehrere AUR-Pakete erstellen und anschließend "
-"gemeinsam installieren"
+"    --[no]batchinstall     Збирати усі цільові пакунки з AUR та "
+"встановлювати їх разом"
 
 #: src/help.rs:78
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
-"    --[no]provides         Nach passenden Anbietern suchen, wenn nach "
-"Paketen gesucht wird"
+"    --[no]provides         Шукати відповідних постачальників під час пошуку "
+"пакунків"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
-"    --[no]devel            Entwicklungspakete bei System-Upgrades "
-"miteinbeziehen"
+"    --[no]devel            Перевіряти пакунки розробки під час оновлення "
+"системи"
 
 #: src/help.rs:80
 msgid ""
 "    --[no]installdebug     Also install debug packages when a package "
 "provides them"
 msgstr ""
-"    --[no]installdebug     Debug-Pakete ebenfalls installieren, wenn ein "
-"Paket sie bereitstellt"
+"    --[no]installdebug     Встановлювати також пакунки налагодження коли "
+"вони надаються"
 
 #: src/help.rs:81
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
-"    --[no]sudoloop         sudo-Aufrufe im Hintergrund wiederholen, um "
-"Zeitüberschreitung zu vermeiden"
+"    --[no]sudoloop         Зациклювати виклики sudo у фоновому режимі задля "
+"уникнення таймауту"
 
 #: src/help.rs:82
 msgid "    --[no]chroot           Build packages in a chroot"
-msgstr "    --[no]chroot           Pakete in chroot-Umgebung bauen"
+msgstr "    --[no]chroot           Збирати пакунки у chroot"
 
 #: src/help.rs:83
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
-"    --[no]failfast         Beenden, sobald die Erstellung eines AUR-Pakets "
-"fehlschlägt"
+"    --[no]failfast         Завершувати роботу одразу у разі невдалого "
+"збирання пакета з AUR"
 
 #: src/help.rs:84
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
 msgstr ""
-"    --[no]keepsrc          src/ und pkg/ Verzeichnisse nach Erstellung "
-"behalten"
+"    --[no]keepsrc          Зберігати каталоги src/ та pkg/ після збирання "
+"пакунків"
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
-msgstr "    --[no]sign             Pakete mit gpg signieren"
+msgstr "    --[no]sign             Підписувати пакунки за допомогою gpg"
 
 #: src/help.rs:86
 msgid "    --[no]signdb           Sign databases with gpg"
-msgstr "    --[no]signdb           Datenbanken mit gpg signieren"
+msgstr "    --[no]signdb           Підписувати бази даних за допомогою gpg"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr ""
-"    --localrepo            Pakete in ein lokales Repositorium erstellen"
+msgstr "    --[no]localrepo        Збирати пакунки до локального репозиторію"
 
 #: src/help.rs:88
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
-"    --nocheck              checkdepends nicht auflösen oder die check-"
-"Funktion nicht ausführen"
+"    --nocheck              Не вирішувати залежності для перевірки і не "
+"запускати функцію check()"
 
 #: src/help.rs:89
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
-msgstr "    --develsuffixes        Suffixe, die ein devel-Paket kennzeichnen"
+msgstr ""
+"    --develsuffixes        Суфікси для визначення належності до пакунків "
+"розробки"
 
 #: src/help.rs:90
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
-"    --[no]provides         Nach passenden Anbietern suchen, wenn nach "
-"Paketen gesucht wird"
+"    --ignoredevel          Ігнорувати оновлення розробки для вказаних "
+"пакунків"
 
 #: src/help.rs:91
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
-"    --bottomup             Zeigt zuerst AUR-Pakete und dann die des "
-"Repositoriums"
+"    --bottomup             Спершу показувати пакунки з AUR, потім з "
+"репозиторіїв"
 
 #: src/help.rs:92
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
-"    --topdown              Zeigt zuerst die Pakete des Repositoriums und "
-"dann die des AURs"
+"    --topdown              Спершу показувати пакунки з репозиторіїв, потім з "
+"AUR"
 
 #: src/help.rs:94
 msgid "show specific options:"
-msgstr "Optionen für show:"
+msgstr "Опції для --show:"
 
 #: src/help.rs:95
 msgid "    -c --complete         Used for completions"
-msgstr "    -c --complete         Verwendet für Vervollständigungen"
+msgstr "    -c --complete         Використовувати для завершення"
 
 #: src/help.rs:96
 msgid "    -s --stats            Display system package statistics"
-msgstr "    -s --stats            Statistiken für System-Pakete anzeigen"
+msgstr "    -s --stats            Показувати статистику системних пакетів"
 
 #: src/help.rs:97
 msgid "    -w --news             Print arch news"
-msgstr "    -w --news             Arch-Neuigkeiten anzeigen"
+msgstr "    -w --news             Показувати новини Arch"
 
 #: src/help.rs:99
 msgid "getpkgbuild specific options:"
-msgstr "Optionen für getpkgbuild:"
+msgstr "Опції для --getpkgbuild"
 
 #: src/help.rs:100
 msgid "    -p --print            Print pkgbuild to stdout"
-msgstr "    -p --print            PKGBUILD nach stdout ausgeben"
+msgstr "    -p --print            Виводити PKGBUILD у stdout"
 
 #: src/help.rs:101
 msgid "    -c --comments         Print AUR comments for pkgbuild"
-msgstr "    -c --comments         AUR Kommentare für PKGBUILD ausgeben"
+msgstr "    -c --comments         Виводити коментарі з AUR для PKGBUILD"
 
 #: src/help.rs:102
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --ssh              Paket mit SSH klonen"
+msgstr "    -s --ssh              Клонувати пакунок за допомогою SSH"
 
 #: src/help.rs:104
-#, fuzzy
 msgid "Build specific options:"
-msgstr "Optionen für getpkgbuild:"
+msgstr "Опції для --build"
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Paket installieren als auch erstellen"
+msgstr "    -i --install          Встановлювати пакунок після збирання"
 
 #: src/info.rs:55 src/info.rs:180 src/query.rs:49
 msgid "package '{}' was not found"
-msgstr "Paket ‚{}‘ wurde nicht gefunden"
+msgstr "пакунок '{}' не знайдено"
 
 #: src/info.rs:86 src/info.rs:191 src/info.rs:225
 msgid "Name"
-msgstr "Name"
+msgstr "Назва"
 
 #: src/info.rs:87 src/info.rs:192 src/info.rs:226
 msgid "Version"
-msgstr "Version"
+msgstr "Версія"
 
 #: src/info.rs:88 src/info.rs:193 src/info.rs:227
 msgid "Description"
-msgstr "Beschreibung"
+msgstr "Опис"
 
 #: src/info.rs:89 src/info.rs:195 src/info.rs:235
 msgid "Groups"
-msgstr "Gruppen"
+msgstr "Групи"
 
 #: src/info.rs:90 src/info.rs:196 src/info.rs:236
 msgid "Licenses"
-msgstr "Lizenzen"
+msgstr "Ліцензії"
 
 #: src/info.rs:91 src/info.rs:197 src/info.rs:237
 msgid "Provides"
-msgstr "Stellt bereit"
+msgstr "Забезпечує"
 
 #: src/info.rs:92 src/info.rs:198 src/info.rs:238
 msgid "Depends On"
-msgstr "Hängt ab von"
+msgstr "Залежить від"
 
 #: src/info.rs:93 src/info.rs:199 src/info.rs:239
 msgid "Make Deps"
-msgstr "Make-Abhängigkeiten"
+msgstr "Залежності для збирання"
 
 #: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Check Deps"
-msgstr "Check-Abhängigkeiten"
+msgstr "Залежності для перевірки"
 
 #: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Optional Deps"
-msgstr "Optionale Abhängigkeiten"
+msgstr "Необов'язкові залежності"
 
 #: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Conflicts With"
-msgstr "In Konflikt mit"
+msgstr "Конфліктує з"
 
 #: src/info.rs:97 src/info.rs:243
 msgid "Maintainer"
-msgstr "Maintainer"
+msgstr "Супровідник"
 
 #: src/info.rs:98 src/info.rs:244
 msgid "Votes"
-msgstr "Stimmen"
+msgstr "Голоси"
 
 #: src/info.rs:99 src/info.rs:245
 msgid "Popularity"
-msgstr "Beliebtheit"
+msgstr "Популярність"
 
 #: src/info.rs:100 src/info.rs:246
 msgid "First Submitted"
-msgstr "Zuerst eingereicht am"
+msgstr "Вперше поданий"
 
 #: src/info.rs:101 src/info.rs:247
 msgid "Last Modified"
-msgstr "Letzte Aktualisierung"
+msgstr "Востаннє змінений"
 
 #: src/info.rs:102 src/info.rs:249
 msgid "Out Of Date"
-msgstr "Veraltet"
+msgstr "Застарілий"
 
 #: src/info.rs:103 src/info.rs:254
 msgid "ID"
@@ -822,124 +805,124 @@ msgstr "ID"
 
 #: src/info.rs:104 src/info.rs:255
 msgid "Package Base ID"
-msgstr "Paket Base ID"
+msgstr "ID бази пакунка"
 
 #: src/info.rs:105 src/info.rs:256
 msgid "Keywords"
-msgstr "Schlüsselwörter"
+msgstr "Ключові слова"
 
 #: src/info.rs:106 src/info.rs:258
 msgid "Snapshot URL"
-msgstr "Snapshot URL"
+msgstr "URL-адреса знімка"
 
 #: src/info.rs:107 src/info.rs:203
 msgid "Path"
-msgstr "Pfad"
+msgstr "Шлях"
 
 #: src/install.rs:165 src/query.rs:48 src/lib.rs:101
 msgid "error:"
-msgstr "Fehler:"
+msgstr "помилка:"
 
 #: src/install.rs:166
 msgid "could not get news"
-msgstr "Neuigkeiten konnten nicht abgerufen werden"
+msgstr "не вдалося отримати новини"
 
 #: src/install.rs:171 src/install.rs:1115
 msgid "Proceed with installation?"
-msgstr "Mit der Installation fortfahren?"
+msgstr "Продовжити встановлення?"
 
 #: src/install.rs:206
 msgid "could not find .SRCINFO for '{}'"
-msgstr ".SRCINFO zu ‚{}‘ konnte nicht gefunden werden"
+msgstr "не вдалося знайти .SRCINFO для '{}'"
 
 #: src/install.rs:352
 msgid "could not find package '{pkg}' in package list for '{base}'"
-msgstr "Paket ‚{pkg}‘ in Paketliste für ‚{base}‘ nicht gefunden"
+msgstr "не вдалося знайти пакунок '{pkg}' у списку пакунків для '{base}'"
 
 #: src/install.rs:439
 msgid "packages failed to build: {}"
-msgstr "Pakete konnten nicht erstellt werden: {}"
+msgstr "не вдалося зібрати пакунки: {}"
 
 #: src/install.rs:511
 msgid "adding {} to the install list"
-msgstr "{} zur Installationsliste hinzugefügt"
+msgstr "додавання {} до списку встановлення"
 
 #: src/install.rs:541 src/install.rs:556
 msgid "failed to download sources for '{}'"
-msgstr "Quellen für ‚{}‘ konnten nicht heruntergeladen werden"
+msgstr "не вдалося завантажити вихідний код для '{}'"
 
 #: src/install.rs:565 src/install.rs:591 src/install.rs:599
 msgid "failed to build '{}'"
-msgstr "‚{}‘ konnte nicht erstellt werden"
+msgstr "не вдалося зібрати '{}'"
 
 #: src/install.rs:568 src/install.rs:772
 msgid "{}: parsing pkg list..."
-msgstr "{}: Lese pkg Liste…"
+msgstr "{}: аналіз списку пакунка..."
 
 #: src/install.rs:572
 msgid "package list does not match srcinfo"
-msgstr "Paketliste stimmt nicht mit .SRCINFO überein"
+msgstr "список пакунка не відповідає SRCINFO"
 
 #: src/install.rs:606
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} ist aktuell -- überspringe Erstellen"
+msgstr "{}-{} в актуальному стані - збирання пропускається"
 
 #: src/install.rs:763
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr "kann {base} nicht erstellen, Abhängigkeiten nicht erfüllt: {deps}"
+msgstr "не вдалося зібрати {base} через нерозв'язані залежності: {deps}"
 
 #: src/install.rs:834
 msgid "fetching devel info..."
-msgstr "devel Informationen werden empfangen..."
+msgstr "отримання інформації розробки..."
 
 #: src/install.rs:899 src/lib.rs:242
 msgid "no targets specified (use -h for help)"
-msgstr "keine Ziele spezifiziert (benutze -h für Hilfe)"
+msgstr "цілі не вказано (використовуйте -h для довідки)"
 
 #: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:306
 msgid " there is nothing to do"
-msgstr " es gibt nichts zu tun"
+msgstr " нема чого робити"
 
 #: src/install.rs:1004
 msgid "Resolving dependencies..."
-msgstr "Löse Abhängigkeiten auf…"
+msgstr "Розв'язання залежностей..."
 
 #: src/install.rs:1065
 msgid "can't install AUR package as root"
-msgstr "AUR-Pakete können nicht als root installiert werden"
+msgstr "не вдалося встановити пакунок з AUR від імені root"
 
 #: src/install.rs:1068
 msgid "--downloadonly can't be used for AUR packages"
-msgstr ""
+msgstr "--downloadonly не можна використовувати для пакунків з AUR"
 
 #: src/install.rs:1101
 msgid "Remove make dependencies after install?"
-msgstr "Entferne make Abhängigkeiten nach der Installation?"
+msgstr "Видалити залежності збирання після встановлення?"
 
 #: src/install.rs:1112
 msgid "Proceed to review?"
-msgstr "Mit Überprüfung fortfahren?"
+msgstr "Перейти до перегляду?"
 
 #: src/install.rs:1165
 msgid "no architecture"
-msgstr "keine Architektur"
+msgstr "відсутня архітектура"
 
 #: src/install.rs:1179
 msgid "The following packages are not compatible with your architecture:"
-msgstr "Die folgenden Pakete sind nicht mit Ihrer Architektur kompatibel:"
+msgstr "Наступні пакунки не сумісні з вашою архітектурою:"
 
 #: src/install.rs:1193
 msgid "Would you like to try build them anyway?"
-msgstr "Möchten Sie trotzdem versuchen, sie zu erstellen?"
+msgstr "Ви все одно хочете спробувати зібрати їх?"
 
 #: src/install.rs:1337
 msgid "duplicate packages: {}"
-msgstr "duplizierte Pakete: {}"
+msgstr "дублювання пакунків: {}"
 
 #: src/install.rs:1341
 msgid "could not find all required packages:"
-msgstr "nicht alle benötigten Pakete gefunden:"
+msgstr "не вдалося знайти всі необхідні пакунки:"
 
 #: src/install.rs:1353
 msgid ""
@@ -947,60 +930,59 @@ msgid ""
 "    {missing} (wanted by: {stack})"
 msgstr ""
 "\n"
-"    {missing} (Benötigt von: {stack})"
+"    {missing} (необхідний для: {stack})"
 
 #: src/install.rs:1367 src/install.rs:2115
 msgid "{}-{} is up to date -- skipping"
-msgstr "{}-{} ist aktuell -- überspringe"
+msgstr "{}-{} в актуальному стані -- пропускається"
 
 #: src/install.rs:1375
 msgid "Calculating conflicts..."
-msgstr "Konflikte berechnen…"
+msgstr "Розрахунок конфліктів..."
 
 #: src/install.rs:1384
 msgid "Calculating inner conflicts..."
-msgstr "Interne Konflikte berechnen…"
+msgstr "Розрахунок внутрішніх конфліктів..."
 
 #: src/install.rs:1396
 msgid "Inner conflicts found:"
-msgstr "Interne Konflikte gefunden:"
+msgstr "Виявлені внутрішні конфлікти:"
 
 #: src/install.rs:1418
 msgid "Conflicts found:"
-msgstr "Konflikte gefunden:"
+msgstr "Виявлено конфлікти:"
 
 #: src/install.rs:1441
 msgid "Conflicting packages will have to be confirmed manually"
-msgstr "In Konflikt stehende Pakete müssen manuell bestätigt werden"
+msgstr "Конфліктуючі пакунки потрібно буде підтвердити вручну"
 
 #: src/install.rs:1445
 msgid "can not install conflicting packages with --noconfirm"
-msgstr ""
-"In Konflikt stehende Pakete können nicht mit --noconfirm installiert werden"
+msgstr "не вдалося встановити конфліктуючі пакунки з --noconfirm"
 
 #: src/install.rs:1575
 msgid "failed to execute file manager: {}"
-msgstr "Dateimanager konnte nicht ausgeführt werden: {}"
+msgstr "не вдалося запустити файловий менеджер: {}"
 
 #: src/install.rs:1578
 msgid "file manager did not execute successfully"
-msgstr "Dateimanager wurde nicht erfolgreich beendet"
+msgstr "файловий менеджер не вдалося успішно запустити"
 
 #: src/install.rs:1596
 msgid "failed to read dir: {}"
-msgstr "Verzeichnis konnte nicht gelesen werden: {}"
+msgstr "не вдалося прочитати каталог: {}"
 
 #: src/install.rs:1660
 msgid "failed to open: {}"
-msgstr "konnte nicht geöffnet werden: {}"
+msgstr "не вдалося відкрити: {}"
 
 #: src/install.rs:1680
 msgid "binary file: {}"
-msgstr "Binärdatei: {}"
+msgstr "двійковий файл: {}"
 
 #: src/install.rs:1702 src/install.rs:1784
 msgid "Accept changes?"
-msgstr "Änderungen akzeptieren?"
+msgstr "Прийняти зміни?"
 
 #: src/install.rs:1750
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
@@ -1008,214 +990,213 @@ msgstr ""
 
 #: src/install.rs:1788
 msgid " nothing new to review"
-msgstr " nichts Neues zu überprüfen"
+msgstr " нічого нового для огляду"
 
 #: src/install.rs:2063
 msgid "can't find package name in packagelist: {}"
-msgstr "Paketname Paketliste nicht gefunden: {}"
+msgstr "не вдалося знайти пакунок із такою назвою у списку пакунків: {}"
 
 #: src/install.rs:2135
 msgid "Signing packages..."
-msgstr "Signiere Pakete…"
+msgstr "Підписання пакунків..."
 
 #: src/install.rs:2173
 msgid "{}-{} is up to date -- skipping install"
-msgstr "{}-{} ist aktuell -- überspringe Installation"
+msgstr "{}-{} в актуальному стані - встановлення пропускається"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
-msgstr "Schlüssel müssen importiert werden:"
+msgstr "потрібно імпортувати ключі:"
 
 #: src/keys.rs:58
 msgid "     {key} wanted by: {base}"
-msgstr "     {key} wird benötigt von: {base}"
+msgstr "     {key} необхідний для: {base}"
 
 #: src/news.rs:57
 msgid "No Date "
-msgstr "Kein Datum "
+msgstr "Без дати"
 
 #: src/news.rs:60
 msgid "No Title"
-msgstr "Kein Titel"
+msgstr "Без назви"
 
 #: src/news.rs:69
 msgid "no new news"
-msgstr "keine Neuigkeiten"
+msgstr "немає нових новин"
 
 #: src/pkgbuild.rs:90
 msgid "repo {} does not have a URL or Path"
-msgstr "Repo {} hat keine URL oder Pfad"
+msgstr "репозиторій {} не має посилання або шляху"
 
 #: src/pkgbuild.rs:152
-#, fuzzy
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
-msgstr "Repo {} nicht heruntergeladen (benutze -Sya zum Herunterladen)"
+msgstr ""
+"репозиторій {} не завантажено (для завантаження використовуйте -Sy --"
+"pkgbuilds)"
 
 #: src/pkgbuild.rs:199
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr "Generiere .SRCINFO für {repo}/{dir}..."
+msgstr "Створення .SRCINFO для {repo}/{dir}..."
 
 #: src/pkgbuild.rs:277
 msgid "failed to parse srcinfo \"{}\""
-msgstr ".SRCINFO ‚{}‘ konnte nicht eingelesen werden"
+msgstr "не вдалося розібрати SRCINFO \"{}\""
 
 #: src/pkgbuild.rs:355
 msgid "Downloading PKGBUILD Repos..."
-msgstr "Lade PKGBUILD Repos herunter..."
+msgstr "Завантаження репозиторіїв PKGBUILD..."
 
 #: src/pkgbuild.rs:409
 msgid "failed to parse srcinfo generated by makepkg"
-msgstr "von makepkg erzeugte .SRCINFO konnte nicht eingelesen werden"
+msgstr "не вдалося розібрати SRCINFO створений за допомогою makepkg"
 
 #: src/query.rs:147
 msgid " [ignored]"
-msgstr " [ignoriert]"
+msgstr " [ігнорується]"
 
 #: src/repo.rs:264
 msgid "failed to get current exe"
-msgstr "aktuelle exe nicht gefunden"
+msgstr "не вдалося отримати поточний exe"
 
 #: src/repo.rs:311
 msgid "syncing local databases..."
-msgstr "lokale Datenbanken synchronisieren..."
+msgstr "синхронізація локальних баз даних..."
 
 #: src/repo.rs:317
 msgid "  nothing to do"
-msgstr "  nichts zu tun"
+msgstr "  нема чого робити"
 
 #: src/repo.rs:348
 msgid "there is nothing to do"
-msgstr "es gibt nichts zu tun"
+msgstr "  тут нема чого робити"
 
 #: src/repo.rs:354
 msgid "Packages"
-msgstr "Pakete"
+msgstr "Пакунки"
 
 #: src/repo.rs:367
 msgid "Proceed with removal?"
-msgstr "Mit Entfernen fortfahren?"
+msgstr "Продовжити видалення?"
 
 #: src/repo.rs:428
 msgid " [installed: {}]"
-msgstr " [installiert: {}]"
+msgstr " [встановлено: {}]"
 
 #: src/repo.rs:430 src/sync.rs:146
 msgid " [installed]"
-msgstr " [installiert]"
+msgstr " [встановлено]"
 
 #: src/search.rs:40
 msgid "aur search failed"
-msgstr "AUR-Suche fehlgeschlagen"
+msgstr "пошук в AUR не вдався"
 
 #: src/search.rs:275 src/search.rs:316 src/search.rs:370
 msgid "[Installed: {}]"
-msgstr "[Installiert: {}]"
+msgstr "[Встановлено: {}]"
 
 #: src/search.rs:277 src/search.rs:318 src/search.rs:372
 msgid "[Installed]"
-msgstr "[Installiert]"
+msgstr "[Встановлено]"
 
 #: src/search.rs:310
 msgid "[Out-of-date: {}]"
-msgstr "[Veraltet: {}]"
+msgstr "[Застарілий: {}]"
 
 #: src/search.rs:325
 msgid "[Orphaned]"
-msgstr "[Verwaist]"
+msgstr "[Осиротілий]"
 
 #: src/search.rs:451
 msgid "no packages match search"
-msgstr "keine Pakete stimmen mit der Suche überein"
+msgstr "не знайдено пакунків відповідних запиту"
 
 #: src/search.rs:489
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "Zu installierende Pakete (z. B: 1 2 3, 1-3):"
+msgstr "Пакунки для встановлення (наприклад: 1 2 3, 1-3):"
 
 #: src/search.rs:491
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Zu installierende Pakete (z. B: 1 2 3, 1-3):"
+msgstr "Виберіть пакунки (наприклад: 1 2 3, 1-3):"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
-msgstr "Insgesamt installierte Pakete: {}"
+msgstr "Загальна кількість встановлених пакунків: {}"
 
 #: src/stats.rs:94
 msgid "Aur packages: {}"
-msgstr "AUR-Pakete: {}"
+msgstr "Пакунки з AUR: {}"
 
 #: src/stats.rs:98
 msgid "Repo packages: {}"
-msgstr "Repo-Pakete: {}"
+msgstr "Пакунки з репозиторіїв: {}"
 
 #: src/stats.rs:102
 msgid "Explicitly installed packages: {}"
-msgstr "Explizit installierte Pakete: {}"
+msgstr "Явно встановлені пакунки: {}"
 
 #: src/stats.rs:106
 msgid "Total Size occupied by packages: {}"
-msgstr "Gesamtgröße installierter Pakete: {}"
+msgstr "Загальний розмір пакунків: {}"
 
 #: src/stats.rs:113
 msgid "Ten biggest packages:"
-msgstr "Zehn größte Pakete:"
+msgstr "Десять найбільших пакунків:"
 
 #: src/upgrade.rs:126
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "Nach AUR-Upgrades suchen..."
+msgstr "Пошук оновлень PKGBUILD..."
 
 #: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
-msgstr "Nach AUR-Upgrades suchen..."
+msgstr "Пошук оновлень AUR..."
 
 #: src/upgrade.rs:165
 msgid "Looking for devel upgrades..."
-msgstr "Nach devel-Upgrades suchen..."
+msgstr "Пошук оновлень розробки..."
 
 #: src/upgrade.rs:193 src/upgrade.rs:206
 msgid "warning:"
-msgstr "Warnung:"
+msgstr "попередження:"
 
 #: src/upgrade.rs:195 src/upgrade.rs:208
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
-msgstr "{pkg}: Ignoriere Paket-Upgrade ({old} => {new})"
+msgstr "{pkg}: ігнорується оновлення пакунка ({old} => {new})"
 
 #: src/upgrade.rs:400
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Auszuschließende Pakete (z. B: 1 2 3, 1-3):"
+msgstr "Пакунки для виключення (наприклад: 1 2 3, 1-3):"
 
 #: src/util.rs:119
 msgid "[Y/n]:"
-msgstr "[J/n]:"
+msgstr "[Y/n]:"
 
 #: src/util.rs:121
 msgid "[y/N]:"
-msgstr "[j/N]:"
+msgstr "[y/N]:"
 
 #: src/util.rs:140
 msgid "y"
-msgstr "j"
+msgstr "y"
 
 #: src/util.rs:140
 msgid "yes"
-msgstr "ja"
+msgstr "так"
 
 #: src/util.rs:338
 msgid "Enter a number (default=1): "
-msgstr "Geben Sie eine Zahl ein (Vorauswahl=1): "
+msgstr "Введіть число (типово = 1): "
 
 #: src/util.rs:355
 msgid "invalid number: {}"
-msgstr "ungültige Zahl: {}"
+msgstr "неприпустиме число: {}"
 
 #: src/util.rs:365
 msgid "invalid value: {n} is not between 1 and {max}"
-msgstr "ungültiger Wert: {n} liegt nicht zwischen 1 und {max}"
+msgstr "неприпустиме значення: {n} не знаходиться між 1 та {max}"
 
 #: src/resolver.rs:83
 msgid "There are {} members in group"
-msgstr "Die Gruppe enthält {} Einträge"
+msgstr "Група налічує {} учасників"
 
 #: src/resolver.rs:108
 msgid ""
@@ -1225,54 +1206,12 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"Geben Sie eine Auswahl an (Vorauswahl=alle): "
+"Введіть значення (типово = всі): "
 
 #: src/lib.rs:208
 msgid "can not use chroot builds: devtools is not installed"
-msgstr ""
-"chroot-Erstellung nicht verfügbar: Entwicklungstools sind nicht installiert"
+msgstr "не можливо використовувати chroot-збирання: не встановлено devtools"
 
 #: src/lib.rs:315
 msgid "no operation specified (use -h for help)"
-msgstr "keine Operation angegeben (benutze -h für Hilfe)"
-
-#~ msgid "Aur ({})"
-#~ msgstr "AUR ({})"
-
-#~ msgid "Pkgbuilds ({})"
-#~ msgstr "PKGBUILDs ({})"
-
-#~ msgid "could not get current directory"
-#~ msgstr "aktuelles Verzeichnis konnte nicht ermittelt werden"
-
-#~ msgid "can not get repo packages: asp is not installed"
-#~ msgstr ""
-#~ "Repo-Pakete können nicht abgerufen werden: asp ist nicht installiert"
-
-#~ msgid "Missing ABS packages "
-#~ msgstr "Fehlende ABS-Pakete "
-
-#~ msgid "does not contain PKGBUILD: skipping"
-#~ msgstr "enthält kein PKGBUILD: Überspringe"
-
-#~ msgid "{} is not installed: can not get repo packages"
-#~ msgstr "{} ist nicht installiert: Repo-Pakete können nicht abgerufen werden"
-
-#~ msgid "asp returned {}"
-#~ msgstr "asp gab {} zurück"
-
-#~ msgid "    --asp       <file>     asp command to use"
-#~ msgstr "    --asp       <Datei>     Zu verwendender asp-Befehl"
-
-#, fuzzy
-#~ msgid "Generating .SRCINFO for {dir}..."
-#~ msgstr "Generiere .SRCINFO für {repo}/{dir}..."
-
-#~ msgid "pkgbase {base} already exists in repo {repo} -- skipping)"
-#~ msgstr "pkgbase {base} existiert bereits in Repo {repo} -- überspringe)"
-
-#~ msgid "upgrade specific options:"
-#~ msgstr "Optionen für upgrade:"
-
-#~ msgid "Looking for SRCINFO upgrades..."
-#~ msgstr "Nach SRCINFO-Upgrades suchen..."
+msgstr "не вказано операцію (використовуйте -h для довідки)"

@@ -52,7 +52,11 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         }
 
         let mut args = config.pacman_args();
-        args.remove("u").remove("upgrades").arg("q");
+        args.remove("u")
+            .remove("upgrades")
+            .remove("i")
+            .remove("info")
+            .arg("q");
         args.targets = aur.into_iter().collect();
         let output = exec::pacman_output(config, &args)?;
         let aur = String::from_utf8(output.stdout)?;

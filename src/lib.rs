@@ -294,7 +294,7 @@ async fn handle_default(config: &mut Config) -> Result<i32> {
         Ok(0)
     } else if config.clean > 0 {
         config.need_root = true;
-        let unneeded = util::unneeded_pkgs(config, config.clean == 1, !config.optional);
+        let unneeded = util::unneeded_pkgs(config, !config.optional);
         if !unneeded.is_empty() {
             let mut args = config.pacman_args();
             args.remove("c").remove("clean");
@@ -429,6 +429,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
         ro: repo::all_files(config),
         rw: config.pacman.cache_dir.clone(),
         extra_pkgs: config.chroot_pkgs.clone(),
+        root_pkgs: config.root_chroot_pkgs.clone(),
     };
 
     if config.print {
@@ -437,7 +438,7 @@ fn handle_chroot(config: &Config) -> Result<i32> {
     }
 
     if !chroot.exists() {
-        chroot.create(config, &["base-devel"])?;
+        chroot.create(config)?;
     }
 
     if config.sysupgrade {
