@@ -72,7 +72,7 @@ mock_chroot = ["mock"]
 #default = ["git", "generate"]
 
 [patch.crates-io]
-#alpm = { path = "../alpm.rs/alpm" }
-#alpm-utils = { path = "../alpm.rs/alpm-utils" }
+alpm = { git = "https://github.com/archlinux/alpm.rs.git", rev = "b010ec79ee92b54e87f07fa4e287cbabc035c0ca" }
+alpm-utils = { git = "https://github.com/archlinux/alpm.rs.git", rev = "b010ec79ee92b54e87f07fa4e287cbabc035c0ca" }
 #aur-depends = { path = "../aur-depends" }
 #aur-fetch = { path = "../aur-fetch" }
