@@ -34,6 +34,14 @@ pub fn ymd(date: i64) -> String {
     date.format("%Y-%m-%d").to_string()
 }
 
+pub fn link_str(enabled: bool, s: &str, url: &str) -> String {
+    if enabled {
+        format!("\x1b]8;;{url}\x1b\\{s}\x1b]8;;\x1b\\")
+    } else {
+        s.to_string()
+    }
+}
+
 fn word_len(s: &str) -> usize {
     let mut len = 0;
     let mut chars = s.chars().peekable();

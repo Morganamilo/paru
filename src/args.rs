@@ -3,7 +3,6 @@ use std::fmt::{Display, Formatter, Result};
 
 pub static PACMAN_FLAGS: &[&str] = &[
     "disable-download-timeout",
-    "sysroot",
     "d",
     "nodeps",
     "assume-installed",

@@ -833,7 +833,7 @@ msgstr "未指定目標（使用 -h 以取得說明）"
 #: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
 #: src/lib.rs:306
 msgid " there is nothing to do"
-msgstr " 無事可作"
+msgstr " 已無事可做"
 
 #: src/install.rs:1004
 msgid "Resolving dependencies..."

@@ -1,9 +1,13 @@
 use crate::config::{Colors, Config, SortMode, YesNoAll};
 use crate::fmt::print_indent;
 use crate::printtr;
+use crate::util::is_arch_repo;
 use crate::RaurHandle;
 
-use std::collections::HashMap;
+use std::collections::btree_map::Entry;
+use std::collections::{BTreeMap, HashMap};
+use std::env::current_dir;
+use std::fs::{read_to_string, remove_dir_all};
 use std::io::Write;
 use std::iter::FromIterator;
 use std::process::{Command, Stdio};
@@ -181,11 +185,15 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
         .map(|t| t.as_str())
         .collect::<Vec<_>>();
 
-    let (repo, aur) = split_repo_aur_pkgbuilds(config, &pkgs);
+    let (repo, pkgbuild, aur) = split_target_pkgbuilds(config, &pkgs);
     let mut ret = 0;
 
     if !repo.is_empty() {
         ret = repo_pkgbuilds(config, &repo)?;
+    }
+
+    if !pkgbuild.is_empty() {
+        ret = pkgbuild_pkgbuilds(config, &pkgbuild)?;
     }
 
     if !aur.is_empty() {
@@ -260,6 +268,82 @@ pub fn print_download(_config: &Config, n: usize, total: usize, pkg: &str) {
         n = n,
         total = total,
     );
+}
+
+fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
+    let mut ret = 0;
+    let cwd = current_dir()?;
+    let color = config.color;
+
+    let mut pkgs = BTreeMap::new();
+
+    for &targ in pkgbuild {
+        let Some((base, _)) = config.pkgbuild_repos.target(config, targ) else {
+            eprintln!(
+                "{} {}",
+                color.error.paint("error:"),
+                tr!("package '{}' was not found", targ.pkg),
+            );
+            ret = 1;
+            continue;
+        };
+
+        match pkgs.entry(base.srcinfo.pkgbase()) {
+            Entry::Vacant(v) => {
+                v.insert(base);
+            }
+            Entry::Occupied(o) => {
+                if o.get().repo != base.repo {
+                    bail!(tr!("duplicate PKGBUILD: {}", base.srcinfo.pkgbase()))
+                }
+            }
+        }
+    }
+
+    for (n, pkg) in pkgs.values().enumerate() {
+        let path = cwd.join(pkg.srcinfo.pkgbase());
+        print_download(config, n + 1, pkgs.len(), pkg.srcinfo.pkgbase());
+
+        if path.exists() {
+            if !path.join("PKGBUILD").exists() {
+                eprintln!(
+                    "{} {}",
+                    color.error.paint("error:"),
+                    tr!(
+                        "package '{}' exists but has no PKGBUILD -- skipping",
+                        pkg.srcinfo.pkgbase(),
+                    ),
+                );
+                ret = 1;
+                continue;
+            }
+            remove_dir_all(&path)?;
+        }
+
+        let ret = Command::new("cp")
+            .arg("-r")
+            .arg("--")
+            .arg(&pkg.path)
+            .arg(path)
+            .output()
+            .with_context(|| {
+                format!(
+                    "{} {} {} {}",
+                    tr!("failed to run:"),
+                    "cp",
+                    pkg.path.display(),
+                    cwd.display()
+                )
+            })?;
+
+        ensure!(
+            ret.status.success(),
+            "{}",
+            String::from_utf8_lossy(&ret.stderr).trim()
+        );
+    }
+
+    Ok(ret)
 }
 
 async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
@@ -448,69 +532,59 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     Ok(ret)
 }
 
-fn split_repo_aur_pkgbuilds<'a, T: AsTarg>(
+fn split_target_pkgbuilds<'a, T: AsTarg>(
     config: &Config,
     targets: &'a [T],
-) -> (Vec<Targ<'a>>, Vec<Targ<'a>>) {
+) -> (Vec<Targ<'a>>, Vec<Targ<'a>>, Vec<Targ<'a>>) {
     let mut local = Vec::new();
+    let mut pkgbuild = Vec::new();
     let mut aur = Vec::new();
     let db = config.alpm.syncdbs();
 
     for targ in targets {
         let targ = targ.as_targ();
-        if !config.mode.repo() {
-            aur.push(targ);
-        } else if !config.mode.aur() && !config.mode.pkgbuild() {
+        if config.mode.repo() && db.find_target(targ).is_ok() {
             local.push(targ);
-        } else if let Some(repo) = targ.repo {
-            if matches!(
-                repo,
-                "testing"
-                    | "community-testing"
-                    | "core"
-                    | "extra"
-                    | "community"
-                    | "multilib"
-                    | "core-testing"
-                    | "extra-testing"
-                    | "multilib-testing"
-            ) {
-                local.push(targ);
-            } else {
-                aur.push(targ);
+            continue;
+        }
+
+        if config.mode.pkgbuild() {
+            if let Some(repo) = targ.repo {
+                if config.pkgbuild_repos.repo(repo).is_some() {
+                    pkgbuild.push(targ);
+                    continue;
+                }
+            } else if config.pkgbuild_repos.pkg(config, targ.pkg).is_some() {
+                pkgbuild.push(targ);
+                continue;
             }
-        } else if let Ok(pkg) = db.pkg(targ.pkg) {
-            if matches!(
-                pkg.db().unwrap().name(),
-                "testing"
-                    | "community-testing"
-                    | "core"
-                    | "extra"
-                    | "community"
-                    | "multilib"
-                    | "core-testing"
-                    | "extra-testing"
-                    | "multilib-testing"
-            ) {
-                local.push(targ);
-            } else {
-                aur.push(targ);
-            }
-        } else {
+        }
+
+        if config.mode.repo() && targ.repo.map_or(false, |repo| is_arch_repo(repo)) {
+            local.push(targ);
+            continue;
+        }
+
+        if config.mode.aur() {
             aur.push(targ);
+        } else if config.mode.repo() {
+            local.push(targ)
+        } else {
+            pkgbuild.push(targ)
         }
     }
 
-    (local, aur)
+    (local, pkgbuild, aur)
 }
 
 pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
+    let color = config.color;
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
     let client = config.raur.client();
 
-    let (repo, aur) = split_repo_aur_pkgbuilds(config, &config.targets);
+    let (repo, pkgbuild, aur) = split_target_pkgbuilds(config, &config.targets);
 
     if !repo.is_empty() {
         for pkg in &repo {
@@ -537,6 +611,28 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
                 pipe_bat(config, &response.bytes().await?)?;
             } else {
                 let _ = stdout.write_all(&response.bytes().await?);
+            }
+
+            let _ = stdout.write_all(b"\n");
+        }
+    }
+
+    if !pkgbuild.is_empty() {
+        for pkg in pkgbuild {
+            let Some(pkg) = config.pkgbuild_repos.target(config, pkg) else {
+                eprintln!(
+                    "{} {}",
+                    color.error.paint("error:"),
+                    tr!("package '{}' was not found", pkg.pkg),
+                );
+                continue;
+            };
+
+            let pkgbuild = read_to_string(pkg.0.path.join("PKGBUILD"))?;
+            if bat {
+                pipe_bat(config, pkgbuild.as_bytes())?;
+            } else {
+                let _ = stdout.write_all(pkgbuild.as_bytes());
             }
 
             let _ = stdout.write_all(b"\n");

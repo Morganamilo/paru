@@ -45,7 +45,7 @@ _paru_pkg() {
 }
 
 _pacman_repo_list() {
-  _arch_compgen "$(pacman-conf --repo-list)"
+  _arch_compgen "$(pacman-conf --repo-list)"$'\n'"$(paru -Sl --pkgbuilds | cut -d ' ' -f1 | uniq)"
 }
 
 _paru() {
