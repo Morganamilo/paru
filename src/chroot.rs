@@ -91,16 +91,6 @@ impl Chroot {
             .arg(&self.makepkg_conf)
             .arg(dir);
 
-        for file in &self.ro {
-            cmd.arg("--bind-ro");
-            cmd.arg(file);
-        }
-
-        for file in &self.rw {
-            cmd.arg("--bind");
-            cmd.arg(file);
-        }
-
         cmd.args(args);
 
         exec::command(&mut cmd)?;
