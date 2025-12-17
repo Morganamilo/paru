@@ -353,8 +353,7 @@ async fn handle_sync(config: &mut Config) -> Result<i32> {
     if config.args.has_arg("i", "info") {
         info::info(config, config.args.count("i", "info") > 1).await
     } else if config.args.has_arg("c", "clean") {
-        clean::clean(config)?;
-        Ok(0)
+        clean::clean(config)
     } else if config.args.has_arg("l", "list") {
         sync::list(config).await
     } else if config.args.has_arg("s", "search") {
