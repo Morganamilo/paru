@@ -1801,12 +1801,13 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
 }
 
 fn update_aur_list(config: &Config) {
+    let client = config.raur.client().clone();
     let url = config.aur_url.clone();
     let dir = config.cache_dir.clone();
     let interval = config.completion_interval;
 
     tokio::spawn(async move {
-        let _ = update_aur_cache(&url, &dir, Some(interval)).await;
+        let _ = update_aur_cache(&client, &url, &dir, Some(interval)).await;
     });
 }
 

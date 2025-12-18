@@ -38,6 +38,8 @@ pub fn help() {
     );
     printtr!("    --aururl    <url>      Set an alternative AUR URL");
     printtr!("    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint");
+    printtr!("    --proxy     <url>      Set HTTP proxy for AUR requests");
+    printtr!("    --noproxy   <list>     Comma-separated hosts to bypass proxy");
     printtr!("    --clonedir  <dir>      Directory used to download and run PKGBUILDs");
     println!();
     printtr!("    --makepkg   <file>     makepkg command to use");
