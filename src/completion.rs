@@ -2,9 +2,11 @@ use crate::config::Config;
 use crate::print_error;
 
 use std::fs::{create_dir_all, metadata, OpenOptions};
-use std::io::{stdout, BufRead, BufReader, Write};
+use std::io::{stdout, BufRead, BufReader, Read, Write};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
+
+use flate2::read::GzDecoder;
 
 use anyhow::{ensure, Context, Result};
 use reqwest::get;
@@ -21,6 +23,13 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
 
     let data = resp.bytes().await?;
 
+    // Decompress gzip; AUR serves packages.gz without Content-Encoding header
+    let mut decoder = GzDecoder::new(&data[..]);
+    let mut decompressed = Vec::new();
+    decoder
+        .read_to_end(&mut decompressed)
+        .with_context(|| tr!("failed to decompress package list"))?;
+
     create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");
     let file = OpenOptions::new()
@@ -30,7 +39,7 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
         .open(&path);
     let mut file = file.with_context(|| tr!("failed to open cache file '{}'", path.display()))?;
 
-    for line in data.split(|&c| c == b'\n').skip(1) {
+    for line in decompressed.split(|&c| c == b'\n').skip(1) {
         if !line.is_empty() {
             file.write_all(line)?;
             file.write_all(b"\n")?;
