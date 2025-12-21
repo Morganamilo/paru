@@ -5,20 +5,21 @@
 # Previous translators
 # Silejonu <erwan.amans@gmail.com>, 2021\n"
 # Cedric Brisson <cedric@cedricbrisson.ca>, 2021\n"
+# Paragoumba <github@paragoumba.fr>, 2023\n"
 msgid ""
 msgstr ""
 "Project-Id-Version: paru  1.10.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2025-07-08 05:28+0000\n"
-"PO-Revision-Date: 2023-12-03 21:43+0100\n"
-"Last-Translator: Paragoumba <github@paragoumba.fr>\n"
-"Language-Team: Paragoumba <github@paragoumba.fr>\n"
+"PO-Revision-Date: 2025-12-21 22:33+0100\n"
+"Last-Translator: Eliott Leboeuf <eliott.leboeuf@gmail.com>\n"
+"Language-Team: Eliott Leboeuf <eliott.leboeuf@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 23.08.3\n"
+"X-Generator: Poedit 3.8\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -30,7 +31,7 @@ msgstr "Voulez-vous supprimer tous les autres paquets AUR du cache ?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
-msgstr "Dossier Clone : {}"
+msgstr "Dossier Clone : {}"
 
 #: src/clean.rs:47
 msgid ""
@@ -57,9 +58,8 @@ msgid "can't open clone dir: {}"
 msgstr "impossible d'ouvrir le dossier clone : {}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "impossible de trouver le .SRCINFO pour '{}'"
+msgstr "impossible de trouver .SRCINFO pour '{}'"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
@@ -90,9 +90,8 @@ msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "valeur '{val}' invalide pour la clé '{key}', attendu : {exp}"
 
 #: src/config.rs:332
-#, fuzzy
 msgid "unknown mode {}"
-msgstr "option inconnue -{}"
+msgstr "option inconnue {}"
 
 #: src/config.rs:562
 msgid "section can not be called {}"
@@ -107,7 +106,6 @@ msgid "failed to find config directory"
 msgstr "dossier de configuration introuvable"
 
 #: src/config.rs:586
-#, fuzzy
 msgid "failed to find state directory"
 msgstr "dossier de cache introuvable"
 
@@ -144,9 +142,8 @@ msgid "key can not be empty"
 msgstr "la clé ne peut pas être vide"
 
 #: src/config.rs:979
-#, fuzzy
 msgid "error: unknown option '{}' in repo"
-msgstr "erreur : option '{}' inconnue dans la section [bin]"
+msgstr "erreur: option '{}' inconnue dans la section [bin]"
 
 #: src/config.rs:989
 msgid "key can not contain null bytes"
@@ -198,23 +195,20 @@ msgid "failed to save devel info"
 msgstr "échec de l'enregistrement des informations devel"
 
 #: src/devel.rs:218
-#, fuzzy
 msgid "failed to create state directory: {}"
-msgstr "dossier de cache introuvable"
+msgstr "dossier de cache introuvable : {}"
 
 #: src/devel.rs:233
-#, fuzzy
 msgid "failed to create temporary file: {}"
-msgstr "échec de l’exécution du gestionnaire de fichier : {}"
+msgstr "échec de la création d'un fichier temporaire : {}"
 
 #: src/devel.rs:238
-#, fuzzy
 msgid "failed to write to temporary file: {}"
-msgstr "échec de la lecture du dossier : {}"
+msgstr "échec de l'écriture d'un fichier temporaire : {}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr "erreur de renommage"
+msgstr "erreur de renommage '{temp}' en '{devel_toml}'"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -225,9 +219,8 @@ msgid "failed to lookup: {}"
 msgstr "erreur lors de la recherche : {}"
 
 #: src/devel.rs:562
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "json invalide : {}"
+msgstr "toml invalide : {}"
 
 #: src/download.rs:95
 msgid "packages not in the AUR: "
@@ -235,7 +228,7 @@ msgstr "paquets introuvables dans l'AUR : "
 
 #: src/download.rs:106
 msgid "marked out of date: "
-msgstr "marqués comme pas à jour : "
+msgstr "marqués comme obsolètes : "
 
 #: src/download.rs:117
 msgid "orphans: "
@@ -276,7 +269,7 @@ msgstr "Dépôts (compilation)"
 
 #: src/fmt.rs:264
 msgid "Pkgbuilds Make"
-msgstr "Pkgbuilds de compilation"
+msgstr "PKGBUILDs de compilation"
 
 #: src/fmt.rs:266
 msgid "Aur Make"
@@ -295,7 +288,6 @@ msgid "New Version"
 msgstr "Nouvelle Version"
 
 #: src/fmt.rs:321
-#, fuzzy
 msgid "Make Only"
 msgstr "Make Uniquement"
 
@@ -380,9 +372,8 @@ msgid "    paru {-G --getpkgbuild} [package(s)]"
 msgstr "    paru {-G --getpkgbuild} [paquet(s)]"
 
 #: src/help.rs:23
-#, fuzzy
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-P --show}        [options]"
+msgstr "    paru {-B --build}       [dossier(s)]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
@@ -394,13 +385,13 @@ msgstr "Options sans opérations :"
 
 #: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "    -c --clean            Supprime les dépendances inutiles"
+msgstr "    -c --clean            Supprimer les dépendances inutiles"
 
 #: src/help.rs:29
 msgid ""
 "       --gendb            Generates development package DB used for updating"
 msgstr ""
-"       --gendb            Génère la BDD de paquets de développement utilisée "
+"       --gendb            Génèrer la BDD de paquets de développement utilisée "
 "pour mettre à jour"
 
 #: src/help.rs:31
@@ -409,39 +400,39 @@ msgstr "Nouvelles options :"
 
 #: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
-msgstr "       --repo              Suppose que les cibles sont dans les depôts"
+msgstr "       --repo              Supposer que les cibles sont dans les dépôts"
 
 #: src/help.rs:33
-#, fuzzy
-msgid ""
-"       --pkgbuilds         Assume targets are from pkgbuild repositories"
-msgstr "       --repo              Suppose que les cibles sont dans les depôts"
+msgid "       --pkgbuilds         Assume targets are from pkgbuild repositories"
+msgstr ""
+"       --pkgbuilds         Supposer que les cibles sont dans les dépôts "
+"pkgbuild"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr "    -a --aur               Suppose que les cibles sont dans l'AUR"
+msgstr "    -a --aur               Supposer que les cibles sont dans l'AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr "    --mode      <mode>     Défini l'endroit où paru cherche les cibles"
+msgstr "    --mode      <mode>     Définit où paru recherche les cibles"
 
 #: src/help.rs:37
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, "
 "-Ss and -Qs"
 msgstr ""
-"    --interactive          Activer la selection interactive de paquet pour "
+"    --interactive          Activer la sélection interactive des paquets pour "
 "-S, -R, -Ss et -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Défini une URL alternative pour l'AUR"
+msgstr "    --aururl    <url>      Définir une URL alternative pour l'AUR"
 
 #: src/help.rs:40
-#, fuzzy
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
-msgstr "    --aururl    <url>      Défini une URL alternative pour l'AUR"
+msgstr ""
+"    --aurrpcur  <url>      Définir une URL alternative pour l'AUR / RPC distant"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
@@ -455,7 +446,7 @@ msgstr "    --makepkg   <fichier>      Commande makepkg à utiliser"
 
 #: src/help.rs:44
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr "    --mflags    <arguments>    Passe des arguments à makepkg"
+msgstr "    --mflags    <arguments>    Passer des arguments à makepkg"
 
 #: src/help.rs:45
 msgid "    --pacman    <file>     pacman command to use"
@@ -467,7 +458,7 @@ msgstr "    --git       <fichier>      Commande git à utiliser"
 
 #: src/help.rs:47
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <arguments>    Passe des arguments à git"
+msgstr "    --gitflags  <arguments>    Passer des arguments à git"
 
 #: src/help.rs:48
 msgid "    --sudo      <file>     sudo command to use"
@@ -475,12 +466,11 @@ msgstr "    --sudo      <fichier>      Commande sudo à utiliser"
 
 #: src/help.rs:49
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr "    --sudoflags <arguments>    Passe des arguments à sudo"
+msgstr "    --sudoflags <arguments>    Passer des arguments à sudo"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <fichier>      Commande git à utiliser"
+msgstr "    --pkgctl    <fichier>      Commande pkgctl à utiliser"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
@@ -488,7 +478,7 @@ msgstr "    --bat       <fichier>      Commande bat à utiliser"
 
 #: src/help.rs:52
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr "    --batflags  <arguments>    Passe des arguments à bat"
+msgstr "    --batflags  <arguments>    Passer des arguments à bat"
 
 #: src/help.rs:53
 msgid "    --gpg       <file>     gpg command to use"
@@ -496,49 +486,49 @@ msgstr "    --gpg       <fichier>      Commande gpg à utiliser"
 
 #: src/help.rs:54
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr "    --gpgflags  <arguments>    Passe des arguments à gpg"
+msgstr "    --gpgflags  <arguments>    Passer des arguments à gpg"
 
 #: src/help.rs:55
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
 msgstr ""
-"    --fm        <fichier>      Gestionnaire de fichier à utiliser pour la "
+"    --fm        <fichier>      Gestionnaire de fichiers à utiliser pour la "
 "relecture des PKGBUILDs"
 
 #: src/help.rs:56
 msgid "    --fmflags   <flags>    Pass arguments to file manager"
 msgstr ""
-"    --fmflags   <arguments>    Passe des arguments au gestionnaire de fichier"
+"    --fmflags   <arguments>    Passer des arguments au gestionnaire de fichiers"
 
 #: src/help.rs:58
 msgid "    --completioninterval   <n> Time in days to refresh completion cache"
 msgstr ""
-"    --completioninterval   <n> Temps en jour pour rafraîchir le cache de "
+"    --completioninterval   <n> Temps (en jours) pour rafraîchir le cache de "
 "complétion"
 
 #: src/help.rs:59
 msgid ""
 "    --sortby    <field>    Sort AUR results by a specific field during search"
 msgstr ""
-"    --sortby    <field>    Trier les résultats de l'AUR par un champs "
+"    --sortby    <field>    Trier les résultats de l'AUR par un champ "
 "spécifique pendant la recherche"
 
 #: src/help.rs:60
 msgid "    --searchby  <field>    Search for packages using a specified field"
 msgstr ""
-"    --searchby  <field>    Recherche des paquets en utilisant un champs "
+"    --searchby  <field>    Rechercher des paquets en utilisant un champ "
 "spécifique"
 
 #: src/help.rs:61
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
-"    --limit     <limit>    Limite le nombre d'éléments retournés dans une "
+"    --limit     <limit>    Limiter le nombre d'éléments retournés dans une "
 "recherche"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
 msgstr ""
-"    -x --regex             Activer les regex pour la recherche dans l'aur"
+"    -x --regex             Activer les regex pour la recherche dans l'AUR"
 
 #: src/help.rs:64
 msgid "    --skipreview           Skip the review process"
@@ -551,20 +541,19 @@ msgstr "    --review               Ne pas passer le processus de relecture"
 #: src/help.rs:66
 msgid "    --[no]upgrademenu      Show interactive menu to skip upgrades"
 msgstr ""
-"    --[no]upgrademenu      Montrer le menu interactif pour passer les mises "
-"à jour"
+"    --[no]upgrademenu      Montrer le menu interactif pour passer les mises à "
+"jour"
 
 #: src/help.rs:67
 msgid "    --[no]removemake       Remove makedepends after install"
 msgstr ""
-"    --[no]removemake       Enlève les dépendances de compilation après "
+"    --[no]removemake       Supprimer les dépendances de compilation après "
 "installation"
 
 #: src/help.rs:68
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr ""
-"    --[no]cleanafter       Supprime les sources des paquets après "
-"installation"
+"    --[no]cleanafter       Supprimer les sources des paquets après installation"
 
 #: src/help.rs:69
 msgid "    --[no]rebuild          Always build target packages"
@@ -572,34 +561,31 @@ msgstr "    --[no]rebuild          Toujours recompiler les paquets cibles"
 
 #: src/help.rs:70
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr ""
-"    --[no]redownload       Toujours télécharger les PKGBUILDs des cibles"
+msgstr "    --[no]redownload       Toujours télécharger les PKGBUILDs des cibles"
 
 #: src/help.rs:72
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
 msgstr ""
-"    --[no]pgpfetch         Demande à importer les clés PGP depuis les "
-"PKGBUILDs"
+"    --[no]pgpfetch         Demande à importer les clés PGP depuis les PKGBUILDs"
 
 #: src/help.rs:73
 msgid ""
-"    --[no]useask           Automatically resolve conflicts using pacman's "
-"ask flag"
+"    --[no]useask           Automatically resolve conflicts using pacman's ask "
+"flag"
 msgstr ""
-"    --[no]useask           Résoudre automatiquement les conflits en "
-"utilisant l'argument pacman ask"
+"    --[no]useask           Résoudre automatiquement les conflits en utilisant "
+"l'argument 'ask' de pacman"
 
 #: src/help.rs:74
-msgid ""
-"    --[no]savechanges      Commit changes to pkgbuilds made during review"
+msgid "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      Valider les changements apportés aux pkgbuilds "
+"    --[no]savechanges      Valider les changements apportés aux PKGBUILDs "
 "pendant la révision"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Affiche les dernières nouvelles pendant la mise à "
+"    --[no]newsonupgrade    Afficher les dernières nouvelles pendant la mise à "
 "jour du système"
 
 #: src/help.rs:76
@@ -607,7 +593,7 @@ msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Rafraîchit et effectue les mises à jour du dépôt "
+"    --[no]combinedupgrade  Rafraîchir et effectuer les mises à jour du dépôt "
 "et de l'AUR en même temps"
 
 #: src/help.rs:77
@@ -615,73 +601,70 @@ msgid ""
 "    --[no]batchinstall     Build multiple AUR packages then install them "
 "together"
 msgstr ""
-"    --[no]batchinstall     Compile plusieurs paquets depuis l'AUR et les "
-"installe en même temps"
+"    --[no]batchinstall     Compiler plusieurs paquets depuis l'AUR et les "
+"installer en même temps"
 
 #: src/help.rs:78
 msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
-"    --[no]provides         Recherche des fournisseurs correspondants lors de "
+"    --[no]provides         Rechercher des fournisseurs correspondants lors de "
 "la recherche des paquets"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
 msgstr ""
-"    --[no]devel            Vérifie les paquets de développement pendant la "
+"    --[no]devel            Vérifier les paquets de développement pendant la "
 "mise à jour du système"
 
 #: src/help.rs:80
 msgid ""
-"    --[no]installdebug     Also install debug packages when a package "
-"provides them"
+"    --[no]installdebug     Also install debug packages when a package provides "
+"them"
 msgstr ""
-"    --[no]installdebug     Installe aussi les paquets de déboguage quand un "
+"    --[no]installdebug     Installer aussi les paquets de déboguage quand un "
 "paquet les fournit"
 
 #: src/help.rs:81
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
-"    --[no]sudoloop         Appelle sudo en arrière plan pour éviter "
+"    --[no]sudoloop         Appeler sudo en arrière-plan pour éviter "
 "l’expiration du délai"
 
 #: src/help.rs:82
 msgid "    --[no]chroot           Build packages in a chroot"
-msgstr "    --[no]chroot           Compile les paquets dans un chroot"
+msgstr "    --[no]chroot           Compiler les paquets dans un chroot"
 
 #: src/help.rs:83
-msgid ""
-"    --[no]failfast         Exit as soon as building an AUR package fails"
+msgid "    --[no]failfast         Exit as soon as building an AUR package fails"
 msgstr ""
-"    --[no]failfast         S'arrêter dès que la construction d'un paquet AUR "
+"    --[no]failfast         S'arrêter dès que la compilation d'un paquet AUR "
 "échoue"
 
 #: src/help.rs:84
 msgid ""
 "    --[no]keepsrc          Keep src/ and pkg/ dirs after building packages"
 msgstr ""
-"    --[no]keepsrc          Conserver src/ et pkg/ après la construction des "
+"    --[no]keepsrc          Conserver src/ et pkg/ après la compilation des "
 "paquets"
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
-msgstr "    --[no]sign             Signe les paquets avec gpg"
+msgstr "    --[no]sign             Signer les paquets avec gpg"
 
 #: src/help.rs:86
 msgid "    --[no]signdb           Sign databases with gpg"
-msgstr "    --[no]signdb           Signe les bases de données avec gpg"
+msgstr "    --[no]signdb           Signer les bases de données avec gpg"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr "    --localrepo            Compile les paquets dans un dépôt local"
+msgstr "    --[no]localrepo        Compiler les paquets dans un dépôt local"
 
 #: src/help.rs:88
 msgid ""
-"    --nocheck              Don't resolve checkdepends or run the check "
-"function"
+"    --nocheck              Don't resolve checkdepends or run the check function"
 msgstr ""
 "    --nocheck              Ne pas résoudre les dépendances ou lancer la "
 "fonction de vérification"
@@ -691,33 +674,32 @@ msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr ""
-"    --develsuffixes        Suffixes utilisés pour décider si un paquet est "
-"un paquet de développement"
+"    --develsuffixes        Suffixes utilisés pour décider si un paquet est un "
+"paquet de développement"
 
 #: src/help.rs:90
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
-"    --[no]provides         Recherche des fournisseurs correspondants lors de "
-"la recherche des paquets"
+"    --ignoredevel          Ignorer les mises à jour devel pour les paquets "
+"spécifiques"
 
 #: src/help.rs:91
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
-"    --bottomup             Afficher les paquets de l'AUR en premier et ceux "
-"du dépôt ensuite"
+"    --bottomup             Afficher les paquets de l'AUR en premier et ceux du "
+"dépôt ensuite"
 
 #: src/help.rs:92
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
-"    --topdown              Affiche les paquets du dépôt et ceux de l'AUR "
+"    --topdown              Afficher les paquets du dépôt et ceux de l'AUR "
 "ensuite"
 
 #: src/help.rs:94
 msgid "show specific options:"
-msgstr "options spécifiques de --show :"
+msgstr "Options spécifiques de --show :"
 
 #: src/help.rs:95
 msgid "    -c --complete         Used for completions"
@@ -726,7 +708,7 @@ msgstr "    -c --complete         Utilisé pour les complétions"
 #: src/help.rs:96
 msgid "    -s --stats            Display system package statistics"
 msgstr ""
-"    -s --stats            Affiche des statistiques sur les paquets du système"
+"    -s --stats            Afficher des statistiques sur les paquets du système"
 
 #: src/help.rs:97
 msgid "    -w --news             Print arch news"
@@ -734,29 +716,28 @@ msgstr "    -w --news             Afficher les nouvelles d'arch"
 
 #: src/help.rs:99
 msgid "getpkgbuild specific options:"
-msgstr "options spécifiques de --getpkgbuild :"
+msgstr "Options spécifiques de --getpkgbuild :"
 
 #: src/help.rs:100
 msgid "    -p --print            Print pkgbuild to stdout"
-msgstr "    -p --print            Affiche le pkgbuild sur la sortie standard"
+msgstr "    -p --print            Afficher le PKGBUILD sur la sortie standard"
 
 #: src/help.rs:101
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr ""
-"    -c --comments         Affiche les commentaires de l'AUR pour le pkgbuild"
+"    -c --comments         Afficher les commentaires de l'AUR pour le PKGBUILD"
 
 #: src/help.rs:102
 msgid "    -s --ssh              Clone package using SSH"
-msgstr "    -s --ssh              Clone le paquet via SSH"
+msgstr "    -s --ssh              Cloner le paquet via SSH"
 
 #: src/help.rs:104
-#, fuzzy
 msgid "Build specific options:"
-msgstr "options spécifiques de --getpkgbuild :"
+msgstr "Options de compilation spécifiques :"
 
 #: src/help.rs:105
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Installe le paquet après l'avoir compilé"
+msgstr "    -i --install          Installer le paquet après l'avoir compilé"
 
 #: src/info.rs:55 src/info.rs:180 src/query.rs:49
 msgid "package '{}' was not found"
@@ -994,11 +975,11 @@ msgstr "impossible d'installer les paquets conflictuels avec --noconfirm"
 
 #: src/install.rs:1575
 msgid "failed to execute file manager: {}"
-msgstr "échec de l’exécution du gestionnaire de fichier : {}"
+msgstr "échec de l’exécution du gestionnaire de fichiers : {}"
 
 #: src/install.rs:1578
 msgid "file manager did not execute successfully"
-msgstr "le gestionnaire de fichier ne s'est pas exécuté correctement"
+msgstr "le gestionnaire de fichiers ne s'est pas exécuté correctement"
 
 #: src/install.rs:1596
 msgid "failed to read dir: {}"
@@ -1019,6 +1000,7 @@ msgstr "Accepter les changements ?"
 #: src/install.rs:1750
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
+"Afficher avec 'less'. Appuyez sur 'q' pour quitter ou 'h' pour afficher l'aide."
 
 #: src/install.rs:1788
 msgid " nothing new to review"
@@ -1038,7 +1020,7 @@ msgstr "{}-{} est à jour -- installation ignorée"
 
 #: src/keys.rs:53
 msgid "keys need to be imported:"
-msgstr "les clés doivent être importés :"
+msgstr "les clés doivent être importées :"
 
 #: src/keys.rs:58
 msgid "     {key} wanted by: {base}"
@@ -1057,29 +1039,26 @@ msgid "no new news"
 msgstr "pas de nouvelles informations"
 
 #: src/pkgbuild.rs:90
-#, fuzzy
 msgid "repo {} does not have a URL or Path"
-msgstr "l'option '{}' n'accepte pas de valeur"
+msgstr "le dépot '{}' n'a pas d'URL ou de chemin"
 
 #: src/pkgbuild.rs:152
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
-"Le dépôt {} n'a pas été téléchargé (utiliser -Sy --pkgbuilds pour le "
-"télécharger)"
+"le dépôt {} n'a pas été téléchargé (utiliser -Sy --\n"
+" pour le télécharger)"
 
 #: src/pkgbuild.rs:199
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr "Génération du .SRCINFO pour {repo}/{dir}..."
 
 #: src/pkgbuild.rs:277
-#, fuzzy
 msgid "failed to parse srcinfo \"{}\""
 msgstr "échec de l'analyse du srcinfo pour '{}'"
 
 #: src/pkgbuild.rs:355
-#, fuzzy
 msgid "Downloading PKGBUILD Repos..."
-msgstr "Téléchargement des PKGBUILDs..."
+msgstr "Téléchargement des dépôts PKGBUILDs..."
 
 #: src/pkgbuild.rs:409
 msgid "failed to parse srcinfo generated by makepkg"
@@ -1110,9 +1089,8 @@ msgid "Packages"
 msgstr "Paquets"
 
 #: src/repo.rs:367
-#, fuzzy
 msgid "Proceed with removal?"
-msgstr "Procéder à la relecture ?"
+msgstr "Procéder à la suppression ?"
 
 #: src/repo.rs:428
 msgid " [installed: {}]"
@@ -1128,7 +1106,7 @@ msgstr "échec de la recherche dans l'AUR"
 
 #: src/search.rs:275 src/search.rs:316 src/search.rs:370
 msgid "[Installed: {}]"
-msgstr "[Installés : {}]"
+msgstr "[Installé(s) : {}]"
 
 #: src/search.rs:277 src/search.rs:318 src/search.rs:372
 msgid "[Installed]"
@@ -1151,9 +1129,8 @@ msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "Paquets à installer (ex : 1 2 3, 1-3) :"
 
 #: src/search.rs:491
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Paquets à installer (ex : 1 2 3, 1-3) :"
+msgstr "Paquets à sélectionner (ex : 1 2 3, 1-3) :"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
@@ -1173,16 +1150,15 @@ msgstr "Paquets installés explicitement : {}"
 
 #: src/stats.rs:106
 msgid "Total Size occupied by packages: {}"
-msgstr "Taille totale des paquets : {}"
+msgstr "Taille totale occupée par les paquets : {}"
 
 #: src/stats.rs:113
 msgid "Ten biggest packages:"
 msgstr "Dix plus gros paquets :"
 
 #: src/upgrade.rs:126
-#, fuzzy
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "Recherche des mises à jour pour les paquets de l'AUR..."
+msgstr "Recherche des mises à jour pour les paquets PKGBUILD..."
 
 #: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
@@ -1264,8 +1240,7 @@ msgstr "aucune cible spécifiée (utiliser -h pour l'aide)"
 #~ msgstr "impossible de récupérer le dossier actuel"
 
 #~ msgid "can not get repo packages: asp is not installed"
-#~ msgstr ""
-#~ "impossible de récupérer les paquets du dépôt : asp n'est pas installé"
+#~ msgstr "impossible de récupérer les paquets du dépôt : asp n'est pas installé"
 
 #~ msgid "Missing ABS packages "
 #~ msgstr "Paquets ABS manquants "
@@ -1274,8 +1249,7 @@ msgstr "aucune cible spécifiée (utiliser -h pour l'aide)"
 #~ msgstr "ne contient pas de PKGBUILD : ignoré"
 
 #~ msgid "{} is not installed: can not get repo packages"
-#~ msgstr ""
-#~ "{} n'est pas installé : impossible de récupérer les paquets du dépôt"
+#~ msgstr "{} n'est pas installé : impossible de récupérer les paquets du dépôt"
 
 #~ msgid "asp returned {}"
 #~ msgstr "asp a retourné {}"
@@ -1283,9 +1257,8 @@ msgstr "aucune cible spécifiée (utiliser -h pour l'aide)"
 #~ msgid "    --asp       <file>     asp command to use"
 #~ msgstr "    --asp       <fichier>      Commande asp à utiliser"
 
-#, fuzzy
 #~ msgid "Generating .SRCINFO for {dir}..."
-#~ msgstr "impossible de trouver le .SRCINFO pour '{}'"
+#~ msgstr "Génération de .SRCINFO pour {dir}..."
 
 #~ msgid "upgrade specific options:"
 #~ msgstr "options spécifiques de mise à jour :"
