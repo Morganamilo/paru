@@ -137,7 +137,7 @@ fn longest(config: &Config) -> usize {
 
 fn arch_len(vec: &[ArchVec]) -> usize {
     vec.iter()
-        .filter_map(|v| v.arch.as_ref())
+        .filter_map(|v| v.arch())
         .map(|a| a.len() + 1)
         .max()
         .unwrap_or(0)
@@ -157,9 +157,9 @@ pub fn print_pkgbuild_info(
         if v.is_empty() {
             print_list(k, &[]);
         }
-        v.iter().for_each(|v| match &v.arch {
-            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.vec),
-            None => print_list(k, &v.vec),
+        v.iter().for_each(|v| match &v.arch() {
+            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), v.values()),
+            None => print_list(k, v.values()),
         })
     };
     for targ in pkgs {

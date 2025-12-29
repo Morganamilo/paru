@@ -153,7 +153,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
-            let srcinfo = Srcinfo::parse_file(path)
+            let srcinfo = Srcinfo::from_path(path)
                 .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
             match srcinfo {
@@ -177,7 +177,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
             if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
-                let srcinfo = Srcinfo::parse_file(path)
+                let srcinfo = Srcinfo::from_path(path)
                     .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
                 match srcinfo {
@@ -511,7 +511,7 @@ pub async fn fetch_devel_info(
             None => continue,
         };
 
-        for url in srcinfo.base.source.iter().flat_map(|v| &v.vec) {
+        for url in srcinfo.base.source.iter().flat_map(|v| v.iter()) {
             if let Some((remote, _, branch)) = parse_url(url) {
                 let future = ls_remote(
                     config.color.error,

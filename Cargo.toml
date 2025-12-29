@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2021"
 
@@ -15,14 +15,14 @@ rust-version = "1.80"
 
 
 [dependencies]
-alpm = "4.0.3"
-alpm-utils = "4.0.1"
-aur-depends = "4.0.5"
+alpm = "5.0.0"
+alpm-utils = "5.0.0"
+aur-depends = "5.0.0"
 aur-fetch = "0.11.3"
 cini = "1.0.0"
-pacmanconf = "3.0.0"
+pacmanconf = "3.1.0"
 raur = "7.0.0"
-srcinfo = "1.3.1"
+srcinfo = "2.0.0"
 
 
 ansiterm = "0.12.2"

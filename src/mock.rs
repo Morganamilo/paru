@@ -24,7 +24,7 @@ impl Mock {
         for dir in std::fs::read_dir(clone)? {
             let dir = dir?;
 
-            let srcinfo = Srcinfo::parse_file(dir.path().join(".SRCINFO"))?;
+            let srcinfo = Srcinfo::from_path(dir.path().join(".SRCINFO"))?;
             let base = srcinfo.base;
 
             for pkg in srcinfo.pkgs {
