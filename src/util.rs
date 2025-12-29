@@ -161,7 +161,44 @@ pub fn input(config: &Config, question: &str) -> String {
     let stdin = stdin();
     let mut input = String::new();
     let _ = stdin.read_line(&mut input);
-    input
+
+    // Apply strict input validation and sanitization
+    validate_and_sanitize_input(input)
+}
+
+/// Validates and sanitizes user input to prevent security vulnerabilities
+/// Implements multiple layers of input validation:
+/// 1. Trims whitespace and newlines from read_line()
+/// 2. Rejects inputs containing shell metacharacters
+/// 3. Rejects inputs with control characters
+/// 4. Returns sanitized input or empty string if validation fails
+fn validate_and_sanitize_input(input: String) -> String {
+    // Step 1: Trim whitespace (newlines from read_line)
+    let trimmed = input.trim();
+    
+    // Step 2: Define all shell metacharacters that pose injection risks
+    let shell_metacharacters = [
+        '`', '$', ';', '|', '&', '\\', '<', '>', 
+        '(', ')', '{', '}', '!', '?', '*', '[', ']', 
+        '~', '"', '\'', '\n', '\r', '\0'
+    ];
+    
+    // Step 3: Validate each character in input
+    for ch in trimmed.chars() {
+        // Reject if character is in shell metacharacter list
+        if shell_metacharacters.contains(&ch) {
+            eprintln!("{}", tr!("error: input validation failed - contains invalid characters"));
+            return String::new();
+        }
+        // Reject control characters (except common whitespace)
+        if ch.is_control() && !matches!(ch, ' ' | '\t') {
+            eprintln!("{}", tr!("error: input validation failed - contains control characters"));
+            return String::new();
+        }
+    }
+    
+    // Step 4: Return validated and trimmed input
+    trimmed.to_string()
 }
 
 pub fn unneeded_pkgs(config: &Config, keep_optional: bool) -> Vec<&str> {
