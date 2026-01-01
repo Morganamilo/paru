@@ -95,7 +95,7 @@ fn search_pkgbuilds<'a>(
                     || pkg
                         .provides
                         .iter()
-                        .flat_map(|p| &p.vec)
+                        .flat_map(|p| p.values())
                         .any(|p| regex.is_match(p))
                     || pkg.groups.iter().any(|g| regex.is_match(g))
                 {

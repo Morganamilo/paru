@@ -29,7 +29,8 @@ dependencies = [
 [[package]]
 name = "alpm"
 version = "5.0.0"
-source = "git+https://github.com/archlinux/alpm.rs.git?rev=19b315335aca7d49d5a507631f39354e2de7a5f8#19b315335aca7d49d5a507631f39354e2de7a5f8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65194002f3ee42412a21c9a4edf2de285cc0680575bcc7f026e698b52784fa95"
 dependencies = [
  "alpm-sys",
  "bitflags 2.10.0",
@@ -38,7 +39,8 @@ dependencies = [
 [[package]]
 name = "alpm-sys"
 version = "5.0.0"
-source = "git+https://github.com/archlinux/alpm.rs.git?rev=19b315335aca7d49d5a507631f39354e2de7a5f8#19b315335aca7d49d5a507631f39354e2de7a5f8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7364aaf7673e679a2616e26c78af26b922b69afeba965333386f7d0400daf3a3"
 dependencies = [
  "bindgen",
  "pkg-config",
@@ -47,7 +49,8 @@ dependencies = [
 [[package]]
 name = "alpm-utils"
 version = "5.0.0"
-source = "git+https://github.com/archlinux/alpm.rs.git?rev=19b315335aca7d49d5a507631f39354e2de7a5f8#19b315335aca7d49d5a507631f39354e2de7a5f8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a59a6ffb120311a82dd5569a3bfa0098db8a1c1d8b5ec568e97b61cff3b10729"
 dependencies = [
  "alpm",
  "pacmanconf",
@@ -157,7 +160,8 @@ dependencies = [
 [[package]]
 name = "aur-depends"
 version = "5.0.0"
-source = "git+https://github.com/Derppening/aur-depends.git?branch=enhance%2Fbump-alpm-v5#03cdac729b08328af79dfe165704a57abb602aa6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77ea792239d42131dfedaebc595234b361ae71d662775d107be4de659953e053"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -1492,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "paru"
-version = "2.1.0"
+version = "2.2.0"
 dependencies = [
  "alpm",
  "alpm-utils",
@@ -2073,9 +2077,9 @@ dependencies = [
 
 [[package]]
 name = "srcinfo"
-version = "1.3.1"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4514a89ef6fc82ff66e93012ada1aef67b8ee09489d745def742e26aa9cd6bdc"
+checksum = "14f29fdcb179775cea4ae5a5340cb8d3b02714b8cf5d693ee0d07c62bd6141e9"
 
 [[package]]
 name = "stable_deref_trait"

@@ -135,7 +135,7 @@ fn clean_aur_pkg(
         return do_remove(config, &file.path(), rm);
     }
 
-    let srcinfo = Srcinfo::parse_file(file.path().join(".SRCINFO")).with_context(|| {
+    let srcinfo = Srcinfo::from_path(file.path().join(".SRCINFO")).with_context(|| {
         let file_name = file.file_name();
         tr!(
             "could not parse .SRCINFO for '{}'",

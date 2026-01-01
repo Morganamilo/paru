@@ -15,14 +15,14 @@ rust-version = "1.80"
 
 
 [dependencies]
-alpm = { git = "https://github.com/archlinux/alpm.rs.git", rev = "19b315335aca7d49d5a507631f39354e2de7a5f8" }
-alpm-utils = { git = "https://github.com/archlinux/alpm.rs.git", rev = "19b315335aca7d49d5a507631f39354e2de7a5f8" }
-aur-depends = { git = "https://github.com/Derppening/aur-depends.git", branch = "enhance/bump-alpm-v5" }
+alpm = "5.0.0"
+alpm-utils = "5.0.0"
+aur-depends = "5.0.0"
 aur-fetch = "0.11.3"
 cini = "1.0.0"
-pacmanconf = "3.0.0"
+pacmanconf = "3.1.0"
 raur = "7.0.0"
-srcinfo = "1.3.1"
+srcinfo = "2.0.0"
 
 
 ansiterm = "0.12.2"
