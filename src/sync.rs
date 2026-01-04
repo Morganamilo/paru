@@ -1,3 +1,6 @@
+use flate2::read::GzDecoder;
+use std::io::Read;
+
 use crate::config::Config;
 use crate::pkgbuild::PkgbuildRepos;
 use crate::{exec, print_error};
@@ -104,8 +107,12 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     let success = resp.status().is_success();
     ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.bytes().await?;
+    let compressed_data = resp.bytes().await?;
+    let mut decoder = GzDecoder::new(&compressed_data[..]);
 
+    let mut data = Vec::new();
+    decoder.read_to_end(&mut data)
+        .with_context(|| format!("Failed to decompress {}", url))?;
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
