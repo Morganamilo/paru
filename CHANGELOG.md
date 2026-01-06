@@ -1,5 +1,11 @@
 # Changelog
 
+## Paru v2.2.0 (2026-01-06)
+
+### Added
+
+- Support for libalpm 16 9cfbbf4
+
 ## Paru v2.1.0 (2025-07-08)
 
 ### Added
