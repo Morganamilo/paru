@@ -1380,7 +1380,7 @@ fn check_actions(
         );
     }
 
-    let conflicts = if !config.chroot && install_targets {
+    let conflicts = if !config.chroot || install_targets {
         println!(
             "{} {}",
             c.action.paint("::"),
