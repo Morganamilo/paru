@@ -447,10 +447,10 @@ pub async fn filter_devel_updates(
     Ok(updates)
 }
 
-pub async fn pkg_has_update<'pkg, 'info, 'cfg>(
-    config: &'cfg Config,
+pub async fn pkg_has_update<'pkg>(
+    config: &'_ Config,
     pkg: &'pkg str,
-    info: &'info HashSet<RepoInfo>,
+    info: &'_ HashSet<RepoInfo>,
 ) -> Option<&'pkg str> {
     if info.is_empty() {
         return None;

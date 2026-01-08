@@ -11,7 +11,7 @@ documentation = "https://docs.rs/paru"
 license = "GPL-3.0"
 keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
-rust-version = "1.80"
+rust-version = "1.87"
 
 
 [dependencies]

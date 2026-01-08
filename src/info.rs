@@ -158,7 +158,7 @@ pub fn print_pkgbuild_info(
             print_list(k, &[]);
         }
         v.iter().for_each(|v| match v.arch() {
-            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.values()),
+            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), v.values()),
             None => print_list(k, v.values()),
         })
     };

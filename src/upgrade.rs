@@ -169,8 +169,8 @@ async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>>
     possible_devel_updates(config).await
 }
 
-pub async fn net_upgrades<'res, 'conf>(
-    config: &'conf Config,
+pub async fn net_upgrades<'res>(
+    config: &'_ Config,
     resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
 ) -> Result<(Updates<'res>, Vec<String>)> {

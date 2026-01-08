@@ -268,7 +268,7 @@ fn print_pkgbuild_pkg(
     let c = config.color;
 
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), &url)
+        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), url)
     } else {
         c.ss_name.paint(&pkg.pkgname).to_string()
     };
@@ -316,7 +316,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         aur
     };
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.name), &url)
+        link_str(c.enabled, &c.ss_name.paint(&pkg.name), url)
     } else {
         c.ss_name.paint(&pkg.name).to_string()
     };
@@ -392,7 +392,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 
     let name = if let Some(url) = pkg.url() {
-        link_str(c.enabled, &c.ss_name.paint(pkg.name()), &url)
+        link_str(c.enabled, &c.ss_name.paint(pkg.name()), url)
     } else {
         c.ss_name.paint(pkg.name()).to_string()
     };
