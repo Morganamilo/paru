@@ -2,10 +2,11 @@ use crate::config::Config;
 use crate::pkgbuild::PkgbuildRepos;
 use crate::{exec, print_error};
 
-use std::io::Write;
+use std::io::{Read, Write};
 
 use anyhow::{anyhow, ensure, Context, Result};
 
+use flate2::read::GzDecoder;
 use raur::Raur;
 use tr::tr;
 
@@ -105,19 +106,16 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     ensure!(success, "get {}: {}", url, resp.status());
 
     let data = resp.bytes().await?;
+    let mut decoder = GzDecoder::new(&*data);
+    let mut data = Vec::new();
+    decoder
+        .read_to_end(&mut data)
+        .with_context(|| tr!("failed to decode package list"))?;
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
-    let mut lines = data
-        .split(|&c| c == b'\n')
-        .skip(1)
-        .filter(|l| !l.is_empty())
-        .collect::<Vec<_>>();
-
-    lines.sort_unstable();
-
-    for line in lines {
+    for line in data.split(|b| *b == b'\n').filter(|l| !l.is_empty()) {
         print_pkg(config, &mut stdout, line, "aur", "unknown-version");
     }
 

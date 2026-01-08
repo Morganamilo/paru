@@ -57,6 +57,7 @@ regex = "1.12.2"
 signal-hook = "0.4.1"
 bitflags = "2.10.0"
 toml = { version = "0.9.10", features = ["preserve_order"] }
+flate2 = "1.1.5"
 
 [profile.release]
 codegen-units = 1

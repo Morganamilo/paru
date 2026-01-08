@@ -8,6 +8,7 @@ use crate::{info, printtr};
 
 use ansiterm::Style;
 use anyhow::{ensure, Context, Result};
+use flate2::read::GzDecoder;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
@@ -172,13 +173,15 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
     let success = resp.status().is_success();
     ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.text().await?;
+    let data = resp.bytes().await?;
+    let decoder = GzDecoder::new(&*data);
+    let data =
+        std::io::read_to_string(decoder).with_context(|| tr!("failed to decode package list"))?;
 
     let regex = RegexSet::new(targets)?;
 
     let pkgs = data
         .lines()
-        .skip(1)
         .filter(|pkg| regex.is_match(pkg))
         .collect::<Vec<_>>();
     ensure!(pkgs.len() < 2000, "too many packages");
