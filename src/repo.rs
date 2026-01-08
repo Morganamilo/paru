@@ -146,17 +146,6 @@ pub fn file(repo: &Db) -> Option<&str> {
         .map(|s| s.trim_start_matches("file://"))
 }
 
-pub fn all_files(config: &Config) -> Vec<String> {
-    config
-        .alpm
-        .syncdbs()
-        .iter()
-        .flat_map(|db| db.servers())
-        .filter(|f| f.starts_with("file://"))
-        .map(|s| s.trim_start_matches("file://").to_string())
-        .collect()
-}
-
 fn is_local_db(db: &alpm::Db) -> bool {
     !db.servers().is_empty() && db.servers().iter().all(|s| s.starts_with("file://"))
 }

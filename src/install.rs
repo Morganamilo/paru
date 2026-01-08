@@ -1829,8 +1829,8 @@ fn chroot(config: &Config) -> Chroot {
             .to_string(),
         mflags: config.mflags.clone(),
 
-        ro: repo::all_files(config),
-        rw: config.pacman.cache_dir.clone(),
+        ro: Default::default(),
+        rw: Default::default(),
         extra_pkgs: config.chroot_pkgs.clone(),
         root_pkgs: config.root_chroot_pkgs.clone(),
     };
