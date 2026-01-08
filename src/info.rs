@@ -10,7 +10,7 @@ use anyhow::Error;
 
 use globset::GlobSet;
 use raur::ArcPackage as Package;
-use srcinfo::ArchVec;
+use srcinfo::{ArchVec, ArchVecs};
 use terminal_size::terminal_size_of;
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
@@ -137,7 +137,7 @@ fn longest(config: &Config) -> usize {
 
 fn arch_len(vec: &[ArchVec]) -> usize {
     vec.iter()
-        .filter_map(|v| v.arch.as_ref())
+        .filter_map(|v| v.arch())
         .map(|a| a.len() + 1)
         .max()
         .unwrap_or(0)
@@ -153,13 +153,13 @@ pub fn print_pkgbuild_info(
     let cols = get_terminal_width();
     let print = |k: &str, v: &str| print(color, len, cols, k, v);
     let print_list = |k: &str, v: &[_]| print_list(color, len, cols, k, v);
-    let print_arch_list = |k: &str, v: &[ArchVec]| {
+    let print_arch_list = |k: &str, v: &ArchVecs| {
         if v.is_empty() {
             print_list(k, &[]);
         }
-        v.iter().for_each(|v| match &v.arch {
-            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.vec),
-            None => print_list(k, &v.vec),
+        v.iter().for_each(|v| match v.arch() {
+            Some(arch) => print_list(format!("{} {}", k, arch).as_str(), &v.values()),
+            None => print_list(k, v.values()),
         })
     };
     for targ in pkgs {

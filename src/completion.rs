@@ -93,7 +93,7 @@ fn repo_list<W: Write>(config: &Config, w: &mut W) {
 fn pkgbuild_list<W: Write>(config: &Config, w: &mut W) {
     for db in &config.pkgbuild_repos.repos {
         for base in db.pkgs(config) {
-            for pkg in base.srcinfo.names() {
+            for pkg in base.srcinfo.pkgnames() {
                 let _ = w.write_all(pkg.as_bytes());
                 let _ = w.write_all(b" ");
                 let _ = w.write_all(db.name.as_bytes());
