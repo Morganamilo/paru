@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2025-07-08 05:28+0000\n"
+"POT-Creation-Date: 2026-01-08 17:40+0000\n"
 "PO-Revision-Date: 2025-06-25 14:49+0200\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
@@ -65,23 +65,28 @@ msgstr "nem sikerült elemezni az .SRCINFO-t a(z) „{}” esetében"
 msgid "option {} expects a value"
 msgstr "a(z) {} kapcsoló értéket vár"
 
-#: src/command_line.rs:165 src/command_line.rs:379
+#: src/command_line.rs:165 src/command_line.rs:382
 msgid "option {} does not allow a value"
 msgstr "a(z) {} kapcsoló nem enged meg egy értéket"
 
-#: src/command_line.rs:370
+#: src/command_line.rs:373
 msgid "unknown option --{}"
 msgstr "ismeretlen kapcsoló: --{}"
 
-#: src/command_line.rs:373
+#: src/command_line.rs:376
 msgid "unknown option -{}"
 msgstr "ismeretlen kapcsoló: -{}"
 
-#: src/completion.rs:31
+#: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
+#, fuzzy
+msgid "failed to decode package list"
+msgstr "nem sikerült megnyitni a gyorsítótár-fájlt „{}”"
+
+#: src/completion.rs:35
 msgid "failed to open cache file '{}'"
 msgstr "nem sikerült megnyitni a gyorsítótár-fájlt „{}”"
 
-#: src/completion.rs:69
+#: src/completion.rs:83
 msgid "could not update aur cache"
 msgstr "nem sikerült frissíteni az AUR-gyorsítótárat"
 
@@ -93,96 +98,96 @@ msgstr "érvénytelen „{val}” érték a(z) „{key}” kulcshoz, várt ért�
 msgid "unknown mode {}"
 msgstr "ismeretlen mód: {}"
 
-#: src/config.rs:562
+#: src/config.rs:564
 msgid "section can not be called {}"
 msgstr "nem hívható meg a következő szakasz: {}"
 
-#: src/config.rs:579
+#: src/config.rs:581
 msgid "failed to find cache directory"
 msgstr "nem sikerült megtalálni a gyorsítótár-könyvtárat"
 
-#: src/config.rs:582
+#: src/config.rs:584
 msgid "failed to find config directory"
 msgstr "nem sikerült megtalálni a konfigurációs könyvtárat"
 
-#: src/config.rs:586
+#: src/config.rs:588
 msgid "failed to find state directory"
 msgstr "nem sikerült megtalálni az állapotkönyvtárat"
 
-#: src/config.rs:633
+#: src/config.rs:635
 msgid "config file '{}' does not exist"
 msgstr "a(z) „{}” konfigurációs fájl nem létezik"
 
-#: src/config.rs:682
+#: src/config.rs:684
 msgid "only one operation may be used at a time"
 msgstr "egyszerre csak egy művelet használható"
 
-#: src/config.rs:793
+#: src/config.rs:795
 msgid "no local repo named {}"
 msgstr "nem található a(z) „{}” nevezetű helyi tároló"
 
-#: src/config.rs:819
+#: src/config.rs:821
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "nem található a(z) „{}” nevezetű helyi tároló a pacman.conf-ban"
 
-#: src/config.rs:864
+#: src/config.rs:866
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "nem sikerült előkészíteni az ALPM-et: root={} dbpath={}"
 
-#: src/config.rs:939 src/config.rs:1100
+#: src/config.rs:941 src/config.rs:1102
 msgid "value can not be empty for key '{}'"
 msgstr "a(z) „{}” kulcs esetében az érték nem lehet üres"
 
-#: src/config.rs:955
+#: src/config.rs:957
 msgid "key '{}' does not belong to a section"
 msgstr "a(z) „{}” kulcs nem tartozik egy szakaszhoz sem"
 
-#: src/config.rs:969 src/config.rs:986 src/config.rs:988 src/config.rs:1003
+#: src/config.rs:971 src/config.rs:988 src/config.rs:990 src/config.rs:1005
 msgid "key can not be empty"
 msgstr "a kulcs nem lehet üres"
 
-#: src/config.rs:979
+#: src/config.rs:981
 msgid "error: unknown option '{}' in repo"
 msgstr "hiba: ismeretlen „{}” kapcsoló a tárolóban"
 
-#: src/config.rs:989
+#: src/config.rs:991
 msgid "key can not contain null bytes"
 msgstr "a kulcs nem tartalmazhat null byte-ot"
 
-#: src/config.rs:992
+#: src/config.rs:994
 msgid "value can not contain null bytes"
 msgstr "az érték nem tartalmazhat null byte-ot"
 
-#: src/config.rs:1028
+#: src/config.rs:1030
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "hiba: ismeretlen „{}” kapcsoló a [bin] szakaszban"
 
-#: src/config.rs:1144
+#: src/config.rs:1150
 msgid "error: unknown option '{}' in section [options]"
 msgstr "hiba: ismeretlen „{}” kapcsoló az [options] szakaszban"
 
-#: src/config.rs:1149
+#: src/config.rs:1155
 msgid "option '{}' does not take a value"
 msgstr "a(z) „{}” kapcsoló nem vesz fel értéket"
 
-#: src/config.rs:1181 src/resolver.rs:136
+#: src/config.rs:1187 src/resolver.rs:136
 msgid "There are {n} providers available for {pkg}:"
 msgstr "A(z) {pkg} számára {n} szolgáltató áll rendelkezésre:"
 
-#: src/config.rs:1195 src/info.rs:85 src/info.rs:190 src/info.rs:224
+#: src/config.rs:1201 src/info.rs:85 src/info.rs:190 src/info.rs:224
 #: src/resolver.rs:95 src/resolver.rs:144
 msgid "Repository"
 msgstr "Tároló"
 
-#: src/config.rs:1221
+#: src/config.rs:1227
 msgid "  failed to sync {}"
 msgstr "  nem sikerült szinkronizálni a következőt: {}"
 
-#: src/devel.rs:136 src/download.rs:198
+#: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
 msgstr "Az AUR lekérdezése..."
 
-#: src/devel.rs:157 src/devel.rs:181 src/install.rs:202
+#: src/devel.rs:157 src/devel.rs:181 src/install.rs:203
 msgid "failed to parse srcinfo for '{}'"
 msgstr "nem sikerült elemezni az .SRCINFO-t a következőhöz: „{}”"
 
@@ -214,92 +219,105 @@ msgstr "nem sikerült a(z) „{temp}” átnevezése a következőre: „{devel_
 msgid "package does not have an update"
 msgstr "a csomagnak nincs frissítése"
 
-#: src/devel.rs:534
+#: src/devel.rs:536
 msgid "failed to lookup: {}"
 msgstr "nem sikerült megtalálni a következőt: {}"
 
-#: src/devel.rs:562
+#: src/devel.rs:564
 msgid "invalid toml: {}"
 msgstr "érvénytelen toml: {}"
 
-#: src/download.rs:95
+#: src/download.rs:100
 msgid "packages not in the AUR: "
 msgstr "az AUR-ban nem szereplő csomagok: "
 
-#: src/download.rs:106
+#: src/download.rs:111
 msgid "marked out of date: "
 msgstr "elavultnak lett jelölve: "
 
-#: src/download.rs:117
+#: src/download.rs:122
 msgid "orphans: "
 msgstr "árvák: "
 
-#: src/download.rs:242 src/exec.rs:70 src/install.rs:1645 src/install.rs:1741
-#: src/install.rs:1781
-msgid "failed to run:"
-msgstr "nem sikerült futtatni:"
-
-#: src/download.rs:258
+#: src/download.rs:260
 msgid "downloading: {pkg}"
 msgstr "letöltés: {pkg}"
 
-#: src/download.rs:280
+#: src/download.rs:279 src/download.rs:602 src/info.rs:55 src/info.rs:180
+#: src/query.rs:49
+msgid "package '{}' was not found"
+msgstr "nem található a(z) „{}” nevezetű csomag"
+
+#: src/download.rs:291
+#, fuzzy
+msgid "duplicate PKGBUILD: {}"
+msgstr "duplikált csomagok: {}"
+
+#: src/download.rs:307
+msgid "package '{}' exists but has no PKGBUILD -- skipping"
+msgstr ""
+
+#: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
 msgstr "A PKGBUILD-ek letöltése…"
 
-#: src/download.rs:284
+#: src/download.rs:344
 msgid " PKGBUILDs up to date"
 msgstr " A PKGBUILD-ek naprakészek"
 
-#: src/exec.rs:160
+#: src/exec.rs:72
+msgid "failed to run:"
+msgstr "nem sikerült futtatni:"
+
+#: src/exec.rs:174
 msgid "Pacman is currently in use, please wait..."
 msgstr "A pacman jelenleg használatban van, kis türelmet..."
 
-#: src/fmt.rs:24 src/info.rs:275 src/search.rs:283 src/search.rs:328
+#: src/fmt.rs:24 src/info.rs:275 src/search.rs:293 src/search.rs:350
 msgid "None"
 msgstr "Semmi"
 
-#: src/fmt.rs:237
+#: src/fmt.rs:245
 msgid "Repo"
 msgstr "Tároló"
 
-#: src/fmt.rs:244
+#: src/fmt.rs:252
 msgid "Repo Make"
 msgstr "Tárolófordítás"
 
-#: src/fmt.rs:264
+#: src/fmt.rs:272
 msgid "Pkgbuilds Make"
 msgstr "Pkgbuild-ek fordítása"
 
-#: src/fmt.rs:266
+#: src/fmt.rs:274
 msgid "Aur Make"
 msgstr "AUR-fordítás"
 
-#: src/fmt.rs:311
+#: src/fmt.rs:319
 msgid "Repo ({})"
 msgstr "Tároló ({})"
 
-#: src/fmt.rs:319
+#: src/fmt.rs:327
 msgid "Old Version"
 msgstr "Korábbi verzió"
 
-#: src/fmt.rs:320
+#: src/fmt.rs:328
 msgid "New Version"
 msgstr "Új verzió"
 
-#: src/fmt.rs:321
+#: src/fmt.rs:329
 msgid "Make Only"
 msgstr "Csak fordítás"
 
-#: src/fmt.rs:322
+#: src/fmt.rs:330
 msgid "Yes"
 msgstr "Igen"
 
-#: src/fmt.rs:323 src/info.rs:221
+#: src/fmt.rs:331 src/info.rs:221
 msgid "No"
 msgstr "Nem"
 
-#: src/fmt.rs:411
+#: src/fmt.rs:419
 msgid "insufficient columns available for table display"
 msgstr "nem áll rendelkezésre elegendő oszlop a táblázat megjelenítéséhez"
 
@@ -671,7 +689,13 @@ msgstr ""
 "    --nocheck              Ne oldja meg a checkdepend-eket és ne futtassa az "
 "ellenőrzés funkciót"
 
-#: src/help.rs:89
+#: src/help.rs:90
+msgid ""
+"    --rootchrootpkgs       Packages to install in the root chroot (default: "
+"base-devel)"
+msgstr ""
+
+#: src/help.rs:92
 msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
@@ -679,69 +703,65 @@ msgstr ""
 "    --develsuffixes        A csomag fejlesztői csomagként való besorolásának "
 "eldöntésére használt utótagok"
 
-#: src/help.rs:90
+#: src/help.rs:93
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
 "    --ignoredevel          A megadott csomagok fejlesztői frissítéseinek "
 "figyelmen kívül hagyása"
 
-#: src/help.rs:91
+#: src/help.rs:94
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
 "    --bottomup             Az AUR-ból származó csomagok jelenjenek meg "
 "elsőként és csak utánuk az adattárból származó csomagok"
 
-#: src/help.rs:92
+#: src/help.rs:95
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
 "    --topdown              Az adattárból származó csomagok jelenjenek meg "
 "elsőként és csak utánuk az AUR-ból származó csomagok"
 
-#: src/help.rs:94
+#: src/help.rs:97
 msgid "show specific options:"
 msgstr "speciális kapcsolók megjelenítése:"
 
-#: src/help.rs:95
+#: src/help.rs:98
 msgid "    -c --complete         Used for completions"
 msgstr "    -c --complete         Kitöltésekhez használandó"
 
-#: src/help.rs:96
+#: src/help.rs:99
 msgid "    -s --stats            Display system package statistics"
 msgstr "    -s --stats            Rendszercsomag-statisztikák megjelenítése"
 
-#: src/help.rs:97
+#: src/help.rs:100
 msgid "    -w --news             Print arch news"
 msgstr "    -w --news             Arch hírek megjelenítése"
 
-#: src/help.rs:99
+#: src/help.rs:102
 msgid "getpkgbuild specific options:"
 msgstr "A getpkgbuild speciális kapcsolói:"
 
-#: src/help.rs:100
+#: src/help.rs:103
 msgid "    -p --print            Print pkgbuild to stdout"
 msgstr "    -p --print            A pkgbuild kiírása az stdout-ra"
 
-#: src/help.rs:101
+#: src/help.rs:104
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments         AUR-megjegyzések kiírása a pkgbuild számára"
 
-#: src/help.rs:102
+#: src/help.rs:105
 msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh              Csomag klónozása SSH használatával"
 
-#: src/help.rs:104
+#: src/help.rs:107
 msgid "Build specific options:"
 msgstr "Az összeállítás speciális kapcsolói:"
 
-#: src/help.rs:105
+#: src/help.rs:108
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install          Csomag-összeállítás és telepítés"
-
-#: src/info.rs:55 src/info.rs:180 src/query.rs:49
-msgid "package '{}' was not found"
-msgstr "nem található a(z) „{}” nevezetű csomag"
 
 #: src/info.rs:86 src/info.rs:191 src/info.rs:225
 msgid "Name"
@@ -831,116 +851,116 @@ msgstr "Pillanatkép webcíme"
 msgid "Path"
 msgstr "Elérési útvonal"
 
-#: src/install.rs:165 src/query.rs:48 src/lib.rs:101
+#: src/install.rs:166 src/query.rs:48 src/lib.rs:101
 msgid "error:"
 msgstr "hiba:"
 
-#: src/install.rs:166
+#: src/install.rs:167
 msgid "could not get news"
 msgstr "nem sikerült híreket gyűjteni"
 
-#: src/install.rs:171 src/install.rs:1115
+#: src/install.rs:172 src/install.rs:1127
 msgid "Proceed with installation?"
 msgstr "Folytatja a telepítést?"
 
-#: src/install.rs:206
+#: src/install.rs:207
 msgid "could not find .SRCINFO for '{}'"
 msgstr "nem található az .SRCINFO a következőhöz: „{}”"
 
-#: src/install.rs:352
+#: src/install.rs:353
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
 "nem található a(z) „{pkg}” nevezetű csomag a(z) „{base}” csomaglistában"
 
-#: src/install.rs:439
+#: src/install.rs:451
 msgid "packages failed to build: {}"
 msgstr "nem sikerült összeállítani a következő csomagokat : {}"
 
-#: src/install.rs:511
+#: src/install.rs:523
 msgid "adding {} to the install list"
 msgstr "a(z) {} hozzáadása a telepítési listához"
 
-#: src/install.rs:541 src/install.rs:556
+#: src/install.rs:553 src/install.rs:568
 msgid "failed to download sources for '{}'"
 msgstr "a(z) „{}” forrásait nem sikerült letölteni"
 
-#: src/install.rs:565 src/install.rs:591 src/install.rs:599
+#: src/install.rs:577 src/install.rs:603 src/install.rs:611
 msgid "failed to build '{}'"
 msgstr "nem sikerült összeállítani a következő csomagot: „{}”"
 
-#: src/install.rs:568 src/install.rs:772
+#: src/install.rs:580 src/install.rs:784
 msgid "{}: parsing pkg list..."
 msgstr "{}: pkg-lista elemzése..."
 
-#: src/install.rs:572
+#: src/install.rs:584
 msgid "package list does not match srcinfo"
 msgstr "a csomaglista nem egyezik az srcinfo-val"
 
-#: src/install.rs:606
+#: src/install.rs:618
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} naprakész -- összeállítás kihagyása"
 
-#: src/install.rs:763
+#: src/install.rs:775
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 "nem lehet összeállítani a következőt: {base}, a következő függőség(ek) nem "
 "teljesül(nek): {deps}"
 
-#: src/install.rs:834
+#: src/install.rs:846
 msgid "fetching devel info..."
 msgstr "fejlesztői információk lekérése..."
 
-#: src/install.rs:899 src/lib.rs:242
+#: src/install.rs:911 src/lib.rs:240
 msgid "no targets specified (use -h for help)"
 msgstr "nincsenek célok megadva (tekintse meg a súgót a -h kapcsolóval)"
 
-#: src/install.rs:996 src/install.rs:1085 src/search.rs:410 src/search.rs:436
-#: src/lib.rs:306
+#: src/install.rs:1008 src/install.rs:1097 src/search.rs:450 src/search.rs:476
+#: src/lib.rs:304
 msgid " there is nothing to do"
 msgstr " itt nincs semmi tennivaló"
 
-#: src/install.rs:1004
+#: src/install.rs:1016
 msgid "Resolving dependencies..."
 msgstr "Függőségek feloldása..."
 
-#: src/install.rs:1065
+#: src/install.rs:1077
 msgid "can't install AUR package as root"
 msgstr "nem lehet telepíteni az AUR-csomagot rendszergazdaként"
 
-#: src/install.rs:1068
+#: src/install.rs:1080
 msgid "--downloadonly can't be used for AUR packages"
 msgstr "--downloadonly nem használható az AUR-csomagokhoz"
 
-#: src/install.rs:1101
+#: src/install.rs:1113
 msgid "Remove make dependencies after install?"
 msgstr "Fordítási függőségek eltávolítása a telepítés után?"
 
-#: src/install.rs:1112
+#: src/install.rs:1124
 msgid "Proceed to review?"
 msgstr "Folytatja a felülvizsgálatot?"
 
-#: src/install.rs:1165
+#: src/install.rs:1177
 msgid "no architecture"
 msgstr "nincs architektúra"
 
-#: src/install.rs:1179
+#: src/install.rs:1191
 msgid "The following packages are not compatible with your architecture:"
 msgstr ""
 "A következő csomagok nem kompatibilisek a processzor architektúrájával:"
 
-#: src/install.rs:1193
+#: src/install.rs:1205
 msgid "Would you like to try build them anyway?"
 msgstr "Megpróbálja mégis összeállítani őket?"
 
-#: src/install.rs:1337
+#: src/install.rs:1349
 msgid "duplicate packages: {}"
 msgstr "duplikált csomagok: {}"
 
-#: src/install.rs:1341
+#: src/install.rs:1353
 msgid "could not find all required packages:"
 msgstr "nem sikerült megtalálni az összes szükséges csomagot:"
 
-#: src/install.rs:1353
+#: src/install.rs:1365
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -948,84 +968,85 @@ msgstr ""
 "\n"
 "    {missing} (igényli: {stack})"
 
-#: src/install.rs:1367 src/install.rs:2115
+#: src/install.rs:1379 src/install.rs:2122
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} naprakész -- kihagyás"
 
-#: src/install.rs:1375
+#: src/install.rs:1387
 msgid "Calculating conflicts..."
 msgstr "Ütközések keresése..."
 
-#: src/install.rs:1384
+#: src/install.rs:1410
 msgid "Calculating inner conflicts..."
 msgstr "Belső ütközések keresése..."
 
-#: src/install.rs:1396
+#: src/install.rs:1422
 msgid "Inner conflicts found:"
 msgstr "Megtalált belső ütközések:"
 
-#: src/install.rs:1418
+#: src/install.rs:1444
 msgid "Conflicts found:"
 msgstr "Megtalált ütközések:"
 
-#: src/install.rs:1441
+#: src/install.rs:1467
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Az ütköző csomagokat kézzel kell megerősíteni"
 
-#: src/install.rs:1445
+#: src/install.rs:1471
 msgid "can not install conflicting packages with --noconfirm"
 msgstr ""
 "nem lehet egymással ütköző csomagokat telepíteni a --noconfirm kapcsolóval"
 
-#: src/install.rs:1575
+#: src/install.rs:1599
 msgid "failed to execute file manager: {}"
 msgstr "nem sikerült elindítani a fájlkezelőt: {}"
 
-#: src/install.rs:1578
-msgid "file manager did not execute successfully"
+#: src/install.rs:1602
+#, fuzzy
+msgid "file manager '{}' did not execute successfully"
 msgstr "a fájlkezelő nem indítható el sikeresen"
 
-#: src/install.rs:1596
+#: src/install.rs:1620
 msgid "failed to read dir: {}"
 msgstr "nem sikerült beolvasni a következő könyvtárat: {}"
 
-#: src/install.rs:1660
+#: src/install.rs:1677
 msgid "failed to open: {}"
 msgstr "nem sikerült megnyitni a következőt: {}"
 
-#: src/install.rs:1680
+#: src/install.rs:1697
 msgid "binary file: {}"
 msgstr "bináris fájl: {}"
 
-#: src/install.rs:1702 src/install.rs:1784
+#: src/install.rs:1719 src/install.rs:1790
 msgid "Accept changes?"
 msgstr "Elfogadja a változásokat?"
 
-#: src/install.rs:1750
+#: src/install.rs:1759
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
-#: src/install.rs:1788
+#: src/install.rs:1794
 msgid " nothing new to review"
 msgstr " nincs újdonság, amit felül kellene vizsgálni"
 
-#: src/install.rs:2063
+#: src/install.rs:2070
 msgid "can't find package name in packagelist: {}"
 msgstr "nem sikerült megtalálni a csomag nevét a csomaglistában: {}"
 
-#: src/install.rs:2135
+#: src/install.rs:2142
 msgid "Signing packages..."
 msgstr "Csomagok aláírása..."
 
-#: src/install.rs:2173
+#: src/install.rs:2172
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} naprakész -- telepítés kihagyása"
 
-#: src/keys.rs:53
+#: src/keys.rs:57
 msgid "keys need to be imported:"
 msgstr "importálni kell a következő kulcsokat:"
 
-#: src/keys.rs:58
+#: src/keys.rs:62
 msgid "     {key} wanted by: {base}"
 msgstr "     {key} igényli: {base}"
 
@@ -1041,97 +1062,101 @@ msgstr "Nincs cím"
 msgid "no new news"
 msgstr "nincsenek új hírek"
 
-#: src/pkgbuild.rs:90
+#: src/pkgbuild.rs:91
 msgid "repo {} does not have a URL or Path"
 msgstr "a(z) {} tároló nem rendelkezik webcímmel vagy elérési útvonallal"
 
-#: src/pkgbuild.rs:152
+#: src/pkgbuild.rs:153
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
 "a(z) {} tároló nincs letöltve (használja a -Sy --pkgbuilds kapcsolókat a "
 "letöltéshez)"
 
-#: src/pkgbuild.rs:199
+#: src/pkgbuild.rs:200
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr ".SRCINFO előállítása a(z) {repo}/{dir} számára..."
 
-#: src/pkgbuild.rs:277
+#: src/pkgbuild.rs:278
 msgid "failed to parse srcinfo \"{}\""
 msgstr "nem sikerült elemezni az srcinfo-t: „{}”"
 
-#: src/pkgbuild.rs:355
+#: src/pkgbuild.rs:368
 msgid "Downloading PKGBUILD Repos..."
 msgstr "A PKGBUILD tárolók letöltése..."
 
-#: src/pkgbuild.rs:409
+#: src/pkgbuild.rs:422
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr "nem sikerült elemezni a makepkg által előállított srcinfo-t"
 
-#: src/query.rs:147
+#: src/query.rs:151
 msgid " [ignored]"
 msgstr " [mellőzött]"
 
-#: src/repo.rs:264
+#: src/repo.rs:253
 msgid "failed to get current exe"
 msgstr "nem sikerült lekérni a jelenlegi végrehajtható fájlt"
 
-#: src/repo.rs:311
+#: src/repo.rs:298
 msgid "syncing local databases..."
 msgstr "helyi adatbázisok szinkronizálása..."
 
-#: src/repo.rs:317
+#: src/repo.rs:304
 msgid "  nothing to do"
 msgstr "  nincs semmi tennivaló"
 
-#: src/repo.rs:348
+#: src/repo.rs:335
 msgid "there is nothing to do"
 msgstr "itt nincs semmi tennivaló"
 
-#: src/repo.rs:354
+#: src/repo.rs:341
 msgid "Packages"
 msgstr "Csomagok"
 
-#: src/repo.rs:367
+#: src/repo.rs:354
 msgid "Proceed with removal?"
 msgstr "Folytatja az eltávolítással?"
 
-#: src/repo.rs:428
+#: src/repo.rs:415
 msgid " [installed: {}]"
 msgstr " [telepítve: {}]"
 
-#: src/repo.rs:430 src/sync.rs:146
+#: src/repo.rs:417 src/sync.rs:144
 msgid " [installed]"
 msgstr " [telepítve]"
 
-#: src/search.rs:40
+#: src/search.rs:41
 msgid "aur search failed"
 msgstr "az AUR-keresés sikertelen"
 
-#: src/search.rs:275 src/search.rs:316 src/search.rs:370
-msgid "[Installed: {}]"
-msgstr "[Telepítve: {}]"
+#: src/search.rs:285 src/search.rs:338 src/search.rs:410
+#, fuzzy
+msgid "[installed: {}]"
+msgstr " [telepítve: {}]"
 
-#: src/search.rs:277 src/search.rs:318 src/search.rs:372
-msgid "[Installed]"
-msgstr "[Telepítve]"
+#: src/search.rs:287 src/search.rs:340 src/search.rs:412
+#, fuzzy
+msgid "[installed]"
+msgstr " [telepítve]"
 
-#: src/search.rs:310
-msgid "[Out-of-date: {}]"
+#: src/search.rs:332
+#, fuzzy
+msgid "[out-of-date: {}]"
 msgstr "[Elavult: {}]"
 
-#: src/search.rs:325
-msgid "[Orphaned]"
+#: src/search.rs:347
+#, fuzzy
+msgid "[orphaned]"
 msgstr "[Elárvult]"
 
-#: src/search.rs:451
+#: src/search.rs:491
 msgid "no packages match search"
 msgstr "egyetlen csomag sem felel meg a keresésnek"
 
-#: src/search.rs:489
+#: src/search.rs:529
 msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "Telepítendő csomagok (például: 1 2 3, 1-3):"
 
-#: src/search.rs:491
+#: src/search.rs:531
 msgid "Select packages (eg: 1 2 3, 1-3):"
 msgstr "Csomagok kiválasztása (például: 1 2 3, 1-3):"
 
@@ -1183,31 +1208,31 @@ msgstr "{pkg}: a csomagfrissítés figyelmen kívül hagyása ({old} => {new})"
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr "Kihagyandó csomagok (például: 1 2 3, 1-3):"
 
-#: src/util.rs:119
+#: src/util.rs:121
 msgid "[Y/n]:"
 msgstr "[Y/n]:"
 
-#: src/util.rs:121
+#: src/util.rs:123
 msgid "[y/N]:"
 msgstr "[y/N]:"
 
-#: src/util.rs:140
+#: src/util.rs:142
 msgid "y"
 msgstr "y"
 
-#: src/util.rs:140
+#: src/util.rs:142
 msgid "yes"
 msgstr "igen"
 
-#: src/util.rs:338
+#: src/util.rs:300
 msgid "Enter a number (default=1): "
 msgstr "Adjon meg egy számot (alapértelmezett = 1): "
 
-#: src/util.rs:355
+#: src/util.rs:317
 msgid "invalid number: {}"
 msgstr "érvénytelen szám: {}"
 
-#: src/util.rs:365
+#: src/util.rs:327
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "érvénytelen érték: a(z) {n} nem 1 és {max} között van"
 
@@ -1225,14 +1250,20 @@ msgstr ""
 "\n"
 "Adjon meg egy kiválasztást (alapértelmezett=összes): "
 
-#: src/lib.rs:208
+#: src/lib.rs:206
 msgid "can not use chroot builds: devtools is not installed"
 msgstr ""
 "nem sikerült használni a chroot összeállításokat: a devtools nincs telepítve"
 
-#: src/lib.rs:315
+#: src/lib.rs:313
 msgid "no operation specified (use -h for help)"
 msgstr "nem adott meg kapcsolót (tekintse meg a súgót a -h kapcsolóval)"
+
+#~ msgid "[Installed: {}]"
+#~ msgstr "[Telepítve: {}]"
+
+#~ msgid "[Installed]"
+#~ msgstr "[Telepítve]"
 
 #~ msgid "Aur ({})"
 #~ msgstr "Aur ({})"
