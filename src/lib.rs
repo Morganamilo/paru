@@ -38,6 +38,7 @@ extern crate smart_default;
 
 use crate::chroot::Chroot;
 use crate::config::{Config, Op};
+use crate::exec::has_command;
 use crate::query::print_upgrade_list;
 
 use std::env::{self, current_dir};
@@ -46,7 +47,6 @@ use std::fs::read_to_string;
 use std::io::Write;
 
 use std::path::PathBuf;
-use std::process::Command;
 
 use ansiterm::Style;
 use anyhow::{bail, Error, Result};
@@ -202,9 +202,7 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
 }
 
 async fn handle_cmd(config: &mut Config) -> Result<i32> {
-    if (config.op == Op::ChrootCtl || config.chroot)
-        && Command::new("arch-nspawn").arg("-h").output().is_err()
-    {
+    if (config.op == Op::ChrootCtl || config.chroot) && !has_command("arch-nspawn") {
         bail!(tr!("can not use chroot builds: devtools is not installed"));
     }
 

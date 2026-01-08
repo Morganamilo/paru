@@ -16,6 +16,7 @@ use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
 use crate::download::{self, Bases};
+use crate::exec::{command_status, has_command};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
@@ -1592,15 +1593,13 @@ fn file_manager(
 }
 
 fn run_file_manager(config: &Config, fm: &str, dir: &Path) -> Result<()> {
-    let ret = Command::new(fm)
-        .args(&config.fm_flags)
-        .arg(dir)
-        .current_dir(dir)
-        .status()
-        .with_context(|| tr!("failed to execute file manager: {}", fm))?;
+    let mut cmd = Command::new(fm);
+    cmd.args(&config.fm_flags).arg(dir).current_dir(dir);
+    let ret =
+        command_status(&mut cmd).with_context(|| tr!("failed to execute file manager: {}", fm))?;
     ensure!(
-        ret.success(),
-        tr!("file manager did not execute successfully")
+        ret.success().is_ok(),
+        tr!("file manager '{}' did not execute successfully", fm)
     );
     Ok(())
 }
@@ -1658,20 +1657,13 @@ fn print_dir(
                     .paint(file.path().strip_prefix(pkgdir)?.display().to_string())
             );
             if bat {
-                let output = Command::new(&config.bat_bin)
-                    .arg("-pp")
+                let mut cmd = Command::new(&config.bat_bin);
+                cmd.arg("-pp")
                     .arg("--color=always")
                     .arg(file.path())
-                    .args(&config.bat_flags)
-                    .output()
-                    .with_context(|| {
-                        format!(
-                            "{} {} {}",
-                            tr!("failed to run:"),
-                            config.bat_bin,
-                            file.path().display()
-                        )
-                    })?;
+                    .args(&config.bat_flags);
+                let output = exec::command_output(&mut cmd)?;
+
                 for line in output.stdout.lines() {
                     let _ = stdin.write_all(b"    ");
                     let _ = stdin.write_all(line?.as_bytes());
@@ -1739,11 +1731,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
 
             if printed {
                 let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
-                let pager = if Command::new("less").output().is_ok() {
-                    "less"
-                } else {
-                    "cat"
-                };
+                let pager = if has_command("less") { "less" } else { "cat" };
 
                 let pager = config
                     .pager_cmd
@@ -1758,14 +1746,10 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 if std::env::var("LESS").is_err() {
                     command.env("LESS", "SRXF");
                 }
-                let mut command = command
-                    .arg("-c")
-                    .arg(&pager)
-                    .stdin(Stdio::piped())
-                    .spawn()
-                    .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
+                command.arg("-c").arg(&pager).stdin(Stdio::piped());
+                let mut child = exec::spawn(&mut command)?;
 
-                let mut stdin = command.stdin.take().unwrap();
+                let mut stdin = child.stdin.take().unwrap();
 
                 if pager_unconfigured && pager == "less" {
                     let _ = write!(
@@ -1788,8 +1772,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                     let _ = stdin.write_all(b"\n\n");
                 }
 
-                let bat = config.color.enabled
-                    && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+                let bat = config.color.enabled && has_command(&config.bat_bin);
 
                 let mut buf = Vec::new();
                 for &pkg in &unseen {
@@ -1801,9 +1784,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 }
 
                 drop(stdin);
-                command
-                    .wait()
-                    .with_context(|| format!("{} {}", tr!("failed to run:"), pager))?;
+                exec::wait(&command, &mut child)?;
                 exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
 
                 if !ask(config, &tr!("Accept changes?"), true) {

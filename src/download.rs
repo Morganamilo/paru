@@ -1,8 +1,9 @@
 use crate::config::{Colors, Config, SortMode, YesNoAll};
+use crate::exec::has_command;
 use crate::fmt::print_indent;
-use crate::printtr;
 use crate::util::is_arch_repo;
 use crate::RaurHandle;
+use crate::{exec, printtr};
 
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, HashMap};
@@ -16,7 +17,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{bail, Context, Result};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
@@ -240,20 +241,13 @@ fn repo_pkgbuilds(config: &Config, pkgs: &[Targ<'_>]) -> Result<i32> {
 
         print_download(config, n + 1, pkgs.len(), base);
 
-        let ret = Command::new(pkgctl)
-            .arg("repo")
+        let mut cmd = Command::new(pkgctl);
+        cmd.arg("repo")
             .arg("clone")
             .arg("--protocol")
             .arg("https")
-            .arg(base)
-            .output()
-            .with_context(|| format!("{} {} export {}", tr!("failed to run:"), pkgctl, base))?;
-
-        ensure!(
-            ret.status.success(),
-            "{}",
-            String::from_utf8_lossy(&ret.stderr).trim()
-        );
+            .arg(base);
+        exec::command_output(&mut cmd)?;
     }
 
     Ok(0)
@@ -320,27 +314,9 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
             remove_dir_all(&path)?;
         }
 
-        let ret = Command::new("cp")
-            .arg("-r")
-            .arg("--")
-            .arg(&pkg.path)
-            .arg(path)
-            .output()
-            .with_context(|| {
-                format!(
-                    "{} {} {} {}",
-                    tr!("failed to run:"),
-                    "cp",
-                    pkg.path.display(),
-                    cwd.display()
-                )
-            })?;
-
-        ensure!(
-            ret.status.success(),
-            "{}",
-            String::from_utf8_lossy(&ret.stderr).trim()
-        );
+        let mut cmd = Command::new("cp");
+        cmd.arg("-r").arg("--").arg(&pkg.path).arg(path);
+        exec::command_output(&mut cmd)?;
     }
 
     Ok(ret)
@@ -581,7 +557,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let color = config.color;
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
-    let bat = config.color.enabled && Command::new(&config.bat_bin).arg("-V").output().is_ok();
+    let bat = config.color.enabled && has_command(&config.bat_bin);
     let client = config.raur.client();
 
     let (repo, pkgbuild, aur) = split_target_pkgbuilds(config, &config.targets);
@@ -684,15 +660,16 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 }
 
 fn pipe_bat(config: &Config, pkgbuild: &[u8]) -> Result<()> {
-    let mut command = Command::new(&config.bat_bin)
+    let mut command = Command::new(&config.bat_bin);
+    command
         .arg("-pp")
         .arg("--color=always")
         .arg("-lPKGBUILD")
         .args(&config.bat_flags)
-        .stdin(Stdio::piped())
-        .spawn()?;
+        .stdin(Stdio::piped());
+    let mut child = exec::spawn(&mut command)?;
 
-    let _ = command.stdin.as_mut().unwrap().write_all(pkgbuild);
-    command.wait()?;
+    let _ = child.stdin.as_mut().unwrap().write_all(pkgbuild);
+    exec::wait(&command, &mut child)?;
     Ok(())
 }

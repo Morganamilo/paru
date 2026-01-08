@@ -1,10 +1,11 @@
 use crate::config::Config;
-use crate::exec;
+use crate::exec::command_status;
+use crate::exec::{self};
 use crate::printtr;
 use crate::util::ask;
 
 use std::collections::{HashMap, HashSet};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use anyhow::Result;
 use aur_depends::Actions;
@@ -34,13 +35,16 @@ pub fn check_pgp_keys(
                 continue;
             }
 
-            let ret = Command::new(&config.gpg_bin)
-                .args(&config.gpg_flags)
+            let mut cmd = Command::new(&config.gpg_bin);
+            cmd.args(&config.gpg_flags)
                 .arg("--list-keys")
                 .arg(key)
-                .output()?;
+                .stdin(Stdio::null())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null());
+            let status = command_status(&mut cmd)?;
 
-            if !ret.status.success() {
+            if status.success().is_err() {
                 import.entry(key).or_default().push(base);
             }
         }

@@ -29,21 +29,9 @@ impl Mock {
 
             for pkg in srcinfo.pkgs {
                 let name = pkg.pkgname;
-                let depends = pkg
-                    .depends
-                    .any()
-                    .map(|s| s.to_string())
-                    .collect();
-                let make_depends = base
-                    .makedepends
-                    .any()
-                    .map(|s| s.to_string())
-                    .collect();
-                let check_depends = base
-                    .checkdepends
-                    .any()
-                    .map(|s| s.to_string())
-                    .collect();
+                let depends = pkg.depends.any().map(|s| s.to_string()).collect();
+                let make_depends = base.makedepends.any().map(|s| s.to_string()).collect();
+                let check_depends = base.checkdepends.any().map(|s| s.to_string()).collect();
 
                 let pkg = Package {
                     id: 0,

@@ -1,10 +1,12 @@
+#![allow(clippy::disallowed_methods)]
+
 use crate::args::Args;
 use crate::config::Config;
 
 use std::ffi::OsStr;
 use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
-use std::process::{Command, Output, Stdio};
+use std::process::{Child, Command, Output, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -76,7 +78,7 @@ fn command_err(cmd: &Command) -> String {
     )
 }
 
-fn command_status(cmd: &mut Command) -> Result<Status> {
+pub fn command_status(cmd: &mut Command) -> Result<Status> {
     debug!("running command: {:?}", cmd);
     let term = &*CAUGHT_SIGNAL;
 
@@ -96,7 +98,6 @@ fn command_status(cmd: &mut Command) -> Result<Status> {
 }
 
 pub fn command(cmd: &mut Command) -> Result<()> {
-    debug!("running command: {:?}", cmd);
     command_status(cmd)?
         .success()
         .with_context(|| command_err(cmd))?;
@@ -126,6 +127,19 @@ pub fn command_output(cmd: &mut Command) -> Result<Output> {
     }
 
     Ok(ret)
+}
+
+pub fn spawn(cmd: &mut Command) -> Result<Child> {
+    debug!("running command: {:?}", cmd);
+    cmd.spawn().with_context(|| command_err(cmd))
+}
+
+pub fn wait(cmd: &Command, child: &mut Child) -> Result<Status> {
+    let status = child
+        .wait()
+        .map(|s| Status(s.code().unwrap_or(1)))
+        .with_context(|| command_err(cmd))?;
+    Ok(status)
 }
 
 pub fn spawn_sudo(sudo: String, flags: Vec<String>) -> Result<()> {
@@ -240,4 +254,8 @@ pub fn makepkg_output_dest<S: AsRef<OsStr>>(
 
 pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) -> Result<Output> {
     makepkg_output_dest(config, dir, args, None)
+}
+
+pub fn has_command(name: &str) -> bool {
+    Command::new(name).arg("--version").output().is_ok()
 }
