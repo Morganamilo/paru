@@ -1,6 +1,7 @@
-FROM debian:bookworm as build-stage
+FROM debian:13 AS build-stage
 
-ARG PACMAN_VER=7.0.0
+ARG PACMAN_HASH=b9f7d4a5b0bea75953f5892621a2caecc5672de5
+ARG PACMAN_VER=7.1.0
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /pacman
@@ -10,10 +11,10 @@ RUN apt-get install -y build-essential git libcurl4-openssl-dev curl meson ninja
         libarchive-dev pkg-config libgpgme-dev libssl-dev clang python3 python3-setuptools \
         gettext zstd
 
-RUN curl -L -o pacman-${PACMAN_VER}.tar.xz https://gitlab.archlinux.org/pacman/pacman/-/releases/v${PACMAN_VER}/downloads/pacman-${PACMAN_VER}.tar.xz
+RUN curl -L -o pacman-${PACMAN_VER}.tar.xz https://gitlab.archlinux.org/pacman/pacman/-/archive/${PACMAN_HASH}/pacman-${PACMAN_HASH}.tar.gz
 RUN tar -xf pacman-${PACMAN_VER}.tar.xz
 
-WORKDIR pacman-${PACMAN_VER}
+WORKDIR pacman-${PACMAN_HASH}
 
 RUN meson setup \
         --prefix=/usr \

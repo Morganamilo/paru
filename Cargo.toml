@@ -15,7 +15,7 @@ rust-version = "1.87"
 
 
 [dependencies]
-alpm = "5.0.0"
+alpm = "5.0.2"
 alpm-utils = "5.0.0"
 aur-depends = "5.0.0"
 aur-fetch = "0.11.3"
@@ -35,23 +35,23 @@ htmlescape = "0.3.1"
 indicatif = "0.18.3"
 scraper = "0.25.0"
 nix = { version = "0.30.1", features = ["fs", "user"] }
-reqwest = { version = "0.11.0", features = ["gzip", "socks"] }
+reqwest = { version = "0.11.27", features = ["gzip", "socks"] }
 rss = { version = "2.0.12", default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.148"
+serde_json = "1.0.149"
 smart-default = "0.7.1"
 tempfile = "3.24.0"
 terminal_size = "0.4.3"
-tokio = { version = "1.48.0", features = [
+tokio = { version = "1.49.0", features = [
     "process",
     "macros",
     "rt-multi-thread",
 ] }
-url = "2.5.7"
+url = "2.5.8"
 env_logger = "0.11.8"
 log = "0.4.29"
 async-trait = { version = "0.1.89", optional = true }
-tr = "0.1.10"
+tr = "0.1.11"
 unicode-width = "0.2.2"
 regex = "1.12.2"
 signal-hook = "0.4.1"
