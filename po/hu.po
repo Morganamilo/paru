@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2025-06-25 14:49+0200\n"
+"PO-Revision-Date: 2026-01-08 19:56+0100\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.8\n"
 "X-Language: hu_HU\n"
 "X-Source-Language: C\n"
 
@@ -78,9 +78,8 @@ msgid "unknown option -{}"
 msgstr "ismeretlen kapcsoló: -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "nem sikerült megnyitni a gyorsítótár-fájlt „{}”"
+msgstr "nem sikerült dekódolni a csomaglistát"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -249,13 +248,12 @@ msgid "package '{}' was not found"
 msgstr "nem található a(z) „{}” nevezetű csomag"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "duplikált csomagok: {}"
+msgstr "PKGBUILD duplikálása: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "A(z) „{}” csomag létezik, de nincs PKGBUILD-fájlja -- kihagyás"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -694,6 +692,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       A root chroot-ba telepítendő csomagok "
+"(alapértelmezett: base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -1002,9 +1002,8 @@ msgid "failed to execute file manager: {}"
 msgstr "nem sikerült elindítani a fájlkezelőt: {}"
 
 #: src/install.rs:1602
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "a fájlkezelő nem indítható el sikeresen"
+msgstr "az „()” fájlkezelő futtatását nem sikerült sikeresen végrehajtani"
 
 #: src/install.rs:1620
 msgid "failed to read dir: {}"
@@ -1025,6 +1024,8 @@ msgstr "Elfogadja a változásokat?"
 #: src/install.rs:1759
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
+"Kevesebb oldallapozás. A kilépéshez nyomja meg a „q” gombot, a súgó "
+"megnyitásához pedig a „h” gombot."
 
 #: src/install.rs:1794
 msgid " nothing new to review"
@@ -1129,22 +1130,18 @@ msgid "aur search failed"
 msgstr "az AUR-keresés sikertelen"
 
 #: src/search.rs:285 src/search.rs:338 src/search.rs:410
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [telepítve: {}]"
+msgstr "[telepítve: {}]"
 
 #: src/search.rs:287 src/search.rs:340 src/search.rs:412
-#, fuzzy
 msgid "[installed]"
-msgstr " [telepítve]"
+msgstr "[telepítve]"
 
 #: src/search.rs:332
-#, fuzzy
 msgid "[out-of-date: {}]"
 msgstr "[Elavult: {}]"
 
 #: src/search.rs:347
-#, fuzzy
 msgid "[orphaned]"
 msgstr "[Elárvult]"
 
