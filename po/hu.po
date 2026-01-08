@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru  2.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2026-01-08 19:56+0100\n"
+"PO-Revision-Date: 2026-01-08 20:01+0100\n"
 "Last-Translator: summoner <summoner@vivaldi.net>\n"
 "Language-Team: \n"
 "Language: hu\n"
@@ -253,7 +253,7 @@ msgstr "PKGBUILD duplikálása: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr "A(z) „{}” csomag létezik, de nincs PKGBUILD-fájlja -- kihagyás"
+msgstr "a(z) „{}” csomag létezik, de nincs PKGBUILD-fájlja -- kihagyás"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
