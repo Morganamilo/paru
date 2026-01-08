@@ -1,7 +1,7 @@
 use std::path::Path;
 
+use crate::config::Config;
 use crate::config::SortBy;
-use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, link_str, print_indent};
 use crate::util::{input, is_arch_repo, NumberMenu};
 use crate::{info, printtr};
@@ -53,7 +53,7 @@ pub async fn search(config: &Config) -> Result<i32> {
         }
     };
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.is_top_down(false) {
         for pkg in &repo_pkgs {
             print_alpm_pkg(config, pkg, quiet);
         }
@@ -515,7 +515,7 @@ pub fn interactive_menu(
         all_pkgs.insert(0, pkg);
     }
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.is_top_down(true) {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             print_any_pkg(config, n, pad, pkg)
         }
@@ -538,7 +538,7 @@ pub fn interactive_menu(
     let menu = NumberMenu::new(&input);
     let mut pkgs = Vec::new();
 
-    if config.sort_mode == SortMode::TopDown {
+    if config.sort_mode.is_top_down(true) {
         for (n, pkg) in all_pkgs.iter().enumerate() {
             if menu.contains(n + 1, "") {
                 match pkg {
