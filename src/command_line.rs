@@ -243,6 +243,7 @@ impl Config {
             Arg::Long("norebuild") => self.rebuild = YesNoAllTree::No,
             Arg::Long("topdown") => self.sort_mode = SortMode::TopDown,
             Arg::Long("bottomup") => self.sort_mode = SortMode::BottomUp,
+            Arg::Long("auto") => self.sort_mode = SortMode::Auto,
             Arg::Long("aur") | Arg::Short('a') => {
                 self.mode = Mode::AUR;
                 self.aur_filter = true;
