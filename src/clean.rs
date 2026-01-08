@@ -18,7 +18,7 @@ use tr::tr;
 
 pub fn clean(config: &Config) -> Result<()> {
     if config.mode.repo() {
-        exec::pacman(config, &config.args)?;
+        exec::pacman(config, &config.args)?.success()?;
     }
 
     if config.mode.aur() {

@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "alpm"
-version = "4.0.3"
+version = "4.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7af97d07874ead330d0d636e0953bfdb05973010bbf0ed996a600c283bcd05c"
+checksum = "119e8b82e2473323f2fe4ee81599286430bc9a64b31f5e67eb6dec806858c9cd"
 dependencies = [
  "alpm-sys",
  "bitflags 2.9.4",
@@ -38,9 +38,9 @@ dependencies = [
 
 [[package]]
 name = "alpm-sys"
-version = "4.0.3"
+version = "4.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b380d61cb56db2db0fc88072b77e760a107691521ac83012379d97d6d6e6f7ac"
+checksum = "4071fa385bbb17c2a6eceb65b9a52e8f5c9f97800b1c125ac09a0f160f36b076"
 dependencies = [
  "bindgen",
  "pkg-config",
@@ -1175,7 +1175,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07033963ba89ebaf1584d767badaa2e8fcec21aedea6b8c0346d487d49c28667"
 dependencies = [
  "cfg-if",
- "windows-targets 0.53.2",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
