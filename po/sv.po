@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2026-01-07 01:04+0000\n"
+"PO-Revision-Date: 2026-01-09 05:48+0000\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -75,9 +75,8 @@ msgid "unknown option -{}"
 msgstr "okänd parameter -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "misslyckades med att ladda ner källor"
+msgstr "misslyckades med att avkoda paketlista"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -246,13 +245,12 @@ msgid "package '{}' was not found"
 msgstr "paket '{}' hittades inte"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "duplicerade paket: {}"
+msgstr "duplicera PKGBUILD: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "paket '{}' existerar men har ingen PKGBUILD -- hoppar över"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -679,6 +677,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       Paket att installera i root-chroot (standard: "
+"base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -978,9 +978,8 @@ msgid "failed to execute file manager: {}"
 msgstr "misslyckades med att exekvera filhanterare: {}"
 
 #: src/install.rs:1602
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "filhanteraren exekverades inte lyckat"
+msgstr "filhanterare '{}' exekverades inte korrekt"
 
 #: src/install.rs:1620
 msgid "failed to read dir: {}"
@@ -1092,7 +1091,7 @@ msgstr "Fortsätt med borttagning?"
 
 #: src/repo.rs:415
 msgid " [installed: {}]"
-msgstr " [installerade: {}]"
+msgstr " [installerad: {}]"
 
 #: src/repo.rs:417 src/sync.rs:144
 msgid " [installed]"
@@ -1103,24 +1102,20 @@ msgid "aur search failed"
 msgstr "aur-sökning misslyckades"
 
 #: src/search.rs:285 src/search.rs:338 src/search.rs:410
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [installerade: {}]"
+msgstr "[installerade: {}]"
 
 #: src/search.rs:287 src/search.rs:340 src/search.rs:412
-#, fuzzy
 msgid "[installed]"
-msgstr " [installerad]"
+msgstr "[installerad]"
 
 #: src/search.rs:332
-#, fuzzy
 msgid "[out-of-date: {}]"
-msgstr "[Utdaterat: {}]"
+msgstr "[utdaterad: {}]"
 
 #: src/search.rs:347
-#, fuzzy
 msgid "[orphaned]"
-msgstr "[Övergiven]"
+msgstr "[övergiven]"
 
 #: src/search.rs:491
 msgid "no packages match search"
