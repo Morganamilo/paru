@@ -135,16 +135,27 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     }
     let stdin = stdin();
     let mut input = String::new();
-    let _ = stdin.read_line(&mut input);
-    let input = input.to_lowercase();
-    let input = input.trim();
+    match stdin.read_line(&mut input) {
+        Ok(0) => {
+            println!();
+            false
+        }
+        Ok(_) => {
+            let input = input.to_lowercase();
+            let input = input.trim();
 
-    if input == tr!("y") || input == tr!("yes") {
-        true
-    } else if input.trim().is_empty() {
-        default
-    } else {
-        false
+            if input == tr!("y") || input == tr!("yes") {
+                true
+            } else if input.trim().is_empty() {
+                default
+            } else {
+                false
+            }
+        }
+        Err(_) => {
+            println!(" -> Error reading input");
+            false
+        }
     }
 }
 
