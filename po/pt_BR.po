@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2025-10-11 01:36-0300\n"
-"Last-Translator: João Vitor S. Anjos\n"
+"PO-Revision-Date: 2026-01-08 22:47-0300\n"
+"Last-Translator: Igor\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 "X-Poedit-Bookmarks: -1,110,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: src/clean.rs:36
@@ -77,9 +77,8 @@ msgid "unknown option -{}"
 msgstr "opção desconhecida -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "falha ao abrir arquivo de cache '{}'"
+msgstr "falha ao decodificar a lista de pacotes"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -248,13 +247,12 @@ msgid "package '{}' was not found"
 msgstr "pacote '{}' não encontrado"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "pacotes duplicados: {}"
+msgstr "PKGBUILD duplicado: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "pacote '{}' existe mas não possui PKGBUILD -- ignorando"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -684,6 +682,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       Pacotes para instalar no root chroot (padrão: "
+"base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -988,9 +988,8 @@ msgid "failed to execute file manager: {}"
 msgstr "falha ao executar gerenciador de arquivos: {}"
 
 #: src/install.rs:1602
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "gerenciador de arquivos não foi executado com sucesso"
+msgstr "falha na execução do gerenciador de arquivos '{}'"
 
 #: src/install.rs:1620
 msgid "failed to read dir: {}"
@@ -1113,22 +1112,18 @@ msgid "aur search failed"
 msgstr "falha na busca no AUR"
 
 #: src/search.rs:285 src/search.rs:338 src/search.rs:410
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [instalado: {}]"
+msgstr "[instalado: {}]"
 
 #: src/search.rs:287 src/search.rs:340 src/search.rs:412
-#, fuzzy
 msgid "[installed]"
-msgstr " [instalado]"
+msgstr "[instalado]"
 
 #: src/search.rs:332
-#, fuzzy
 msgid "[out-of-date: {}]"
 msgstr "[Desatualizado desde: {}]"
 
 #: src/search.rs:347
-#, fuzzy
 msgid "[orphaned]"
 msgstr "[Órfão]"
 
