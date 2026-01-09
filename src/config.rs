@@ -431,7 +431,7 @@ pub struct Config {
     #[default(raur::SearchBy::NameDesc)]
     pub search_by: raur::SearchBy,
     pub limit: usize,
-    #[default(SortMode::TopDown)]
+    #[default(SortMode::BottomUp)]
     pub sort_mode: SortMode,
     #[default(Mode::empty())]
     pub mode: Mode,
