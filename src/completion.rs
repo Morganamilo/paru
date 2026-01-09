@@ -8,13 +8,14 @@ use std::time::{Duration, SystemTime};
 
 use anyhow::{ensure, Context, Result};
 use flate2::read::GzDecoder;
-use reqwest::get;
 use tr::tr;
 use url::Url;
 
-async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
+async fn save_aur_list(client: &reqwest::Client, aur_url: &Url, cache_dir: &Path) -> Result<()> {
     let url = aur_url.join("packages.gz")?;
-    let resp = get(url.clone())
+    let resp = client
+        .get(url.clone())
+        .send()
         .await
         .with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
@@ -42,7 +43,12 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -> Result<()> {
+pub async fn update_aur_cache(
+    client: &reqwest::Client,
+    aur_url: &Url,
+    cache_dir: &Path,
+    timeout: Option<u64>,
+) -> Result<()> {
     let path = cache_dir.join("packages.aur");
     let metadata = metadata(&path);
 
@@ -52,7 +58,7 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
             if buf[0..n].contains(&b'\0') {
                 let _ = std::fs::remove_file(&path);
                 let _ = remove_file(&path);
-                save_aur_list(aur_url, cache_dir).await?;
+                save_aur_list(client, aur_url, cache_dir).await?;
                 return Ok(());
             }
         }
@@ -71,14 +77,15 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
     };
 
     if need_refresh {
-        save_aur_list(aur_url, cache_dir).await?;
+        save_aur_list(client, aur_url, cache_dir).await?;
     }
 
     Ok(())
 }
 
 async fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
-    update_aur_cache(&config.aur_url, &config.cache_dir, timeout)
+    let client = config.raur.client();
+    update_aur_cache(&client, &config.aur_url, &config.cache_dir, timeout)
         .await
         .context(tr!("could not update aur cache"))?;
     let path = config.cache_dir.join("packages.aur");
