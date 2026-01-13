@@ -21,7 +21,7 @@ aur-depends = "5.0.0"
 aur-fetch = "0.11.3"
 cini = "1.0.0"
 pacmanconf = "3.1.0"
-raur = "7.0.0"
+raur = { version = "7.0.0" , default-features = false, features = ["reqwest", "async", "native-tls"] }
 srcinfo = "2.1.0"
 
 
@@ -35,7 +35,7 @@ htmlescape = "0.3.1"
 indicatif = "0.18.3"
 scraper = "0.25.0"
 nix = { version = "0.30.1", features = ["fs", "user"] }
-reqwest = { version = "0.13.1", default-features = false, features = ["native-tls", "gzip", "socks", "json", "charset", "http2", "system-proxy"] }
+reqwest = { version = "0.13.1", default-features = false, features = ["rustls-no-provider", "form", "gzip", "socks", "charset", "http2", "system-proxy"] }
 rss = { version = "2.0.12", default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
@@ -78,4 +78,5 @@ mock_chroot = ["mock"]
 #aur-depends = { path = "../aur-depends" }
 #srcinfo = { path = "../srcinfo.rs" }
 #aur-fetch = { path = "../aur-fetch" }
-raur = { git = "https://gitlab.com/phoepsilonix/raur.git", rev = "3272d41943c2f810e82d55d54bc27787671e2b53" }
+#raur = { path = "../../raur" }
+raur = { git = "https://gitlab.com/phoepsilonix/raur.git", rev = "0459a3536200001a6733e20d8967ad18ca2cfce6" }
