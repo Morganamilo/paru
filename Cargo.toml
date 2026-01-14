@@ -21,7 +21,7 @@ aur-depends = "5.0.0"
 aur-fetch = "0.11.3"
 cini = "1.0.0"
 pacmanconf = "3.1.0"
-raur = { version = "7.0.0" , default-features = false, features = ["reqwest", "async", "native-tls"] }
+raur = { version = "7.1.0" , default-features = false, features = ["reqwest", "async", "native-tls"] }
 srcinfo = "2.1.0"
 
 
@@ -79,4 +79,3 @@ mock_chroot = ["mock"]
 #srcinfo = { path = "../srcinfo.rs" }
 #aur-fetch = { path = "../aur-fetch" }
 #raur = { path = "../../raur" }
-raur = { git = "https://gitlab.com/phoepsilonix/raur.git", rev = "0459a3536200001a6733e20d8967ad18ca2cfce6" }
