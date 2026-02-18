@@ -214,6 +214,10 @@ fn new_makepkg<S: AsRef<OsStr>>(
     pkgdest: Option<&str>,
 ) -> Command {
     let mut cmd = Command::new(&config.makepkg_bin);
+    cmd.envs(config.env.iter().map(|(key, value)| (key, value)));
+    if config.chroot {
+        cmd.env_remove("PKGEXT");
+    }
     if let Some(mconf) = &config.makepkg_conf {
         cmd.arg("--config").arg(mconf);
     }
@@ -254,4 +258,29 @@ pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) 
 
 pub fn has_command(name: &str) -> bool {
     Command::new(name).arg("--version").output().is_ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::makepkg_output;
+    use crate::config::Config;
+    use std::path::Path;
+
+    #[test]
+    fn makepkg_overrides_reach_child_without_changing_parent_environment() {
+        let key = "PARU_TEST_MAKEPKG_OVERRIDE";
+        let inherited = std::env::var_os(key);
+        let mut config = Config::default();
+        config.makepkg_bin = "/bin/sh".into();
+        config.env = vec![(key.into(), "package-specific".into())];
+        let output = makepkg_output(
+            &config,
+            Path::new("."),
+            &["-c", "printf '%s' \"$PARU_TEST_MAKEPKG_OVERRIDE\""],
+        )
+        .unwrap();
+        assert!(output.status.success());
+        assert_eq!(output.stdout, b"package-specific");
+        assert_eq!(std::env::var_os(key), inherited);
+    }
 }
