@@ -7,6 +7,7 @@ use crate::pkgbuild::PkgbuildRepos;
 use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
+use std::collections::HashMap;
 use std::env::consts::ARCH;
 use std::env::var;
 use std::fmt;
@@ -395,6 +396,27 @@ impl ConfigEnum for YesNoAllTree {
     ];
 }
 
+#[derive(Debug, Default, Clone)]
+pub struct PackageOverride {
+    pub makepkg_conf: Option<String>,
+    pub env: Vec<(String, String)>,
+}
+
+#[derive(Debug)]
+enum OverrideParseState {
+    Package {
+        name: String,
+        makepkg_conf: Option<String>,
+        env: Vec<(String, String)>,
+    },
+    Group {
+        name: String,
+        packages: Vec<String>,
+        makepkg_conf: Option<String>,
+        env: Vec<(String, String)>,
+    },
+}
+
 #[derive(SmartDefault, Debug)]
 pub struct Config {
     section: Option<String>,
@@ -547,6 +569,9 @@ pub struct Config {
 
     pub env: Vec<(String, String)>,
 
+    pub overrides: HashMap<String, PackageOverride>,
+    override_parse_state: Option<OverrideParseState>,
+
     //pacman
     pub db_path: Option<String>,
     pub root: Option<String>,
@@ -573,15 +598,40 @@ impl Ini for Config {
     fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
         let err = match cb.kind {
             CallbackKind::Section(section) => {
+                self.finalize_override()?;
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
                     && self.pkgbuild_repos.repo(section).is_none()
                 {
-                    if matches!(section, "local" | "aur" | "pkg" | "base") || section.contains('.')
-                    {
+                    if matches!(section, "local" | "aur" | "pkg" | "base") {
                         bail!(tr!("section can not be called {}", section));
                     }
-                    self.pkgbuild_repos.add_repo(section.to_string());
+                    if let Some(rest) = section.strip_prefix("override.package.") {
+                        ensure!(
+                            !rest.is_empty(),
+                            tr!("override.package section requires a package name")
+                        );
+                        self.override_parse_state = Some(OverrideParseState::Package {
+                            name: rest.to_string(),
+                            makepkg_conf: None,
+                            env: Vec::new(),
+                        });
+                    } else if let Some(rest) = section.strip_prefix("override.group.") {
+                        ensure!(
+                            !rest.is_empty(),
+                            tr!("override.group section requires a group name")
+                        );
+                        self.override_parse_state = Some(OverrideParseState::Group {
+                            name: rest.to_string(),
+                            packages: Vec::new(),
+                            makepkg_conf: None,
+                            env: Vec::new(),
+                        });
+                    } else if section.contains('.') {
+                        bail!(tr!("section can not be called {}", section));
+                    } else {
+                        self.pkgbuild_repos.add_repo(section.to_string());
+                    }
                 }
                 Ok(())
             }
@@ -697,6 +747,8 @@ impl Config {
     }
 
     pub fn parse_args<S: AsRef<str>, I: IntoIterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+        self.finalize_override()?;
+
         let iter = iter.into_iter();
         let mut iter = iter.peekable();
         let mut op_count = 0;
@@ -994,6 +1046,10 @@ then initialise it with:
 
         let section = section.to_string();
 
+        if section.starts_with("override.") {
+            return self.parse_override_directive(key, value);
+        }
+
         match section.as_str() {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
@@ -1200,6 +1256,112 @@ then initialise it with:
         Ok(())
     }
 
+    fn parse_override_directive(&mut self, key: &str, value: Option<&str>) -> Result<()> {
+        let state = self
+            .override_parse_state
+            .as_mut()
+            .context("override directive outside of override section")?;
+
+        match key {
+            "MakepkgConf" => {
+                let value = value
+                    .context(tr!("value can not be empty for key '{}'", key))?
+                    .to_string();
+                match state {
+                    OverrideParseState::Package { makepkg_conf, .. }
+                    | OverrideParseState::Group { makepkg_conf, .. } => {
+                        *makepkg_conf = Some(value);
+                    }
+                }
+            }
+            "Packages" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                match state {
+                    OverrideParseState::Package { .. } => {
+                        bail!(tr!(
+                            "'Packages' is not valid in [override.package.*] sections"
+                        ));
+                    }
+                    OverrideParseState::Group { packages, .. } => {
+                        packages.extend(value.split_whitespace().map(|s| s.to_string()));
+                    }
+                }
+            }
+            "Overrides" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                let parsed = parse_overrides_map(value)?;
+                match state {
+                    OverrideParseState::Package { env, .. }
+                    | OverrideParseState::Group { env, .. } => {
+                        env.extend(parsed);
+                    }
+                }
+            }
+            _ => eprintln!(
+                "{}",
+                tr!("error: unknown option '{}' in override section", key)
+            ),
+        }
+
+        Ok(())
+    }
+
+    fn finalize_override(&mut self) -> Result<()> {
+        let state = match self.override_parse_state.take() {
+            Some(s) => s,
+            None => return Ok(()),
+        };
+
+        match state {
+            OverrideParseState::Package {
+                name,
+                makepkg_conf,
+                env,
+            } => {
+                ensure!(
+                    makepkg_conf.is_some() || !env.is_empty(),
+                    tr!(
+                        "override.package.{} must have MakepkgConf or Overrides",
+                        name
+                    )
+                );
+                self.overrides
+                    .insert(name, PackageOverride { makepkg_conf, env });
+            }
+            OverrideParseState::Group {
+                name,
+                packages,
+                makepkg_conf,
+                env,
+            } => {
+                ensure!(
+                    !packages.is_empty(),
+                    tr!("override.group.{} must have a Packages directive", name)
+                );
+                ensure!(
+                    makepkg_conf.is_some() || !env.is_empty(),
+                    tr!("override.group.{} must have MakepkgConf or Overrides", name)
+                );
+                for pkg in packages {
+                    let entry = self.overrides.entry(pkg).or_default();
+                    // Group overrides merge: later groups overwrite conflicting keys
+                    if let Some(ref conf) = makepkg_conf {
+                        entry.makepkg_conf = Some(conf.clone());
+                    }
+                    for (k, v) in &env {
+                        if let Some(existing) = entry.env.iter_mut().find(|(ek, _)| ek == k) {
+                            existing.1 = v.clone();
+                        } else {
+                            entry.env.push((k.clone(), v.clone()));
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn aur_namespace(&self) -> &str {
         if self.pacman.repos.iter().any(|r| r.name == "aur") {
             // hack for search install
@@ -1208,6 +1370,68 @@ then initialise it with:
             "aur"
         }
     }
+}
+
+fn parse_overrides_map(input: &str) -> Result<Vec<(String, String)>> {
+    let input = input.trim();
+    let inner = input
+        .strip_prefix('{')
+        .and_then(|s| s.strip_suffix('}'))
+        .context(tr!("Overrides value must be wrapped in { }"))?
+        .trim();
+
+    if inner.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let mut result = Vec::new();
+    let mut pairs = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+    for ch in inner.chars() {
+        if ch == '"' {
+            in_quotes = !in_quotes;
+            current.push(ch);
+        } else if ch == ',' && !in_quotes {
+            pairs.push(std::mem::take(&mut current));
+        } else {
+            current.push(ch);
+        }
+    }
+    if !current.is_empty() {
+        pairs.push(current);
+    }
+
+    for pair in &pairs {
+        let pair = pair.trim();
+        if pair.is_empty() {
+            continue;
+        }
+        let (key, value) = pair
+            .split_once('=')
+            .context(tr!("invalid override entry, expected KEY = value"))?;
+        let key = key.trim().to_string();
+        let value = value.trim();
+        let value = value
+            .strip_prefix('"')
+            .and_then(|s| s.strip_suffix('"'))
+            .unwrap_or(value)
+            .to_string();
+
+        ensure!(!key.is_empty(), tr!("override key can not be empty"));
+        ensure!(
+            !key.contains('\0'),
+            tr!("override key can not contain null bytes")
+        );
+        ensure!(
+            !value.contains('\0'),
+            tr!("override value can not contain null bytes")
+        );
+
+        result.push((key, value));
+    }
+
+    Ok(result)
 }
 
 pub fn version() {
@@ -1359,7 +1583,7 @@ mod sort_tests {
 
 #[cfg(test)]
 mod tests {
-    use super::{Config, parse_release_age};
+    use super::{Config, parse_overrides_map, parse_release_age};
     use globset::{Glob, GlobSetBuilder};
 
     #[test]
@@ -1418,5 +1642,45 @@ mod tests {
         assert!(!config.is_too_new("pkg-git", 100, 100, 60));
         assert!(!config.is_too_new("trusted-pkg", 100, 100, 60));
         assert!(config.is_too_new("pkg", 100, 100, 60));
+    }
+
+    #[test]
+    fn test_parse_overrides_map_comma_in_quoted_value() {
+        let result = parse_overrides_map(r#"{ LDFLAGS = "-Wl,--as-needed" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![("LDFLAGS".to_string(), "-Wl,--as-needed".to_string())]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_comma_in_quoted_value_multiple() {
+        let result =
+            parse_overrides_map(r#"{ LDFLAGS = "-Wl,--as-needed", CFLAGS = "-O2" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![
+                ("LDFLAGS".to_string(), "-Wl,--as-needed".to_string()),
+                ("CFLAGS".to_string(), "-O2".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_basic() {
+        let result = parse_overrides_map(r#"{ CFLAGS = "-O3", MAKEFLAGS = "-j8" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![
+                ("CFLAGS".to_string(), "-O3".to_string()),
+                ("MAKEFLAGS".to_string(), "-j8".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_empty() {
+        let result = parse_overrides_map("{ }").unwrap();
+        assert!(result.is_empty());
     }
 }

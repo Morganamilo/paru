@@ -13,7 +13,7 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
+use crate::config::{Config, LocalRepos, Mode, Op, PackageOverride, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
@@ -531,8 +531,45 @@ impl Installer {
         repo: Option<(&str, &str)>,
         dir: &Path,
     ) -> Result<(HashMap<String, String>, String)> {
-        let c = config.color;
         let pkgdest = repo.map(|r| r.1);
+
+        // Apply per-package overrides
+        let pkg_override = get_base_override(config, base);
+        let saved_makepkg_conf = config.makepkg_conf.clone();
+        let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
+        let saved_env = config.env.clone();
+
+        if let Some(ref ov) = pkg_override {
+            if let Some(ref conf) = ov.makepkg_conf {
+                config.makepkg_conf = Some(conf.clone());
+                if config.chroot {
+                    self.chroot.makepkg_conf = conf.clone();
+                }
+            }
+            // Keep overrides local to child commands; Tokio may already have threads running.
+            config.env.extend(ov.env.iter().cloned());
+        }
+
+        let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest);
+
+        // Restore original config
+        config.makepkg_conf = saved_makepkg_conf;
+        self.chroot.makepkg_conf = saved_chroot_makepkg_conf;
+        config.env = saved_env;
+
+        result
+    }
+
+    fn build_pkgbuild_inner(
+        &mut self,
+        config: &mut Config,
+        base: &mut Base,
+        repo: Option<(&str, &str)>,
+        dir: &Path,
+        pkgdest: Option<&str>,
+    ) -> Result<(HashMap<String, String>, String)> {
+        let c = config.color;
+
         let mut env = config.env.clone();
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
@@ -545,7 +582,7 @@ impl Installer {
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
             self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+                .build(dir, &extra, &chroot_flags, &["-ofA"], &env)
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
@@ -1256,6 +1293,32 @@ impl Installer {
     fn upgrade_later(&self, config: &Config) -> bool {
         config.mode.repo() && config.chroot && (self.sysupgrade != 0 || self.refresh != 0)
     }
+}
+
+fn get_base_override(config: &Config, base: &Base) -> Option<PackageOverride> {
+    let mut result: Option<PackageOverride> = None;
+
+    for pkg_name in base.packages() {
+        if let Some(ov) = config.overrides.get(pkg_name) {
+            match result {
+                None => result = Some(ov.clone()),
+                Some(ref mut merged) => {
+                    if ov.makepkg_conf.is_some() {
+                        merged.makepkg_conf = ov.makepkg_conf.clone();
+                    }
+                    for (k, v) in &ov.env {
+                        if let Some(existing) = merged.env.iter_mut().find(|(ek, _)| ek == k) {
+                            existing.1 = v.clone();
+                        } else {
+                            merged.env.push((k.clone(), v.clone()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    result
 }
 
 fn is_debug(pkg: &alpm::Package) -> bool {

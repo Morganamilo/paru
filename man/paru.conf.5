@@ -498,3 +498,81 @@ Skip review for this repository.
 .B GenerateSrcinfo
 Force regeneration of the .SRCINFO file even if it exists on disk. This is useful for
 repositories that forget to update their .SRCINFO files.
+
+.SH PER-PACKAGE BUILD OVERRIDES
+Per-package build overrides allow customizing build settings for specific packages.
+There are two types of override sections: package overrides and group overrides.
+
+Package overrides always take precedence over group overrides. When multiple group
+overrides apply to the same package, later groups in the config file merge over
+earlier ones, with conflicting keys being overwritten.
+
+.SS PACKAGE OVERRIDES
+
+A package override section targets a single package by name:
+
+.RS
+\fB[override.package.\fR\fIpkgname\fR\fB]\fR
+.RE
+
+.TP
+.B MakepkgConf = /path/to/makepkg.conf
+Use a different makepkg.conf for building this package. This overrides the global
+MakepkgConf option for this package only.
+
+.TP
+.B Overrides = { KEY = value, KEY2 = "value2" }
+Set environment variables for building this package. Values may optionally be
+quoted with double quotes. Multiple key-value pairs are separated by commas.
+
+.SS GROUP OVERRIDES
+
+A group override section applies the same settings to multiple packages:
+
+.RS
+\fB[override.group.\fR\fIgroupname\fR\fB]\fR
+.RE
+
+.TP
+.B Packages = pkg1 pkg2 pkg3
+Space-separated list of package names this group applies to. This directive is
+required for group overrides.
+
+.TP
+.B MakepkgConf = /path/to/makepkg.conf
+Same as the package override equivalent.
+
+.TP
+.B Overrides = { KEY = value, KEY2 = "value2" }
+Same as the package override equivalent.
+
+.SS EXAMPLES
+
+Use a custom makepkg.conf for a specific package:
+
+.RS
+.nf
+[override.package.firefox]
+MakepkgConf = /etc/makepkg-pgo.conf
+.fi
+.RE
+
+Set custom compiler flags for a group of packages:
+
+.RS
+.nf
+[override.group.lto-builds]
+Packages = mesa vulkan-radeon
+MakepkgConf = /etc/makepkg-lto.conf
+Overrides = { MAKEFLAGS = "-j$(nproc)", CFLAGS = "-O3 -march=native" }
+.fi
+.RE
+
+Override environment variables for a single package:
+
+.RS
+.nf
+[override.package.linux-zen]
+Overrides = { MAKEFLAGS = "-j4", CARGO_BUILD_JOBS = "4" }
+.fi
+.RE
