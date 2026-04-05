@@ -1,8 +1,8 @@
 use crate::config::{Config, LocalRepos};
 use crate::devel::{filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
-use crate::util::{input, NumberMenu};
-use crate::{repo, RaurHandle};
+use crate::util::{NumberMenu, input};
+use crate::{RaurHandle, repo};
 
 use std::collections::{HashMap, HashSet};
 
@@ -140,8 +140,8 @@ async fn get_resolver_upgrades<'a, 'b>(
             LocalRepos::None => None,
             _ => {
                 let (_, dbs) = repo::repo_aur_dbs(config);
-                let dbs = Some(dbs.into_iter().map(|db| db.name()).collect::<Vec<_>>());
-                dbs
+
+                Some(dbs.into_iter().map(|db| db.name()).collect::<Vec<_>>())
             }
         };
         let updates = resolver.updates(dbs.as_deref()).await?;

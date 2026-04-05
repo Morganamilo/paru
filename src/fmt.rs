@@ -290,13 +290,10 @@ fn repo<'a>(config: &'a Config, pkg: &str) -> &'a str {
         return "aur";
     }
 
-    let db = dbs
-        .iter()
+    (dbs.iter()
         .find(|db| db.pkg(pkg).is_ok())
         .map(|db| db.name())
-        .unwrap_or_else(|| dbs.first().unwrap().name());
-
-    db
+        .unwrap_or_else(|| dbs.first().unwrap().name())) as _
 }
 
 fn old_ver<'a>(config: &'a Config, pkg: &str) -> Option<&'a Ver> {

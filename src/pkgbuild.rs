@@ -1,7 +1,7 @@
 use std::{
     cell::OnceCell,
     env::current_dir,
-    fs::{read_dir, File},
+    fs::{File, read_dir},
     io::Write,
     path::{Path, PathBuf},
     sync::Arc,
@@ -9,7 +9,7 @@ use std::{
 
 use crate::{download::print_download, exec, install::review};
 use alpm_utils::Targ;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use aur_fetch::Fetch;
 use indicatif::{ProgressBar, ProgressStyle};
 use srcinfo::Srcinfo;

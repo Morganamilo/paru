@@ -1,9 +1,9 @@
+use crate::RaurHandle;
 use crate::config::{Alpm, Config, LocalRepos, YesNoAll, YesNoAllTree};
 use crate::fmt::color_repo;
-use crate::util::{get_provider, NumberMenu};
-use crate::RaurHandle;
+use crate::util::{NumberMenu, get_provider};
 
-use std::io::{stdin, stdout, BufRead, Write};
+use std::io::{BufRead, Write, stdin, stdout};
 
 use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;

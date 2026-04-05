@@ -4,7 +4,7 @@ use crate::{exec, print_error};
 
 use std::io::{Read, Write};
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 
 use flate2::read::GzDecoder;
 use raur::Raur;

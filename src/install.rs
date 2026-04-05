@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
-use std::fs::{read_dir, read_link, OpenOptions};
+use std::fs::{OpenOptions, read_dir, read_link};
 use std::io::{BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -14,14 +14,14 @@ use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
-use crate::devel::{fetch_devel_info, load_devel_info, save_devel_info, DevelInfo};
+use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
 use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
-use crate::upgrade::{get_upgrades, Upgrades};
+use crate::upgrade::{Upgrades, get_upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
 
@@ -29,7 +29,7 @@ use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
 use alpm_utils::{DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use aur_depends::{Actions, Base, Conflict, DepMissing, RepoPackage};
 use log::debug;
 use raur::Cache;
@@ -451,11 +451,7 @@ impl Installer {
             bail!(tr!("packages failed to build: {}", failed.join("  ")));
         }
 
-        if ret != 0 {
-            Status::err(ret)
-        } else {
-            Ok(())
-        }
+        if ret != 0 { Status::err(ret) } else { Ok(()) }
     }
 
     fn debug_paths(

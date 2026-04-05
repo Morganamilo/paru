@@ -1,12 +1,12 @@
 use crate::config::Config;
 use crate::print_error;
 
-use std::fs::{create_dir_all, metadata, remove_file, OpenOptions};
-use std::io::{stdout, BufRead, BufReader, Read, Write};
+use std::fs::{OpenOptions, create_dir_all, metadata, remove_file};
+use std::io::{BufRead, BufReader, Read, Write, stdout};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use flate2::read::GzDecoder;
 use reqwest::get;
 use tr::tr;

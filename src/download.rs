@@ -1,8 +1,8 @@
+use crate::RaurHandle;
 use crate::config::{Colors, Config, SortMode, YesNoAll};
 use crate::exec::has_command;
 use crate::fmt::print_indent;
 use crate::util::is_arch_repo;
-use crate::RaurHandle;
 use crate::{exec, printtr};
 
 use std::collections::btree_map::Entry;
@@ -17,7 +17,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
