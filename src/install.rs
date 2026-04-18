@@ -24,7 +24,7 @@ use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{Upgrades, get_upgrades};
 use crate::util::{ask, now_secs, repo_aur_pkgs, split_repo_aur_targets};
-use crate::{args, exec, news, print_error, printtr, repo};
+use crate::{args, config, exec, news, print_error, printtr, repo};
 
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
@@ -211,6 +211,20 @@ impl Installer {
         Ok(())
     }
 
+    fn set_conflict_ask<'a>(args: &mut Args<&'a str>, ask: &'a mut String) {
+        if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
+            let num = arg.value.unwrap_or_default();
+            let mut num = num.parse::<i32>().unwrap_or_default();
+            num |= alpm::QuestionType::ConflictPkg as i32;
+            *ask = num.to_string();
+            arg.value = Some(ask.as_str());
+        } else {
+            let value = alpm::QuestionType::ConflictPkg as i32;
+            *ask = value.to_string();
+            args.push_value("ask", ask.as_str());
+        }
+    }
+
     fn chroot_install(&self, config: &Config, build: &[Base], repo_targs: &[String]) -> Result<()> {
         if !config.chroot {
             return Ok(());
@@ -270,7 +284,7 @@ impl Installer {
             }
 
             args.targets = targets;
-            let ask;
+            let mut ask = String::new();
 
             if !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
@@ -279,17 +293,7 @@ impl Installer {
             {
                 if self.conflict {
                     if config.use_ask {
-                        if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
-                            let num = arg.value.unwrap_or_default();
-                            let mut num = num.parse::<i32>().unwrap_or_default();
-                            num |= alpm::QuestionType::ConflictPkg as i32;
-                            ask = num.to_string();
-                            arg.value = Some(ask.as_str());
-                        } else {
-                            let value = alpm::QuestionType::ConflictPkg as i32;
-                            ask = value.to_string();
-                            args.push_value("ask", ask.as_str());
-                        }
+                        Self::set_conflict_ask(&mut args, &mut ask);
                     }
                 } else {
                     args.arg("noconfirm");
@@ -365,7 +369,7 @@ impl Installer {
     fn do_install(&mut self, config: &Config) -> Result<()> {
         if !self.install_queue.is_empty() {
             let mut args = config.pacman_globals();
-            let ask;
+            let mut ask = String::new();
             args.op("upgrade");
             copy_sync_args(config, &mut args);
 
@@ -375,17 +379,7 @@ impl Installer {
 
             if self.conflict {
                 if config.use_ask {
-                    if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
-                        let num = arg.value.unwrap_or_default();
-                        let mut num = num.parse::<i32>().unwrap_or_default();
-                        num |= alpm::QuestionType::ConflictPkg as i32;
-                        ask = num.to_string();
-                        arg.value = Some(ask.as_str());
-                    } else {
-                        let value = alpm::QuestionType::ConflictPkg as i32;
-                        ask = value.to_string();
-                        args.push_value("ask", ask.as_str());
-                    }
+                    Self::set_conflict_ask(&mut args, &mut ask);
                 }
             } else {
                 args.arg("noconfirm");
@@ -646,6 +640,16 @@ impl Installer {
         self.built.extend(to_install);
     }
 
+    fn sync_devel_info(&mut self, base: &Base) {
+        if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
+            self.devel_info
+                .info
+                .insert(base.package_base().to_string(), info);
+        } else {
+            self.devel_info.info.remove(base.package_base());
+        }
+    }
+
     fn add_pkg(
         &mut self,
         config: &mut Config,
@@ -679,13 +683,7 @@ impl Installer {
                 repo::add(config, path, name, &paths)?;
                 repo::refresh(config, &[name])?;
             }
-            if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
-                self.devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            } else {
-                self.devel_info.info.remove(base.package_base());
-            }
+            self.sync_devel_info(base);
             if config.devel {
                 save_devel_info(config, &self.devel_info)?;
             }
@@ -822,13 +820,7 @@ impl Installer {
         }
 
         if repo.is_none() {
-            if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
-                self.devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            } else {
-                self.devel_info.info.remove(base.package_base());
-            }
+            self.sync_devel_info(base);
         }
 
         Ok(())
@@ -1448,6 +1440,26 @@ fn fmt_stack(want: &DepMissing) -> String {
     }
 }
 
+fn print_conflicts(c: config::Colors, conflicts: &[Conflict], title: &str) {
+    if !conflicts.is_empty() {
+        eprintln!("{} {}", c.error.paint("::"), c.bold.paint(title));
+
+        for conflict in conflicts {
+            eprint!("    {}: ", conflict.pkg);
+
+            for conflict in &conflict.conflicting {
+                eprint!("{}", conflict.pkg);
+                if let Some(conflict) = &conflict.conflict {
+                    eprint!(" ({})", conflict);
+                }
+                eprint!("  ");
+            }
+            eprintln!();
+        }
+        eprintln!();
+    }
+}
+
 fn check_actions(
     config: &Config,
     actions: &mut Actions,
@@ -1558,49 +1570,9 @@ fn check_actions(
         eprintln!();
     }
 
-    if !inner_conflicts.is_empty() {
-        eprintln!(
-            "{} {}",
-            c.error.paint("::"),
-            c.bold.paint(tr!("Inner conflicts found:"))
-        );
+    print_conflicts(c, &inner_conflicts, tr!("Inner conflicts found:").as_str());
 
-        for conflict in &inner_conflicts {
-            eprint!("    {}: ", conflict.pkg);
-
-            for conflict in &conflict.conflicting {
-                eprint!("{}", conflict.pkg);
-                if let Some(conflict) = &conflict.conflict {
-                    eprint!(" ({})", conflict);
-                }
-                eprint!("  ");
-            }
-            eprintln!();
-        }
-        eprintln!();
-    }
-
-    if !conflicts.is_empty() {
-        eprintln!(
-            "{} {}",
-            c.error.paint("::"),
-            c.bold.paint(tr!("Conflicts found:"))
-        );
-
-        for conflict in &conflicts {
-            eprint!("    {}: ", conflict.pkg);
-
-            for conflict in &conflict.conflicting {
-                eprint!("{}", conflict.pkg);
-                if let Some(conflict) = &conflict.conflict {
-                    eprint!(" ({})", conflict);
-                }
-                eprint!("  ");
-            }
-            eprintln!();
-        }
-        eprintln!();
-    }
+    print_conflicts(c, &conflicts, tr!("Conflicts found:").as_str());
 
     if (!conflicts.is_empty() || !inner_conflicts.is_empty()) && !config.use_ask {
         eprintln!(
