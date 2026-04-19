@@ -300,3 +300,9 @@ async fn min_release_age_zero_allows_install() {
     let alpm = alpm(&tmp).unwrap();
     alpm.localdb().pkg("pacaur").unwrap();
 }
+
+#[tokio::test]
+async fn build_only_conflict_with_installed_pkg() {
+    let (_, ret) = run(&["-B", "testdata/clone/devel-bin"]).await.unwrap();
+    assert_eq!(ret, 0);
+}
