@@ -4,7 +4,7 @@ use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::info::get_terminal_width;
 use crate::pkgbuild::PkgbuildRepos;
-use crate::util::{get_provider, reopen_stdin};
+use crate::util::{get_provider, reopen_stdin, split_by_comma};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::collections::HashMap;
@@ -14,6 +14,7 @@ use std::fmt;
 use std::fs::{OpenOptions, remove_file};
 use std::io::{BufRead, IsTerminal, stderr, stdin, stdout};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::str::FromStr;
 
 use alpm::{
@@ -26,6 +27,7 @@ use anyhow::{Context, Error, Result, anyhow, bail, ensure};
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
+use reqwest::get;
 use tr::tr;
 use url::Url;
 
@@ -396,10 +398,90 @@ impl ConfigEnum for YesNoAllTree {
     ];
 }
 
+#[derive(Debug, Clone)]
+pub enum PatchSource {
+    Path(PathBuf),
+    Url(Url),
+}
+
+impl PatchSource {
+    pub async fn apply(&self, config: &Config, dir: &Path) -> Result<()> {
+        match self {
+            PatchSource::Path(path) => {
+                let patch_path = if path.is_absolute() {
+                    path.clone()
+                } else {
+                    dir.join(path)
+                };
+
+                let mut cmd = Command::new(&config.git_bin);
+                cmd.arg("apply").arg("-v").arg(&patch_path).current_dir(dir);
+
+                exec::command(&mut cmd)
+                    .with_context(|| tr!("failed to apply patch '{}'", patch_path.display()))?;
+            }
+            PatchSource::Url(url) => {
+                let bytes = get(url.clone())
+                    .await
+                    .with_context(|| tr!("Failed to download patch from {}", url))?
+                    .error_for_status()
+                    .with_context(|| tr!("Failed to download patch from {}", url))?
+                    .bytes()
+                    .await?;
+
+                // tempfile for patch.
+                let mut temp = tempfile::NamedTempFile::new()?;
+                use std::io::Write;
+                temp.write_all(&bytes)?;
+
+                let mut cmd = Command::new(&config.git_bin);
+                cmd.arg("apply").arg("-v").arg(temp.path()).current_dir(dir);
+
+                exec::command(&mut cmd)
+                    .with_context(|| tr!("failed to apply patch '{}'", temp.path().display()))?;
+            } // tempfile cleaned up safely by drop.
+        }
+
+        Ok(())
+    }
+}
+
+impl FromStr for PatchSource {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        if let Ok(url) = Url::parse(s) {
+            Ok(PatchSource::Url(url))
+        } else {
+            Ok(PatchSource::Path(PathBuf::from(s)))
+        }
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct PackageOverride {
     pub makepkg_conf: Option<String>,
     pub env: Vec<(String, String)>,
+    pub pkgbuild_patches: Vec<PatchSource>,
+}
+
+impl PackageOverride {
+    pub(crate) fn merge_from(&mut self, src: &PackageOverride) {
+        if src.makepkg_conf.is_some() {
+            self.makepkg_conf = src.makepkg_conf.clone();
+        }
+
+        for (k, v) in &src.env {
+            if let Some(existing) = self.env.iter_mut().find(|(ek, _)| ek == k) {
+                existing.1 = v.clone();
+            } else {
+                self.env.push((k.clone(), v.clone()));
+            }
+        }
+
+        self.pkgbuild_patches
+            .extend(src.pkgbuild_patches.iter().cloned());
+    }
 }
 
 #[derive(Debug)]
@@ -408,6 +490,7 @@ enum OverrideParseState {
         name: String,
         makepkg_conf: Option<String>,
         env: Vec<(String, String)>,
+        pkgbuild_patches: Vec<PatchSource>,
     },
     Group {
         name: String,
@@ -615,6 +698,7 @@ impl Ini for Config {
                             name: rest.to_string(),
                             makepkg_conf: None,
                             env: Vec::new(),
+                            pkgbuild_patches: Vec::new(),
                         });
                     } else if let Some(rest) = section.strip_prefix("override.group.") {
                         ensure!(
@@ -1297,6 +1381,22 @@ then initialise it with:
                     }
                 }
             }
+            "PkgbuildPatches" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                let parsed = parse_patches_list(value)?;
+                match state {
+                    OverrideParseState::Package {
+                        pkgbuild_patches, ..
+                    } => {
+                        pkgbuild_patches.extend(parsed);
+                    }
+                    OverrideParseState::Group { .. } => {
+                        bail!(tr!(
+                            "'PkgbuildPatches' is not valid in [override.group.*] sections"
+                        ));
+                    }
+                }
+            }
             _ => eprintln!(
                 "{}",
                 tr!("error: unknown option '{}' in override section", key)
@@ -1317,16 +1417,23 @@ then initialise it with:
                 name,
                 makepkg_conf,
                 env,
+                pkgbuild_patches,
             } => {
                 ensure!(
-                    makepkg_conf.is_some() || !env.is_empty(),
+                    makepkg_conf.is_some() || !env.is_empty() || !pkgbuild_patches.is_empty(),
                     tr!(
-                        "override.package.{} must have MakepkgConf or Overrides",
+                        "override.package.{} must have MakepkgConf, Overrides or PkgbuildPatches",
                         name
                     )
                 );
-                self.overrides
-                    .insert(name, PackageOverride { makepkg_conf, env });
+                self.overrides.insert(
+                    name,
+                    PackageOverride {
+                        makepkg_conf,
+                        env,
+                        pkgbuild_patches,
+                    },
+                );
             }
             OverrideParseState::Group {
                 name,
@@ -1344,7 +1451,6 @@ then initialise it with:
                 );
                 for pkg in packages {
                     let entry = self.overrides.entry(pkg).or_default();
-                    // Group overrides merge: later groups overwrite conflicting keys
                     if let Some(ref conf) = makepkg_conf {
                         entry.makepkg_conf = Some(conf.clone());
                     }
@@ -1385,22 +1491,7 @@ fn parse_overrides_map(input: &str) -> Result<Vec<(String, String)>> {
     }
 
     let mut result = Vec::new();
-    let mut pairs = Vec::new();
-    let mut current = String::new();
-    let mut in_quotes = false;
-    for ch in inner.chars() {
-        if ch == '"' {
-            in_quotes = !in_quotes;
-            current.push(ch);
-        } else if ch == ',' && !in_quotes {
-            pairs.push(std::mem::take(&mut current));
-        } else {
-            current.push(ch);
-        }
-    }
-    if !current.is_empty() {
-        pairs.push(current);
-    }
+    let pairs = split_by_comma(inner);
 
     for pair in &pairs {
         let pair = pair.trim();
@@ -1429,6 +1520,35 @@ fn parse_overrides_map(input: &str) -> Result<Vec<(String, String)>> {
         );
 
         result.push((key, value));
+    }
+
+    Ok(result)
+}
+
+fn parse_patches_list(input: &str) -> Result<Vec<PatchSource>> {
+    let input = input.trim();
+    let inner = input
+        .strip_prefix('{')
+        .and_then(|s| s.strip_suffix('}'))
+        .context(tr!("PkgbuildPatches value must be wrapped in { }"))?
+        .trim();
+
+    if inner.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let parts = split_by_comma(inner);
+
+    let mut result = Vec::new();
+    for part in parts {
+        let value = part
+            .strip_prefix('"')
+            .and_then(|s| s.strip_suffix('"'))
+            .unwrap_or(part.as_str())
+            .to_string();
+
+        ensure!(!value.is_empty(), tr!("Patch source can not be empty"));
+        result.push(value.parse()?);
     }
 
     Ok(result)
