@@ -1,14 +1,14 @@
-# Portuguese translation of paru.
+# Portuguese translation for paru.
 # Copyright (C) YEAR THE paru'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the paru package.
-# Hugo Carvalho <hugokarvalho@hotmail.com>, 2021, 2022, 2023, 2024, 2025.
+# Hugo Carvalho <hugokarvalho@hotmail.com>, 2021, 2022, 2023, 2024, 2025, 2026.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: paru  2.0.0\n"
+"Project-Id-Version: paru  2.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2025-08-29 10:29+0100\n"
+"PO-Revision-Date: 2026-04-22 14:15+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <hugokarvalho@hotmail.com>\n"
 "Language: pt\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.9\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -75,9 +75,8 @@ msgid "unknown option -{}"
 msgstr "opção desconhecida -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "problema ao transferir código fonte"
+msgstr "falha ao descodificar a lista de pacotes"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -246,13 +245,12 @@ msgid "package '{}' was not found"
 msgstr "o pacote '{}' não foi encontrado"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "pacotes duplicados: {}"
+msgstr "PKGBUILD duplicado: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "o pacote '{}' existe, mas não possui PKGBUILD -- a ignorar"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -685,6 +683,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       Pacotes a serem instalados no root chroot "
+"(predefinido: base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -989,9 +989,8 @@ msgid "failed to execute file manager: {}"
 msgstr "problema ao executar gestor de ficheiros: {}"
 
 #: src/install.rs:1602
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "o gestor de ficheiros não foi executado com sucesso"
+msgstr "o gestor de ficheiros '{}' não foi executado com sucesso"
 
 #: src/install.rs:1620
 msgid "failed to read dir: {}"
@@ -1114,24 +1113,20 @@ msgid "aur search failed"
 msgstr "problema ao procurar no AUR"
 
 #: src/search.rs:285 src/search.rs:338 src/search.rs:410
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [instalado: {}]"
+msgstr "[instalado: {}]"
 
 #: src/search.rs:287 src/search.rs:340 src/search.rs:412
-#, fuzzy
 msgid "[installed]"
-msgstr " [instalado]"
+msgstr "[instalado]"
 
 #: src/search.rs:332
-#, fuzzy
 msgid "[out-of-date: {}]"
-msgstr "[Desatualizado desde: {}]"
+msgstr "[desatualizado: {}]"
 
 #: src/search.rs:347
-#, fuzzy
 msgid "[orphaned]"
-msgstr "[Órfão]"
+msgstr "[órfão]"
 
 #: src/search.rs:491
 msgid "no packages match search"
