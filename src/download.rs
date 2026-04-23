@@ -550,7 +550,10 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode.repo() && db.find_target(targ).is_ok() {
+        if config.mode.repo()
+            && let Ok(pkg) = db.find_target(targ)
+            && is_arch_source_repo(pkg.db().unwrap().name())
+        {
             local.push(targ);
             continue;
         }
@@ -690,6 +693,29 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     Ok(0)
 }
 
+fn is_arch_source_repo(name: &str) -> bool {
+    is_arch_repo(name)
+        || matches!(
+            name,
+            "core-staging"
+                | "extra-staging"
+                | "multilib-staging"
+                | "gnome-unstable"
+                | "kde-unstable"
+                | "core-debug"
+                | "extra-debug"
+                | "multilib-debug"
+                | "core-testing-debug"
+                | "extra-testing-debug"
+                | "multilib-testing-debug"
+                | "core-staging-debug"
+                | "extra-staging-debug"
+                | "multilib-staging-debug"
+                | "gnome-unstable-debug"
+                | "kde-unstable-debug"
+        )
+}
+
 fn pipe_bat(config: &Config, pkgbuild: &[u8]) -> Result<()> {
     let mut command = Command::new(&config.bat_bin);
     command
@@ -704,4 +730,45 @@ fn pipe_bat(config: &Config, pkgbuild: &[u8]) -> Result<()> {
     let _ = child.stdin.as_mut().unwrap().write_all(pkgbuild);
     exec::wait(&command, &mut child)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{is_arch_repo, is_arch_source_repo};
+
+    #[test]
+    fn official_source_repositories() {
+        for repo in [
+            "core",
+            "extra-testing",
+            "core-staging",
+            "extra-staging-debug",
+            "gnome-unstable",
+            "kde-unstable-debug",
+            "multilib-testing-debug",
+        ] {
+            assert!(is_arch_source_repo(repo), "{repo}");
+        }
+    }
+
+    #[test]
+    fn custom_repositories_are_not_arch_source_repositories() {
+        for repo in [
+            "local",
+            "chaotic-aur",
+            "custom-staging",
+            "extra-staging-custom",
+            "core-debug-debug",
+        ] {
+            assert!(!is_arch_source_repo(repo), "{repo}");
+        }
+    }
+
+    #[test]
+    fn source_repositories_do_not_enable_search_links() {
+        for repo in ["core-debug", "extra-staging", "gnome-unstable"] {
+            assert!(is_arch_source_repo(repo), "{repo}");
+            assert!(!is_arch_repo(repo), "{repo}");
+        }
+    }
 }
