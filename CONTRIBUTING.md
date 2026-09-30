@@ -54,10 +54,9 @@ This override changes the lockfile's dependency source. Before submitting paired
 changes upstream, update the dependency version and lockfile to a release
 containing this API.
 
-Build the release binary, then run the real chroot regression test:
+Run the real chroot regression test with the release binary built above:
 
 ```sh
-cargo build --locked --release
 bash tests/chroot.sh
 ```
 
@@ -65,11 +64,22 @@ This requires Arch Linux, devtools, ripgrep, and sudo. The test creates a tempor
 chroot and builds independent packages, a versioned provider, a matching explicit
 target, and a consumer with overridden runtime dependencies. It checks the source
 preparation and build commands with check dependencies enabled and disabled.
+An injected provider requires repository Git; the test verifies Git is absent
+from the clean root but installed in the consumer's chroot.
 It also deliberately fails a provider build, verifies that consumers can use
 repository Git, and verifies that unavailable or insufficient dependency versions
 still fail inside the chroot. Successful consumer archives and `.BUILDINFO` prove
 that the run continues while reporting the failed targets. It installs no packages
 on the host and removes the temporary chroot on exit.
+
+Build requirements use the checkout's post-download `.SRCINFO`; archive runtime
+requirements use actual package metadata. Resolver selections are per-consumer
+snapshots, not proof of satisfaction in the chroot. A changed declaration may
+retain a unique Build provider hint, checked against the available archive, but
+cannot inherit an older external-satisfaction decision. A Build hint shared with
+installed or repository choices for the same package retains that identity.
+Conflicting hints defer
+to native resolution rather than becoming unplanned requirements.
 
 Resolved provider choices guide archive injection. They do not require every
 planned rebuild to succeed. Only available archives satisfying the declared
