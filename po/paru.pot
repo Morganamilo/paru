@@ -999,6 +999,10 @@ msgstr ""
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
+#: src/install.rs:2374
+msgid "Press 'q' to finish reviewing and continue, 'h' for help"
+msgstr ""
+
 #: src/install.rs:2381
 msgid " nothing new to review"
 msgstr ""
