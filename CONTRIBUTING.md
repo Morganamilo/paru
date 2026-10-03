@@ -39,6 +39,46 @@ Paru's test suite can be run by running:
 cargo test --features mock
 ```
 
+### Chroot dependency isolation
+
+Paru uses `aur-depends`' `Actions::resolved_dependencies` API. When testing paired
+changes with a sibling `aur-depends` checkout, pass Cargo's local dependency
+override to the build and test commands:
+
+```sh
+cargo --config 'patch.crates-io.aur-depends.path="../aur-depends"' test --features mock
+cargo --config 'patch.crates-io.aur-depends.path="../aur-depends"' build --release
+```
+
+This override changes the lockfile's dependency source. Before submitting paired
+changes upstream, update the dependency version and lockfile to a release
+containing this API.
+
+Build the release binary, then run the real chroot regression test:
+
+```sh
+cargo build --locked --release
+bash tests/chroot.sh
+```
+
+This requires Arch Linux, devtools, ripgrep, and sudo. The test creates a temporary
+chroot and builds independent packages, a versioned provider, a matching explicit
+target, and a consumer with overridden runtime dependencies. It checks the source
+preparation and build commands with check dependencies enabled and disabled.
+It also deliberately fails a provider build, verifies that consumers can use
+repository Git, and verifies that unavailable or insufficient dependency versions
+still fail inside the chroot. Successful consumer archives and `.BUILDINFO` prove
+that the run continues while reporting the failed targets. It installs no packages
+on the host and removes the temporary chroot on exit.
+
+Resolved provider choices guide archive injection. They do not require every
+planned rebuild to succeed. Only available archives satisfying the declared
+requirements are injected. Ambiguous provider preferences do not force an
+archive choice. Archive selection returns a list, not a dependency satisfaction
+error. Pacman and makepkg in the chroot resolve requirements
+without a usable archive, including their version constraints. Host installations
+do not establish that those requirements are satisfied inside the chroot.
+
 ## Translating
 
 See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization.
