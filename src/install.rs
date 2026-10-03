@@ -519,6 +519,7 @@ impl Installer {
             }
         }
 
+        debug_paths.retain(|_, path| Path::new(path).exists());
         Ok(debug_paths)
     }
 
@@ -2423,6 +2424,29 @@ mod chroot_tests {
             srcinfo: Box::new(srcinfo),
             build: true,
         })
+    }
+
+    #[test]
+    fn removes_missing_optional_debug_archives() {
+        let (tmp, mut config) = config();
+        config.install_debug = true;
+        let mut installer = Installer::new(&config);
+        let mut base = base();
+        let path = tmp
+            .path()
+            .join("example-debug-1-1-any.pkg.tar")
+            .to_string_lossy()
+            .into_owned();
+        let packages = [("example-debug".to_owned(), path)].into_iter().collect();
+        let debug = installer
+            .debug_paths(&config, &mut base, &packages)
+            .unwrap();
+        assert!(debug.is_empty());
+        assert_eq!(base.packages().collect::<Vec<_>>(), vec!["example"]);
+        config.chroot = true;
+        installer
+            .record_built_artifacts(&config, &base, &packages, &debug)
+            .unwrap();
     }
 
     #[test]
