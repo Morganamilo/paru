@@ -1,4 +1,3 @@
-use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
@@ -196,21 +195,16 @@ impl Installer {
 
         download::new_aur_pkgbuilds(config, bases, &self.srcinfos).await?;
 
+        // The pre-download metadata decides what to fetch, not what to build.
         for base in &bases.bases {
-            if self.srcinfos.contains_key(base.package_base()) {
-                continue;
-            }
             let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
-            if path.exists() {
-                if let Entry::Vacant(vacant) = self.srcinfos.entry(base.package_base().to_string())
-                {
-                    let srcinfo = Srcinfo::from_path(path)
-                        .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
-                    vacant.insert(srcinfo);
-                }
-            } else {
+            if !path.exists() {
                 bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
             }
+            let srcinfo = Srcinfo::from_path(path)
+                .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
+            self.srcinfos
+                .insert(base.package_base().to_owned(), srcinfo);
         }
         Ok(())
     }
@@ -2532,6 +2526,73 @@ mod chroot_tests {
             }
             assert!(dir.path().join("example-1-1-any.pkg.tar").is_file());
         }
+    }
+
+    #[cfg(feature = "mock")]
+    #[tokio::test]
+    async fn refreshes_cached_aur_dependencies_after_download() {
+        use std::os::unix::fs::PermissionsExt;
+
+        // Arrange: an existing checkout loses one dependency and gains another.
+        let (tmp, mut config) = config();
+        config.chroot = true;
+        config.build_dir = tmp.path().join("build");
+        config.fetch.clone_dir = config.build_dir.clone();
+        let dir = config.build_dir.join("example");
+        std::fs::create_dir_all(dir.join(".git")).unwrap();
+        let info = |version, dep| {
+            format!("pkgbase = example\n pkgver = {version}\n pkgrel = 1\n arch = any\n depends = {dep}\npkgname = example\n")
+        };
+        std::fs::write(dir.join(".SRCINFO"), info(1, "old-library")).unwrap();
+        std::fs::write(dir.join("upstream.SRCINFO"), info(2, "new-library")).unwrap();
+        let git = tmp.path().join("git-fixture");
+        // Substitute only Git's merge boundary; exercise the real download orchestration.
+        std::fs::write(
+            &git,
+            "#!/bin/sh\nif [ \"$1\" = rebase ]; then cp upstream.SRCINFO .SRCINFO; fi\n",
+        )
+        .unwrap();
+        std::fs::set_permissions(&git, std::fs::Permissions::from_mode(0o755)).unwrap();
+        config.fetch.git = git;
+        config.fetch.git_flags.clear();
+        let base = aur_depends::AurBase {
+            build: true,
+            pkgs: vec![aur_depends::Package {
+                pkg: raur::Package {
+                    name: "example".to_owned(),
+                    package_base: "example".to_owned(),
+                    version: "2-1".to_owned(),
+                    depends: vec!["new-library".to_owned()],
+                    ..Default::default()
+                }
+                .into(),
+                make: false,
+                target: true,
+            }],
+        };
+        let bases = Bases {
+            bases: vec![base.clone()],
+        };
+        let mut installer = Installer::new(&config);
+        let old = archive(tmp.path(), "old-library", "1-1", &[], &[]);
+        let new = archive(tmp.path(), "new-library", "1-1", &[], &[]);
+        installer
+            .built
+            .record(&config.alpm, [old.as_str(), new.as_str()].into_iter())
+            .unwrap();
+
+        // Act
+        installer.download_pkgbuilds(&config, &bases).await.unwrap();
+        let selected = installer
+            .chroot_artifacts(&config, &Base::Aur(base))
+            .unwrap();
+
+        // Assert
+        assert_eq!(
+            Srcinfo::from_path(dir.join(".SRCINFO")).unwrap().version(),
+            "2-1"
+        );
+        assert_eq!(selected, [new.as_str()]);
     }
 
     #[test]
