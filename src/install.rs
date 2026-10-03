@@ -537,10 +537,7 @@ impl Installer {
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
         if config.chroot {
-            let mut extra = Vec::new();
-            if config.repos == LocalRepos::None {
-                extra.extend(self.built.iter().map(|s| s.as_str()));
-            }
+            let extra = self.chroot_artifacts(config);
             let mut chroot_flags: Vec<&str> =
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
@@ -584,10 +581,7 @@ impl Installer {
         if needs_build {
             // actual build
             if config.chroot {
-                let mut extra = Vec::new();
-                if config.repos == LocalRepos::None {
-                    extra.extend(self.built.iter().map(|s| s.as_str()));
-                }
+                let extra = self.chroot_artifacts(config);
                 self.chroot
                     .build(
                         dir,
@@ -621,11 +615,11 @@ impl Installer {
         let debug_paths = self.debug_paths(config, base, &pkgdests)?;
 
         self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
-        self.queue_install(base, &pkgdests, &debug_paths);
+        self.record_built_artifacts(base, &pkgdests, &debug_paths);
         Ok((pkgdests, version))
     }
 
-    fn queue_install(
+    fn record_built_artifacts(
         &mut self,
         base: &mut Base,
         pkgdest: &HashMap<String, String>,
@@ -643,6 +637,14 @@ impl Installer {
             .cloned();
 
         self.built.extend(to_install);
+    }
+
+    fn chroot_artifacts<'a>(&'a self, config: &Config) -> Vec<&'a str> {
+        if config.repos == LocalRepos::None {
+            self.built.iter().map(String::as_str).collect()
+        } else {
+            Vec::new()
+        }
     }
 
     fn add_pkg(
@@ -781,7 +783,7 @@ impl Installer {
             let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
             let debug_paths = self.debug_paths(config, base, &pkgdests)?;
             self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
-            self.queue_install(base, &pkgdests, &debug_paths);
+            self.record_built_artifacts(base, &pkgdests, &debug_paths);
             (pkgdests, version)
         };
 
