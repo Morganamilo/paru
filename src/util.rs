@@ -400,3 +400,26 @@ pub fn is_arch_repo(name: &str) -> bool {
             | "multilib-testing"
     )
 }
+
+pub fn split_by_comma(inner: &str) -> Vec<String> {
+    let mut items = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+
+    for ch in inner.chars() {
+        if ch == '"' {
+            in_quotes = !in_quotes;
+            current.push(ch);
+        } else if ch == ',' && !in_quotes {
+            items.push(std::mem::take(&mut current));
+        } else {
+            current.push(ch);
+        }
+    }
+
+    if !current.is_empty() {
+        items.push(current);
+    }
+
+    items
+}
