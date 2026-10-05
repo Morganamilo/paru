@@ -30,7 +30,10 @@ pub fn newest_pkg(config: &Config) -> i64 {
 }
 
 pub async fn news(config: &Config) -> Result<i32> {
-    let url = config.arch_url.join("feeds/news")?;
+    let url = config
+        .news_url
+        .clone()
+        .unwrap_or(config.arch_url.join("feeds/news")?);
     let client = config.raur.client();
 
     let resp = client.get(url.clone()).send().await?;
@@ -62,7 +65,12 @@ pub async fn news(config: &Config) -> Result<i32> {
         println!("{}", c.bold.paint(title));
 
         printed = true;
-        parse_html(config, item.description().unwrap_or_default());
+        let content = item
+            .content()
+            .filter(|s| !s.is_empty())
+            .or(item.description())
+            .unwrap_or_default();
+        parse_html(config, content);
     }
 
     if !printed {
