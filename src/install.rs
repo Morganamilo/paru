@@ -1,4 +1,3 @@
-use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
@@ -11,6 +10,7 @@ use std::sync::atomic::Ordering;
 
 use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
+use crate::chroot_deps::{dependencies, Artifacts, DependencyPlan};
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
 use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
@@ -71,7 +71,9 @@ struct Installer {
     conflict: bool,
     devel_info: DevelInfo,
     new_devel_info: DevelInfo,
-    built: Vec<String>,
+    built: Artifacts,
+    has_built_packages: bool,
+    dependency_plan: DependencyPlan,
 }
 
 pub async fn install(config: &mut Config, targets_str: &[String]) -> Result<()> {
@@ -120,7 +122,9 @@ impl Installer {
             conflict: false,
             devel_info: DevelInfo::default(),
             new_devel_info: DevelInfo::default(),
-            built: Vec::new(),
+            built: Artifacts::default(),
+            has_built_packages: false,
+            dependency_plan: DependencyPlan::default(),
         }
     }
 
@@ -191,21 +195,16 @@ impl Installer {
 
         download::new_aur_pkgbuilds(config, bases, &self.srcinfos).await?;
 
+        // The pre-download metadata decides what to fetch, not what to build.
         for base in &bases.bases {
-            if self.srcinfos.contains_key(base.package_base()) {
-                continue;
-            }
             let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
-            if path.exists() {
-                if let Entry::Vacant(vacant) = self.srcinfos.entry(base.package_base().to_string())
-                {
-                    let srcinfo = Srcinfo::from_path(path)
-                        .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
-                    vacant.insert(srcinfo);
-                }
-            } else {
+            if !path.exists() {
                 bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
             }
+            let srcinfo = Srcinfo::from_path(path)
+                .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
+            self.srcinfos
+                .insert(base.package_base().to_owned(), srcinfo);
         }
         Ok(())
     }
@@ -271,7 +270,7 @@ impl Installer {
             args.targets = targets;
             let ask;
 
-            if !self.built.is_empty()
+            if self.has_built_packages
                 && (!config.args.has_arg("u", "sysupgrade")
                     || config.combined_upgrade
                     || !config.mode.repo())
@@ -524,6 +523,7 @@ impl Installer {
             }
         }
 
+        debug_paths.retain(|_, path| Path::new(path).exists());
         Ok(debug_paths)
     }
 
@@ -541,10 +541,7 @@ impl Installer {
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
         if config.chroot {
-            let mut extra = Vec::new();
-            if config.repos == LocalRepos::None {
-                extra.extend(self.built.iter().map(|s| s.as_str()));
-            }
+            let extra = self.chroot_artifacts(config, base)?;
             let mut chroot_flags: Vec<&str> =
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
@@ -588,10 +585,7 @@ impl Installer {
         if needs_build {
             // actual build
             if config.chroot {
-                let mut extra = Vec::new();
-                if config.repos == LocalRepos::None {
-                    extra.extend(self.built.iter().map(|s| s.as_str()));
-                }
+                let extra = self.chroot_artifacts(config, base)?;
                 self.chroot
                     .build(
                         dir,
@@ -625,28 +619,52 @@ impl Installer {
         let debug_paths = self.debug_paths(config, base, &pkgdests)?;
 
         self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
-        self.queue_install(base, &pkgdests, &debug_paths);
+        self.record_built_artifacts(config, base, &pkgdests, &debug_paths)?;
         Ok((pkgdests, version))
     }
 
-    fn queue_install(
+    fn record_built_artifacts(
         &mut self,
-        base: &mut Base,
+        config: &Config,
+        base: &Base,
         pkgdest: &HashMap<String, String>,
         debug_paths: &HashMap<String, String>,
-    ) {
-        let to_install: Vec<_> = match base {
-            Base::Aur(a) => a.pkgs.iter().map(|a| a.pkg.name.as_str()).collect(),
-            Base::Pkgbuild(c) => c.pkgs.iter().map(|a| a.pkg.pkgname.as_str()).collect(),
+    ) -> Result<()> {
+        if config.chroot && config.repos == LocalRepos::None {
+            self.built.record(
+                &config.alpm,
+                base.packages()
+                    .filter_map(|package| pkgdest.get(package))
+                    .chain(debug_paths.values())
+                    .map(String::as_str),
+            )?;
+        }
+        self.has_built_packages |=
+            base.packages().any(|package| pkgdest.contains_key(package)) || !debug_paths.is_empty();
+        Ok(())
+    }
+
+    fn chroot_artifacts<'a>(&'a self, config: &Config, base: &Base) -> Result<Vec<&'a str>> {
+        if config.repos != LocalRepos::None {
+            return Ok(Vec::new());
+        }
+
+        let srcinfo = match base {
+            Base::Aur(_) => self
+                .srcinfos
+                .get(base.package_base())
+                .with_context(|| format!("missing srcinfo for '{}'", base.package_base()))?,
+            Base::Pkgbuild(base) => &base.srcinfo,
         };
-
-        let to_install = to_install
-            .iter()
-            .filter_map(|p| pkgdest.get(*p))
-            .chain(debug_paths.values())
-            .cloned();
-
-        self.built.extend(to_install);
+        let arch = config.alpm.architectures().first().unwrap_or_default();
+        let dependencies = dependencies(srcinfo, arch, !config.no_check);
+        let packages = srcinfo.pkgnames().collect::<Vec<_>>();
+        Ok(self.built.select(
+            &dependencies,
+            &self.dependency_plan,
+            &packages,
+            config.args.count("d", "nodeps") > 0,
+        ))
     }
 
     fn add_pkg(
@@ -785,7 +803,7 @@ impl Installer {
             let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
             let debug_paths = self.debug_paths(config, base, &pkgdests)?;
             self.add_pkg(config, base, repo, &pkgdests, &debug_paths)?;
-            self.queue_install(base, &pkgdests, &debug_paths);
+            self.record_built_artifacts(config, base, &pkgdests, &debug_paths)?;
             (pkgdests, version)
         };
 
@@ -1027,6 +1045,7 @@ impl Installer {
 
         self.prepare_build(config, &cache, &mut actions).await?;
 
+        self.dependency_plan = DependencyPlan::from_actions(&actions);
         let mut build = actions.build;
 
         let mut err = Ok(());
@@ -2184,4 +2203,252 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &str) -> bool
 
 fn is_ver_char(c: char) -> bool {
     matches!(c, '<' | '=' | '>')
+}
+
+#[cfg(test)]
+mod chroot_tests {
+    use super::*;
+    use crate::chroot_deps::tests::{archive, config};
+
+    fn base() -> Base {
+        let srcinfo: Srcinfo = "pkgbase = example\n pkgver = 1\n pkgrel = 1\n arch = any\n depends = foundation\n checkdepends = test-tool\npkgname = example\n".parse().unwrap();
+        Base::Pkgbuild(aur_depends::PkgbuildPackages {
+            repo: "fixture".to_owned(),
+            pkgs: vec![aur_depends::Package {
+                pkg: srcinfo.pkgs[0].clone(),
+                make: false,
+                target: true,
+            }],
+            srcinfo: Box::new(srcinfo),
+            build: true,
+        })
+    }
+
+    #[test]
+    fn removes_missing_optional_debug_archives() {
+        let (tmp, mut config) = config();
+        config.install_debug = true;
+        let mut installer = Installer::new(&config);
+        let mut base = base();
+        let path = tmp
+            .path()
+            .join("example-debug-1-1-any.pkg.tar")
+            .to_string_lossy()
+            .into_owned();
+        let packages = [("example-debug".to_owned(), path)].into_iter().collect();
+        let debug = installer
+            .debug_paths(&config, &mut base, &packages)
+            .unwrap();
+        assert!(debug.is_empty());
+        assert_eq!(base.packages().collect::<Vec<_>>(), vec!["example"]);
+        config.chroot = true;
+        installer
+            .record_built_artifacts(&config, &base, &packages, &debug)
+            .unwrap();
+    }
+
+    #[test]
+    fn skips_archive_loading_outside_chroots_without_local_repos() {
+        let (_tmp, mut config) = config();
+        let mut installer = Installer::new(&config);
+        let packages = [("example".to_owned(), "/missing/example.pkg.tar".to_owned())]
+            .into_iter()
+            .collect();
+        installer
+            .record_built_artifacts(&config, &base(), &packages, &HashMap::new())
+            .unwrap();
+        config.chroot = true;
+        config.repos = LocalRepos::Default;
+        installer
+            .record_built_artifacts(&config, &base(), &packages, &HashMap::new())
+            .unwrap();
+        assert!(installer.has_built_packages);
+    }
+
+    #[test]
+    fn passes_required_archives_to_both_build_commands() {
+        use std::os::unix::fs::PermissionsExt;
+        if let Ok(dir) = std::env::var("PARU_CHROOT_TEST_DIR") {
+            let dir = Path::new(&dir);
+            let (_tmp, mut config) = config();
+            config.chroot = true;
+            config.no_check = std::env::var("PARU_CHROOT_TEST_NOCHECK").as_deref() == Ok("1");
+            config.makepkg_conf = Some(dir.join("makepkg.conf").to_string_lossy().into_owned());
+            let mut installer = Installer::new(&config);
+            if config.no_check {
+                installer.chroot.mflags.push("--nocheck".to_owned());
+            }
+            for name in ["foundation", "test-tool", "unrelated"] {
+                let path = archive(dir, name, "1-1", &[], &[]);
+                installer
+                    .built
+                    .record(&config.alpm, [path.as_str()].into_iter())
+                    .unwrap();
+            }
+            installer
+                .build_pkgbuild(&mut config, &mut base(), None, dir)
+                .unwrap();
+            assert!(installer.has_built_packages);
+            return;
+        }
+
+        for no_check in [false, true] {
+            let dir = tempfile::tempdir().unwrap();
+            std::fs::write(dir.path().join("PKGBUILD"), "pkgname=example\npkgver=1\npkgrel=1\narch=(any)\ndepends=(foundation)\ncheckdepends=(test-tool)\ncheck() { :; }\npackage() { install -Dm644 /dev/null \"$pkgdir/usr/share/example/fixture\"; }\n").unwrap();
+            std::fs::write(
+                dir.path().join("makepkg.conf"),
+                "source /etc/makepkg.conf\nPKGEXT='.pkg.tar'\n",
+            )
+            .unwrap();
+            let runner = dir.path().join("makechrootpkg");
+            // Capture the actual process arguments and build real package archives
+            // on the host. Dependency installation belongs to the live chroot test.
+            std::fs::write(&runner, "#!/bin/bash\nset -eu\nprintf '%s\\t' \"$@\" >> \"$PARU_CHROOT_TEST_DIR/commands\"\nprintf '\\n' >> \"$PARU_CHROOT_TEST_DIR/commands\"\nwhile [[ $1 != -- ]]; do shift; done\nshift\nexec /usr/bin/makepkg --config \"$PARU_CHROOT_TEST_DIR/makepkg.conf\" -d \"$@\"\n").unwrap();
+            std::fs::set_permissions(&runner, std::fs::Permissions::from_mode(0o755)).unwrap();
+            let path = format!(
+                "{}:{}",
+                dir.path().display(),
+                std::env::var("PATH").unwrap()
+            );
+            let output = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "install::chroot_tests::passes_required_archives_to_both_build_commands",
+                    "--nocapture",
+                ])
+                .env("PATH", path)
+                .env("PARU_CHROOT_TEST_DIR", dir.path())
+                .env("PARU_CHROOT_TEST_NOCHECK", if no_check { "1" } else { "0" })
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "{}\n{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            let commands = std::fs::read_to_string(dir.path().join("commands")).unwrap();
+            let commands = commands.lines().collect::<Vec<_>>();
+            assert_eq!(commands.len(), 2);
+            assert!(commands[0].contains("-ofA"));
+            assert!(commands[1].contains("--noprepare"));
+            for command in commands {
+                let args = command.split('\t').collect::<Vec<_>>();
+                let installed = args
+                    .windows(2)
+                    .filter(|pair| pair[0] == "-I")
+                    .map(|pair| Path::new(pair[1]).file_name().unwrap().to_str().unwrap())
+                    .collect::<Vec<_>>();
+                let expected = if no_check {
+                    vec!["foundation-1-1-any.pkg.tar"]
+                } else {
+                    vec!["foundation-1-1-any.pkg.tar", "test-tool-1-1-any.pkg.tar"]
+                };
+                assert_eq!(installed, expected);
+            }
+            assert!(dir.path().join("example-1-1-any.pkg.tar").is_file());
+        }
+    }
+
+    #[cfg(feature = "mock")]
+    #[tokio::test]
+    async fn refreshes_cached_aur_dependencies_after_download() {
+        use std::os::unix::fs::PermissionsExt;
+
+        // Arrange: an existing checkout loses one dependency and gains another.
+        let (tmp, mut config) = config();
+        config.chroot = true;
+        config.build_dir = tmp.path().join("build");
+        config.fetch.clone_dir = config.build_dir.clone();
+        let dir = config.build_dir.join("example");
+        std::fs::create_dir_all(dir.join(".git")).unwrap();
+        let info = |version, dep| {
+            format!("pkgbase = example\n pkgver = {version}\n pkgrel = 1\n arch = any\n depends = {dep}\npkgname = example\n")
+        };
+        std::fs::write(dir.join(".SRCINFO"), info(1, "old-library")).unwrap();
+        std::fs::write(dir.join("upstream.SRCINFO"), info(2, "new-library")).unwrap();
+        let git = tmp.path().join("git-fixture");
+        // Substitute only Git's merge boundary; exercise the real download orchestration.
+        std::fs::write(
+            &git,
+            "#!/bin/sh\nif [ \"$1\" = rebase ]; then cp upstream.SRCINFO .SRCINFO; fi\n",
+        )
+        .unwrap();
+        std::fs::set_permissions(&git, std::fs::Permissions::from_mode(0o755)).unwrap();
+        config.fetch.git = git;
+        config.fetch.git_flags.clear();
+        let base = aur_depends::AurBase {
+            build: true,
+            pkgs: vec![aur_depends::Package {
+                pkg: raur::Package {
+                    name: "example".to_owned(),
+                    package_base: "example".to_owned(),
+                    version: "2-1".to_owned(),
+                    depends: vec!["new-library".to_owned()],
+                    ..Default::default()
+                }
+                .into(),
+                make: false,
+                target: true,
+            }],
+        };
+        let bases = Bases {
+            bases: vec![base.clone()],
+        };
+        let mut installer = Installer::new(&config);
+        let old = archive(tmp.path(), "old-library", "1-1", &[], &[]);
+        let new = archive(tmp.path(), "new-library", "1-1", &[], &[]);
+        installer
+            .built
+            .record(&config.alpm, [old.as_str(), new.as_str()].into_iter())
+            .unwrap();
+
+        // Act
+        installer.download_pkgbuilds(&config, &bases).await.unwrap();
+        let selected = installer
+            .chroot_artifacts(&config, &Base::Aur(base))
+            .unwrap();
+
+        // Assert
+        assert_eq!(
+            Srcinfo::from_path(dir.join(".SRCINFO")).unwrap().version(),
+            "2-1"
+        );
+        assert_eq!(selected, [new.as_str()]);
+    }
+
+    #[test]
+    fn uses_downloaded_srcinfo_for_aur_build_requirements() {
+        let (tmp, mut config) = config();
+        config.chroot = true;
+        let mut installer = Installer::new(&config);
+        let path = archive(tmp.path(), "foundation", "1-1", &[], &[]);
+        installer
+            .built
+            .record(&config.alpm, [path.as_str()].into_iter())
+            .unwrap();
+        let Base::Pkgbuild(pkgbuild) = base() else {
+            unreachable!()
+        };
+        installer
+            .srcinfos
+            .insert("example".to_owned(), *pkgbuild.srcinfo);
+        let base = Base::Aur(aur_depends::AurBase {
+            build: true,
+            pkgs: vec![aur_depends::Package {
+                pkg: raur::Package {
+                    name: "example".to_owned(),
+                    package_base: "example".to_owned(),
+                    ..Default::default()
+                }
+                .into(),
+                make: false,
+                target: true,
+            }],
+        });
+        assert_eq!(
+            installer.chroot_artifacts(&config, &base).unwrap(),
+            vec![path.as_str()]
+        );
+    }
 }

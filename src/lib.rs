@@ -1,5 +1,6 @@
 mod args;
 mod chroot;
+mod chroot_deps;
 mod clean;
 mod command_line;
 mod completion;

@@ -253,7 +253,12 @@ in other enabled repos.
 
 .TP
 .B Chroot [= path/to/chroot]
-Build packages in a chroot. This requires the LocalRepo option to be enabled.
+Build packages in a chroot. LocalRepo is optional.
+Without LocalRepo, paru passes previously built packages required by the current
+build's dependency closure directly to the chroot.
+Only available archives satisfying the dependency requirements are passed.
+Dependencies without a usable archive are resolved normally inside the chroot,
+including version checks. Failed build targets are still reported.
 Optionally a directory may be passed to specify where to create the chroot.
 
 .TP

@@ -705,7 +705,9 @@ Do not build into a local repo.
 
 .TP
 .B \-\-chroot [= /path/to/chroot]
-Build packages in a chroot. This requires the LocalRepo option to be enabled.
+Build packages in a chroot. LocalRepo is optional.
+Without LocalRepo, paru passes previously built packages required by the current
+build's dependency closure directly to the chroot.
 Optionally a directory may be passed to specify where to create the chroot.
 
 .TP
