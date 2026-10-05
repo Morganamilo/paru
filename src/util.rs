@@ -1,4 +1,5 @@
 use crate::config::{Config, LocalRepos};
+use crate::fmt::color_repo;
 use crate::repo;
 
 use std::collections::btree_map::Entry;
@@ -60,13 +61,44 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
                 local.push(targ);
             }
         } else if dbs.pkg(targ.pkg).is_ok()
-            || dbs.find_target_satisfier(targ.pkg).is_some()
             || dbs
                 .iter()
                 .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
                 .any(|db| db.group(targ.pkg).is_ok())
         {
             local.push(targ);
+        } else if let Some(provider) = dbs.find_target_satisfier(targ.pkg) {
+            let Some(db) = provider.db() else {
+                aur.push(targ);
+                continue;
+            };
+            let repo_name = db.name();
+            let pkg_name = provider.name();
+
+            if !config.mode.aur() {
+                local.push(targ);
+            } else {
+                let c = &config.color;
+                println!(
+                    "{} {}",
+                    c.action.paint("::"),
+                    tr!(
+                        "{repo}/{pkg} provides {target}",
+                        target = targ.pkg,
+                        repo = color_repo(c.enabled, repo_name),
+                        pkg = c.bold.paint(pkg_name)
+                    )
+                );
+                if ask(
+                    config,
+                    &tr!("Install {repo}/{pkg}?", repo = repo_name, pkg = pkg_name),
+                    true,
+                ) {
+                    local.push(targ);
+                } else {
+                    aur.push(targ);
+                }
+            }
         } else {
             aur.push(targ);
         }
