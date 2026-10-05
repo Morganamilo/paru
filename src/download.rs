@@ -519,9 +519,13 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
 
     for targ in targets {
         let targ = targ.as_targ();
-        if config.mode.repo() && db.find_target(targ).is_ok() {
-            local.push(targ);
-            continue;
+        if config.mode.repo() {
+            if let Ok(pkg) = db.find_target(targ) {
+                if is_arch_repo(pkg.db().unwrap().name()) {
+                    local.push(targ);
+                    continue;
+                }
+            }
         }
 
         if config.mode.pkgbuild() {
