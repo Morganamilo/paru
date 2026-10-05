@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::config::{Config, Mode};
-use crate::devel::{filter_devel_updates, possible_devel_updates};
+use crate::devel::{filter_devel_updates, possible_devel_updates, DevelUpgrades};
 use crate::exec;
 use crate::util::split_repo_aur_pkgs;
 
@@ -89,12 +89,11 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
         }
 
         if config.mode.aur() {
-            async fn devel_up(config: &Config) -> Result<Vec<String>> {
+            async fn devel_up(config: &Config) -> Result<DevelUpgrades> {
                 if config.devel {
-                    let updates = possible_devel_updates(config).await?;
-                    Ok(updates)
+                    possible_devel_updates(config).await
                 } else {
-                    Ok(Vec::new())
+                    Ok(DevelUpgrades::default())
                 }
             }
 
@@ -104,7 +103,8 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
             }
 
             let (_, devel) = try_join!(aur_up(config, &mut cache, &aur), devel_up(config))?;
-            let devel = filter_devel_updates(config, &mut cache, &devel).await?;
+            let (devel, _ignored) =
+                filter_devel_updates(config, &mut cache, &devel.updates).await?;
 
             for target in aur {
                 let local_pkg = db.pkg(target).unwrap();

@@ -199,3 +199,27 @@ async fn devel() {
     let a = db.pkg("devel").unwrap();
     assert_eq!(a.version().as_str(), "2-1");
 }
+
+#[tokio::test]
+async fn devel_ignore() {
+    let (tmp, ret) = run(&["-Sua", "--devel", "--ignore=devel"]).await.unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+    let a = db.pkg("devel").unwrap();
+    assert_eq!(a.version().as_str(), "1-1");
+}
+
+#[tokio::test]
+async fn devel_ignoredevel_glob() {
+    let (tmp, ret) = run(&["-Sua", "--devel", "--ignoredevel=dev*"])
+        .await
+        .unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+
+    let db = alpm.localdb();
+    let a = db.pkg("devel").unwrap();
+    assert_eq!(a.version().as_str(), "1-1");
+}
