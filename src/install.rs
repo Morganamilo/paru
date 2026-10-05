@@ -2055,7 +2055,8 @@ fn parse_package_list(
     dir: &Path,
     pkgdest: Option<&str>,
 ) -> Result<(HashMap<String, String>, String)> {
-    let output = exec::makepkg_output_dest(config, dir, &["--packagelist"], pkgdest)?;
+    let output =
+        exec::makepkg_output_dest(config, dir, &["--packagelist", "--ignorearch"], pkgdest)?;
     let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
     let mut pkgdests = HashMap::new();
     let mut version = String::new();
