@@ -281,13 +281,28 @@ impl ConfigEnum for raur::SearchBy {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortMode {
+    Auto,
     BottomUp,
     TopDown,
 }
 
 impl ConfigEnum for SortMode {
-    const VALUE_LOOKUP: ConfigEnumValues<Self> =
-        &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("auto", Self::Auto),
+        ("bottomup", Self::BottomUp),
+        ("topdown", Self::TopDown),
+    ];
+}
+
+impl SortMode {
+    pub fn is_top_down(self, interactive: bool) -> bool {
+        match (self, interactive) {
+            (SortMode::TopDown, _) => true,
+            (SortMode::BottomUp, _) => false,
+            (SortMode::Auto, true) => false,
+            (SortMode::Auto, false) => true,
+        }
+    }
 }
 
 bitflags! {
@@ -431,7 +446,7 @@ pub struct Config {
     #[default(raur::SearchBy::NameDesc)]
     pub search_by: raur::SearchBy,
     pub limit: usize,
-    #[default(SortMode::TopDown)]
+    #[default(SortMode::Auto)]
     pub sort_mode: SortMode,
     #[default(Mode::empty())]
     pub mode: Mode,
@@ -1041,6 +1056,7 @@ then initialise it with:
         match key {
             "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = SortMode::BottomUp,
+            "TopDown" => self.sort_mode = SortMode::TopDown,
             "AurOnly" => self.mode = Mode::AUR,
             "PkgbuildsOnly" => self.mode = Mode::PKGBUILD,
             "RepoOnly" => self.mode = Mode::REPO,
