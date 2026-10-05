@@ -3,7 +3,7 @@ use crate::fmt::color_repo;
 use crate::util::{get_provider, NumberMenu};
 use crate::RaurHandle;
 
-use std::io::{stdin, stdout, BufRead, Write};
+use std::io::{stdout, Write};
 
 use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;
@@ -108,13 +108,9 @@ pub fn resolver<'a, 'b>(
             print!("{}", tr!("\n\nEnter a selection (default=all): "));
             let _ = stdout().lock().flush();
 
-            let stdin = stdin();
-            let mut stdin = stdin.lock();
             let mut input = String::new();
-
-            input.clear();
             if !no_confirm {
-                let _ = stdin.read_line(&mut input);
+                crate::util::read_line_or_exit(&mut input);
             }
 
             let menu = NumberMenu::new(input.trim());
