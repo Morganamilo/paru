@@ -662,7 +662,8 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 fn pipe_bat(config: &Config, pkgbuild: &[u8]) -> Result<()> {
     let mut command = Command::new(&config.bat_bin);
     command
-        .arg("-pp")
+        .arg("--paging=never")
+        .arg("--style=plain")
         .arg("--color=always")
         .arg("-lPKGBUILD")
         .args(&config.bat_flags)
