@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: paru  2.0.3\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-01-08 17:40+0000\n"
-"PO-Revision-Date: 2025-12-30 08:07+0200\n"
-"Last-Translator: Nazarii Balanda <balaraz@tuta.io>\n"
+"PO-Revision-Date: 2026-09-20 09:59+0300\n"
+"Last-Translator: balaraz\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Хочете видалити з кешу ВСІ пакунки з AUR?"
+msgstr "Бажаєте видалити з кешу ВСІ пакунки з AUR?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
@@ -74,9 +74,8 @@ msgid "unknown option -{}"
 msgstr "невідома опція --{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "не вдалося відкрити файл кешу '{}'"
+msgstr "не вдалося декодувати список пакунків"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -245,13 +244,12 @@ msgid "package '{}' was not found"
 msgstr "пакунок '{}' не знайдено"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "дублювання пакунків: {}"
+msgstr "дублікат PKGBUILD: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "Пакунок '{}' існує, але не має PKGBUILD -- пропускаємо"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -683,6 +681,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       Пакунки для встановлення в кореневому chroot (за "
+"замовчуванням: base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -730,7 +730,7 @@ msgstr "    -w --news             Показувати новини Arch"
 
 #: src/help.rs:102
 msgid "getpkgbuild specific options:"
-msgstr "Опції для --getpkgbuild"
+msgstr "Опції для getpkgbuild"
 
 #: src/help.rs:103
 msgid "    -p --print            Print pkgbuild to stdout"
@@ -986,9 +986,8 @@ msgid "failed to execute file manager: {}"
 msgstr "не вдалося запустити файловий менеджер: {}"
 
 #: src/install.rs:1602
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "файловий менеджер не вдалося успішно запустити"
+msgstr "файловий менеджер '{}' завершився з помилкою"
 
 #: src/install.rs:1620
 msgid "failed to read dir: {}"
@@ -1114,22 +1113,18 @@ msgid "aur search failed"
 msgstr "пошук в AUR не вдався"
 
 #: src/search.rs:285 src/search.rs:338 src/search.rs:410
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [встановлено: {}]"
+msgstr "[встановлено: {}]"
 
 #: src/search.rs:287 src/search.rs:340 src/search.rs:412
-#, fuzzy
 msgid "[installed]"
-msgstr " [встановлено]"
+msgstr "[встановлено]"
 
 #: src/search.rs:332
-#, fuzzy
 msgid "[out-of-date: {}]"
-msgstr "[Застарілий: {}]"
+msgstr "[Застарів: {}]"
 
 #: src/search.rs:347
-#, fuzzy
 msgid "[orphaned]"
 msgstr "[Осиротілий]"
 
