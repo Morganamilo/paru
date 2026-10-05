@@ -199,3 +199,9 @@ async fn devel() {
     let a = db.pkg("devel").unwrap();
     assert_eq!(a.version().as_str(), "2-1");
 }
+
+#[tokio::test]
+async fn build_only_conflict_with_installed_pkg() {
+    let (_, ret) = run(&["-B", "testdata/clone/devel-bin"]).await.unwrap();
+    assert_eq!(ret, 0);
+}
