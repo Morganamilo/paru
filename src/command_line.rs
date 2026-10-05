@@ -1,7 +1,7 @@
 use crate::args::{PACMAN_FLAGS, PACMAN_GLOBALS};
 use crate::config::{
-    Colors, Config, ConfigEnum, LocalRepos, Mode, Op, Sign, SortMode, YesNoAll, YesNoAllTree,
-    YesNoAsk,
+    parse_release_age, Colors, Config, ConfigEnum, LocalRepos, Mode, Op, Sign, SortMode, YesNoAll,
+    YesNoAllTree, YesNoAsk,
 };
 
 use std::fmt;
@@ -211,6 +211,15 @@ impl Config {
                     .parse()
                     .map_err(|_| anyhow!("option {} must be a number", arg))?
             }
+            Arg::Long("minimumreleaseage") => {
+                self.min_release_age = Some(parse_release_age(value?)?)
+            }
+            Arg::Long("nominimumreleaseage") => self.min_release_age = None,
+            Arg::Long("minimumreleaseageexclude") => {
+                for word in value?.split_whitespace() {
+                    self.min_release_age_exclude_builder.add(Glob::new(word)?);
+                }
+            }
             Arg::Long("sortby") => self.sort_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("searchby") => self.search_by = ConfigEnum::from_str(argkey, value?)?,
             Arg::Long("limit") => self.limit = value?.parse()?,
@@ -417,6 +426,8 @@ fn takes_value(arg: Arg) -> TakesValue {
         Arg::Long("chrootpkgs") => TakesValue::Required,
         Arg::Long("rootchrootpkgs") => TakesValue::Required,
         Arg::Long("completioninterval") => TakesValue::Required,
+        Arg::Long("minimumreleaseage") => TakesValue::Required,
+        Arg::Long("minimumreleaseageexclude") => TakesValue::Required,
         Arg::Long("sortby") => TakesValue::Required,
         Arg::Long("searchby") => TakesValue::Required,
         Arg::Long("limit") => TakesValue::Required,

@@ -199,3 +199,74 @@ async fn devel() {
     let a = db.pkg("devel").unwrap();
     assert_eq!(a.version().as_str(), "2-1");
 }
+
+#[tokio::test]
+async fn min_release_age_blocks() {
+    let (tmp, ret) = run(&["-S", "pacaur", "--minimumreleaseage", "30d"])
+        .await
+        .unwrap();
+    assert_ne!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    alpm.localdb().pkg("pacaur").unwrap_err();
+}
+
+#[tokio::test]
+async fn min_release_age_dep_blocks() {
+    let (tmp, ret) = run(&[
+        "-S",
+        "pkg",
+        "--minimumreleaseage",
+        "30d",
+        "--minimumreleaseageexclude",
+        "pkg",
+    ])
+    .await
+    .unwrap();
+    assert_ne!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    alpm.localdb().pkg("pkg").unwrap_err();
+    alpm.localdb().pkg("pacaur").unwrap_err();
+}
+
+#[tokio::test]
+async fn min_release_age_bypass() {
+    let (tmp, ret) = run(&[
+        "-S",
+        "pacaur",
+        "--minimumreleaseage",
+        "30d",
+        "--nominimumreleaseage",
+    ])
+    .await
+    .unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    alpm.localdb().pkg("pacaur").unwrap();
+}
+
+#[tokio::test]
+async fn min_release_age_exclude() {
+    let (tmp, ret) = run(&[
+        "-S",
+        "pacaur",
+        "--minimumreleaseage",
+        "30d",
+        "--minimumreleaseageexclude",
+        "pacaur",
+    ])
+    .await
+    .unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    alpm.localdb().pkg("pacaur").unwrap();
+}
+
+#[tokio::test]
+async fn min_release_age_devel_exempt() {
+    let (tmp, ret) = run(&["-S", "auracle-git", "--minimumreleaseage", "30d"])
+        .await
+        .unwrap();
+    assert_eq!(ret, 0);
+    let alpm = alpm(&tmp).unwrap();
+    alpm.localdb().pkg("auracle-git").unwrap();
+}

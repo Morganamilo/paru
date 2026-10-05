@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::config::SortBy;
 use crate::config::{Config, SortMode};
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, NumberMenu};
+use crate::util::{input, is_arch_repo, now_secs, NumberMenu};
 use crate::{info, printtr};
 
 use ansiterm::Style;
@@ -233,7 +233,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
     };
 
     match config.sort_by {
-        SortBy::Votes => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
+        SortBy::Votes => matches.sort_by_key(|p| std::cmp::Reverse(p.num_votes)),
         SortBy::Popularity => {
             matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap())
         }
@@ -243,6 +243,12 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
         SortBy::Submitted => matches.sort_by_key(|p| p.first_submitted),
         SortBy::Modified => matches.sort_by_key(|p| p.last_modified),
         _ => (),
+    }
+
+    if let Some(max) = config.min_release_age {
+        let now = now_secs();
+        let max = max.as_secs() as i64;
+        matches.retain(|p| !config.is_too_new(&p.name, p.last_modified, now, max));
     }
 
     if config.limit != 0 {

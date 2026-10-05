@@ -506,6 +506,12 @@ pub struct Config {
     pub no_warn_builder: GlobSetBuilder,
     pub install_debug: bool,
 
+    pub min_release_age: Option<std::time::Duration>,
+    #[default(GlobSet::empty())]
+    pub min_release_age_exclude: GlobSet,
+    #[default(GlobSetBuilder::new())]
+    pub min_release_age_exclude_builder: GlobSetBuilder,
+
     pub upgrade_menu: bool,
 
     pub makepkg_conf: Option<String>,
@@ -575,7 +581,24 @@ impl Ini for Config {
     }
 }
 
+/// Whether `pkg` ends with any of the configured devel suffixes.
+pub fn matches_devel(suffixes: &[String], pkg: &str) -> bool {
+    suffixes.iter().any(|suff| pkg.ends_with(suff))
+}
+
 impl Config {
+    pub fn is_devel(&self, pkg: &str) -> bool {
+        matches_devel(&self.devel_suffixes, pkg)
+    }
+
+    /// Whether `pkg` is younger than the minimum release age and not exempt
+    /// (devel package or in `min_release_age_exclude`). `now`/`max` are seconds.
+    pub fn is_too_new(&self, pkg: &str, last_modified: i64, now: i64, max: i64) -> bool {
+        !self.is_devel(pkg)
+            && !self.min_release_age_exclude.is_match(pkg)
+            && now - last_modified < max
+    }
+
     pub fn new() -> Result<Self> {
         let cache =
             dirs::cache_dir().ok_or_else(|| anyhow!(tr!("failed to find cache directory")))?;
@@ -826,6 +849,7 @@ then initialise it with:
         }
 
         self.no_warn = self.no_warn_builder.build()?;
+        self.min_release_age_exclude = self.min_release_age_exclude_builder.build()?;
         self.ignore_devel = self.ignore_devel_builder.build()?;
 
         if !self.assume_installed.is_empty() && !self.chroot {
@@ -1136,6 +1160,12 @@ then initialise it with:
                     self.no_warn_builder.add(Glob::new(word)?);
                 }
             }
+            "MinimumReleaseAge" => self.min_release_age = Some(parse_release_age(&value?)?),
+            "MinimumReleaseAgeExclude" => {
+                for word in value?.split_whitespace() {
+                    self.min_release_age_exclude_builder.add(Glob::new(word)?);
+                }
+            }
             "Mode" => {
                 for word in value?.split_whitespace() {
                     self.mode |= word.parse()?;
@@ -1230,6 +1260,32 @@ fn download(filename: &str, event: AnyDownloadEvent, _: &mut ()) {
     }
 }
 
+/// Parse a release-age duration: an integer with an optional unit suffix
+/// (`s`, `m`, `h`, `d`, `w`). A bare number is interpreted as days.
+pub fn parse_release_age(s: &str) -> Result<std::time::Duration> {
+    let s = s.trim();
+    let (num, unit_secs) = match s.as_bytes().last() {
+        Some(b's') => (&s[..s.len() - 1], 1),
+        Some(b'm') => (&s[..s.len() - 1], 60),
+        Some(b'h') => (&s[..s.len() - 1], 60 * 60),
+        Some(b'd') => (&s[..s.len() - 1], 60 * 60 * 24),
+        Some(b'w') => (&s[..s.len() - 1], 60 * 60 * 24 * 7),
+        Some(b'0'..=b'9') => (s, 60 * 60 * 24),
+        _ => bail!(tr!("invalid release age '{}'", s)),
+    };
+
+    let num: u64 = num
+        .trim()
+        .parse()
+        .map_err(|_| anyhow!(tr!("invalid release age '{}'", s)))?;
+
+    let secs = num
+        .checked_mul(unit_secs)
+        .ok_or_else(|| anyhow!(tr!("release age '{}' is too large", s)))?;
+
+    Ok(std::time::Duration::from_secs(secs))
+}
+
 fn log(level: LogLevel, msg: &str, color: &mut Colors) {
     let err = color.error;
     let warn = color.warning;
@@ -1239,5 +1295,32 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
         LogLevel::DEBUG if alpm_debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_release_age;
+
+    #[test]
+    fn release_age_units() {
+        let secs = |s| parse_release_age(s).unwrap().as_secs();
+        assert_eq!(secs("7"), 7 * 86400);
+        assert_eq!(secs("7d"), 7 * 86400);
+        assert_eq!(secs("48h"), 48 * 3600);
+        assert_eq!(secs("30m"), 30 * 60);
+        assert_eq!(secs("45s"), 45);
+        assert_eq!(secs("2w"), 2 * 7 * 86400);
+        assert_eq!(secs("0"), 0);
+    }
+
+    #[test]
+    fn release_age_invalid() {
+        assert!(parse_release_age("").is_err());
+        assert!(parse_release_age("7y").is_err());
+        assert!(parse_release_age("abc").is_err());
+        assert!(parse_release_age("-1").is_err());
+        assert!(parse_release_age("d").is_err());
+        assert!(parse_release_age("100000000000000000d").is_err());
     }
 }

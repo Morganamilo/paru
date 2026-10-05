@@ -73,7 +73,7 @@ pub fn resolver<'a, 'b>(
     let mut resolver = aur_depends::Resolver::new(alpm, cache, raur, flags)
         .pkgbuild_repos(pkgbuild_repos)
         .custom_aur_namespace(Some(config.aur_namespace().to_string()))
-        .is_devel(move |pkg| devel_suffixes.iter().any(|suff| pkg.ends_with(suff)))
+        .is_devel(move |pkg| crate::config::matches_devel(&devel_suffixes, pkg))
         .group_callback(move |groups| {
             let total: usize = groups.iter().map(|g| g.group.packages().len()).sum();
             let mut pkgs = Vec::new();
@@ -98,10 +98,8 @@ pub fn resolver<'a, 'b>(
                     print!("    ");
                 }
 
-                let mut n = 1;
-                for pkg in group.group.packages() {
+                for (n, pkg) in (1..).zip(group.group.packages()) {
                     print!("{}) {}  ", n, pkg.name());
-                    n += 1;
                 }
             }
 
@@ -118,13 +116,11 @@ pub fn resolver<'a, 'b>(
             }
 
             let menu = NumberMenu::new(input.trim());
-            let mut n = 1;
 
-            for pkg in groups.iter().flat_map(|g| g.group.packages()) {
+            for (n, pkg) in (1..).zip(groups.iter().flat_map(|g| g.group.packages())) {
                 if menu.contains(n, "") {
                     pkgs.push(pkg);
                 }
-                n += 1;
             }
 
             pkgs

@@ -8,6 +8,7 @@ use std::io::{stderr, stdin, stdout, BufRead, Write};
 use std::mem::take;
 use std::ops::Range;
 use std::os::fd::{AsFd, OwnedFd};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use alpm::{Package, PackageReason};
 use alpm_utils::depends::{satisfies_dep, satisfies_provide};
@@ -15,6 +16,14 @@ use alpm_utils::{AsTarg, DbListExt, Targ};
 use anyhow::Result;
 use nix::unistd::{dup2_stdin, dup2_stdout};
 use tr::tr;
+
+/// Current time as seconds since the unix epoch.
+pub fn now_secs() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
 
 #[derive(Debug)]
 pub struct NumberMenu<'a> {

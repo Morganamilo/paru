@@ -19,6 +19,8 @@ impl Mock {
             pkgs: HashMap::new(),
         };
 
+        let now = crate::util::now_secs();
+
         let clone = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata/clone");
 
         for dir in std::fs::read_dir(clone)? {
@@ -46,7 +48,7 @@ impl Mock {
                     out_of_date: None,
                     maintainer: None,
                     first_submitted: 0,
-                    last_modified: 0,
+                    last_modified: now,
                     url_path: "".into(),
                     groups: vec![],
                     depends,

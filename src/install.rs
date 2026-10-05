@@ -22,7 +22,7 @@ use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{get_upgrades, Upgrades};
-use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
+use crate::util::{ask, now_secs, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
 
 use alpm::{Alpm, Depend, Version};
@@ -1092,6 +1092,7 @@ impl Installer {
         let c = config.color;
 
         print_warnings(config, cache, Some(actions));
+        check_release_age(config, actions)?;
 
         if actions.build.is_empty() && actions.install.is_empty() {
             printtr!(" there is nothing to do");
@@ -1328,6 +1329,61 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     warnings.orphans.dedup();
 
     warnings.all(config.color, config.cols);
+}
+
+fn human_age(secs: i64) -> String {
+    let secs = secs.max(0);
+    if secs >= 86400 {
+        let n = secs / 86400;
+        tr!("{n} day" | "{n} days" % n)
+    } else if secs >= 3600 {
+        let n = secs / 3600;
+        tr!("{n} hour" | "{n} hours" % n)
+    } else if secs >= 60 {
+        let n = secs / 60;
+        tr!("{n} minute" | "{n} minutes" % n)
+    } else {
+        tr!("{n} second" | "{n} seconds" % secs)
+    }
+}
+
+fn check_release_age(config: &Config, actions: &Actions) -> Result<()> {
+    let Some(max) = config.min_release_age else {
+        return Ok(());
+    };
+
+    let now = now_secs();
+    let max = max.as_secs() as i64;
+
+    let mut too_new = actions
+        .iter_aur_pkgs()
+        .map(|p| &p.pkg)
+        .filter(|p| config.is_too_new(&p.name, p.last_modified, now, max))
+        .map(|p| (p.name.as_str(), now - p.last_modified))
+        .collect::<Vec<_>>();
+
+    if too_new.is_empty() {
+        return Ok(());
+    }
+
+    too_new.sort_unstable();
+    too_new.dedup();
+
+    let list = too_new
+        .iter()
+        .map(|(name, age)| format!("{} ({})", name, tr!("updated {} ago", human_age(*age))))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    bail!(
+        "{}\n    {}",
+        tr!(
+            "the following AUR packages are newer than the minimum release age of {}: {}",
+            human_age(max),
+            list
+        ),
+        tr!("pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --nominimumreleaseage), or add a package to MinimumReleaseAgeExclude")
+    );
 }
 
 fn fmt_stack(want: &DepMissing) -> String {

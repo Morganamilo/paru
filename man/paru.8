@@ -443,6 +443,23 @@ cache to be refreshed every time, while setting this to -1 will cause the cache
 to never be refreshed. Defaults to 7.
 
 .TP
+.B \-\-minimumreleaseage <duration>
+Refuse to install, upgrade or list AUR packages published more recently than
+this. The duration is an integer with an optional unit suffix (s, m, h, d, w);
+a bare number means days. Applies to dependencies too; devel packages are
+exempt. See
+.B MinimumReleaseAge
+in paru.conf(5).
+
+.TP
+.B \-\-nominimumreleaseage
+Disable the minimum release age check for this run.
+
+.TP
+.B \-\-minimumreleaseageexclude <packages>
+Packages exempt from the minimum release age check. Accepts glob patterns.
+
+.TP
 .B \-\-sortby <votes|popularity|id|baseid|name|base|submitted|modified>
 Sort AUR results by a specific field during search. Defaults to votes.
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2026-01-08 17:40+0000\n"
+"POT-Creation-Date: 2026-06-16 22:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,15 +58,15 @@ msgstr ""
 msgid "option {} expects a value"
 msgstr ""
 
-#: src/command_line.rs:165 src/command_line.rs:382
+#: src/command_line.rs:165 src/command_line.rs:391
 msgid "option {} does not allow a value"
 msgstr ""
 
-#: src/command_line.rs:373
+#: src/command_line.rs:382
 msgid "unknown option --{}"
 msgstr ""
 
-#: src/command_line.rs:376
+#: src/command_line.rs:385
 msgid "unknown option -{}"
 msgstr ""
 
@@ -90,88 +90,96 @@ msgstr ""
 msgid "unknown mode {}"
 msgstr ""
 
-#: src/config.rs:564
+#: src/config.rs:570
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:581
+#: src/config.rs:604
 msgid "failed to find cache directory"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:607
 msgid "failed to find config directory"
 msgstr ""
 
-#: src/config.rs:588
+#: src/config.rs:611
 msgid "failed to find state directory"
 msgstr ""
 
-#: src/config.rs:635
+#: src/config.rs:658
 msgid "config file '{}' does not exist"
 msgstr ""
 
-#: src/config.rs:684
+#: src/config.rs:707
 msgid "only one operation may be used at a time"
 msgstr ""
 
-#: src/config.rs:795
+#: src/config.rs:818
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:844
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr ""
 
-#: src/config.rs:866
+#: src/config.rs:890
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr ""
 
-#: src/config.rs:941 src/config.rs:1102
+#: src/config.rs:965 src/config.rs:1126
 msgid "value can not be empty for key '{}'"
 msgstr ""
 
-#: src/config.rs:957
+#: src/config.rs:981
 msgid "key '{}' does not belong to a section"
 msgstr ""
 
-#: src/config.rs:971 src/config.rs:988 src/config.rs:990 src/config.rs:1005
+#: src/config.rs:995 src/config.rs:1012 src/config.rs:1014 src/config.rs:1029
 msgid "key can not be empty"
 msgstr ""
 
-#: src/config.rs:981
+#: src/config.rs:1005
 msgid "error: unknown option '{}' in repo"
 msgstr ""
 
-#: src/config.rs:991
+#: src/config.rs:1015
 msgid "key can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:994
+#: src/config.rs:1018
 msgid "value can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:1030
+#: src/config.rs:1054
 msgid "error: unknown option '{}' in section [bin]"
 msgstr ""
 
-#: src/config.rs:1150
+#: src/config.rs:1180
 msgid "error: unknown option '{}' in section [options]"
 msgstr ""
 
-#: src/config.rs:1155
+#: src/config.rs:1185
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:1187 src/resolver.rs:136
+#: src/config.rs:1217 src/resolver.rs:132
 msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:1201 src/info.rs:85 src/info.rs:190 src/info.rs:224 src/resolver.rs:95 src/resolver.rs:144
+#: src/config.rs:1231 src/info.rs:85 src/info.rs:190 src/info.rs:224 src/resolver.rs:95 src/resolver.rs:140
 msgid "Repository"
 msgstr ""
 
-#: src/config.rs:1227
+#: src/config.rs:1257
 msgid "  failed to sync {}"
+msgstr ""
+
+#: src/config.rs:1274 src/config.rs:1280
+msgid "invalid release age '{}'"
+msgstr ""
+
+#: src/config.rs:1284
+msgid "release age '{}' is too large"
 msgstr ""
 
 #: src/devel.rs:136 src/download.rs:207
@@ -262,7 +270,7 @@ msgstr ""
 msgid "Pacman is currently in use, please wait..."
 msgstr ""
 
-#: src/fmt.rs:24 src/info.rs:275 src/search.rs:293 src/search.rs:350
+#: src/fmt.rs:24 src/info.rs:275 src/search.rs:299 src/search.rs:356
 msgid "None"
 msgstr ""
 
@@ -762,7 +770,7 @@ msgstr ""
 msgid "could not get news"
 msgstr ""
 
-#: src/install.rs:172 src/install.rs:1127
+#: src/install.rs:172 src/install.rs:1128
 msgid "Proceed with installation?"
 msgstr ""
 
@@ -814,7 +822,7 @@ msgstr ""
 msgid "no targets specified (use -h for help)"
 msgstr ""
 
-#: src/install.rs:1008 src/install.rs:1097 src/search.rs:450 src/search.rs:476 src/lib.rs:304
+#: src/install.rs:1008 src/install.rs:1098 src/search.rs:456 src/search.rs:482 src/lib.rs:304
 msgid " there is nothing to do"
 msgstr ""
 
@@ -830,108 +838,144 @@ msgstr ""
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1113
+#: src/install.rs:1114
 msgid "Remove make dependencies after install?"
 msgstr ""
 
-#: src/install.rs:1124
+#: src/install.rs:1125
 msgid "Proceed to review?"
 msgstr ""
 
-#: src/install.rs:1177
+#: src/install.rs:1178
 msgid "no architecture"
 msgstr ""
 
-#: src/install.rs:1191
+#: src/install.rs:1192
 msgid "The following packages are not compatible with your architecture:"
 msgstr ""
 
-#: src/install.rs:1205
+#: src/install.rs:1206
 msgid "Would you like to try build them anyway?"
 msgstr ""
 
-#: src/install.rs:1349
+#: src/install.rs:1338
+msgid "{n} day"
+msgid_plural "{n} days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1341
+msgid "{n} hour"
+msgid_plural "{n} hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1344
+msgid "{n} minute"
+msgid_plural "{n} minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1346
+msgid "{n} second"
+msgid_plural "{n} seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1374
+msgid "updated {} ago"
+msgstr ""
+
+#: src/install.rs:1381
+msgid "the following AUR packages are newer than the minimum release age of {}: {}"
+msgstr ""
+
+#: src/install.rs:1385
+msgid "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
+msgstr ""
+
+#: src/install.rs:1405
 msgid "duplicate packages: {}"
 msgstr ""
 
-#: src/install.rs:1353
+#: src/install.rs:1409
 msgid "could not find all required packages:"
 msgstr ""
 
-#: src/install.rs:1365
+#: src/install.rs:1421
 msgid "\n"
 "    {missing} (wanted by: {stack})"
 msgstr ""
 
-#: src/install.rs:1379 src/install.rs:2122
+#: src/install.rs:1435 src/install.rs:2178
 msgid "{}-{} is up to date -- skipping"
 msgstr ""
 
-#: src/install.rs:1387
+#: src/install.rs:1443
 msgid "Calculating conflicts..."
 msgstr ""
 
-#: src/install.rs:1410
+#: src/install.rs:1466
 msgid "Calculating inner conflicts..."
 msgstr ""
 
-#: src/install.rs:1422
+#: src/install.rs:1478
 msgid "Inner conflicts found:"
 msgstr ""
 
-#: src/install.rs:1444
+#: src/install.rs:1500
 msgid "Conflicts found:"
 msgstr ""
 
-#: src/install.rs:1467
+#: src/install.rs:1523
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr ""
 
-#: src/install.rs:1471
+#: src/install.rs:1527
 msgid "can not install conflicting packages with --noconfirm"
 msgstr ""
 
-#: src/install.rs:1599
+#: src/install.rs:1655
 msgid "failed to execute file manager: {}"
 msgstr ""
 
-#: src/install.rs:1602
+#: src/install.rs:1658
 msgid "file manager '{}' did not execute successfully"
 msgstr ""
 
-#: src/install.rs:1620
+#: src/install.rs:1676
 msgid "failed to read dir: {}"
 msgstr ""
 
-#: src/install.rs:1677
+#: src/install.rs:1733
 msgid "failed to open: {}"
 msgstr ""
 
-#: src/install.rs:1697
+#: src/install.rs:1753
 msgid "binary file: {}"
 msgstr ""
 
-#: src/install.rs:1719 src/install.rs:1790
+#: src/install.rs:1775 src/install.rs:1846
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1759
+#: src/install.rs:1815
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
-#: src/install.rs:1794
+#: src/install.rs:1850
 msgid " nothing new to review"
 msgstr ""
 
-#: src/install.rs:2070
+#: src/install.rs:2126
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:2142
+#: src/install.rs:2198
 msgid "Signing packages..."
 msgstr ""
 
-#: src/install.rs:2172
+#: src/install.rs:2228
 msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
@@ -1019,31 +1063,31 @@ msgstr ""
 msgid "aur search failed"
 msgstr ""
 
-#: src/search.rs:285 src/search.rs:338 src/search.rs:410
+#: src/search.rs:291 src/search.rs:344 src/search.rs:416
 msgid "[installed: {}]"
 msgstr ""
 
-#: src/search.rs:287 src/search.rs:340 src/search.rs:412
+#: src/search.rs:293 src/search.rs:346 src/search.rs:418
 msgid "[installed]"
 msgstr ""
 
-#: src/search.rs:332
+#: src/search.rs:338
 msgid "[out-of-date: {}]"
 msgstr ""
 
-#: src/search.rs:347
+#: src/search.rs:353
 msgid "[orphaned]"
 msgstr ""
 
-#: src/search.rs:491
+#: src/search.rs:497
 msgid "no packages match search"
 msgstr ""
 
-#: src/search.rs:529
+#: src/search.rs:535
 msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr ""
 
-#: src/search.rs:531
+#: src/search.rs:537
 msgid "Select packages (eg: 1 2 3, 1-3):"
 msgstr ""
 
@@ -1095,31 +1139,31 @@ msgstr ""
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr ""
 
-#: src/util.rs:121
+#: src/util.rs:130
 msgid "[Y/n]:"
 msgstr ""
 
-#: src/util.rs:123
+#: src/util.rs:132
 msgid "[y/N]:"
 msgstr ""
 
-#: src/util.rs:142
+#: src/util.rs:151
 msgid "y"
 msgstr ""
 
-#: src/util.rs:142
+#: src/util.rs:151
 msgid "yes"
 msgstr ""
 
-#: src/util.rs:300
+#: src/util.rs:309
 msgid "Enter a number (default=1): "
 msgstr ""
 
-#: src/util.rs:317
+#: src/util.rs:326
 msgid "invalid number: {}"
 msgstr ""
 
-#: src/util.rs:327
+#: src/util.rs:336
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
@@ -1127,7 +1171,7 @@ msgstr ""
 msgid "There are {} members in group"
 msgstr ""
 
-#: src/resolver.rs:108
+#: src/resolver.rs:106
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "

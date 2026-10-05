@@ -241,6 +241,39 @@ set.
 Don't warn when these packages are not in the aur, out of date, or orphaned.
 
 .TP
+.B MinimumReleaseAge = Duration
+Refuse to install or upgrade AUR packages whose latest version was published
+more recently than this. The value is an integer with an optional unit suffix:
+.B s
+(seconds),
+.B m
+(minutes),
+.B h
+(hours),
+.B d
+(days) or
+.B w
+(weeks). A bare number is interpreted as days. This mitigates supply-chain
+attacks, since most AUR hijacks are caught and reverted within a few days.
+
+The check applies to the whole resolved transaction, including dependencies. If
+any package is too new, paru aborts and lists the offending packages. Devel
+(\fB-git\fR and similar) packages are exempt, as they are tracked by upstream
+commit rather than AUR publish time. Note this exemption is keyed on the package
+name suffix (see
+.BR DevelSuffixes ),
+so a package merely named with such a suffix is exempt regardless of how it is
+built. Disabled by default. Pass
+.B \-\-nominimumreleaseage
+to override for a single run.
+
+.TP
+.B MinimumReleaseAgeExclude = Packages...
+Packages exempt from
+.BR MinimumReleaseAge .
+Accepts glob patterns.
+
+.TP
 .B LocalRepo [= Repos...]
 Use a local repo to build and upgrade AUR packages.
 
