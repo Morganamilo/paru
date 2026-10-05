@@ -1,6 +1,5 @@
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::env::var;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
 use std::fs::{read_dir, read_link, OpenOptions};
@@ -23,7 +22,7 @@ use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{get_upgrades, Upgrades};
 use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
-use crate::{args, exec, news, print_error, printtr, repo};
+use crate::{args, config, exec, news, print_error, printtr, repo};
 
 use alpm::{Alpm, Depend, Version};
 use alpm_utils::depends::{satisfies, satisfies_nover, satisfies_provide, satisfies_provide_nover};
@@ -210,6 +209,20 @@ impl Installer {
         Ok(())
     }
 
+    fn set_conflict_ask<'a>(args: &mut Args<&'a str>, ask: &'a mut String) {
+        if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
+            let num = arg.value.unwrap_or_default();
+            let mut num = num.parse::<i32>().unwrap_or_default();
+            num |= alpm::QuestionType::ConflictPkg as i32;
+            *ask = num.to_string();
+            arg.value = Some(ask.as_str());
+        } else {
+            let value = alpm::QuestionType::ConflictPkg as i32;
+            *ask = value.to_string();
+            args.push_value("ask", ask.as_str());
+        }
+    }
+
     fn chroot_install(&self, config: &Config, build: &[Base], repo_targs: &[String]) -> Result<()> {
         if !config.chroot {
             return Ok(());
@@ -269,7 +282,7 @@ impl Installer {
             }
 
             args.targets = targets;
-            let ask;
+            let mut ask = String::new();
 
             if !self.built.is_empty()
                 && (!config.args.has_arg("u", "sysupgrade")
@@ -278,17 +291,7 @@ impl Installer {
             {
                 if self.conflict {
                     if config.use_ask {
-                        if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
-                            let num = arg.value.unwrap_or_default();
-                            let mut num = num.parse::<i32>().unwrap_or_default();
-                            num |= alpm::QuestionType::ConflictPkg as i32;
-                            ask = num.to_string();
-                            arg.value = Some(ask.as_str());
-                        } else {
-                            let value = alpm::QuestionType::ConflictPkg as i32;
-                            ask = value.to_string();
-                            args.push_value("ask", ask.as_str());
-                        }
+                        Self::set_conflict_ask(&mut args, &mut ask);
                     }
                 } else {
                     args.arg("noconfirm");
@@ -364,7 +367,7 @@ impl Installer {
     fn do_install(&mut self, config: &Config) -> Result<()> {
         if !self.install_queue.is_empty() {
             let mut args = config.pacman_globals();
-            let ask;
+            let mut ask = String::new();
             args.op("upgrade");
             copy_sync_args(config, &mut args);
 
@@ -374,17 +377,7 @@ impl Installer {
 
             if self.conflict {
                 if config.use_ask {
-                    if let Some(arg) = args.args.iter_mut().find(|a| a.key == "ask") {
-                        let num = arg.value.unwrap_or_default();
-                        let mut num = num.parse::<i32>().unwrap_or_default();
-                        num |= alpm::QuestionType::ConflictPkg as i32;
-                        ask = num.to_string();
-                        arg.value = Some(ask.as_str());
-                    } else {
-                        let value = alpm::QuestionType::ConflictPkg as i32;
-                        ask = value.to_string();
-                        args.push_value("ask", ask.as_str());
-                    }
+                    Self::set_conflict_ask(&mut args, &mut ask);
                 }
             } else {
                 args.arg("noconfirm");
@@ -649,6 +642,16 @@ impl Installer {
         self.built.extend(to_install);
     }
 
+    fn sync_devel_info(&mut self, base: &Base) {
+        if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
+            self.devel_info
+                .info
+                .insert(base.package_base().to_string(), info);
+        } else {
+            self.devel_info.info.remove(base.package_base());
+        }
+    }
+
     fn add_pkg(
         &mut self,
         config: &mut Config,
@@ -682,13 +685,7 @@ impl Installer {
                 repo::add(config, path, name, &paths)?;
                 repo::refresh(config, &[name])?;
             }
-            if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
-                self.devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            } else {
-                self.devel_info.info.remove(base.package_base());
-            }
+            self.sync_devel_info(base);
             if config.devel {
                 save_devel_info(config, &self.devel_info)?;
             }
@@ -825,13 +822,7 @@ impl Installer {
         }
 
         if repo.is_none() {
-            if let Some(info) = self.new_devel_info.info.remove(base.package_base()) {
-                self.devel_info
-                    .info
-                    .insert(base.package_base().to_string(), info);
-            } else {
-                self.devel_info.info.remove(base.package_base());
-            }
+            self.sync_devel_info(base);
         }
 
         Ok(())
@@ -1264,7 +1255,7 @@ fn is_debug(pkg: &alpm::Package) -> bool {
 }
 
 fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
-    let mut warnings = crate::download::Warnings::default();
+    let mut warnings = download::Warnings::default();
 
     if !config.mode.aur() && !config.mode.pkgbuild() {
         return;
@@ -1334,6 +1325,26 @@ fn fmt_stack(want: &DepMissing) -> String {
     match &want.dep {
         Some(dep) => format!("{} ({})", want.pkg, dep),
         None => want.pkg.to_string(),
+    }
+}
+
+fn print_conflicts(c: config::Colors, conflicts: &[Conflict], title: &str) {
+    if !conflicts.is_empty() {
+        eprintln!("{} {}", c.error.paint("::"), c.bold.paint(title));
+
+        for conflict in conflicts {
+            eprint!("    {}: ", conflict.pkg);
+
+            for conflict in &conflict.conflicting {
+                eprint!("{}", conflict.pkg);
+                if let Some(conflict) = &conflict.conflict {
+                    eprint!(" ({})", conflict);
+                }
+                eprint!("  ");
+            }
+            eprintln!();
+        }
+        eprintln!();
     }
 }
 
@@ -1415,49 +1426,9 @@ fn check_actions(
         eprintln!();
     }
 
-    if !inner_conflicts.is_empty() {
-        eprintln!(
-            "{} {}",
-            c.error.paint("::"),
-            c.bold.paint(tr!("Inner conflicts found:"))
-        );
+    print_conflicts(c, &inner_conflicts, tr!("Inner conflicts found:").as_str());
 
-        for conflict in &inner_conflicts {
-            eprint!("    {}: ", conflict.pkg);
-
-            for conflict in &conflict.conflicting {
-                eprint!("{}", conflict.pkg);
-                if let Some(conflict) = &conflict.conflict {
-                    eprint!(" ({})", conflict);
-                }
-                eprint!("  ");
-            }
-            eprintln!();
-        }
-        eprintln!();
-    }
-
-    if !conflicts.is_empty() {
-        eprintln!(
-            "{} {}",
-            c.error.paint("::"),
-            c.bold.paint(tr!("Conflicts found:"))
-        );
-
-        for conflict in &conflicts {
-            eprint!("    {}: ", conflict.pkg);
-
-            for conflict in &conflict.conflicting {
-                eprint!("{}", conflict.pkg);
-                if let Some(conflict) = &conflict.conflict {
-                    eprint!(" ({})", conflict);
-                }
-                eprint!("  ");
-            }
-            eprintln!();
-        }
-        eprintln!();
-    }
+    print_conflicts(c, &conflicts, tr!("Conflicts found:").as_str());
 
     if (!conflicts.is_empty() || !inner_conflicts.is_empty()) && !config.use_ask {
         eprintln!(
@@ -1730,14 +1701,15 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
             if printed {
-                let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
+                let pager_unconfigured =
+                    std::env::var("PARU_PAGER").is_err() && std::env::var("PAGER").is_err();
                 let pager = if has_command("less") { "less" } else { "cat" };
 
                 let pager = config
                     .pager_cmd
                     .clone()
-                    .or_else(|| var("PARU_PAGER").ok())
-                    .or_else(|| var("PAGER").ok())
+                    .or_else(|| std::env::var("PARU_PAGER").ok())
+                    .or_else(|| std::env::var("PAGER").ok())
                     .unwrap_or_else(|| pager.to_string());
 
                 exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
@@ -2072,7 +2044,7 @@ fn parse_package_list(
 
         // pkgname-pkgver-pkgrel-arch.pkgext
         // This assumes 3 dashes after the pkgname, Will cause an error
-        // if the PKGEXT contains a dash. Please no one do that.
+        // if the PKGEXT contains a dash. Please do NOT do that.
         let pkgname = split[..split.len() - 3].join("-");
         version = split[split.len() - 3..split.len() - 1].join("-");
         pkgdests.insert(pkgname, line.to_string());
