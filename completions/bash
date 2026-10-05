@@ -41,7 +41,7 @@ _pacman_pkg() {
 
 _paru_pkg() {
   [ -z "$cur" ] && _pacman_pkg Slq && return
-  _arch_compgen "$(paru -Pc)"
+  _arch_compgen "$(paru -Pc | tr '\000' '\n')"
 }
 
 _pacman_repo_list() {
