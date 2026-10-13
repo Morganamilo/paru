@@ -1,5 +1,44 @@
 # Changelog
 
+## Paru v2.2.0 (2026-08-01)
+
+### Added
+
+- Add clickable links to `-Ss` output c496199
+- Add `--rootchrootpkgs` to customize chroot base packages 9405aee
+- Add pkgbuild repos support to `-G` 909ced8
+- Add pkgbuild pkgs to completion 6923758
+- Add pkgbuild repos to `-Sl` commpletion 46e39bb
+
+### Removed
+
+- Remove `-cc` option 6a2e9a1
+
+### Changed
+
+- The `-i` flag is stipped from `-Qu` operations 09f6c46
+- Dependency versioning respoected in `-c` 6a2e9a1
+- The `-B` flag ignores conflicts with installed package 7799203
+- Signed packages are signed even when a signature already exists b14b41a
+
+### Fixed
+
+- Fix typos 133d942 ce29924 c896e38 3191475 3499257 3191475
+- Fix broken std{in,out} redirection d1dfbc4
+- Fix aur package list no longer being transparently decoded 5be0cfa
+
+### Localization
+
+- Update cz locale 3987dbb
+- Update fr local 0b1a0b3
+- Update hu locale d1bae87 f2db29c f62e4f0
+- Update kr locale 380661e
+- Update pt_BR locale fe4f2b9 5651452 16cfad6
+- Update pt locale 6a3e8cd 2ed9553
+- Update sv locale bebdc75 ee2bbdf
+- Update uk locale 2db4722
+- Update zh_TW locale c8b3493
+
 ## Paru v2.1.0 (2025-07-08)
 
 ### Added
@@ -617,7 +656,7 @@ Rebuild for openssl 3
 - Fix typos #225 #245
 - Create cache dir before caching aur list f18a901
 - Make -Ta return 127 when not all packages are in AUR b91d7ee
- 
+
 ### Added
 
 - Add pager option ca9bfea
@@ -630,7 +669,7 @@ Rebuild for openssl 3
 
 - Show all files in review 9830c74
 - Skip review prompt when nothing to review 2a5e441
-- Improve local repo documentation 
+- Improve local repo documentation
 
 
 ## Paru v1.2.2 (2021-02-03)
@@ -773,7 +812,7 @@ Rebuild for openssl 3
 
 ### Fixed
 
-- Fix `-Ss` not supporting `--bottomup`/`--topdown` #31 
+- Fix `-Ss` not supporting `--bottomup`/`--topdown` #31
 - Fix typos and wording #30 #32 #36 #40 #46 91e8009
 - Fix `-G` using lcoaldb instead of syncdb d34d3b0
 - Fix warnings not printing when there are no upgrades 4b14b50
