@@ -836,7 +836,8 @@ then initialise it with:
         }
 
         if self.chroot {
-            remove_var("PKGEXT");
+            // TODO: Audit that the environment access only happens in single-threaded code.
+            unsafe { remove_var("PKGEXT") };
         }
 
         Ok(())
@@ -995,7 +996,8 @@ then initialise it with:
         );
 
         self.env.push((key.to_owned(), value.to_string()));
-        set_var(key, value);
+        // TODO: Audit that the environment access only happens in single-threaded code.
+        unsafe { set_var(key, value) };
         Ok(())
     }
 

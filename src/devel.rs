@@ -297,15 +297,15 @@ async fn ls_remote(
     let future = ls_remote_internal(git, flags, remote, branch);
     let future = timeout(time, future);
 
-    if let Ok(v) = future.await {
+    match future.await { Ok(v) => {
         v
-    } else {
+    } _ => {
         print_error(
             style,
             anyhow!("timed out looking for devel update: {}", remote),
         );
         bail!("")
-    }
+    }}
 }
 
 fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
