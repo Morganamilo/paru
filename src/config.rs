@@ -409,6 +409,8 @@ pub struct Config {
     pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
+    pub proxy: Option<String>,
+    pub no_proxy: Option<String>,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub state_dir: PathBuf,
@@ -728,10 +730,20 @@ impl Config {
             use std::time::Duration;
 
             let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
-            let client = reqwest::Client::builder()
+            let mut builder = reqwest::Client::builder()
                 .tcp_keepalive(Duration::new(15, 0))
-                .user_agent(format!("paru/{}", ver))
-                .build()?;
+                .user_agent(format!("paru/{}", ver));
+
+            if let Some(ref proxy_url) = self.proxy {
+                let mut proxy = reqwest::Proxy::all(proxy_url)
+                    .with_context(|| format!("invalid proxy URL: {}", proxy_url))?;
+                if let Some(ref no_proxy) = self.no_proxy {
+                    proxy = proxy.no_proxy(reqwest::NoProxy::from_string(no_proxy));
+                }
+                builder = builder.proxy(proxy);
+            }
+
+            let client = builder.build()?;
 
             let rpc_url = match &self.aur_rpc_url {
                 Some(rpc) => rpc.to_string(),
@@ -1108,6 +1120,8 @@ then initialise it with:
             }
             "AurUrl" => self.aur_url = value?.parse()?,
             "AurRpcUrl" => self.aur_rpc_url = Some(value?.parse()?),
+            "Proxy" => self.proxy = Some(value?.to_string()),
+            "NoProxy" => self.no_proxy = Some(value?.to_string()),
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
             "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
             "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,

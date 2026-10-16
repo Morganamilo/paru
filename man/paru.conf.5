@@ -8,7 +8,7 @@ paru.conf \- paru configuration file
 $PARU_CONF, $XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf, /etc/paru.conf
 
 .SH DESCRIPTION
-Paru's config file. Based on the format used by 
+Paru's config file. Based on the format used by
 .BR pacman.conf (5)
 
 Paru first attempts to read the file at $PARU_CONF. If $PARU_CONF is not
@@ -178,7 +178,7 @@ during builds allowing an option to be chosen then.
 .TP
 .B UpgradeMenu
 Show a detailed list of updates in a similar format to pacman's VerbosePkgLists
-option. (See 
+option. (See
 .BR pacman.conf(5)).
 Upgrades can be skipped using numbers, number ranges, or repo
 names.
@@ -197,6 +197,28 @@ Set an alternative AUR URL.
 Set an alternative URL for the AUR /rpc endpoint.
 
 .TP
+.B Proxy = URL
+Set an explicit proxy URL for paru's HTTP requests to the AUR (RPC queries,
+package lists, PKGBUILDs). Supports http://, https://, and socks5:// schemes.
+.sp
+Paru automatically respects the standard proxy environment variables
+(HTTP_PROXY, HTTPS_PROXY, ALL_PROXY, NO_PROXY). This option is only needed if
+you want to override the environment or use a different proxy specifically
+for AUR requests.
+.sp
+This does \fBnot\fR affect git operations (cloning/fetching AUR repos) or
+pacman downloads. Git and pacman also respect standard proxy environment
+variables. For git-specific configuration, use \fBgit config --global
+http.proxy\fR.
+
+.TP
+.B NoProxy = hosts
+Comma-separated list of hosts to bypass the proxy. Only applies when Proxy is
+set. Supports IP addresses, CIDR notation (e.g., 192.168.1.0/24), domain names,
+and wildcards.
+Example: localhost,127.0.0.1,.local
+
+.TP
 .B CloneDir = /path/to/dir
 Directory used to download and run PKGBUILDs.
 
@@ -208,7 +230,7 @@ visible here: https://aur.archlinux.org/packages/
 
 .TP
 .B SearchBy = <name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
-Defaults to name-desc. Search AUR packages according to the options in 
+Defaults to name-desc. Search AUR packages according to the options in
 "Search by" visible here: https://aur.archlinux.org/packages/
 
 .TP
