@@ -8,7 +8,7 @@ paru.conf \- paru configuration file
 $PARU_CONF, $XDG_CONFIG_HOME/paru/paru.conf, $HOME/.config/paru/paru.conf, /etc/paru.conf
 
 .SH DESCRIPTION
-Paru's config file. Based on the format used by 
+Paru's config file. Based on the format used by
 .BR pacman.conf (5)
 
 Paru first attempts to read the file at $PARU_CONF. If $PARU_CONF is not
@@ -178,7 +178,7 @@ during builds allowing an option to be chosen then.
 .TP
 .B UpgradeMenu
 Show a detailed list of updates in a similar format to pacman's VerbosePkgLists
-option. (See 
+option. (See
 .BR pacman.conf(5)).
 Upgrades can be skipped using numbers, number ranges, or repo
 names.
@@ -208,7 +208,7 @@ visible here: https://aur.archlinux.org/packages/
 
 .TP
 .B SearchBy = <name|name-desc|maintainer|depends|checkdepends|makedepends|optdepends>
-Defaults to name-desc. Search AUR packages according to the options in 
+Defaults to name-desc. Search AUR packages according to the options in
 "Search by" visible here: https://aur.archlinux.org/packages/
 
 .TP
@@ -450,3 +450,87 @@ Skip review for this repository.
 .B GenerateSrcinfo
 Force regeneration of the .SRCINFO file even if it exists on disk. This is useful for
 repositories that forget to update their .SRCINFO files.
+
+.SH PER-PACKAGE BUILD OVERRIDES
+Per-package build overrides allow customizing build settings for specific packages.
+There are two types of override sections: package overrides and group overrides.
+
+Package overrides always take precedence over group overrides. When multiple group
+overrides apply to the same package, later groups in the config file merge over
+earlier ones, with conflicting keys being overwritten.
+
+.SS PACKAGE OVERRIDES
+
+A package override section targets a single package by name:
+
+.RS
+\fB[override.package.\fR\fIpkgname\fR\fB]\fR
+.RE
+
+.TP
+.B MakepkgConf = /path/to/makepkg.conf
+Use a different makepkg.conf for building this package. This overrides the global
+MakepkgConf option for this package only.
+
+.TP
+.B Overrides = { KEY = value, KEY2 = "value2" }
+Set environment variables for building this package. Values may optionally be
+quoted with double quotes. Multiple key-value pairs are separated by commas.
+
+.TP
+.B PkgbuildPatches = { https://url-patch.patch, /local/patch.patch }
+List patches for the PKGBUILD to apply to the PKGBUILD before building this
+package. You may for example add patches to the source of PKGBUILD by adding them
+locally then generating a PKGBUILD patch.
+
+.SS GROUP OVERRIDES
+
+A group override section applies the same settings to multiple packages:
+
+.RS
+\fB[override.group.\fR\fIgroupname\fR\fB]\fR
+.RE
+
+.TP
+.B Packages = pkg1 pkg2 pkg3
+Space-separated list of package names this group applies to. This directive is
+required for group overrides.
+
+.TP
+.B MakepkgConf = /path/to/makepkg.conf
+Same as the package override equivalent.
+
+.TP
+.B Overrides = { KEY = value, KEY2 = "value2" }
+Same as the package override equivalent.
+
+.SS EXAMPLES
+
+Use a custom makepkg.conf for a specific package:
+
+.RS
+.nf
+[override.package.firefox]
+MakepkgConf = /etc/makepkg-pgo.conf
+.fi
+.RE
+
+Set custom compiler flags for a group of packages:
+
+.RS
+.nf
+[override.group.lto-builds]
+Packages = mesa vulkan-radeon
+MakepkgConf = /etc/makepkg-lto.conf
+Overrides = { MAKEFLAGS = "-j$(nproc)", CFLAGS = "-O3 -march=native" }
+.fi
+.RE
+
+Override environment variables for a single package:
+
+.RS
+.nf
+[override.package.linux-zen]
+Overrides = { MAKEFLAGS = "-j4", CARGO_BUILD_JOBS = "4" }
+.fi
+.RE
