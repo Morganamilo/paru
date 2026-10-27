@@ -173,6 +173,8 @@ impl Config {
             Arg::Long("version") | Arg::Short('V') => self.version = true,
             Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
             Arg::Long("aurrpcurl") => self.aur_rpc_url = Some(Url::parse(value?)?),
+            Arg::Long("proxy") => self.proxy = Some(value?.to_string()),
+            Arg::Long("noproxy") => self.no_proxy = Some(value?.to_string()),
             Arg::Long("makepkg") => self.makepkg_bin = value?.to_string(),
             Arg::Long("pacman") => self.pacman_bin = value?.to_string(),
             Arg::Long("pacman-conf") => self.pacman_conf_bin = Some(value?.to_string()),
@@ -395,6 +397,8 @@ fn takes_value(arg: Arg) -> TakesValue {
     match arg {
         Arg::Long("aururl") => TakesValue::Required,
         Arg::Long("aurrpcurl") => TakesValue::Required,
+        Arg::Long("proxy") => TakesValue::Required,
+        Arg::Long("noproxy") => TakesValue::Required,
         Arg::Long("editor") => TakesValue::Required,
         Arg::Long("makepkg") => TakesValue::Required,
         Arg::Long("pacman") => TakesValue::Required,

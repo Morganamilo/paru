@@ -12,7 +12,6 @@ use flate2::read::GzDecoder;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
 use regex::RegexSet;
-use reqwest::get;
 use srcinfo::Srcinfo;
 use tr::tr;
 
@@ -167,7 +166,10 @@ async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec
 
 async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
     let url = config.aur_url.join("packages.gz")?;
-    let resp = get(url.clone())
+    let client = config.raur.client();
+    let resp = client
+        .get(url.clone())
+        .send()
         .await
         .with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
