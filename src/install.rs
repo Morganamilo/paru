@@ -1,4 +1,3 @@
-use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
@@ -192,17 +191,12 @@ impl Installer {
         download::new_aur_pkgbuilds(config, bases, &self.srcinfos).await?;
 
         for base in &bases.bases {
-            if self.srcinfos.contains_key(base.package_base()) {
-                continue;
-            }
             let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
             if path.exists() {
-                if let Entry::Vacant(vacant) = self.srcinfos.entry(base.package_base().to_string())
-                {
-                    let srcinfo = Srcinfo::from_path(path)
-                        .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
-                    vacant.insert(srcinfo);
-                }
+                let srcinfo = Srcinfo::from_path(path)
+                    .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
+                self.srcinfos
+                    .insert(base.package_base().to_string(), srcinfo);
             } else {
                 bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
             }
@@ -2385,5 +2379,201 @@ mod release_age_tests {
         recheck_release_age(&config, std::iter::once(&expected))
             .await
             .unwrap();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::os::unix::fs::PermissionsExt;
+    use tempfile::TempDir;
+
+    const OLD_SRCINFO: &str = "pkgbase = devel
+        pkgver = 0
+        pkgrel = 1
+        arch = armv7h
+        source = git+@SOURCE@/.git
+        validpgpkeys = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+    pkgname = devel
+    ";
+    const NEW_SRCINFO: &str = "pkgbase = devel
+        pkgver = 1
+        pkgrel = 1
+        arch = x86_64
+        source = git+@SOURCE@
+        validpgpkeys = BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+    pkgname = devel
+    ";
+
+    fn git(dir: &Path, args: &[&str]) {
+        let output = Command::new("git")
+            .args([
+                "-c",
+                "core.hooksPath=/dev/null",
+                "-c",
+                "init.templateDir=",
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "user.name=Test",
+                "-c",
+                "user.email=test@example.invalid",
+            ])
+            .args(args)
+            .current_dir(dir)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{:?}", output);
+    }
+
+    fn fixture(old: Option<&str>, new: &str) -> (TempDir, Config, Bases) {
+        let tmp = tempfile::tempdir().unwrap();
+        let origin = tmp.path().join("devel");
+        fs::create_dir(&origin).unwrap();
+        git(&origin, &["init", "--initial-branch=master"]);
+
+        let mut config = Config::default();
+        config.fetch = aur_fetch::Fetch::with_cache_dir(tmp.path().join("cache"));
+        config.build_dir = config.fetch.clone_dir.clone();
+        let git_bin = tmp.path().join("git");
+        fs::write(
+            &git_bin,
+            r#"#!/bin/sh
+export GIT_ALLOW_PROTOCOL=file
+exec git -c core.hooksPath=/dev/null -c init.templateDir= -c "url.file://$(dirname "$0")/.insteadOf=https://aur.archlinux.org/" "$@"
+"#,
+        )
+        .unwrap();
+        fs::set_permissions(&git_bin, fs::Permissions::from_mode(0o755)).unwrap();
+        config.fetch.git = git_bin;
+        fs::write(origin.join("PKGBUILD"), "pkgname=devel\n").unwrap();
+
+        let source = url::Url::from_file_path(&origin).unwrap();
+        if let Some(old) = old {
+            fs::write(
+                origin.join(".SRCINFO"),
+                old.replace("@SOURCE@", source.as_str()),
+            )
+            .unwrap();
+            git(&origin, &["add", "."]);
+            git(&origin, &["commit", "-m", "Initial metadata"]);
+            config.fetch.download(&["devel"]).unwrap();
+        }
+
+        fs::write(
+            origin.join(".SRCINFO"),
+            new.replace("@SOURCE@", source.as_str()),
+        )
+        .unwrap();
+        git(&origin, &["add", "."]);
+        git(&origin, &["commit", "-m", "Updated metadata"]);
+
+        let bases = std::iter::once(raur::ArcPackage::new(raur::Package {
+            name: "devel".into(),
+            package_base: "devel".into(),
+            version: "1-1".into(),
+            ..Default::default()
+        }))
+        .collect();
+        (tmp, config, bases)
+    }
+
+    #[tokio::test]
+    async fn download_pkgbuilds_refreshes_srcinfo() {
+        let without_key = OLD_SRCINFO.replace(
+            "        validpgpkeys = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n",
+            "",
+        );
+        for old in [None, Some(without_key.as_str()), Some(OLD_SRCINFO)] {
+            let (tmp, config, bases) = fixture(old, NEW_SRCINFO);
+            let mut installer = Installer::new(&config);
+            installer.download_pkgbuilds(&config, &bases).await.unwrap();
+
+            let expected = Srcinfo::from_path(tmp.path().join("devel/.SRCINFO")).unwrap();
+            assert_eq!(installer.srcinfos["devel"], expected);
+            assert_eq!(
+                installer.srcinfos["devel"].base.valid_pgp_keys,
+                ["BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"]
+            );
+
+            fs::remove_dir_all(tmp.path().join("devel")).unwrap();
+            installer.download_pkgbuilds(&config, &bases).await.unwrap();
+            assert_eq!(installer.srcinfos["devel"], expected);
+        }
+    }
+
+    #[tokio::test]
+    async fn download_pkgbuilds_rejects_invalid_updated_srcinfo() {
+        let (_tmp, config, bases) = fixture(Some(OLD_SRCINFO), "invalid srcinfo\n");
+        let mut installer = Installer::new(&config);
+        let error = installer
+            .download_pkgbuilds(&config, &bases)
+            .await
+            .unwrap_err();
+        assert!(error.downcast_ref::<srcinfo::Error>().is_some());
+    }
+
+    #[tokio::test]
+    async fn download_pkgbuilds_rejects_missing_updated_srcinfo() {
+        let (tmp, config, bases) = fixture(Some(OLD_SRCINFO), NEW_SRCINFO);
+        let origin = tmp.path().join("devel");
+        git(&origin, &["rm", ".SRCINFO"]);
+        git(&origin, &["commit", "-m", "Remove metadata"]);
+        let mut installer = Installer::new(&config);
+        let error = installer
+            .download_pkgbuilds(&config, &bases)
+            .await
+            .unwrap_err();
+        assert!(!config.build_dir.join("devel/.SRCINFO").exists());
+        assert!(error.downcast_ref::<String>().is_some());
+    }
+
+    #[cfg(feature = "mock")]
+    fn gendb_config(tmp: &TempDir, config: &mut Config) {
+        let local = tmp.path().join("db/local");
+        fs::create_dir_all(local.join("devel-0-1")).unwrap();
+        fs::write(local.join("ALPM_DB_VERSION"), "9\n").unwrap();
+        fs::write(
+            local.join("devel-0-1/desc"),
+            "%NAME%\ndevel\n\n%VERSION%\n0-1\n\n%BASE%\ndevel\n\n%ARCH%\nx86_64\n\n",
+        )
+        .unwrap();
+        config.pacman.root_dir = "/".into();
+        config.pacman.db_path = tmp.path().join("db").to_str().unwrap().into();
+        config.pacman.architecture = vec!["x86_64".into()];
+        config.init_alpm().unwrap();
+        config.state_dir = tmp.path().join("state");
+        config.devel_path = config.state_dir.join("devel.toml");
+        config.raur = Some(crate::mock::Mock::new().unwrap());
+    }
+
+    #[cfg(feature = "mock")]
+    #[tokio::test]
+    async fn gendb_refreshes_srcinfo() {
+        for old in [None, Some(OLD_SRCINFO), Some("invalid srcinfo\n")] {
+            let (tmp, mut config, _) = fixture(old, NEW_SRCINFO);
+            gendb_config(&tmp, &mut config);
+            crate::devel::gendb(&mut config).await.unwrap();
+
+            let devel = load_devel_info(&config).unwrap().unwrap();
+            let repos = &devel.info["devel"].repos;
+            assert_eq!(repos.len(), 1);
+            let source = url::Url::from_file_path(tmp.path().join("devel")).unwrap();
+            assert_eq!(repos.iter().next().unwrap().url, source.as_str());
+        }
+    }
+
+    #[cfg(feature = "mock")]
+    #[tokio::test]
+    async fn gendb_discards_stale_srcinfo_when_update_is_invalid() {
+        let (tmp, mut config, _) = fixture(Some(OLD_SRCINFO), "invalid srcinfo\n");
+        gendb_config(&tmp, &mut config);
+        crate::devel::gendb(&mut config).await.unwrap();
+
+        let devel = load_devel_info(&config).unwrap().unwrap();
+        assert!(devel.info.is_empty());
     }
 }
