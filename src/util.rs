@@ -114,6 +114,17 @@ pub fn split_repo_aur_info<'a, T: AsTarg>(
     Ok((local, aur))
 }
 
+pub(crate) fn read_line_or_exit(input: &mut String) {
+    let stdin = stdin();
+    match stdin.lock().read_line(input) {
+        Ok(0) | Err(_) => {
+            println!();
+            std::process::exit(1);
+        }
+        Ok(_) => {}
+    }
+}
+
 pub fn ask(config: &Config, question: &str, default: bool) -> bool {
     let action = config.color.action;
     let bold = config.color.bold;
@@ -133,9 +144,8 @@ pub fn ask(config: &Config, question: &str, default: bool) -> bool {
         println!();
         return default;
     }
-    let stdin = stdin();
     let mut input = String::new();
-    let _ = stdin.read_line(&mut input);
+    read_line_or_exit(&mut input);
     let input = input.to_lowercase();
     let input = input.trim();
 
@@ -158,9 +168,8 @@ pub fn input(config: &Config, question: &str) -> String {
         println!();
         return "".into();
     }
-    let stdin = stdin();
     let mut input = String::new();
-    let _ = stdin.read_line(&mut input);
+    read_line_or_exit(&mut input);
     input
 }
 
@@ -302,9 +311,7 @@ pub fn get_provider(max: usize, no_confirm: bool) -> usize {
         input.clear();
 
         if !no_confirm {
-            let stdin = stdin();
-            let mut stdin = stdin.lock();
-            let _ = stdin.read_line(&mut input);
+            read_line_or_exit(&mut input);
         }
 
         let num = input.trim();
