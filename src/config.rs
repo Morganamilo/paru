@@ -409,6 +409,7 @@ pub struct Config {
     pub aur_rpc_url: Option<Url>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
+    pub news_url: Option<Url>,
     pub build_dir: PathBuf,
     pub cache_dir: PathBuf,
     pub state_dir: PathBuf,
@@ -1062,6 +1063,12 @@ then initialise it with:
             "SaveChanges" => self.save_changes = true,
             "NewsOnUpgrade" => self.news_on_upgrade = true,
             "InstallDebug" => self.install_debug = true,
+            "NewsUrl" => {
+                self.news_url = Some(value.ok_or_else(|| anyhow!(tr!(
+                    "value can not be empty for key '{}'",
+                    key
+                )))?.parse()?)
+            }
             "Redownload" => self.redownload = YesNoAll::Yes.default_or(key, value)?,
             "Rebuild" => self.rebuild = YesNoAllTree::Yes.default_or(key, value)?,
             "RemoveMake" => self.remove_make = YesNoAsk::Yes.default_or(key, value)?,
