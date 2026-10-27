@@ -530,6 +530,12 @@ checked almost instantly and not require the original PKGBUILD to be downloaded.
 The slower pacaur-like devel checks can be implemented manually by piping
 a list of packages into paru (see \fBexamples\fR).
 
+Some packages track git sources whose HEAD moves often without changing the
+resulting package version. These will appear as devel updates on every run even
+when rebuilding produces an identical package. See \fBIgnoreDevel\fR and
+\fBIgnoreDevelSource\fR in \fBparu.conf\fR(5) to opt such packages or sources
+out of devel checking.
+
 .TP
 .B \-\-ignoredevel
 Like --ignore but for devel upgrades. Packages matching this will not be tried for a
