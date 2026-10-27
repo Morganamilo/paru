@@ -3,12 +3,14 @@ name: Paru
 on:
   push:
     paths:
+      - '.github/workflows/paru.yml'
       - 'src/*.rs'
       - 'testdata/**'
       - 'tests/**'
       - 'Cargo.*'
   pull_request:
     paths:
+      - '.github/workflows/paru.yml'
       - 'src/*.rs'
       - 'testdata/**'
       - 'tests/**'
@@ -40,7 +42,9 @@ jobs:
         run: cargo build --locked --features generate
 
       - name: Test
-        run: sudo -u nobody XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --nocapture
+        run: |
+          install -d -o nobody target/tmp testdata/pkg
+          sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --nocapture
 
   test-git:
     runs-on: ubuntu-latest
@@ -73,4 +77,6 @@ jobs:
         run: cargo build --locked --features git,generate
 
       - name: Test
-        run: sudo -u nobody XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --nocapture
+        run: |
+          install -d -o nobody target/tmp testdata/pkg
+          sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --nocapture
