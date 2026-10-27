@@ -306,3 +306,18 @@ async fn build_only_conflict_with_installed_pkg() {
     let (_, ret) = run(&["-B", "testdata/clone/devel-bin"]).await.unwrap();
     assert_eq!(ret, 0);
 }
+
+#[tokio::test]
+async fn build_only_installed_target_keeps_conflicts() {
+    let (tmp, ret) = run(&[
+        "-B",
+        "testdata/clone/devel",
+        "testdata/clone/devel-conflict-consumer",
+    ])
+    .await
+    .unwrap();
+    assert_ne!(ret, 0);
+    // The conflict must be caught before anything gets built
+    let pkgdest = tmp.path().join("cache/pkgdest");
+    assert_eq!(std::fs::read_dir(pkgdest).unwrap().count(), 0);
+}

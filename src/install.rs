@@ -1506,6 +1506,9 @@ fn check_actions(
             }
         }
 
+        // Installed copies of build-only targets stay installed, so their conflicts still matter
+        build_only_targets.retain(|pkg| config.alpm.localdb().pkg(pkg.as_str()).is_err());
+
         Some(build_only_targets)
     };
 
