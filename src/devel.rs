@@ -89,6 +89,12 @@ pub struct DevelInfo {
     pub info: HashMap<String, PkgInfo>,
 }
 
+#[derive(Default, Debug)]
+pub struct DevelUpgrades {
+    pub updates: Vec<String>,
+    pub ignored: Vec<String>,
+}
+
 fn ordered_map<S, T>(value: &HashMap<String, T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -342,11 +348,12 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
     Some((remote, protocol, branch))
 }
 
-pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
+pub async fn possible_devel_updates(config: &Config) -> Result<DevelUpgrades> {
     let devel_info = load_devel_info(config)?.unwrap_or_default();
     let db = config.alpm.localdb();
     let mut futures = Vec::new();
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
+    let mut ignored: Vec<String> = Vec::new();
 
     for pkg in db.pkgs().iter() {
         let name = pkg_base_or_name(pkg);
@@ -355,11 +362,10 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
 
     'outer: for (pkg, repos) in &devel_info.info {
         if let Some(pkgs) = pkgbases.get(pkg.as_str()) {
-            if pkgs.iter().all(|p| p.should_ignore()) {
-                continue;
-            }
-
-            if pkgs.iter().all(|p| config.ignore_devel.is_match(p.name())) {
+            if pkgs.iter().all(|p| p.should_ignore())
+                || pkgs.iter().all(|p| config.ignore_devel.is_match(p.name()))
+            {
+                ignored.extend(pkgs.iter().map(|p| p.name().to_string()));
                 continue;
             }
         }
@@ -388,14 +394,14 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
     updates.sort_unstable();
     updates.dedup();
 
-    Ok(updates)
+    Ok(DevelUpgrades { updates, ignored })
 }
 
 pub async fn filter_devel_updates(
     config: &Config,
     cache: &mut Cache,
     updates: &[String],
-) -> Result<Vec<Target>> {
+) -> Result<(Vec<Target>, Vec<String>)> {
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
     let mut aur = Vec::new();
     let mut custom = Vec::new();
@@ -428,24 +434,29 @@ pub async fn filter_devel_updates(
         .collect::<Vec<_>>();
 
     let mut updates = Vec::new();
+    let mut ignored: Vec<String> = Vec::new();
 
     if config.mode.aur() {
-        let aur = aur
-            .iter()
-            .flatten()
-            .filter(|p| !p.should_ignore())
-            .filter(|p| !config.ignore_devel.is_match(p.name()))
-            .map(|p| p.name().to_string())
-            .filter(|p| cache.contains(p.as_str()))
-            .map(|p| Target::new(Some(config.aur_namespace().to_string()), p));
-
-        updates.extend(aur);
+        for p in aur.iter().flatten() {
+            let name = p.name();
+            if !cache.contains(name) {
+                continue;
+            }
+            if p.should_ignore() || config.ignore_devel.is_match(name) {
+                ignored.push(name.to_string());
+            } else {
+                updates.push(Target::new(
+                    Some(config.aur_namespace().to_string()),
+                    name.to_string(),
+                ));
+            }
+        }
     }
     if config.mode.pkgbuild() {
         updates.extend(custom);
     }
 
-    Ok(updates)
+    Ok((updates, ignored))
 }
 
 pub async fn pkg_has_update<'pkg>(

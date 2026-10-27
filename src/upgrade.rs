@@ -1,5 +1,5 @@
 use crate::config::{Config, LocalRepos};
-use crate::devel::{filter_devel_updates, possible_devel_updates};
+use crate::devel::{filter_devel_updates, possible_devel_updates, DevelUpgrades};
 use crate::fmt::color_repo;
 use crate::util::{input, NumberMenu};
 use crate::{repo, RaurHandle};
@@ -152,9 +152,9 @@ async fn get_resolver_upgrades<'a, 'b>(
     }
 }
 
-async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
+async fn get_devel_upgrades(config: &Config, print: bool) -> Result<DevelUpgrades> {
     if !config.devel || (!config.mode.aur() && !config.mode.pkgbuild()) {
-        return Ok(Vec::new());
+        return Ok(DevelUpgrades::default());
     }
 
     let c = config.color;
@@ -173,7 +173,7 @@ pub async fn net_upgrades<'res>(
     config: &'_ Config,
     resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
-) -> Result<(Updates<'res>, Vec<String>)> {
+) -> Result<(Updates<'res>, DevelUpgrades)> {
     try_join!(
         get_resolver_upgrades(config, resolver, print),
         get_devel_upgrades(config, print)
@@ -184,7 +184,7 @@ pub async fn get_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
 ) -> Result<Upgrades> {
-    let (upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
+    let (upgrades, devel) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
 
     for pkg in upgrades.aur_ignored {
@@ -215,8 +215,30 @@ pub async fn get_upgrades<'a, 'b>(
 
     let mut aur_upgrades = upgrades.aur_updates;
     let pkgbuild_upgrades = upgrades.pkgbuild_updates;
-    let mut devel_upgrades =
-        filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
+    let (mut devel_upgrades, devel_extra_ignored) =
+        filter_devel_updates(config, resolver.get_cache_mut(), &devel.updates).await?;
+
+    let mut devel_ignored = devel.ignored;
+    devel_ignored.extend(devel_extra_ignored);
+    devel_ignored.sort_unstable();
+    devel_ignored.dedup();
+
+    let localdb = config.alpm.localdb();
+    for name in &devel_ignored {
+        let Ok(pkg) = localdb.pkg(name.as_str()) else {
+            continue;
+        };
+        eprintln!(
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
+            tr!(
+                "{pkg}: ignoring package upgrade ({old} => {new})",
+                pkg = name.as_str(),
+                old = pkg.version(),
+                new = "latest-commit",
+            )
+        );
+    }
 
     let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?
