@@ -1658,7 +1658,8 @@ fn print_dir(
             );
             if bat {
                 let mut cmd = Command::new(&config.bat_bin);
-                cmd.arg("-pp")
+                cmd.arg("--paging=never")
+                    .arg("--style=plain")
                     .arg("--color=always")
                     .arg(file.path())
                     .args(&config.bat_flags);
