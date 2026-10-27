@@ -89,6 +89,9 @@ pub fn resolver<'a, 'b>(
 
             for group in groups {
                 if group.db.name() != repo {
+                    if !repo.is_empty() {
+                        println!();
+                    }
                     repo = group.db.name().to_string();
                     println!(
                         "{} {} {}",
