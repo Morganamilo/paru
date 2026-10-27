@@ -49,7 +49,8 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
     if let Ok(mut file) = OpenOptions::new().read(true).open(&path) {
         let mut buf = vec![0; 1024];
         if let Ok(n) = file.read(&mut buf) {
-            if buf[0..n].contains(&b'\0') {
+            let corrupt = buf[0..n].iter().any(|&b| b < 32 && b != b'\n');
+            if corrupt {
                 let _ = std::fs::remove_file(&path);
                 let _ = remove_file(&path);
                 save_aur_list(aur_url, cache_dir).await?;
