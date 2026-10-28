@@ -93,6 +93,7 @@ pub fn help() {
     printtr!("    --ignoredevel          Ignore devel upgrades for specified packages");
     printtr!("    --bottomup             Shows AUR's packages first and then repository's");
     printtr!("    --topdown              Shows repository's packages first and then AUR's");
+    printtr!("    --auto                 Use bottom-up ordering for menus, top-down otherwise");
     println!();
     printtr!("show specific options:");
     printtr!("    -c --complete         Used for completions");

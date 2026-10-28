@@ -281,13 +281,28 @@ impl ConfigEnum for raur::SearchBy {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortMode {
+    Auto,
     BottomUp,
     TopDown,
 }
 
 impl ConfigEnum for SortMode {
-    const VALUE_LOOKUP: ConfigEnumValues<Self> =
-        &[("bottomup", Self::BottomUp), ("topdown", Self::TopDown)];
+    const VALUE_LOOKUP: ConfigEnumValues<Self> = &[
+        ("auto", Self::Auto),
+        ("bottomup", Self::BottomUp),
+        ("topdown", Self::TopDown),
+    ];
+}
+
+impl SortMode {
+    pub fn is_top_down(self, interactive: bool) -> bool {
+        match (self, interactive) {
+            (SortMode::TopDown, _) => true,
+            (SortMode::BottomUp, _) => false,
+            (SortMode::Auto, true) => false,
+            (SortMode::Auto, false) => true,
+        }
+    }
 }
 
 bitflags! {
@@ -431,7 +446,7 @@ pub struct Config {
     #[default(raur::SearchBy::NameDesc)]
     pub search_by: raur::SearchBy,
     pub limit: usize,
-    #[default(SortMode::TopDown)]
+    #[default(SortMode::Auto)]
     pub sort_mode: SortMode,
     #[default(Mode::empty())]
     pub mode: Mode,
@@ -1041,6 +1056,8 @@ then initialise it with:
         match key {
             "SkipReview" => self.skip_review = true,
             "BottomUp" => self.sort_mode = SortMode::BottomUp,
+            "TopDown" => self.sort_mode = SortMode::TopDown,
+            "Auto" => self.sort_mode = SortMode::Auto,
             "AurOnly" => self.mode = Mode::AUR,
             "PkgbuildsOnly" => self.mode = Mode::PKGBUILD,
             "RepoOnly" => self.mode = Mode::REPO,
@@ -1239,5 +1256,47 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
         LogLevel::DEBUG if alpm_debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
+    }
+}
+
+#[cfg(test)]
+mod sort_tests {
+    use super::{Config, SortMode};
+
+    #[test]
+    fn sorting_options_override_config_in_command_line_order() {
+        let mut config = Config::default();
+        let mut op_count = 0;
+        let mut end_of_ops = false;
+        config.parse_option("BottomUp", None).unwrap();
+        assert!(!config.sort_mode.is_top_down(false));
+
+        for (arg, search_top_down, menu_top_down) in [
+            ("--topdown", true, true),
+            ("--bottomup", false, false),
+            ("--auto", true, false),
+        ] {
+            assert!(!config
+                .parse_arg(arg, None, &mut op_count, &mut end_of_ops)
+                .unwrap());
+            assert_eq!(config.sort_mode.is_top_down(false), search_top_down);
+            assert_eq!(config.sort_mode.is_top_down(true), menu_top_down);
+        }
+        assert_eq!(op_count, 0);
+        assert!(config
+            .parse_arg("--auto=topdown", None, &mut op_count, &mut end_of_ops)
+            .is_err());
+    }
+
+    #[test]
+    fn auto_config_restores_operation_dependent_ordering() {
+        let mut config = Config::default();
+        assert_eq!(config.sort_mode, SortMode::Auto);
+        config.parse_option("BottomUp", None).unwrap();
+        config.parse_option("Auto", None).unwrap();
+        assert!(config.sort_mode.is_top_down(false));
+        assert!(!config.sort_mode.is_top_down(true));
+        config.parse_option("TopDown", None).unwrap();
+        assert!(config.sort_mode.is_top_down(true));
     }
 }

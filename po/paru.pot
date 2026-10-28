@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2026-01-08 17:40+0000\n"
+"POT-Creation-Date: 2026-10-28 09:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,15 +58,15 @@ msgstr ""
 msgid "option {} expects a value"
 msgstr ""
 
-#: src/command_line.rs:165 src/command_line.rs:382
+#: src/command_line.rs:165 src/command_line.rs:383
 msgid "option {} does not allow a value"
 msgstr ""
 
-#: src/command_line.rs:373
+#: src/command_line.rs:374
 msgid "unknown option --{}"
 msgstr ""
 
-#: src/command_line.rs:376
+#: src/command_line.rs:377
 msgid "unknown option -{}"
 msgstr ""
 
@@ -86,91 +86,91 @@ msgstr ""
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr ""
 
-#: src/config.rs:332
+#: src/config.rs:347
 msgid "unknown mode {}"
 msgstr ""
 
-#: src/config.rs:564
+#: src/config.rs:579
 msgid "section can not be called {}"
 msgstr ""
 
-#: src/config.rs:581
+#: src/config.rs:596
 msgid "failed to find cache directory"
 msgstr ""
 
-#: src/config.rs:584
+#: src/config.rs:599
 msgid "failed to find config directory"
 msgstr ""
 
-#: src/config.rs:588
+#: src/config.rs:603
 msgid "failed to find state directory"
 msgstr ""
 
-#: src/config.rs:635
+#: src/config.rs:650
 msgid "config file '{}' does not exist"
 msgstr ""
 
-#: src/config.rs:684
+#: src/config.rs:699
 msgid "only one operation may be used at a time"
 msgstr ""
 
-#: src/config.rs:795
+#: src/config.rs:810
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:836
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr ""
 
-#: src/config.rs:866
+#: src/config.rs:881
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr ""
 
-#: src/config.rs:941 src/config.rs:1102
+#: src/config.rs:956 src/config.rs:1119
 msgid "value can not be empty for key '{}'"
 msgstr ""
 
-#: src/config.rs:957
+#: src/config.rs:972
 msgid "key '{}' does not belong to a section"
 msgstr ""
 
-#: src/config.rs:971 src/config.rs:988 src/config.rs:990 src/config.rs:1005
+#: src/config.rs:986 src/config.rs:1003 src/config.rs:1005 src/config.rs:1020
 msgid "key can not be empty"
 msgstr ""
 
-#: src/config.rs:981
+#: src/config.rs:996
 msgid "error: unknown option '{}' in repo"
 msgstr ""
 
-#: src/config.rs:991
+#: src/config.rs:1006
 msgid "key can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:994
+#: src/config.rs:1009
 msgid "value can not contain null bytes"
 msgstr ""
 
-#: src/config.rs:1030
+#: src/config.rs:1045
 msgid "error: unknown option '{}' in section [bin]"
 msgstr ""
 
-#: src/config.rs:1150
+#: src/config.rs:1167
 msgid "error: unknown option '{}' in section [options]"
 msgstr ""
 
-#: src/config.rs:1155
+#: src/config.rs:1172
 msgid "option '{}' does not take a value"
 msgstr ""
 
-#: src/config.rs:1187 src/resolver.rs:136
+#: src/config.rs:1204 src/resolver.rs:135
 msgid "There are {n} providers available for {pkg}:"
 msgstr ""
 
-#: src/config.rs:1201 src/info.rs:85 src/info.rs:190 src/info.rs:224 src/resolver.rs:95 src/resolver.rs:144
+#: src/config.rs:1218 src/info.rs:85 src/info.rs:190 src/info.rs:224 src/resolver.rs:99 src/resolver.rs:143
 msgid "Repository"
 msgstr ""
 
-#: src/config.rs:1227
+#: src/config.rs:1244
 msgid "  failed to sync {}"
 msgstr ""
 
@@ -206,15 +206,15 @@ msgstr ""
 msgid "failed to rename '{temp}' to '{devel_toml}"
 msgstr ""
 
-#: src/devel.rs:490
+#: src/devel.rs:491
 msgid "package does not have an update"
 msgstr ""
 
-#: src/devel.rs:536
+#: src/devel.rs:537
 msgid "failed to lookup: {}"
 msgstr ""
 
-#: src/devel.rs:564
+#: src/devel.rs:565
 msgid "invalid toml: {}"
 msgstr ""
 
@@ -626,43 +626,47 @@ msgstr ""
 msgid "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
 
-#: src/help.rs:97
-msgid "show specific options:"
+#: src/help.rs:96
+msgid "    --auto                 Use bottom-up ordering for menus, top-down otherwise"
 msgstr ""
 
 #: src/help.rs:98
-msgid "    -c --complete         Used for completions"
+msgid "show specific options:"
 msgstr ""
 
 #: src/help.rs:99
-msgid "    -s --stats            Display system package statistics"
+msgid "    -c --complete         Used for completions"
 msgstr ""
 
 #: src/help.rs:100
+msgid "    -s --stats            Display system package statistics"
+msgstr ""
+
+#: src/help.rs:101
 msgid "    -w --news             Print arch news"
 msgstr ""
 
-#: src/help.rs:102
+#: src/help.rs:103
 msgid "getpkgbuild specific options:"
 msgstr ""
 
-#: src/help.rs:103
+#: src/help.rs:104
 msgid "    -p --print            Print pkgbuild to stdout"
 msgstr ""
 
-#: src/help.rs:104
+#: src/help.rs:105
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr ""
 
-#: src/help.rs:105
+#: src/help.rs:106
 msgid "    -s --ssh              Clone package using SSH"
 msgstr ""
 
-#: src/help.rs:107
+#: src/help.rs:108
 msgid "Build specific options:"
 msgstr ""
 
-#: src/help.rs:108
+#: src/help.rs:109
 msgid "    -i --install          Install package as well as building"
 msgstr ""
 
@@ -863,7 +867,7 @@ msgid "\n"
 "    {missing} (wanted by: {stack})"
 msgstr ""
 
-#: src/install.rs:1379 src/install.rs:2122
+#: src/install.rs:1379 src/install.rs:2124
 msgid "{}-{} is up to date -- skipping"
 msgstr ""
 
@@ -903,35 +907,35 @@ msgstr ""
 msgid "failed to read dir: {}"
 msgstr ""
 
-#: src/install.rs:1677
+#: src/install.rs:1678
 msgid "failed to open: {}"
 msgstr ""
 
-#: src/install.rs:1697
+#: src/install.rs:1698
 msgid "binary file: {}"
 msgstr ""
 
-#: src/install.rs:1719 src/install.rs:1790
+#: src/install.rs:1720 src/install.rs:1791
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1759
+#: src/install.rs:1760
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
-#: src/install.rs:1794
+#: src/install.rs:1795
 msgid " nothing new to review"
 msgstr ""
 
-#: src/install.rs:2070
+#: src/install.rs:2072
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:2142
+#: src/install.rs:2144
 msgid "Signing packages..."
 msgstr ""
 
-#: src/install.rs:2172
+#: src/install.rs:2174
 msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
@@ -1095,31 +1099,31 @@ msgstr ""
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr ""
 
-#: src/util.rs:121
+#: src/util.rs:132
 msgid "[Y/n]:"
 msgstr ""
 
-#: src/util.rs:123
+#: src/util.rs:134
 msgid "[y/N]:"
 msgstr ""
 
-#: src/util.rs:142
+#: src/util.rs:152
 msgid "y"
 msgstr ""
 
-#: src/util.rs:142
+#: src/util.rs:152
 msgid "yes"
 msgstr ""
 
-#: src/util.rs:300
+#: src/util.rs:309
 msgid "Enter a number (default=1): "
 msgstr ""
 
-#: src/util.rs:317
+#: src/util.rs:324
 msgid "invalid number: {}"
 msgstr ""
 
-#: src/util.rs:327
+#: src/util.rs:334
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
@@ -1127,7 +1131,7 @@ msgstr ""
 msgid "There are {} members in group"
 msgstr ""
 
-#: src/resolver.rs:108
+#: src/resolver.rs:111
 msgid "\n"
 "\n"
 "Enter a selection (default=all): "

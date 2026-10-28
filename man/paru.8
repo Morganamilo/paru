@@ -487,12 +487,16 @@ Don't remove makedepends after installing packages.
 
 .TP
 .B \-\-topdown
-Print search results from top to bottom. Repo packages will print first. This
-is the default.
+Print search results from top to bottom. Repo packages will print first.
 
 .TP
 .B \-\-bottomup
 Print search results from bottom to top. AUR packages will print first.
+
+.TP
+.B \-\-auto
+Use bottom-up ordering in interactive package selection menus and top-down
+ordering for ordinary search and list output. This is the default.
 
 .TP
 .B \-\-limit <limit>
