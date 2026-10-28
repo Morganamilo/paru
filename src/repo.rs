@@ -197,16 +197,15 @@ pub fn delete(config: &mut Config) -> Result<(), Error> {
                         file.path().as_os_str().as_bytes(),
                         false,
                         alpm::SigLevel::NONE,
-                    ) {
-                        if pkgs.contains(&pkg.name()) {
-                            rmfiles.push(file.path());
+                    ) && pkgs.contains(&pkg.name())
+                    {
+                        rmfiles.push(file.path());
 
-                            let mut sig = file.path().to_path_buf().into_os_string();
-                            sig.push(".sig");
-                            let sig = PathBuf::from(sig);
-                            if sig.exists() {
-                                rmfiles.push(sig);
-                            }
+                        let mut sig = file.path().to_path_buf().into_os_string();
+                        sig.push(".sig");
+                        let sig = PathBuf::from(sig);
+                        if sig.exists() {
+                            rmfiles.push(sig);
                         }
                     }
                 }

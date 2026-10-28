@@ -49,7 +49,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use ansiterm::Style;
-use anyhow::{bail, Error, Result};
+use anyhow::{Error, Result, bail};
 use cini::Ini;
 use fmt::print_target;
 
@@ -108,10 +108,17 @@ fn print_error(color: Style, err: Error) {
     eprintln!();
 }
 
-pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
-    tr_init!(env::var("LOCALE_DIR")
-        .as_deref()
-        .unwrap_or("/usr/share/locale/"));
+/// Prepares the process environment and returns the command future.
+///
+/// # Safety
+/// Call before starting other threads. Signal handlers must not access the environment
+/// or locale until this function returns.
+pub unsafe fn run<S: AsRef<str>>(args: &[S]) -> impl std::future::Future<Output = i32> {
+    tr_init!(
+        env::var("LOCALE_DIR")
+            .as_deref()
+            .unwrap_or("/usr/share/locale/")
+    );
     if debug_enabled() {
         let _ = env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)
@@ -132,39 +139,41 @@ pub async fn run<S: AsRef<str>>(args: &[S]) -> i32 {
     let _ = &*exec::DEFAULT_SIGNALS;
     let _ = &*exec::RAISE_SIGPIPE;
 
-    let mut config = match Config::new() {
-        Ok(config) => config,
-        Err(err) => {
-            let code = if let Some(&install::Status(e)) = err.downcast_ref() {
-                e
-            } else {
-                1
-            };
-            print_error(Style::new(), err);
-            return code;
-        }
-    };
+    let config = unsafe { init(args) };
 
-    match run2(&mut config, args).await {
-        Err(err) => {
-            let code = if let Some(&install::Status(e)) = err.downcast_ref() {
-                e
-            } else {
-                1
-            };
-            print_error(Style::new(), err);
-            code
+    async move {
+        let ret = match config {
+            Ok(mut config) => run2(&mut config).await,
+            Err(err) => Err(err),
+        };
+
+        match ret {
+            Err(err) => {
+                let code = if let Some(&install::Status(e)) = err.downcast_ref() {
+                    e
+                } else {
+                    1
+                };
+                print_error(Style::new(), err);
+                code
+            }
+            Ok(ret) => ret,
         }
-        Ok(ret) => ret,
     }
 }
 
-async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
+unsafe fn init<S: AsRef<str>>(args: &[S]) -> Result<Config> {
+    let mut config = Config::new()?;
+
     if let Some(ref config_path) = config.config_path {
         let file = read_to_string(config_path)?;
         let name = config_path.display().to_string();
         config.parse(Some(name.as_str()), &file)?;
     };
+
+    for (key, value) in &config.env {
+        unsafe { env::set_var(key, value) };
+    }
 
     if args.is_empty() {
         config.parse_args(["-Syu"])?;
@@ -172,6 +181,15 @@ async fn run2<S: AsRef<str>>(config: &mut Config, args: &[S]) -> Result<i32> {
         config.parse_args(args)?;
     }
 
+    if config.chroot {
+        unsafe { env::remove_var("PKGEXT") };
+    }
+
+    config.init()?;
+    Ok(config)
+}
+
+async fn run2(config: &mut Config) -> Result<i32> {
     let aur_url = if config.ssh {
         config
             .aur_url

@@ -290,13 +290,10 @@ fn repo<'a>(config: &'a Config, pkg: &str) -> &'a str {
         return "aur";
     }
 
-    let db = dbs
-        .iter()
+    dbs.iter()
         .find(|db| db.pkg(pkg).is_ok())
         .map(|db| db.name())
-        .unwrap_or_else(|| dbs.first().unwrap().name());
-
-    db
+        .unwrap_or_else(|| dbs.first().unwrap().name())
 }
 
 fn old_ver<'a>(config: &'a Config, pkg: &str) -> Option<&'a Ver> {
@@ -411,17 +408,17 @@ pub fn print_install_verbose(config: &Config, actions: &Actions, devel: &HashSet
     let old_len = old_len.max(aur_old_len);
     let new_len = new_len.max(aur_new_len);
 
-    if let Some(cols) = config.cols {
-        if package_len + 2 + old_len + 2 + new_len + 2 + make_len > cols {
-            eprintln!(
-                "{} {}",
-                c.warning.paint("::"),
-                tr!("insufficient columns available for table display")
-            );
+    if let Some(cols) = config.cols
+        && package_len + 2 + old_len + 2 + new_len + 2 + make_len > cols
+    {
+        eprintln!(
+            "{} {}",
+            c.warning.paint("::"),
+            tr!("insufficient columns available for table display")
+        );
 
-            print_install(config, actions, devel);
-            return;
-        }
+        print_install(config, actions, devel);
+        return;
     }
 
     if !actions.install.is_empty() {

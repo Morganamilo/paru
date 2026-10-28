@@ -73,16 +73,16 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
                 }
                 let local_pkg = db.pkg(target).unwrap();
 
-                if let Some((base, _pkg)) = config.pkgbuild_repos.pkg(config, target) {
-                    if alpm::Version::new(&*base.srcinfo.version()) > local_pkg.version() {
-                        print_upgrade(
-                            config,
-                            target,
-                            local_pkg.version().as_str(),
-                            &base.srcinfo.version(),
-                        );
-                        return false;
-                    }
+                if let Some((base, _pkg)) = config.pkgbuild_repos.pkg(config, target)
+                    && alpm::Version::new(&*base.srcinfo.version()) > local_pkg.version()
+                {
+                    print_upgrade(
+                        config,
+                        target,
+                        local_pkg.version().as_str(),
+                        &base.srcinfo.version(),
+                    );
+                    return false;
                 }
                 true
             });
@@ -99,7 +99,12 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
             }
 
             async fn aur_up(config: &Config, cache: &mut Cache, pkgs: &[&str]) -> Result<()> {
-                config.raur.cache_info(cache, pkgs).await?;
+                config
+                    .raur
+                    .as_ref()
+                    .unwrap()
+                    .cache_info(cache, pkgs)
+                    .await?;
                 Ok(())
             }
 

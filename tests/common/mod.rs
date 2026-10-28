@@ -72,7 +72,6 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     )?;
 
     let mut file = fs::OpenOptions::new()
-        .write(true)
         .append(true)
         .open(dir.join("pacman.conf"))?;
 
@@ -138,46 +137,59 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     path.push(':');
     path.push_str(testdata.join("bin").to_str().unwrap());
 
-    std::env::set_var("PACMAN", "true");
-    std::env::set_var("PACMAN_CONF", dir.join("pacman.conf"));
-    std::env::set_var("DBPATH", dir.join("db"));
-    std::env::set_var("PARU_CONF", testdata.join("paru.conf"));
-    std::env::set_var("PATH", path);
-
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_CHECKDEPENDS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_VARIABLE_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PKGVER_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_ARCH_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_MAKEDEPENDS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PACKAGE_FUNCTION_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_SOURCE_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_OPTIONS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PROVIDES_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_OPTDEPENDS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_CHANGELOG_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_INSTALL_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PKGBASE_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_FULLPKGVER_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PKGREL_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_EPOCH_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_BACKUP_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PKGNAME_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PKGLIST_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_UTIL_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_PACKAGE_FUNCTION_VARIABLE_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_DEPENDS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_CONFLICTS_SH", "1");
-    std::env::set_var("LIBMAKEPKG_LINT_PKGBUILD_ARCH_SPECIFIC_SH", "1");
+    let execute = |args: &[&str]| -> Result<i32> {
+        let status = Command::new(env!("CARGO_BIN_EXE_paru"))
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .env("CARGO_MANIFEST_DIR", env!("CARGO_MANIFEST_DIR"))
+            .env("TOKIO_WORKER_THREADS", "1")
+            .env("PACMAN", "true")
+            .env("PACMAN_CONF", dir.join("pacman.conf"))
+            .env("DBPATH", dir.join("db"))
+            .env("PARU_CONF", testdata.join("paru.conf"))
+            .env("PATH", &path)
+            .envs(
+                [
+                    "LIBMAKEPKG_LINT_PKGBUILD_CHECKDEPENDS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_VARIABLE_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PKGVER_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_ARCH_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_MAKEDEPENDS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PACKAGE_FUNCTION_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_SOURCE_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_OPTIONS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PROVIDES_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_OPTDEPENDS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_CHANGELOG_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_INSTALL_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PKGBASE_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_FULLPKGVER_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PKGREL_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_EPOCH_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_BACKUP_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PKGNAME_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PKGLIST_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_UTIL_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_PACKAGE_FUNCTION_VARIABLE_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_DEPENDS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_CONFLICTS_SH",
+                    "LIBMAKEPKG_LINT_PKGBUILD_ARCH_SPECIFIC_SH",
+                ]
+                .map(|key| (key, "1")),
+            )
+            .args(args)
+            .status()?;
+        status.code().context("paru was killed by a signal")
+    };
 
     if repo {
         let mut args = args.clone();
         args.push("-Ly");
-        let ret = paru::run(&args).await;
+        let ret = execute(&args)?;
         assert_eq!(ret, 0);
     }
 
     args.extend(run_args);
-    let ret = paru::run(&args).await;
+    let ret = execute(&args)?;
 
     for pkg in std::fs::read_dir(dir.join("cache/pkg"))? {
         let path = pkg?.path();

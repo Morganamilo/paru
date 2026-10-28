@@ -4,7 +4,7 @@ use crate::fmt::print_indent;
 use std::str::Chars;
 
 use ansiterm::Style;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use htmlescape::decode_html;
 use rss::Channel;
 use tr::tr;
@@ -17,21 +17,19 @@ enum Tag {
 }
 
 pub fn newest_pkg(config: &Config) -> i64 {
-    let max = config
+    config
         .alpm
         .localdb()
         .pkgs()
         .iter()
         .map(|p| p.build_date())
         .max()
-        .unwrap_or_default();
-
-    max
+        .unwrap_or_default()
 }
 
 pub async fn news(config: &Config) -> Result<i32> {
     let url = config.arch_url.join("feeds/news")?;
-    let client = config.raur.client();
+    let client = config.raur.as_ref().unwrap().client();
 
     let resp = client.get(url.clone()).send().await?;
     if !resp.status().is_success() {

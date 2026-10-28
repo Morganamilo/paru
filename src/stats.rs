@@ -1,4 +1,4 @@
-use crate::config::{version, Config};
+use crate::config::{Config, version};
 use crate::download::cache_info_with_warnings;
 use crate::printtr;
 use crate::util::repo_aur_pkgs;
@@ -75,7 +75,7 @@ pub async fn stats(config: &Config) -> Result<i32> {
         .collect::<Vec<_>>();
 
     let warnings = cache_info_with_warnings(
-        &config.raur,
+        config.raur.as_ref().unwrap(),
         &mut cache,
         &aur_packages,
         &config.ignore,

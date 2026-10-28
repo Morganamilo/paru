@@ -1,9 +1,9 @@
+use crate::RaurHandle;
 use crate::config::{Alpm, Config, LocalRepos, YesNoAll, YesNoAllTree};
 use crate::fmt::color_repo;
-use crate::util::{get_provider, NumberMenu};
-use crate::RaurHandle;
+use crate::util::{NumberMenu, get_provider};
 
-use std::io::{stdout, Write};
+use std::io::{Write, stdout};
 
 use aur_depends::{Flags, PkgbuildRepo, Resolver};
 use raur::Cache;
@@ -117,13 +117,11 @@ pub fn resolver<'a, 'b>(
             }
 
             let menu = NumberMenu::new(input.trim());
-            let mut n = 1;
 
-            for pkg in groups.iter().flat_map(|g| g.group.packages()) {
+            for (n, pkg) in (1..).zip(groups.iter().flat_map(|g| g.group.packages())) {
                 if menu.contains(n, "") {
                     pkgs.push(pkg);
                 }
-                n += 1;
             }
 
             pkgs

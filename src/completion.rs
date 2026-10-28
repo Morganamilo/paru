@@ -1,12 +1,12 @@
 use crate::config::Config;
 use crate::print_error;
 
-use std::fs::{create_dir_all, metadata, remove_file, OpenOptions};
-use std::io::{stdout, BufRead, BufReader, Read, Write};
+use std::fs::{OpenOptions, create_dir_all, metadata, remove_file};
+use std::io::{BufRead, BufReader, Read, Write, stdout};
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use flate2::read::GzDecoder;
 use reqwest::get;
 use tr::tr;
@@ -48,13 +48,13 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
 
     if let Ok(mut file) = OpenOptions::new().read(true).open(&path) {
         let mut buf = vec![0; 1024];
-        if let Ok(n) = file.read(&mut buf) {
-            if buf[0..n].contains(&b'\0') {
-                let _ = std::fs::remove_file(&path);
-                let _ = remove_file(&path);
-                save_aur_list(aur_url, cache_dir).await?;
-                return Ok(());
-            }
+        if let Ok(n) = file.read(&mut buf)
+            && buf[0..n].contains(&b'\0')
+        {
+            let _ = std::fs::remove_file(&path);
+            let _ = remove_file(&path);
+            save_aur_list(aur_url, cache_dir).await?;
+            return Ok(());
         }
     }
 

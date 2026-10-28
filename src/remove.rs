@@ -1,8 +1,8 @@
+use crate::Config;
 use crate::devel::{load_devel_info, save_devel_info};
 use crate::print_error;
 use crate::search::interactive_search_local;
 use crate::util::pkg_base_or_name;
-use crate::Config;
 use crate::{exec, repo};
 
 use std::collections::HashMap;

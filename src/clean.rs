@@ -5,7 +5,7 @@ use crate::print_error;
 use crate::printtr;
 use crate::util::ask;
 
-use std::fs::{read_dir, remove_dir_all, remove_file, set_permissions, DirEntry};
+use std::fs::{DirEntry, read_dir, remove_dir_all, remove_file, set_permissions};
 
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
@@ -147,10 +147,10 @@ fn clean_aur_pkg(
         if keep_installed {
             let local_db = config.alpm.localdb();
             for pkg in &srcinfo.pkgs {
-                if let Ok(pkg) = local_db.pkg(&*pkg.pkgname) {
-                    if pkg.version().as_str() == srcinfo.version() {
-                        return Ok(());
-                    }
+                if let Ok(pkg) = local_db.pkg(&*pkg.pkgname)
+                    && pkg.version().as_str() == srcinfo.version()
+                {
+                    return Ok(());
                 }
             }
         }
@@ -158,10 +158,10 @@ fn clean_aur_pkg(
         if keep_current {
             for pkg in &srcinfo.pkgs {
                 let sync_dbs = config.alpm.syncdbs();
-                if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname) {
-                    if pkg.version().as_str() == srcinfo.version() {
-                        return Ok(());
-                    }
+                if let Ok(pkg) = sync_dbs.pkg(&*pkg.pkgname)
+                    && pkg.version().as_str() == srcinfo.version()
+                {
+                    return Ok(());
                 }
             }
         }

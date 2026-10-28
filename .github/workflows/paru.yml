@@ -45,6 +45,7 @@ jobs:
         run: |
           install -d -o nobody target/tmp testdata/pkg
           sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate,mock --target-dir=/tmp -- --nocapture
+          sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features generate --test startup --target-dir=/tmp -- --nocapture
 
   test-git:
     runs-on: ubuntu-latest
@@ -80,3 +81,4 @@ jobs:
         run: |
           install -d -o nobody target/tmp testdata/pkg
           sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --nocapture
+          sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate --test startup --target-dir=/tmp -- --nocapture
