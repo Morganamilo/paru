@@ -14,8 +14,13 @@ pub async fn order(config: &mut Config) -> Result<i32> {
     let repos = config.pkgbuild_repos.clone();
     let repos = repos.aur_depends_repo(config);
     config.alpm.take_raw_question_cb();
-    let resolver =
-        Resolver::new(&config.alpm, &mut cache, &config.raur, flags).pkgbuild_repos(repos);
+    let resolver = Resolver::new(
+        &config.alpm,
+        &mut cache,
+        config.raur.as_ref().unwrap(),
+        flags,
+    )
+    .pkgbuild_repos(repos);
     let mut actions = resolver.resolve_targets(&config.targets).await?;
     debug!("{:#?}", actions);
 

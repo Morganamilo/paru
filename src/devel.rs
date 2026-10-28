@@ -137,7 +137,7 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
         );
     }
     let warnings = cache_info_with_warnings(
-        &config.raur,
+        config.raur.as_ref().unwrap(),
         &mut config.cache,
         &aur,
         ignore,
@@ -421,7 +421,12 @@ pub async fn filter_devel_updates(
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    config.raur.cache_info(cache, &aur).await?;
+    config
+        .raur
+        .as_ref()
+        .unwrap()
+        .cache_info(cache, &aur)
+        .await?;
     let aur = aur
         .iter()
         .map(|u| pkgbases.remove(u.as_str()).unwrap())

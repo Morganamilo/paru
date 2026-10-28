@@ -8,7 +8,7 @@ use crate::util::{get_provider, reopen_stdin};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
 use std::env::consts::ARCH;
-use std::env::{remove_var, set_var, var};
+use std::env::var;
 use std::fmt;
 use std::fs::{remove_file, OpenOptions};
 use std::io::{stderr, stdin, stdout, BufRead, IsTerminal};
@@ -405,10 +405,7 @@ pub struct Config {
 
     pub op: Op,
 
-    #[cfg(not(feature = "mock"))]
-    pub raur: raur::Handle,
-    #[cfg(feature = "mock")]
-    pub raur: crate::mock::Mock,
+    pub raur: Option<crate::RaurHandle>,
     #[default(aur_fetch::Fetch::with_cache_dir(""))]
     pub fetch: aur_fetch::Fetch,
     pub cache: raur::Cache,
@@ -754,6 +751,10 @@ impl Config {
             std::process::exit(0);
         }
 
+        Ok(())
+    }
+
+    pub fn init(&mut self) -> Result<()> {
         self.init_pacmanconf()?;
         self.init_alpm()?;
 
@@ -776,12 +777,12 @@ impl Config {
                 None => self.aur_url.join("rpc")?.to_string(),
             };
 
-            self.raur = raur::Handle::new_with_settings(client, rpc_url);
+            self.raur = Some(raur::Handle::new_with_settings(client, rpc_url));
         }
 
         #[cfg(feature = "mock")]
         {
-            self.raur = crate::mock::Mock::new()?;
+            self.raur = Some(crate::mock::Mock::new()?);
         }
 
         let aur_url = if self.ssh {
@@ -872,10 +873,6 @@ then initialise it with:
         }
         if self.no_check {
             self.mflags.push("--nocheck".to_string());
-        }
-
-        if self.chroot {
-            remove_var("PKGEXT");
         }
 
         Ok(())
@@ -1034,7 +1031,6 @@ then initialise it with:
         );
 
         self.env.push((key.to_owned(), value.to_string()));
-        set_var(key, value);
         Ok(())
     }
 

@@ -99,7 +99,12 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
             }
 
             async fn aur_up(config: &Config, cache: &mut Cache, pkgs: &[&str]) -> Result<()> {
-                config.raur.cache_info(cache, pkgs).await?;
+                config
+                    .raur
+                    .as_ref()
+                    .unwrap()
+                    .cache_info(cache, pkgs)
+                    .await?;
                 Ok(())
             }
 

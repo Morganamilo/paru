@@ -31,7 +31,7 @@ pub fn newest_pkg(config: &Config) -> i64 {
 
 pub async fn news(config: &Config) -> Result<i32> {
     let url = config.arch_url.join("feeds/news")?;
-    let client = config.raur.client();
+    let client = config.raur.as_ref().unwrap().client();
 
     let resp = client.get(url.clone()).send().await?;
     if !resp.status().is_success() {

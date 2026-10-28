@@ -207,7 +207,7 @@ pub async fn getpkgbuilds(config: &mut Config) -> Result<i32> {
             bold.paint(tr!("Querying AUR..."))
         );
         let warnings = cache_info_with_warnings(
-            &config.raur,
+            config.raur.as_ref().unwrap(),
             &mut config.cache,
             &aur,
             &config.ignore,
@@ -432,10 +432,10 @@ pub async fn new_aur_pkgbuilds(
 }
 
 pub async fn show_comments(config: &mut Config) -> Result<i32> {
-    let client = config.raur.client();
+    let client = config.raur.as_ref().unwrap().client();
 
     let warnings = cache_info_with_warnings(
-        &config.raur,
+        config.raur.as_ref().unwrap(),
         &mut config.cache,
         &config.targets,
         &[],
@@ -558,7 +558,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
     let bat = config.color.enabled && has_command(&config.bat_bin);
-    let client = config.raur.client();
+    let client = config.raur.as_ref().unwrap().client();
 
     let (repo, pkgbuild, aur) = split_target_pkgbuilds(config, &config.targets);
 
@@ -619,7 +619,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
 
         let warnings = cache_info_with_warnings(
-            &config.raur,
+            config.raur.as_ref().unwrap(),
             &mut config.cache,
             &aur,
             &[],

@@ -152,7 +152,7 @@ async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec
 
     for (i, target) in targets.iter().enumerate() {
         index = i;
-        pkgs = config.raur.search_by(target, by).await;
+        pkgs = config.raur.as_ref().unwrap().search_by(target, by).await;
         if !matches!(pkgs, Err(raur::Error::Aur(_))) {
             break;
         }
@@ -185,7 +185,7 @@ async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<rau
         .filter(|pkg| regex.is_match(pkg))
         .collect::<Vec<_>>();
     ensure!(pkgs.len() < 2000, "too many packages");
-    let pkgs = config.raur.info(&pkgs).await?;
+    let pkgs = config.raur.as_ref().unwrap().info(&pkgs).await?;
     Ok(pkgs)
 }
 
@@ -224,7 +224,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
             matches.retain(|p| targets.iter().all(|t| p.name.to_lowercase().contains(t)));
         } else {
             for target in targets {
-                let pkgs = config.raur.search_by(target, by).await?;
+                let pkgs = config.raur.as_ref().unwrap().search_by(target, by).await?;
                 matches.extend(pkgs);
             }
         }
@@ -628,7 +628,7 @@ mod release_age_tests {
             .add(Glob::new("pkg-d-*").unwrap())
             .build()
             .unwrap();
-        config.raur = Mock::with_packages(
+        config.raur = Some(Mock::with_packages(
             [
                 ("pkg-a-new", now),
                 ("pkg-b-old", now - 2 * 86_400),
@@ -641,7 +641,7 @@ mod release_age_tests {
                 last_modified,
                 ..Package::default()
             }),
-        );
+        ));
         let query = ["pkg".into()];
         let matches = search_aur(&config, &query).await.unwrap();
         assert_eq!(matches.len(), 1);

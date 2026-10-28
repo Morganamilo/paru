@@ -956,7 +956,14 @@ impl Installer {
 
         let repos = config.pkgbuild_repos.clone();
         let repos = repos.aur_depends_repo(config);
-        let mut resolver = resolver(config, &config.alpm, &config.raur, &mut cache, repos, flags);
+        let mut resolver = resolver(
+            config,
+            &config.alpm,
+            config.raur.as_ref().unwrap(),
+            &mut cache,
+            repos,
+            flags,
+        );
 
         if self.sysupgrade != 0 {
             // TODO?
@@ -1365,7 +1372,7 @@ async fn recheck_release_age<'a>(
 
     let names = expected.iter().map(|pkg| &pkg.name).collect::<Vec<_>>();
     // Revalidate after the last fetch, before any downloaded PKGBUILD is executed.
-    let refreshed = config.raur.info(&names).await?;
+    let refreshed = config.raur.as_ref().unwrap().info(&names).await?;
     check_release_age(config, refreshed.iter())?;
 
     for pkg in expected {
@@ -2310,7 +2317,7 @@ mod release_age_tests {
     fn config(current: Vec<Package>) -> Config {
         let mut config = Config::default();
         config.min_release_age = Some(Duration::from_secs(86_400));
-        config.raur = Mock::with_packages(current);
+        config.raur = Some(Mock::with_packages(current));
         config
     }
 

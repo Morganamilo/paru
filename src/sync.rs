@@ -12,7 +12,12 @@ use tr::tr;
 
 pub async fn filter(config: &Config) -> Result<i32> {
     let mut cache = raur::Cache::new();
-    config.raur.cache_info(&mut cache, &config.targets).await?;
+    config
+        .raur
+        .as_ref()
+        .unwrap()
+        .cache_info(&mut cache, &config.targets)
+        .await?;
 
     for targ in config.targets.iter().filter(|t| cache.contains(t.as_str())) {
         println!("{}", targ);
@@ -96,7 +101,7 @@ pub fn list_pkgbuilds(config: &Config, repos: &PkgbuildRepos, repo: &str) {
 
 pub async fn list_aur(config: &Config) -> Result<()> {
     let url = config.aur_url.join("packages.gz")?;
-    let client = config.raur.client();
+    let client = config.raur.as_ref().unwrap().client();
     let resp = client
         .get(url.clone())
         .send()

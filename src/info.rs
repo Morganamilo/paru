@@ -45,9 +45,14 @@ pub async fn info(conf: &mut Config, verbose: bool) -> Result<i32, Error> {
     let aur = if !aur.is_empty() {
         let color = conf.color;
         let aur = aur.iter().map(|t| t.pkg).collect::<Vec<_>>();
-        let warnings =
-            cache_info_with_warnings(&conf.raur, &mut conf.cache, &aur, &[], &GlobSet::empty())
-                .await?;
+        let warnings = cache_info_with_warnings(
+            conf.raur.as_ref().unwrap(),
+            &mut conf.cache,
+            &aur,
+            &[],
+            &GlobSet::empty(),
+        )
+        .await?;
         for pkg in &warnings.missing {
             eprintln!(
                 "{} {}",
