@@ -75,7 +75,8 @@ _paru() {
            rebuildtree redownload noredownload redownloadall pgpfetch nopgpfetch useask
            nouseask savechanges nosavechanges failfast nofailfast keepsrc nokeepsrc combinedupgrade
            nocombinedupgrade batchinstall nobatchinstall provides noprovides devel nodevel
-           develsuffixes sudoloop nosudoloop bottomup topdown auto newsonupgrade bat batflags
+           develsuffixes minimumreleaseage nominimumreleaseage minimumreleaseageexclude
+           sudoloop nosudoloop bottomup topdown auto newsonupgrade bat batflags
            chroot nochroot sign nosign keeprepocache nokeeprepocache signdb nosigndb
            localrepo nolocalrepo review skipreview' 'b d h q r v a')
 

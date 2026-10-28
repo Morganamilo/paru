@@ -219,6 +219,9 @@ complete -c $progname -n "not $noopt" -l auto -d 'Use bottom-up ordering for men
 complete -c $progname -n "not $noopt" -l devel -d 'Check -git/-svn/-hg development version' -f
 complete -c $progname -n "not $noopt" -l nodevel -d 'Disable development version checking' -f
 complete -c $progname -n "not $noopt" -l develsuffixes -d 'Suffixes to define development packages' -f
+complete -c $progname -n "not $noopt" -l minimumreleaseage -d 'Minimum age of AUR package changes' -x
+complete -c $progname -n "not $noopt" -l nominimumreleaseage -d 'Disable the minimum release age check' -f
+complete -c $progname -n "not $noopt" -l minimumreleaseageexclude -d 'Exempt packages from the age check' -x
 complete -c $progname -n "not $noopt" -l cleanafter -d 'Clean package sources after successful build' -f
 complete -c $progname -n "not $noopt" -l nocleanafter -d 'Disable package sources cleaning' -f
 complete -c $progname -n "not $noopt" -l redownload -d 'Redownload PKGBUILD of package even if up-to-date' -f
