@@ -1,5 +1,68 @@
 # Changelog
 
+## Paru v2.2.0 (unreleased)
+
+### Added
+
+- Add pacman 7.1 support 229ad2c 029645f
+- Add `MinimumReleaseAge` and package exclusions for AUR installs, upgrades and searches 63f3f44
+- Add `--auto` sorting with bottom-up package menus and top-down search results, enabled by default 7dd832e
+- Add clickable links to `-Ss` output c496199
+- Add `--rootchrootpkgs` to customize chroot base packages e0ba510
+- Support PKGBUILD repositories in `-G` 909ced8
+- Support `CleanAfter` for PKGBUILD repositories d741758
+- Complete package names from PKGBUILD repositories 6923758
+- Complete PKGBUILD repository names for `-Sl` 46e39bb
+
+### Removed
+
+- Remove the separate `-cc` behavior for unused package removal 6a2e9a1
+
+### Changed
+
+- Use Rust 2024 and require Rust 1.88 or newer f62a43f
+- Update dependencies c376072
+- Strip the `-i` flag from `-Qu` operations 09f6c46
+- Respect dependency versions when removing unused packages with `-c` 6a2e9a1
+- Skip installed-package conflict checks for the final build-only `-B` package 7799203 5f58205
+- Sign packages even when a signature already exists b14b41a
+- Let devtools manage cache and local repository bind mounts 216302c
+- Use lowercase package status labels in search results fdbbcdb
+
+### Fixed
+
+- Fix stdin/stdout redirection d1dfbc4
+- Decode the compressed AUR package list 5be0cfa
+- Avoid passing `--sysroot` twice 65f9940
+- Pass devel repository URLs after Git's option separator 7830fac
+- Allow `BatFlags` to override the default display style ba42212
+- Allow package-list generation for foreign architectures c6facd7
+- Exit on EOF or read errors at interactive prompts d0abc57
+- Check conflicts when installing targets built in a chroot 5f58205
+- Number group members continuously across repositories de2da9d
+- Print each group menu repository header on its own line fd8b1e9
+- Fix missing AUR package warnings during upgrades 5423338
+
+### Documentation
+
+- Cross-reference `IgnoreDevelSource` from `--devel` c48e554
+- Explain the scope of `LocalRepo` update checks f9dc399
+- Document `Pkgctl` instead of the removed `Asp` option e3791b4
+- Fix contribution-guide typos ce29924 3499257
+
+### Localization
+
+- Add the Polish translation 0751716 5da58fa
+- Update the Czech translation 3987dbb
+- Update the French translation 0b1a0b3
+- Update the Hungarian translation d1bae87 f2db29c f62e4f0
+- Update the Korean translation 380661e
+- Update the Brazilian Portuguese translation fe4f2b9 5651452 16cfad6 2ed9553
+- Update the Portuguese translation 6a3e8cd
+- Update the Swedish translation bebdc75 ee2bbdf
+- Update the Ukrainian translation 2db4722 0910544
+- Update the Traditional Chinese translation c8b3493
+
 ## Paru v2.1.0 (2025-07-08)
 
 ### Added
