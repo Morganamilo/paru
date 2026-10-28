@@ -1,6 +1,6 @@
 # Changelog
 
-## Paru v2.2.0 (unreleased)
+## Paru v2.2.0 (2026-10-28)
 
 ### Added
 
@@ -21,10 +21,10 @@
 ### Changed
 
 - Use Rust 2024 and require Rust 1.88 or newer f62a43f
-- Update dependencies c376072
+- Update dependencies c376072 186cdad b4c990f
 - Strip the `-i` flag from `-Qu` operations 09f6c46
 - Respect dependency versions when removing unused packages with `-c` 6a2e9a1
-- Skip installed-package conflict checks for the final build-only `-B` package 7799203 5f58205
+- Skip installed-package conflict checks for the final build-only `-B` package 7799203
 - Sign packages even when a signature already exists b14b41a
 - Let devtools manage cache and local repository bind mounts 216302c
 - Use lowercase package status labels in search results fdbbcdb
@@ -42,6 +42,8 @@
 - Number group members continuously across repositories de2da9d
 - Print each group menu repository header on its own line fd8b1e9
 - Fix missing AUR package warnings during upgrades 5423338
+- Stop the resolver recursing without bound over PKGBUILD dependencies 186cdad
+- Keep split-package members out of the install list for `-B` 186cdad
 
 ### Documentation
 
