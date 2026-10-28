@@ -21,6 +21,12 @@ cd paru
 makepkg -si
 ```
 
+If you want to do all of this at once, we can chain the commands like so:
+
+```
+pacman -S --needed git base-devel && git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si
+```
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
