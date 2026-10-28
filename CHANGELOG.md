@@ -20,13 +20,11 @@
 
 ### Changed
 
-- Use Rust 2024 and require Rust 1.88 or newer f62a43f
-- Update dependencies c376072 186cdad b4c990f
+- Require Rust 1.88 or newer when building from source f62a43f
 - Strip the `-i` flag from `-Qu` operations 09f6c46
 - Respect dependency versions when removing unused packages with `-c` 6a2e9a1
 - Skip installed-package conflict checks for the final build-only `-B` package 7799203
 - Sign packages even when a signature already exists b14b41a
-- Let devtools manage cache and local repository bind mounts 216302c
 - Use lowercase package status labels in search results fdbbcdb
 
 ### Fixed
@@ -42,15 +40,14 @@
 - Number group members continuously across repositories de2da9d
 - Print each group menu repository header on its own line fd8b1e9
 - Fix missing AUR package warnings during upgrades 5423338
-- Stop the resolver recursing without bound over PKGBUILD dependencies 186cdad
-- Keep split-package members out of the install list for `-B` 186cdad
+- Fix stack-overflow crashes while resolving PKGBUILD dependencies 186cdad
+- Fix duplicate-package errors when building split packages with `-B` 186cdad
 
 ### Documentation
 
 - Cross-reference `IgnoreDevelSource` from `--devel` c48e554
 - Explain the scope of `LocalRepo` update checks f9dc399
 - Document `Pkgctl` instead of the removed `Asp` option e3791b4
-- Fix contribution-guide typos ce29924 3499257
 
 ### Localization
 
