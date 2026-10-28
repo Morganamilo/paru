@@ -85,6 +85,7 @@ pub fn resolver<'a, 'b>(
             );
 
             let mut repo = String::new();
+            let mut n = 1;
 
             for group in groups {
                 if group.db.name() != repo {
@@ -98,7 +99,6 @@ pub fn resolver<'a, 'b>(
                     print!("    ");
                 }
 
-                let mut n = 1;
                 for pkg in group.group.packages() {
                     print!("{}) {}  ", n, pkg.name());
                     n += 1;
