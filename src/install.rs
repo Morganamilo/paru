@@ -22,7 +22,7 @@ use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
 use crate::upgrade::{get_upgrades, Upgrades};
-use crate::util::{ask, repo_aur_pkgs, split_repo_aur_targets};
+use crate::util::{ask, now_secs, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
 
 use alpm::{Alpm, Depend, Version};
@@ -32,7 +32,7 @@ use ansiterm::Style;
 use anyhow::{bail, ensure, Context, Result};
 use aur_depends::{Actions, Base, Conflict, DepMissing, RepoPackage};
 use log::debug;
-use raur::Cache;
+use raur::{Cache, Raur};
 use srcinfo::{ArchVecs, Srcinfo};
 use tr::tr;
 
@@ -1092,6 +1092,7 @@ impl Installer {
         let c = config.color;
 
         print_warnings(config, cache, Some(actions));
+        check_release_age(config, actions.iter_aur_pkgs().map(|p| &*p.pkg))?;
 
         if actions.build.is_empty() && actions.install.is_empty() {
             printtr!(" there is nothing to do");
@@ -1137,6 +1138,7 @@ impl Installer {
 
         let bases = actions.iter_aur_pkgs().cloned().collect();
         self.download_pkgbuilds(config, &bases).await?;
+        recheck_release_age(config, actions.iter_aur_pkgs().map(|p| &*p.pkg)).await?;
 
         for pkg in &actions.build {
             match pkg {
@@ -1328,6 +1330,102 @@ fn print_warnings(config: &Config, cache: &Cache, actions: Option<&Actions>) {
     warnings.orphans.dedup();
 
     warnings.all(config.color, config.cols);
+}
+
+fn human_age(secs: i64) -> String {
+    let secs = secs.max(0);
+    if secs >= 86400 {
+        let n = secs / 86400;
+        tr!("{n} day" | "{n} days" % n)
+    } else if secs >= 3600 {
+        let n = secs / 3600;
+        tr!("{n} hour" | "{n} hours" % n)
+    } else if secs >= 60 {
+        let n = secs / 60;
+        tr!("{n} minute" | "{n} minutes" % n)
+    } else {
+        tr!("{n} second" | "{n} seconds" % secs)
+    }
+}
+
+async fn recheck_release_age<'a>(
+    config: &Config,
+    packages: impl Iterator<Item = &'a raur::Package>,
+) -> Result<()> {
+    if config.min_release_age.is_none() {
+        return Ok(());
+    }
+
+    let expected = packages
+        .filter(|pkg| !config.is_release_age_exempt(&pkg.name))
+        .collect::<Vec<_>>();
+    if expected.is_empty() {
+        return Ok(());
+    }
+
+    let names = expected.iter().map(|pkg| &pkg.name).collect::<Vec<_>>();
+    // Revalidate after the last fetch, before any downloaded PKGBUILD is executed.
+    let refreshed = config.raur.info(&names).await?;
+    check_release_age(config, refreshed.iter())?;
+
+    for pkg in expected {
+        let current = refreshed.iter().find(|current| current.name == pkg.name);
+        ensure!(
+            current.is_some_and(|current| {
+                current.id == pkg.id
+                    && current.package_base_id == pkg.package_base_id
+                    && current.package_base == pkg.package_base
+                    && current.version == pkg.version
+                    && current.last_modified == pkg.last_modified
+            }),
+            tr!(
+                "AUR package '{}' changed while downloading PKGBUILDs; retry the operation",
+                pkg.name
+            )
+        );
+    }
+
+    Ok(())
+}
+
+fn check_release_age<'a>(
+    config: &Config,
+    packages: impl Iterator<Item = &'a raur::Package>,
+) -> Result<()> {
+    let Some(max) = config.min_release_age else {
+        return Ok(());
+    };
+
+    let now = now_secs();
+    let max = max.as_secs() as i64;
+
+    let mut too_new = packages
+        .filter(|p| config.is_too_new(&p.name, p.last_modified, now, max))
+        .map(|p| (p.name.as_str(), now.saturating_sub(p.last_modified)))
+        .collect::<Vec<_>>();
+
+    if too_new.is_empty() {
+        return Ok(());
+    }
+
+    too_new.sort_unstable();
+    too_new.dedup();
+
+    let list = too_new
+        .iter()
+        .map(|(name, age)| format!("{} ({})", name, tr!("updated {} ago", human_age(*age))))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    bail!(
+        "{}\n    {}",
+        tr!(
+            "the following AUR packages are newer than the minimum release age of {}: {}",
+            human_age(max),
+            list
+        ),
+        tr!("pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --nominimumreleaseage), or add a package to MinimumReleaseAgeExclude")
+    );
 }
 
 fn fmt_stack(want: &DepMissing) -> String {
@@ -2186,4 +2284,101 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &str) -> bool
 
 fn is_ver_char(c: char) -> bool {
     matches!(c, '<' | '=' | '>')
+}
+
+#[cfg(all(test, feature = "mock"))]
+mod release_age_tests {
+    use super::recheck_release_age;
+    use crate::config::Config;
+    use crate::mock::Mock;
+    use crate::util::now_secs;
+    use raur::Package;
+    use std::time::Duration;
+
+    fn package() -> Package {
+        Package {
+            id: 1,
+            name: "pkg".into(),
+            package_base: "pkg".into(),
+            package_base_id: 1,
+            version: "1-1".into(),
+            last_modified: now_secs() - 2 * 86_400,
+            ..Package::default()
+        }
+    }
+
+    fn config(current: Vec<Package>) -> Config {
+        let mut config = Config::default();
+        config.min_release_age = Some(Duration::from_secs(86_400));
+        config.raur = Mock::with_packages(current);
+        config
+    }
+
+    #[tokio::test]
+    async fn unchanged_old_release_is_accepted() {
+        let expected = package();
+        let config = config(vec![expected.clone()]);
+        recheck_release_age(&config, std::iter::once(&expected))
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn push_without_version_bump_is_rejected() {
+        let expected = package();
+        let mut current = expected.clone();
+        current.last_modified = now_secs();
+        let mut config = config(vec![current]);
+        config.cache.insert(expected.clone().into());
+        let error = recheck_release_age(&config, std::iter::once(&expected))
+            .await
+            .unwrap_err();
+        assert!(error.to_string().contains("pkg"));
+        assert!(error.to_string().contains("minimum release age"));
+    }
+
+    #[tokio::test]
+    async fn changed_metadata_requires_resolving_again() {
+        let expected = package();
+        for field in ["id", "base", "version"] {
+            let mut current = expected.clone();
+            match field {
+                "id" => current.id += 1,
+                "base" => current.package_base = "other".into(),
+                "version" => current.version = "2-1".into(),
+                _ => unreachable!(),
+            }
+            let error = recheck_release_age(&config(vec![current]), std::iter::once(&expected))
+                .await
+                .unwrap_err();
+            assert!(error.to_string().contains("pkg"));
+            assert!(error.to_string().contains("retry the operation"));
+        }
+    }
+
+    #[tokio::test]
+    async fn missing_fresh_info_does_not_use_cached_package() {
+        let expected = package();
+        let mut config = config(Vec::new());
+        config.cache.insert(expected.clone().into());
+        assert!(recheck_release_age(&config, std::iter::once(&expected))
+            .await
+            .is_err());
+    }
+
+    #[tokio::test]
+    async fn disabled_and_exempt_packages_do_not_require_fresh_info() {
+        let mut expected = package();
+        let mut config = config(Vec::new());
+        config.min_release_age = None;
+        recheck_release_age(&config, std::iter::once(&expected))
+            .await
+            .unwrap();
+        config.min_release_age = Some(Duration::from_secs(86_400));
+        config.devel_suffixes = vec!["-git".into()];
+        expected.name = "pkg-git".into();
+        recheck_release_age(&config, std::iter::once(&expected))
+            .await
+            .unwrap();
+    }
 }

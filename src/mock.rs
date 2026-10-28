@@ -14,10 +14,22 @@ pub struct Mock {
 }
 
 impl Mock {
+    #[cfg(test)]
+    pub(crate) fn with_packages(packages: impl IntoIterator<Item = Package>) -> Self {
+        Self {
+            pkgs: packages
+                .into_iter()
+                .map(|pkg| (pkg.name.clone(), pkg))
+                .collect(),
+        }
+    }
+
     pub fn new() -> Result<Self> {
         let mut mock = Mock {
             pkgs: HashMap::new(),
         };
+
+        let now = crate::util::now_secs();
 
         let clone = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata/clone");
 
@@ -46,7 +58,7 @@ impl Mock {
                     out_of_date: None,
                     maintainer: None,
                     first_submitted: 0,
-                    last_modified: 0,
+                    last_modified: now,
                     url_path: "".into(),
                     groups: vec![],
                     depends,
@@ -94,9 +106,25 @@ impl Raur for Mock {
 
     async fn search_by<S: AsRef<str> + Send + Sync>(
         &self,
-        _pkg: S,
-        _by: SearchBy,
+        query: S,
+        by: SearchBy,
     ) -> StdResult<Vec<Package>, Error> {
-        unimplemented!()
+        let query = query.as_ref().to_lowercase();
+        Ok(self
+            .pkgs
+            .values()
+            .filter(|pkg| match by {
+                SearchBy::Name => pkg.name.to_lowercase().contains(&query),
+                SearchBy::NameDesc => {
+                    pkg.name.to_lowercase().contains(&query)
+                        || pkg
+                            .description
+                            .as_ref()
+                            .is_some_and(|description| description.to_lowercase().contains(&query))
+                }
+                _ => unimplemented!(),
+            })
+            .cloned()
+            .collect())
     }
 }
