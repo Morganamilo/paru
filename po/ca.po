@@ -205,7 +205,7 @@ msgstr "no s'ha pogut escriure al fitxer temporal {}"
 
 #: src/devel.rs:244
 msgid "failed to rename '{temp}' to '{devel_toml}"
-msgstr "ha fallat canviar de nom {temp} a {devel_json}'"
+msgstr "ha fallat canviar de nom {temp} a {devel_toml}'"
 
 #: src/devel.rs:490
 msgid "package does not have an update"
@@ -258,7 +258,7 @@ msgstr "Cap"
 
 #: src/fmt.rs:237
 msgid "Repo"
-msgstr "Dipoòsit"
+msgstr "Dipòsit"
 
 #: src/fmt.rs:244
 msgid "Repo Make"
@@ -584,8 +584,7 @@ msgstr ""
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      Aplica els canvis als PKGBUILD fets durant la "
-"revisió."
+"    --[no]savechanges      Aplica els canvis a git."
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
