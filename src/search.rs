@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::config::Config;
 use crate::config::SortBy;
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, NumberMenu};
+use crate::util::{input, is_arch_repo, now_secs, NumberMenu};
 use crate::{info, printtr};
 
 use ansiterm::Style;
@@ -243,6 +243,12 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
         SortBy::Submitted => matches.sort_by_key(|p| p.first_submitted),
         SortBy::Modified => matches.sort_by_key(|p| p.last_modified),
         _ => (),
+    }
+
+    if let Some(max) = config.min_release_age {
+        let now = now_secs();
+        let max = max.as_secs() as i64;
+        matches.retain(|p| !config.is_too_new(&p.name, p.last_modified, now, max));
     }
 
     if config.limit != 0 {
@@ -597,4 +603,61 @@ fn print_any_pkg(config: &Config, n: usize, pad: usize, pkg: &AnyPkg) {
             print_pkgbuild_pkg(config, repo, path, base, pkg, false)
         }
     };
+}
+
+#[cfg(all(test, feature = "mock"))]
+mod release_age_tests {
+    use super::search_aur;
+    use crate::config::{Config, Mode, SortBy};
+    use crate::mock::Mock;
+    use crate::util::now_secs;
+    use globset::{Glob, GlobSetBuilder};
+    use raur::Package;
+    use std::time::Duration;
+
+    #[tokio::test]
+    async fn age_filter_precedes_limit_and_preserves_exemptions() {
+        let now = now_secs();
+        let mut config = Config::default();
+        config.mode = Mode::AUR;
+        config.sort_by = SortBy::Name;
+        config.limit = 1;
+        config.min_release_age = Some(Duration::from_secs(86_400));
+        config.devel_suffixes = vec!["-git".into()];
+        config.min_release_age_exclude = GlobSetBuilder::new()
+            .add(Glob::new("pkg-d-*").unwrap())
+            .build()
+            .unwrap();
+        config.raur = Mock::with_packages(
+            [
+                ("pkg-a-new", now),
+                ("pkg-b-old", now - 2 * 86_400),
+                ("pkg-c-git", now),
+                ("pkg-d-excluded", now),
+            ]
+            .into_iter()
+            .map(|(name, last_modified)| Package {
+                name: name.into(),
+                last_modified,
+                ..Package::default()
+            }),
+        );
+        let query = ["pkg".into()];
+        let matches = search_aur(&config, &query).await.unwrap();
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].name, "pkg-b-old");
+
+        config.limit = 0;
+        let matches = search_aur(&config, &query).await.unwrap();
+        let names = matches
+            .iter()
+            .map(|pkg| pkg.name.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(names, ["pkg-b-old", "pkg-c-git", "pkg-d-excluded"]);
+
+        config.min_release_age = None;
+        let matches = search_aur(&config, &query).await.unwrap();
+        assert_eq!(matches.len(), 4);
+        assert_eq!(matches[0].name, "pkg-a-new");
+    }
 }

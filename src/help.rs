@@ -91,6 +91,9 @@ pub fn help() {
     );
     printtr!("    --develsuffixes        Suffixes used to decide if a package is a devel package");
     printtr!("    --ignoredevel          Ignore devel upgrades for specified packages");
+    printtr!("    --minimumreleaseage <duration>  Minimum age of AUR package changes");
+    printtr!("    --nominimumreleaseage          Disable the minimum release age check");
+    printtr!("    --minimumreleaseageexclude <packages>  Exempt packages from the age check");
     printtr!("    --bottomup             Shows AUR's packages first and then repository's");
     printtr!("    --topdown              Shows repository's packages first and then AUR's");
     printtr!("    --auto                 Use bottom-up ordering for menus, top-down otherwise");
