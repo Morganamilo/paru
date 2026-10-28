@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2026-01-08 17:40+0000\n"
+"POT-Creation-Date: 2026-10-28 16:12+0000\n"
 "PO-Revision-Date: 2022-11-23 13:13+0100\n"
 "Last-Translator: Philip Goto <philip.goto@gmail.com>\n"
 "Language-Team: \n"
@@ -64,19 +64,19 @@ msgstr "kon .SRCINFO voor '{}' niet vinden"
 msgid "option {} expects a value"
 msgstr "optie {} verwacht een waarde"
 
-#: src/command_line.rs:165 src/command_line.rs:382
+#: src/command_line.rs:165 src/command_line.rs:392
 msgid "option {} does not allow a value"
 msgstr "optie {} laat geen waarde toe"
 
-#: src/command_line.rs:373
+#: src/command_line.rs:383
 msgid "unknown option --{}"
 msgstr "onbekende optie --{}"
 
-#: src/command_line.rs:376
+#: src/command_line.rs:386
 msgid "unknown option -{}"
 msgstr "onbekende optie -{}"
 
-#: src/completion.rs:26 src/search.rs:179 src/sync.rs:113
+#: src/completion.rs:26 src/search.rs:179 src/sync.rs:118
 #, fuzzy
 msgid "failed to decode package list"
 msgstr "bronnen downloaden mislukt"
@@ -93,100 +93,109 @@ msgstr "kon de AUR-cache niet updaten"
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
 msgstr "ongeldige waarde '{val}' voor sleutel '{key}', verwacht: {exp}"
 
-#: src/config.rs:332
+#: src/config.rs:347
 msgid "unknown mode {}"
 msgstr "onbekende modus {}"
 
-#: src/config.rs:564
+#: src/config.rs:582
 msgid "section can not be called {}"
 msgstr "sectie mag niet de naam {} hebben"
 
-#: src/config.rs:581
+#: src/config.rs:616
 msgid "failed to find cache directory"
 msgstr "kon de cachemap niet vinden"
 
-#: src/config.rs:584
+#: src/config.rs:619
 msgid "failed to find config directory"
 msgstr "kon de configuratiemap niet vinden"
 
-#: src/config.rs:588
+#: src/config.rs:623
 msgid "failed to find state directory"
 msgstr "kon de staatmap niet vinden"
 
-#: src/config.rs:635
+#: src/config.rs:669
 msgid "config file '{}' does not exist"
 msgstr "configuratiebestand '{}' bestaat niet"
 
-#: src/config.rs:684
+#: src/config.rs:718
 msgid "only one operation may be used at a time"
 msgstr "slechts één handeling per keer is toegestaan"
 
-#: src/config.rs:795
+#: src/config.rs:833
 msgid "no local repo named {}"
 msgstr ""
 
-#: src/config.rs:821
+#: src/config.rs:859
 msgid "can not find local repo '{}' in pacman.conf"
 msgstr "kan lokale repo '{}' in pacman.conf niet vinden"
 
-#: src/config.rs:866
+#: src/config.rs:901
 msgid "failed to initialize alpm: root={} dbpath={}"
 msgstr "initialiseren van alpm mislukt: root={} dbpath={}"
 
-#: src/config.rs:941 src/config.rs:1102
+#: src/config.rs:976 src/config.rs:1138
 msgid "value can not be empty for key '{}'"
 msgstr "waarde mag niet leeg zijn voor sleutel '{}'"
 
-#: src/config.rs:957
+#: src/config.rs:992
 msgid "key '{}' does not belong to a section"
 msgstr "sleutel '{}' behoort niet tot een sectie"
 
-#: src/config.rs:971 src/config.rs:988 src/config.rs:990 src/config.rs:1005
+#: src/config.rs:1006 src/config.rs:1023 src/config.rs:1025 src/config.rs:1039
 msgid "key can not be empty"
 msgstr "sleutel mag niet leeg zijn"
 
-#: src/config.rs:981
+#: src/config.rs:1016
 msgid "error: unknown option '{}' in repo"
 msgstr "fout: onbekende optie '{}' in repo"
 
-#: src/config.rs:991
+#: src/config.rs:1026
 msgid "key can not contain null bytes"
 msgstr "sleutel mag geen null-bytes bevatten"
 
-#: src/config.rs:994
+#: src/config.rs:1029
 msgid "value can not contain null bytes"
 msgstr "waarde mag geen null-bytes bevatten"
 
-#: src/config.rs:1030
+#: src/config.rs:1064
 msgid "error: unknown option '{}' in section [bin]"
 msgstr "fout: onbekende optie '{}' in sectie [bin]"
 
-#: src/config.rs:1150
+#: src/config.rs:1192
 msgid "error: unknown option '{}' in section [options]"
 msgstr "fout: onbekende optie '{}' in sectie [options]"
 
-#: src/config.rs:1155
+#: src/config.rs:1197
 msgid "option '{}' does not take a value"
 msgstr "optie '{}' neemt geen waarde aan"
 
-#: src/config.rs:1187 src/resolver.rs:136
+#: src/config.rs:1229 src/resolver.rs:133
 msgid "There are {n} providers available for {pkg}:"
 msgstr "Er zijn {n} aanbieders beschikbaar voor {pkg}:"
 
-#: src/config.rs:1201 src/info.rs:85 src/info.rs:190 src/info.rs:224
-#: src/resolver.rs:95 src/resolver.rs:144
+#: src/config.rs:1243 src/info.rs:90 src/info.rs:195 src/info.rs:229
+#: src/resolver.rs:99 src/resolver.rs:141
 msgid "Repository"
 msgstr "Repository"
 
-#: src/config.rs:1227
+#: src/config.rs:1269
 msgid "  failed to sync {}"
 msgstr "  synchronizeren van {} mislukt"
+
+#: src/config.rs:1286 src/config.rs:1292
+#, fuzzy
+msgid "invalid release age '{}'"
+msgstr "ongeldige json: {}"
+
+#: src/config.rs:1297
+msgid "release age '{}' is too large"
+msgstr ""
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
 msgstr "AUR doorzoeken..."
 
-#: src/devel.rs:157 src/devel.rs:181 src/install.rs:203
+#: src/devel.rs:157 src/devel.rs:182 src/install.rs:203
 msgid "failed to parse srcinfo for '{}'"
 msgstr "parsen van SRCINFO is mislukt voor '{}'"
 
@@ -215,15 +224,15 @@ msgstr "tijdelijk bestand schrijven mislukt: {}"
 msgid "failed to rename '{temp}' to '{devel_toml}"
 msgstr "'{temp}' hernoemen naar '{devel_json}' mislukt"
 
-#: src/devel.rs:490
+#: src/devel.rs:496
 msgid "package does not have an update"
 msgstr "pakket heeft geen update"
 
-#: src/devel.rs:536
+#: src/devel.rs:542
 msgid "failed to lookup: {}"
 msgstr "opzoeken mislukt: {}"
 
-#: src/devel.rs:564
+#: src/devel.rs:570
 #, fuzzy
 msgid "invalid toml: {}"
 msgstr "ongeldige json: {}"
@@ -244,7 +253,7 @@ msgstr "onbeheerd: "
 msgid "downloading: {pkg}"
 msgstr "downloaden: {pkg}"
 
-#: src/download.rs:279 src/download.rs:602 src/info.rs:55 src/info.rs:180
+#: src/download.rs:279 src/download.rs:602 src/info.rs:60 src/info.rs:185
 #: src/query.rs:49
 msgid "package '{}' was not found"
 msgstr "pakket '{}' is niet gevonden"
@@ -266,15 +275,15 @@ msgstr "PKGBUILDs downloaden..."
 msgid " PKGBUILDs up to date"
 msgstr " PKGBUILDs zijn nog actueel"
 
-#: src/exec.rs:72
+#: src/exec.rs:68
 msgid "failed to run:"
 msgstr "starten mislukt:"
 
-#: src/exec.rs:174
+#: src/exec.rs:170
 msgid "Pacman is currently in use, please wait..."
 msgstr "Pacman is momenteel in gebruik, gelieve even te wachten..."
 
-#: src/fmt.rs:24 src/info.rs:275 src/search.rs:293 src/search.rs:350
+#: src/fmt.rs:24 src/info.rs:280 src/search.rs:299 src/search.rs:356
 msgid "None"
 msgstr "Geen"
 
@@ -294,31 +303,31 @@ msgstr "PKGBUILDs (bouw)"
 msgid "Aur Make"
 msgstr "AUR (bouw)"
 
-#: src/fmt.rs:319
+#: src/fmt.rs:316
 msgid "Repo ({})"
 msgstr "Repo ({})"
 
-#: src/fmt.rs:327
+#: src/fmt.rs:324
 msgid "Old Version"
 msgstr "Oude versie"
 
-#: src/fmt.rs:328
+#: src/fmt.rs:325
 msgid "New Version"
 msgstr "Nieuwe versie"
 
-#: src/fmt.rs:329
+#: src/fmt.rs:326
 msgid "Make Only"
 msgstr "Alleen bouwen"
 
-#: src/fmt.rs:330
+#: src/fmt.rs:327
 msgid "Yes"
 msgstr "Ja"
 
-#: src/fmt.rs:331 src/info.rs:221
+#: src/fmt.rs:328 src/info.rs:226
 msgid "No"
 msgstr "Nee"
 
-#: src/fmt.rs:419
+#: src/fmt.rs:417
 msgid "insufficient columns available for table display"
 msgstr "onvoldoende kolommen beschikbaar voor tabelweergave"
 
@@ -715,143 +724,163 @@ msgstr ""
 "het zoeken naar pakketten"
 
 #: src/help.rs:94
+msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
+msgstr ""
+
+#: src/help.rs:95
+msgid ""
+"    --nominimumreleaseage          Disable the minimum release age check"
+msgstr ""
+
+#: src/help.rs:96
+msgid ""
+"    --minimumreleaseageexclude <packages>  Exempt packages from the age check"
+msgstr ""
+
+#: src/help.rs:97
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
 msgstr ""
 "    --bottomup               AUR-pakketten voor repository-pakketten tonen"
 
-#: src/help.rs:95
+#: src/help.rs:98
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
 "    --topdown                Repository-pakketten voor AUR-pakketten tonen"
 
-#: src/help.rs:97
+#: src/help.rs:99
+msgid ""
+"    --auto                 Use bottom-up ordering for menus, top-down "
+"otherwise"
+msgstr ""
+
+#: src/help.rs:101
 msgid "show specific options:"
 msgstr "Opties voor weergave:"
 
-#: src/help.rs:98
+#: src/help.rs:102
 msgid "    -c --complete         Used for completions"
 msgstr "    -c --complete            Gebruikt voor automatisch aanvullen"
 
-#: src/help.rs:99
+#: src/help.rs:103
 msgid "    -s --stats            Display system package statistics"
 msgstr "    -s --stats               Systeempakketstatistieken tonen"
 
-#: src/help.rs:100
+#: src/help.rs:104
 msgid "    -w --news             Print arch news"
 msgstr "    -w --news                Arch-nieuws printen"
 
-#: src/help.rs:102
+#: src/help.rs:106
 msgid "getpkgbuild specific options:"
 msgstr "Opties voor getpkgbuild:"
 
-#: src/help.rs:103
+#: src/help.rs:107
 msgid "    -p --print            Print pkgbuild to stdout"
 msgstr "    -p --print               PKGBUILD naar standaarduitvoer printen"
 
-#: src/help.rs:104
+#: src/help.rs:108
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr "    -c --comments            AUR-comments van de pkgbuild printen"
 
-#: src/help.rs:105
+#: src/help.rs:109
 msgid "    -s --ssh              Clone package using SSH"
 msgstr "    -s --ssh                 Pakket met SSH klonen"
 
-#: src/help.rs:107
+#: src/help.rs:111
 #, fuzzy
 msgid "Build specific options:"
 msgstr "Opties voor getpkgbuild:"
 
-#: src/help.rs:108
+#: src/help.rs:112
 msgid "    -i --install          Install package as well as building"
 msgstr "    -i --install             Pakket installeren naast deze te bouwen"
 
-#: src/info.rs:86 src/info.rs:191 src/info.rs:225
+#: src/info.rs:91 src/info.rs:196 src/info.rs:230
 msgid "Name"
 msgstr "Naam"
 
-#: src/info.rs:87 src/info.rs:192 src/info.rs:226
+#: src/info.rs:92 src/info.rs:197 src/info.rs:231
 msgid "Version"
 msgstr "Versie"
 
-#: src/info.rs:88 src/info.rs:193 src/info.rs:227
+#: src/info.rs:93 src/info.rs:198 src/info.rs:232
 msgid "Description"
 msgstr "Omschrijving"
 
-#: src/info.rs:89 src/info.rs:195 src/info.rs:235
+#: src/info.rs:94 src/info.rs:200 src/info.rs:240
 msgid "Groups"
 msgstr "Groepen"
 
-#: src/info.rs:90 src/info.rs:196 src/info.rs:236
+#: src/info.rs:95 src/info.rs:201 src/info.rs:241
 msgid "Licenses"
 msgstr "Licenties"
 
-#: src/info.rs:91 src/info.rs:197 src/info.rs:237
+#: src/info.rs:96 src/info.rs:202 src/info.rs:242
 msgid "Provides"
 msgstr "Voorziet"
 
-#: src/info.rs:92 src/info.rs:198 src/info.rs:238
+#: src/info.rs:97 src/info.rs:203 src/info.rs:243
 msgid "Depends On"
 msgstr "Is afhankelijk van"
 
-#: src/info.rs:93 src/info.rs:199 src/info.rs:239
+#: src/info.rs:98 src/info.rs:204 src/info.rs:244
 msgid "Make Deps"
 msgstr "Bouw-afhankelijkheden"
 
-#: src/info.rs:94 src/info.rs:200 src/info.rs:240
+#: src/info.rs:99 src/info.rs:205 src/info.rs:245
 msgid "Check Deps"
 msgstr "Check-afhankelijkheden"
 
-#: src/info.rs:95 src/info.rs:201 src/info.rs:241
+#: src/info.rs:100 src/info.rs:206 src/info.rs:246
 msgid "Optional Deps"
 msgstr "Optionele afhankelijkheden"
 
-#: src/info.rs:96 src/info.rs:202 src/info.rs:242
+#: src/info.rs:101 src/info.rs:207 src/info.rs:247
 msgid "Conflicts With"
 msgstr "Is in strijd met"
 
-#: src/info.rs:97 src/info.rs:243
+#: src/info.rs:102 src/info.rs:248
 msgid "Maintainer"
 msgstr "Eigenaar"
 
-#: src/info.rs:98 src/info.rs:244
+#: src/info.rs:103 src/info.rs:249
 msgid "Votes"
 msgstr "Stemmen"
 
-#: src/info.rs:99 src/info.rs:245
+#: src/info.rs:104 src/info.rs:250
 msgid "Popularity"
 msgstr "Populariteit"
 
-#: src/info.rs:100 src/info.rs:246
+#: src/info.rs:105 src/info.rs:251
 msgid "First Submitted"
 msgstr "Eerst toegevoegd"
 
-#: src/info.rs:101 src/info.rs:247
+#: src/info.rs:106 src/info.rs:252
 msgid "Last Modified"
 msgstr "Laatst bewerkt"
 
-#: src/info.rs:102 src/info.rs:249
+#: src/info.rs:107 src/info.rs:254
 msgid "Out Of Date"
 msgstr "Verouderd"
 
-#: src/info.rs:103 src/info.rs:254
+#: src/info.rs:108 src/info.rs:259
 msgid "ID"
 msgstr "ID"
 
-#: src/info.rs:104 src/info.rs:255
+#: src/info.rs:109 src/info.rs:260
 msgid "Package Base ID"
 msgstr "Basis-ID van pakket"
 
-#: src/info.rs:105 src/info.rs:256
+#: src/info.rs:110 src/info.rs:261
 msgid "Keywords"
 msgstr "Trefwoorden"
 
-#: src/info.rs:106 src/info.rs:258
+#: src/info.rs:111 src/info.rs:263
 msgid "Snapshot URL"
 msgstr "URL van momentopname"
 
-#: src/info.rs:107 src/info.rs:203
+#: src/info.rs:112 src/info.rs:208
 msgid "Path"
 msgstr "Pad"
 
@@ -863,7 +892,7 @@ msgstr "fout:"
 msgid "could not get news"
 msgstr "kon geen nieuws ophalen"
 
-#: src/install.rs:172 src/install.rs:1127
+#: src/install.rs:172 src/install.rs:1131
 msgid "Proceed with installation?"
 msgstr "Doorgaan met installatie?"
 
@@ -879,88 +908,132 @@ msgstr "kon het pakket {pkg} niet vinden in de pakketlijst van '{base}'"
 msgid "packages failed to build: {}"
 msgstr "pakketten die niet gebouwd konden worden: {}"
 
-#: src/install.rs:523
+#: src/install.rs:519
 msgid "adding {} to the install list"
 msgstr "{} aan de installatielijst aan het toevoegen"
 
-#: src/install.rs:553 src/install.rs:568
+#: src/install.rs:549 src/install.rs:564
 msgid "failed to download sources for '{}'"
 msgstr "bron van '{}' downloaden mislukt"
 
-#: src/install.rs:577 src/install.rs:603 src/install.rs:611
+#: src/install.rs:573 src/install.rs:599 src/install.rs:607
 msgid "failed to build '{}'"
 msgstr "bouwen van '{}' mislukt"
 
-#: src/install.rs:580 src/install.rs:784
+#: src/install.rs:576 src/install.rs:780
 msgid "{}: parsing pkg list..."
 msgstr "{}: pakketlijst parsen..."
 
-#: src/install.rs:584
+#: src/install.rs:580
 msgid "package list does not match srcinfo"
 msgstr "pakketlijst komt niet overeen met srcinfo"
 
-#: src/install.rs:618
+#: src/install.rs:614
 msgid "{}-{} is up to date -- skipping build"
 msgstr "{}-{} is nog actueel -- bouwen wordt overgeslagen"
 
-#: src/install.rs:775
+#: src/install.rs:771
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr "kan {base} niet bouwen, afhankelijkheden niet voldaan: {deps}"
 
-#: src/install.rs:846
+#: src/install.rs:842
 msgid "fetching devel info..."
 msgstr "devel-info ophalen..."
 
-#: src/install.rs:911 src/lib.rs:240
+#: src/install.rs:907 src/lib.rs:258
 msgid "no targets specified (use -h for help)"
 msgstr "geen doelen gespecificeerd (gebruik -h voor hulp)"
 
-#: src/install.rs:1008 src/install.rs:1097 src/search.rs:450 src/search.rs:476
-#: src/lib.rs:304
+#: src/install.rs:1011 src/install.rs:1101 src/search.rs:456 src/search.rs:482
+#: src/lib.rs:322
 msgid " there is nothing to do"
 msgstr " er valt niets te doen"
 
-#: src/install.rs:1016
+#: src/install.rs:1019
 msgid "Resolving dependencies..."
 msgstr "Afhankelijkheden oplossen..."
 
-#: src/install.rs:1077
+#: src/install.rs:1080
 msgid "can't install AUR package as root"
 msgstr "kan AUR-pakket niet als root installeren"
 
-#: src/install.rs:1080
+#: src/install.rs:1083
 msgid "--downloadonly can't be used for AUR packages"
 msgstr "--downloadonly kan niet worden gebruikt voor AUR-pakketen"
 
-#: src/install.rs:1113
+#: src/install.rs:1117
 msgid "Remove make dependencies after install?"
 msgstr "Bouwafhankelijke pakketten verwijderen na installatie?"
 
-#: src/install.rs:1124
+#: src/install.rs:1128
 msgid "Proceed to review?"
 msgstr "Doorgaan naar controleren?"
 
-#: src/install.rs:1177
+#: src/install.rs:1182
 msgid "no architecture"
 msgstr "geen architectuur"
 
-#: src/install.rs:1191
+#: src/install.rs:1196
 msgid "The following packages are not compatible with your architecture:"
 msgstr "De volgende pakketten zijn niet compatibel met uw architectuur:"
 
-#: src/install.rs:1205
+#: src/install.rs:1210
 msgid "Would you like to try build them anyway?"
 msgstr "Wilt u deze toch proberen te bouwen?"
 
+#: src/install.rs:1343
+msgid "{n} day"
+msgid_plural "{n} days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1346
+msgid "{n} hour"
+msgid_plural "{n} hours"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/install.rs:1349
+msgid "{n} minute"
+msgid_plural "{n} minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1351
+msgid "{n} second"
+msgid_plural "{n} seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/install.rs:1386
+msgid ""
+"AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
+msgstr ""
+
+#: src/install.rs:1420
+msgid "updated {} ago"
+msgstr ""
+
+#: src/install.rs:1427
+msgid ""
+"the following AUR packages are newer than the minimum release age of {}: {}"
+msgstr ""
+
+#: src/install.rs:1432
+msgid ""
+"pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --"
+"nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
+msgstr ""
+
+#: src/install.rs:1453
 msgid "duplicate packages: {}"
 msgstr "dubbele pakketten: {}"
 
-#: src/install.rs:1353
+#: src/install.rs:1457
 msgid "could not find all required packages:"
 msgstr "kon niet alle benodigde pakketten vinden:"
 
-#: src/install.rs:1365
+#: src/install.rs:1469
 msgid ""
 "\n"
 "    {missing} (wanted by: {stack})"
@@ -968,76 +1041,76 @@ msgstr ""
 "\n"
 "    {missing} (nodig voor: {stack})"
 
-#: src/install.rs:1379 src/install.rs:2122
+#: src/install.rs:1483 src/install.rs:2226
 msgid "{}-{} is up to date -- skipping"
 msgstr "{}-{} is actueel -- overslaan"
 
-#: src/install.rs:1387
+#: src/install.rs:1491
 msgid "Calculating conflicts..."
 msgstr "Conflicten berekenen..."
 
-#: src/install.rs:1410
+#: src/install.rs:1512
 msgid "Calculating inner conflicts..."
 msgstr "Interne conflicten berekenen..."
 
-#: src/install.rs:1422
+#: src/install.rs:1524
 msgid "Inner conflicts found:"
 msgstr "Interne conflicten gevonden:"
 
-#: src/install.rs:1444
+#: src/install.rs:1546
 msgid "Conflicts found:"
 msgstr "Conflicten gevonden:"
 
-#: src/install.rs:1467
+#: src/install.rs:1569
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr "Conflicterende pakketten moeten handmatig bevestigd worden"
 
-#: src/install.rs:1471
+#: src/install.rs:1573
 msgid "can not install conflicting packages with --noconfirm"
 msgstr "kan geen conflicterende pakketten installeren met --noconfirm"
 
-#: src/install.rs:1599
+#: src/install.rs:1701
 msgid "failed to execute file manager: {}"
 msgstr "kon bestandsbeheerder niet uitvoeren: {}"
 
-#: src/install.rs:1602
+#: src/install.rs:1704
 #, fuzzy
 msgid "file manager '{}' did not execute successfully"
 msgstr "bestandsbeheerder niet succesvol uitgevoerd"
 
-#: src/install.rs:1620
+#: src/install.rs:1722
 msgid "failed to read dir: {}"
 msgstr "uitlezen van map {} mislukt"
 
-#: src/install.rs:1677
+#: src/install.rs:1780
 msgid "failed to open: {}"
 msgstr "openen van {} mislukt"
 
-#: src/install.rs:1697
+#: src/install.rs:1800
 msgid "binary file: {}"
 msgstr "binair bestand: {}"
 
-#: src/install.rs:1719 src/install.rs:1790
+#: src/install.rs:1822 src/install.rs:1893
 msgid "Accept changes?"
 msgstr "Wijzigingen accepteren?"
 
-#: src/install.rs:1759
+#: src/install.rs:1862
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
-#: src/install.rs:1794
+#: src/install.rs:1897
 msgid " nothing new to review"
 msgstr " niets nieuws om te controleren"
 
-#: src/install.rs:2070
+#: src/install.rs:2174
 msgid "can't find package name in packagelist: {}"
 msgstr "kon de pakketnaam niet vinden in de pakketlijst: {}"
 
-#: src/install.rs:2142
+#: src/install.rs:2246
 msgid "Signing packages..."
 msgstr "Pakketten signeren..."
 
-#: src/install.rs:2172
+#: src/install.rs:2277
 msgid "{}-{} is up to date -- skipping install"
 msgstr "{}-{} is actueel -- installatie overslaan"
 
@@ -1049,15 +1122,15 @@ msgstr "sleutels moeten geïmporteerd worden:"
 msgid "     {key} wanted by: {base}"
 msgstr "     {key} gewenst door: {base}"
 
-#: src/news.rs:57
+#: src/news.rs:55
 msgid "No Date "
 msgstr "Geen datum "
 
-#: src/news.rs:60
+#: src/news.rs:58
 msgid "No Title"
 msgstr "Geen titel"
 
-#: src/news.rs:69
+#: src/news.rs:67
 msgid "no new news"
 msgstr "niets nieuws"
 
@@ -1086,39 +1159,39 @@ msgstr "PKGBUILD-repo's downloaden..."
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr "het parsen van de gegenereerde srcinfo door makepkg is mislukt"
 
-#: src/query.rs:151
+#: src/query.rs:156
 msgid " [ignored]"
 msgstr " [genegeerd]"
 
-#: src/repo.rs:253
+#: src/repo.rs:252
 msgid "failed to get current exe"
 msgstr "huidige exe ophalen mislukt"
 
-#: src/repo.rs:298
+#: src/repo.rs:297
 msgid "syncing local databases..."
 msgstr "lokale databases synchronizeren..."
 
-#: src/repo.rs:304
+#: src/repo.rs:303
 msgid "  nothing to do"
 msgstr "  niets te doen"
 
-#: src/repo.rs:335
+#: src/repo.rs:334
 msgid "there is nothing to do"
 msgstr "er valt niets te doen"
 
-#: src/repo.rs:341
+#: src/repo.rs:340
 msgid "Packages"
 msgstr "Pakketten"
 
-#: src/repo.rs:354
+#: src/repo.rs:353
 msgid "Proceed with removal?"
 msgstr "Doorgaan met verwijderen?"
 
-#: src/repo.rs:415
+#: src/repo.rs:414
 msgid " [installed: {}]"
 msgstr " [geïnstalleerd: {}]"
 
-#: src/repo.rs:417 src/sync.rs:144
+#: src/repo.rs:416 src/sync.rs:149
 msgid " [installed]"
 msgstr " [geïnstalleerd]"
 
@@ -1126,35 +1199,35 @@ msgstr " [geïnstalleerd]"
 msgid "aur search failed"
 msgstr "zoeken in AUR mislukt"
 
-#: src/search.rs:285 src/search.rs:338 src/search.rs:410
+#: src/search.rs:291 src/search.rs:344 src/search.rs:416
 #, fuzzy
 msgid "[installed: {}]"
 msgstr " [geïnstalleerd: {}]"
 
-#: src/search.rs:287 src/search.rs:340 src/search.rs:412
+#: src/search.rs:293 src/search.rs:346 src/search.rs:418
 #, fuzzy
 msgid "[installed]"
 msgstr " [geïnstalleerd]"
 
-#: src/search.rs:332
+#: src/search.rs:338
 #, fuzzy
 msgid "[out-of-date: {}]"
 msgstr "[Verouderd: {}]"
 
-#: src/search.rs:347
+#: src/search.rs:353
 #, fuzzy
 msgid "[orphaned]"
 msgstr "[Onbeheerd]"
 
-#: src/search.rs:491
+#: src/search.rs:497
 msgid "no packages match search"
 msgstr "geen overeenkomende pakketten gevonden"
 
-#: src/search.rs:529
+#: src/search.rs:535
 msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr "Pakketten om te installeren (bv: 1 2 3, 1-3):"
 
-#: src/search.rs:531
+#: src/search.rs:537
 #, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
 msgstr "Pakketten om te installeren (bv: 1 2 3, 1-3):"
@@ -1191,47 +1264,47 @@ msgstr "Zoeken naar PKGBUILD-upgrades..."
 msgid "Looking for AUR upgrades..."
 msgstr "Zoeken naar AUR-upgrades..."
 
-#: src/upgrade.rs:165
+#: src/upgrade.rs:164
 msgid "Looking for devel upgrades..."
 msgstr "Zoeken naar devel-upgrades..."
 
-#: src/upgrade.rs:193 src/upgrade.rs:206
+#: src/upgrade.rs:192 src/upgrade.rs:205
 msgid "warning:"
 msgstr "waarschuwing:"
 
-#: src/upgrade.rs:195 src/upgrade.rs:208
+#: src/upgrade.rs:194 src/upgrade.rs:207
 msgid "{pkg}: ignoring package upgrade ({old} => {new})"
 msgstr "{pkg}: pakketupgrade wordt genegeerd ({old} => {new})"
 
-#: src/upgrade.rs:400
+#: src/upgrade.rs:399
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr "Uitgesloten pakketten (bv: 1 2 3, 1-3):"
 
-#: src/util.rs:121
+#: src/util.rs:141
 msgid "[Y/n]:"
 msgstr "[J/n]:"
 
-#: src/util.rs:123
+#: src/util.rs:143
 msgid "[y/N]:"
 msgstr "[j/N]:"
 
-#: src/util.rs:142
+#: src/util.rs:161
 msgid "y"
 msgstr "j"
 
-#: src/util.rs:142
+#: src/util.rs:161
 msgid "yes"
 msgstr "ja"
 
-#: src/util.rs:300
+#: src/util.rs:318
 msgid "Enter a number (default=1): "
 msgstr "Voer een nummer in (standaard=1): "
 
-#: src/util.rs:317
+#: src/util.rs:333
 msgid "invalid number: {}"
 msgstr "ongeldig nummer: {}"
 
-#: src/util.rs:327
+#: src/util.rs:343
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr "ongeldige waarde: {n} ligt niet tussen 1 en {max}"
 
@@ -1239,7 +1312,7 @@ msgstr "ongeldige waarde: {n} ligt niet tussen 1 en {max}"
 msgid "There are {} members in group"
 msgstr "Er zijn {} leden in de groep"
 
-#: src/resolver.rs:108
+#: src/resolver.rs:111
 msgid ""
 "\n"
 "\n"
@@ -1249,11 +1322,11 @@ msgstr ""
 "\n"
 "Voer een selectie in (standaard=alles): "
 
-#: src/lib.rs:206
+#: src/lib.rs:224
 msgid "can not use chroot builds: devtools is not installed"
 msgstr "kan chroot-builds niet gebruiken: devtools is niet geïnstalleerd"
 
-#: src/lib.rs:313
+#: src/lib.rs:331
 msgid "no operation specified (use -h for help)"
 msgstr "geen handeling gespecificeerd (gebruik -h voor hulp)"
 
