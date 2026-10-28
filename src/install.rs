@@ -882,9 +882,11 @@ impl Installer {
                 Err(e) => {
                     if config.fail_fast {
                         self.failed.pop().unwrap();
+                        print_aur_link(config, &base);
                         return Err(e);
                     }
                     print_error(config.color.error, e);
+                    print_aur_link(config, &base);
                 }
             }
         }
@@ -1250,6 +1252,17 @@ impl Installer {
 
     fn upgrade_later(&self, config: &Config) -> bool {
         config.mode.repo() && config.chroot && (self.sysupgrade != 0 || self.refresh != 0)
+    }
+}
+
+fn print_aur_link(config: &Config, base: &Base) {
+    if let Base::Aur(aur_base) = base {
+        eprintln!(
+            "{} {}/packages/{}",
+            tr!("view on AUR:"),
+            config.aur_url.as_str().trim_end_matches('/'),
+            aur_base.package_base()
+        );
     }
 }
 
