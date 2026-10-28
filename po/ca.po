@@ -8,15 +8,14 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-10-28 16:12+0000\n"
-"PO-Revision-Date: 2022-12-08 01:06+0100\n"
-"Last-Translator: Ícar N. S. <icar.nin@protonmail.com>\n"
+"PO-Revision-Date: 2026-11-11 19:45+0000\n"
+"Last-Translator: David Medina <opensusecatala@gmail.com>\n"
 "Language-Team: \n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -28,7 +27,7 @@ msgstr "Voleu eliminar tots els altres paquets de l'AUR de la memòria cau?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
-msgstr "Clonar el directori: {}"
+msgstr "Directori de clonació: {}"
 
 #: src/clean.rs:47
 msgid ""
@@ -36,7 +35,7 @@ msgid ""
 "Diff Directory: {}"
 msgstr ""
 "\n"
-"Directori diff: {}"
+"Directori de diferències (diff): {}"
 
 #: src/clean.rs:49
 msgid "Do you want to remove all saved diffs?"
@@ -52,12 +51,11 @@ msgstr "no s'ha pogut eliminar «{}»"
 
 #: src/clean.rs:95
 msgid "can't open clone dir: {}"
-msgstr "no es pot obrir el directori de clonar: {}"
+msgstr "no es pot obrir el directori de clonació: {}"
 
 #: src/clean.rs:141
-#, fuzzy
 msgid "could not parse .SRCINFO for '{}'"
-msgstr "no s'ha pogut trobar .SRINFO per a '{}'"
+msgstr "no s'ha pogut analitzar .SRCINFO per a «{}»"
 
 #: src/command_line.rs:134
 msgid "option {} expects a value"
@@ -69,11 +67,11 @@ msgstr "l'opció {} no permet un valor"
 
 #: src/command_line.rs:383
 msgid "unknown option --{}"
-msgstr "opció desconeguda --{}"
+msgstr "opció desconeguda: --{}"
 
 #: src/command_line.rs:386
 msgid "unknown option -{}"
-msgstr "opció desconeguda -{}"
+msgstr "opció desconeguda: -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:118
 #, fuzzy
@@ -90,7 +88,7 @@ msgstr "no s'ha pogut actualitzar la memòria cau de l'AUR"
 
 #: src/config.rs:179
 msgid "invalid value '{val}' for key '{key}', expected: {exp}"
-msgstr "valor '{val}' no vàlid per a la clau '{key}', s'esperava: {exp}"
+msgstr "el valor «{val}» no és vàlid per a la clau «{key}», s'esperava {exp}"
 
 #: src/config.rs:347
 msgid "unknown mode {}"
@@ -98,7 +96,7 @@ msgstr "mode desconegut {}"
 
 #: src/config.rs:582
 msgid "section can not be called {}"
-msgstr "la secció no pot ser cridada {}"
+msgstr "la secció no es pot anomenar {}"
 
 #: src/config.rs:616
 msgid "failed to find cache directory"
@@ -114,19 +112,19 @@ msgstr "no s'ha pogut trobar el directori d'estat"
 
 #: src/config.rs:669
 msgid "config file '{}' does not exist"
-msgstr "el fitxer de configuració '{}' no existeix"
+msgstr "el fitxer de configuració «{}» no existeix"
 
 #: src/config.rs:718
 msgid "only one operation may be used at a time"
-msgstr "només es pot utilitzar una operació alhora"
+msgstr "només es pot usar una operació cada cop"
 
 #: src/config.rs:833
 msgid "no local repo named {}"
-msgstr ""
+msgstr "no hi ha cap dipòsit local anomenat {}"
 
 #: src/config.rs:859
 msgid "can not find local repo '{}' in pacman.conf"
-msgstr "no es pot trobar el dipòsit local '{}' al pacman.conf"
+msgstr "no es pot trobar el dipòsit local «{}» a pacman.conf"
 
 #: src/config.rs:901
 msgid "failed to initialize alpm: root={} dbpath={}"
@@ -134,11 +132,11 @@ msgstr "no s'ha pogut inicialitzar l'alpm: arrel={} dbpath={}"
 
 #: src/config.rs:976 src/config.rs:1138
 msgid "value can not be empty for key '{}'"
-msgstr "el valor no pot estar buit per a la clau '{}'"
+msgstr "el valor no pot estar buit per a la clau «{}»"
 
 #: src/config.rs:992
 msgid "key '{}' does not belong to a section"
-msgstr "la clau '{}' no pertany a una secció"
+msgstr "la clau «{}» no pertany a una secció"
 
 #: src/config.rs:1006 src/config.rs:1023 src/config.rs:1025 src/config.rs:1039
 msgid "key can not be empty"
@@ -146,7 +144,7 @@ msgstr "la clau no pot estar buida"
 
 #: src/config.rs:1016
 msgid "error: unknown option '{}' in repo"
-msgstr "error: opció desconeguda '{}' al dipòsit"
+msgstr "error: opció desconeguda «{}» al dipòsit"
 
 #: src/config.rs:1026
 msgid "key can not contain null bytes"
@@ -158,15 +156,15 @@ msgstr "el valor no pot contenir bytes nuls"
 
 #: src/config.rs:1064
 msgid "error: unknown option '{}' in section [bin]"
-msgstr "error: opció desconeguda '{}' a la secció [bin]"
+msgstr "error: opció desconeguda «{}» a la secció [bin]"
 
 #: src/config.rs:1192
 msgid "error: unknown option '{}' in section [options]"
-msgstr "error: opció desconeguda '{}' a la secció [opcions]"
+msgstr "error: opció desconeguda «{}» a la secció [options]"
 
 #: src/config.rs:1197
 msgid "option '{}' does not take a value"
-msgstr "l'opció '{}' no pren cap valor"
+msgstr "l'opció «{}» no pren cap valor"
 
 #: src/config.rs:1229 src/resolver.rs:133
 msgid "There are {n} providers available for {pkg}:"
@@ -175,7 +173,7 @@ msgstr "Hi ha {n} proveïdors disponibles per a {pkg}:"
 #: src/config.rs:1243 src/info.rs:90 src/info.rs:195 src/info.rs:229
 #: src/resolver.rs:99 src/resolver.rs:141
 msgid "Repository"
-msgstr "Repositori"
+msgstr "Dipòsit"
 
 #: src/config.rs:1269
 msgid "  failed to sync {}"
@@ -192,7 +190,7 @@ msgstr ""
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
-msgstr "S'està consultant l'AUR..."
+msgstr "Es consulta l'AUR..."
 
 #: src/devel.rs:157 src/devel.rs:182 src/install.rs:203
 msgid "failed to parse srcinfo for '{}'"
@@ -200,7 +198,7 @@ msgstr "no s'ha pogut analitzar «srcinfo» per a «{}»"
 
 #: src/devel.rs:201
 msgid "Looking for devel repos..."
-msgstr "Buscant repositoris de desenvolupament..."
+msgstr "Se cerquen dipòsits de desenvolupament..."
 
 #: src/devel.rs:210
 msgid "failed to save devel info"
@@ -219,9 +217,8 @@ msgid "failed to write to temporary file: {}"
 msgstr "no s'ha pogut escriure al fitxer temporal {}"
 
 #: src/devel.rs:244
-#, fuzzy
 msgid "failed to rename '{temp}' to '{devel_toml}'"
-msgstr "ha fallat reanomenar '{temp}' a '{devel_json}'"
+msgstr "ha fallat canviar de nom «{temp}» a «{devel_toml}»"
 
 #: src/devel.rs:496
 msgid "package does not have an update"
@@ -232,13 +229,12 @@ msgid "failed to lookup: {}"
 msgstr "no s'ha pogut cercar: {}"
 
 #: src/devel.rs:570
-#, fuzzy
 msgid "invalid toml: {}"
-msgstr "json no vàlid: {}"
+msgstr "toml no vàlid: {}"
 
 #: src/download.rs:100
 msgid "packages not in the AUR: "
-msgstr "paquets no a l'AUR: "
+msgstr "paquets que no són a l'AUR: "
 
 #: src/download.rs:111
 msgid "marked out of date: "
@@ -250,12 +246,12 @@ msgstr "orfes: "
 
 #: src/download.rs:260
 msgid "downloading: {pkg}"
-msgstr "descarregant: {pkg}"
+msgstr "es baixa: {pkg}"
 
 #: src/download.rs:279 src/download.rs:602 src/info.rs:60 src/info.rs:185
 #: src/query.rs:49
 msgid "package '{}' was not found"
-msgstr "no s'ha trobat el paquet '{}'"
+msgstr "no s'ha trobat el paquet «{}»"
 
 #: src/download.rs:291
 #, fuzzy
@@ -268,7 +264,7 @@ msgstr ""
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
-msgstr "S'estan baixant els PKGBUILDs..."
+msgstr "Es baixen els PKGBUILD..."
 
 #: src/download.rs:344
 msgid " PKGBUILDs up to date"
@@ -280,7 +276,7 @@ msgstr "no s'ha pogut executar:"
 
 #: src/exec.rs:170
 msgid "Pacman is currently in use, please wait..."
-msgstr "Actualment, Pacman està en ús, espereu..."
+msgstr "Ara el Pacman està ocupat. Espereu, si us plau..."
 
 #: src/fmt.rs:24 src/info.rs:280 src/search.rs:299 src/search.rs:356
 msgid "None"
@@ -288,11 +284,11 @@ msgstr "Cap"
 
 #: src/fmt.rs:245
 msgid "Repo"
-msgstr "Repo"
+msgstr "Dipòsit"
 
 #: src/fmt.rs:252
 msgid "Repo Make"
-msgstr "Construcció del repositori"
+msgstr "Construcció del dipòsit"
 
 #: src/fmt.rs:272
 msgid "Pkgbuilds Make"
@@ -328,7 +324,7 @@ msgstr "No"
 
 #: src/fmt.rs:417
 msgid "insufficient columns available for table display"
-msgstr "no hi ha suficients columnes per a la visualització com a taula"
+msgstr "no hi ha prou columnes per a la visualització com a taula"
 
 #: src/help.rs:4
 msgid "Usage:"
@@ -360,31 +356,31 @@ msgstr "    paru {-V --version}"
 
 #: src/help.rs:12
 msgid "    paru {-D --database}    <options> <package(s)>"
-msgstr "    paru {-D --database}    <opcions> <paquet(s)>"
+msgstr "    paru {-D --database}    <opcions> <paquet/s>"
 
 #: src/help.rs:13
 msgid "    paru {-F --files}       [options] [package(s)]"
-msgstr "    paru {-F --files}       [opcions] [paquet(s)]"
+msgstr "    paru {-F --files}       [opcions] [paquet/s]"
 
 #: src/help.rs:14
 msgid "    paru {-Q --query}       [options] [package(s)]"
-msgstr "    paru {-Q --query}       [opcions] [paquet(s)]"
+msgstr "    paru {-Q --query}       [opcions] [paquet/s]"
 
 #: src/help.rs:15
 msgid "    paru {-R --remove}      [options] <package(s)>"
-msgstr "    paru {-R --remove}      [opcions] <paquet(s)>"
+msgstr "    paru {-R --remove}      [opcions] <paquet/s>"
 
 #: src/help.rs:16
 msgid "    paru {-S --sync}        [options] [package(s)]"
-msgstr "    paru {-S --sync}        [opcions] [paquet(s)]"
+msgstr "    paru {-S --sync}        [opcions] [paquet/s]"
 
 #: src/help.rs:17
 msgid "    paru {-T --deptest}     [options] [package(s)]"
-msgstr "    paru {-T --deptest}     [opcions] [paquet(s)]"
+msgstr "    paru {-T --deptest}     [opcions] [paquet/s]"
 
 #: src/help.rs:18
 msgid "    paru {-U --upgrade}     [options] [file(s)]"
-msgstr "    paru {-U --upgrade}     [opcions] [fitxer(s)]"
+msgstr "    paru {-U --upgrade}     [opcions] [fitxer/s]"
 
 #: src/help.rs:20
 msgid "New operations:"
@@ -396,15 +392,15 @@ msgstr "    paru {-P --show}        [opcions]"
 
 #: src/help.rs:22
 msgid "    paru {-G --getpkgbuild} [package(s)]"
-msgstr "    paru {-G --getpkgbuild} [paquet(s)]"
+msgstr "    paru {-G --getpkgbuild} [paquet/s]"
 
 #: src/help.rs:23
 msgid "    paru {-B --build}       [dir(s)]"
-msgstr "    paru {-B --build}       [dir(s)]"
+msgstr "    paru {-B --build}       [directori/s]"
 
 #: src/help.rs:25
 msgid "If no arguments are provided 'paru -Syu' will be performed"
-msgstr "Si no es proveeixen arguments, s'executarà 'paru -Syu'"
+msgstr "Si no es proveeixen arguments, s'executarà «paru -Syu»"
 
 #: src/help.rs:27
 msgid "Options without operation:"
@@ -412,7 +408,7 @@ msgstr "Opcions sense operació:"
 
 #: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "    -c --clean            Elimina els paquets no necessaris"
+msgstr "    -c --clean            Elimina les dependències no necessàries"
 
 #: src/help.rs:29
 msgid ""
@@ -428,94 +424,95 @@ msgstr "Opcions noves:"
 #: src/help.rs:32
 msgid "       --repo              Assume targets are from the repositories"
 msgstr ""
-"       --repo              Assumeix que els paquets són dels repositoris"
+"       --repo              Assumeix que els objectius són dels dipòsits"
 
 #: src/help.rs:33
 msgid ""
 "       --pkgbuilds         Assume targets are from pkgbuild repositories"
 msgstr ""
 "       --pkgbuilds         Assumeix que els objectius són de dipòsits de "
-"PKGBUILDs"
+"PKGBUILD"
 
 #: src/help.rs:34
 msgid "    -a --aur               Assume targets are from the AUR"
-msgstr "    -a --aur               Assumeix que els paquets són de l'AUR"
+msgstr "    -a --aur               Assumeix que els objectius són de l'AUR"
 
 #: src/help.rs:35
 msgid "    --mode      <mode>     Sets where paru looks for targets"
-msgstr "    --mode      <mode>     Indica on el paru busca objectius"
+msgstr "    --mode      <mode>     Indica on el paru cerca objectius"
 
 #: src/help.rs:37
 msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, "
 "-Ss and -Qs"
 msgstr ""
+"    --interactive          Habilita la selecció interactiva de paquets per a"
+" -S, -R, -Ss i -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
-msgstr "    --aururl    <url>      Especifica una URL alternativa per l'AUR"
+msgstr "    --aururl    <url>      Especifica un URL alternatiu per l'AUR"
 
 #: src/help.rs:40
 msgid ""
 "    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint"
 msgstr ""
-"    --aurrpcur  <url>      Indica una URL alternativa per l'endpoint /rpc de "
-"l'AUR"
+"    --aurrpcur  <url>      Indica un URL alternatiu per al punt final /rpc "
+"de l'AUR"
 
 #: src/help.rs:41
 msgid "    --clonedir  <dir>      Directory used to download and run PKGBUILDs"
 msgstr ""
-"    --clonedir  <dir>      El directori usat per descarregar i executar els "
+"    --clonedir  <dir>      El directori usat per baixar i executar els "
 "PKGBUILD"
 
 #: src/help.rs:43
 msgid "    --makepkg   <file>     makepkg command to use"
-msgstr "    --makepkg   <file>     La comanda «makepkg» a usar"
+msgstr "    --makepkg   <file>     L'ordre de «makepkg» per usar"
 
 #: src/help.rs:44
 msgid "    --mflags    <flags>    Pass arguments to makepkg"
-msgstr "    --mflags    <flags>    Passa arguments al «makepkg»"
+msgstr "    --mflags    <flags>    Passa arguments a «makepkg»"
 
 #: src/help.rs:45
 msgid "    --pacman    <file>     pacman command to use"
-msgstr "    --pacman    <file>     La comanda «pacman» a usar"
+msgstr "    --pacman    <file>     L'ordre de «pacman» per usar"
 
 #: src/help.rs:46
 msgid "    --git       <file>     git command to use"
-msgstr "    --git       <file>     La comanda «git» a usar"
+msgstr "    --git       <file>     L'ordre de «git» per usar"
 
 #: src/help.rs:47
 msgid "    --gitflags  <flags>    Pass arguments to git"
-msgstr "    --gitflags  <flags>     Passa arguments al «git»"
+msgstr "    --gitflags  <flags>    Passa arguments a «git»"
 
 #: src/help.rs:48
 msgid "    --sudo      <file>     sudo command to use"
-msgstr "    --sudo      <file>     La comanda «sudo» a usar"
+msgstr "    --sudo      <file>     L'ordre de «sudo» per usar"
 
 #: src/help.rs:49
 msgid "    --sudoflags <flags>    Pass arguments to sudo"
-msgstr "    --sudoflags <flags>    Passa arguments al «sudo»"
+msgstr "    --sudoflags <flags>    Passa arguments a «sudo»"
 
 #: src/help.rs:50
-#, fuzzy
 msgid "    --pkgctl    <file>     pkgctl command to use"
-msgstr "    --git       <file>     La comanda «git» a usar"
+msgstr "    --pkgctl    <file>     L'ordre de «pkgctl» per usar"
 
 #: src/help.rs:51
 msgid "    --bat       <file>     bat command to use"
-msgstr "    --bat       <file>     La comanda «bat» a usar"
+msgstr "    --bat       <file>     L'ordre de «bat» per usar"
 
 #: src/help.rs:52
 msgid "    --batflags  <flags>    Pass arguments to bat"
-msgstr "    --batflags  <flags>    Passa arguments al «bat»"
+msgstr "    --batflags  <flags>    Passa arguments a «bat»"
 
 #: src/help.rs:53
 msgid "    --gpg       <file>     gpg command to use"
-msgstr "    --gpg       <file>     La comanda «gpg» a usar"
+msgstr "    --gpg       <file>     L'ordre de «gpg» per usar"
 
 #: src/help.rs:54
 msgid "    --gpgflags  <flags>    Pass arguments to gpg"
-msgstr "    --gpgflags  <flags>    Passa arguments al «gpg»"
+msgstr "    --gpgflags  <flags>    Passa arguments a «gpg»"
 
 #: src/help.rs:55
 msgid "    --fm        <file>     File manager to use for PKGBUILD review"
@@ -547,7 +544,8 @@ msgstr "    --searchby  <field>    Cerca paquets per un camp específic"
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
-"    --limit     <límit>    Limita el número d'ítems retornats en una cerca"
+"    --limit     <límit>    Limita el número d'elements retornats en una "
+"cerca"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
@@ -585,7 +583,7 @@ msgstr "    --[no]rebuild          Construeix sempre els paquets objectiu"
 
 #: src/help.rs:70
 msgid "    --[no]redownload       Always download PKGBUILDs of targets"
-msgstr "    --[no]redownload       Descarrega sempre els PKGBUILD dels paquets"
+msgstr "    --[no]redownload       Baixa sempre els PKGBUILD dels objectius"
 
 #: src/help.rs:72
 msgid "    --[no]pgpfetch         Prompt to import PGP keys from PKGBUILDs"
@@ -597,28 +595,28 @@ msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
-"    --[no]useask           Resol els conflictes automàticament usant la "
-"opció «ask» de Pacman"
+"    --[no]useask           Resol els conflictes automàticament usant l'opció"
+" «ask» del Pacman"
 
 #: src/help.rs:74
 msgid ""
 "    --[no]savechanges      Commit changes to pkgbuilds made during review"
 msgstr ""
-"    --[no]savechanges      Comet els canvis als PKGBUILD fets durant la "
-"revisió"
+"    --[no]savechanges      Crea un commit a git amb els canvis als PKGBUILD "
+"fets durant la revisió"
 
 #: src/help.rs:75
 msgid "    --[no]newsonupgrade    Print new news during sysupgrade"
 msgstr ""
-"    --[no]newsonupgrade    Mostra notícies noves a l'actualitzar el sistema"
+"    --[no]newsonupgrade    Mostra notícies noves en actualitzar el sistema"
 
 #: src/help.rs:76
 msgid ""
 "    --[no]combinedupgrade  Refresh then perform the repo and AUR upgrade "
 "together"
 msgstr ""
-"    --[no]combinedupgrade  Refresca i després porta a terme les "
-"actualizacions dels repositoris i l'AUR conjuntament"
+"    --[no]combinedupgrade  Refresca, i després fes les actualitzacions dels "
+"dipòsits i de l'AUR conjuntament"
 
 #: src/help.rs:77
 msgid ""
@@ -633,8 +631,8 @@ msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
-"    --[no]provides         Busca proveïdors que coincideixin quan es busquin "
-"paquets"
+"    --[no]provides         Cerca proveïdors que coincideixin quan se cerquin"
+" paquets"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
@@ -648,14 +646,14 @@ msgid ""
 "provides them"
 msgstr ""
 "    --[no]installdebug     També instal·la paquets de depuració quan un "
-"paquet els proveeix"
+"paquet els proveeixi"
 
 #: src/help.rs:81
 msgid ""
 "    --[no]sudoloop         Loop sudo calls in the background to avoid timeout"
 msgstr ""
-"    --[no]sudoloop         Fes crides periòdiques a «sudo» per evitar el "
-"temps d'espera"
+"    --[no]sudoloop         Fes crides periòdiques a «sudo» per evitar que "
+"s'esgoti el temps d'espera"
 
 #: src/help.rs:82
 msgid "    --[no]chroot           Build packages in a chroot"
@@ -664,7 +662,9 @@ msgstr "    --[no]chroot           Construeix els paquets en un «chroot»"
 #: src/help.rs:83
 msgid ""
 "    --[no]failfast         Exit as soon as building an AUR package fails"
-msgstr "    --[no]failfast         Surt quan un paquet de l'AUR falli"
+msgstr ""
+"    --[no]failfast         Surt quan falli la construcció d'un paquet de "
+"l'AUR"
 
 #: src/help.rs:84
 msgid ""
@@ -675,25 +675,22 @@ msgstr ""
 
 #: src/help.rs:85
 msgid "    --[no]sign             Sign packages with gpg"
-msgstr "    --[no]sign             Firma els paquets amb gpg"
+msgstr "    --[no]sign             Signa els paquets amb gpg"
 
 #: src/help.rs:86
 msgid "    --[no]signdb           Sign databases with gpg"
 msgstr "    --[no]signdb           Signa les bases de dades amb gpg"
 
 #: src/help.rs:87
-#, fuzzy
 msgid "    --[no]localrepo        Build packages into a local repo"
-msgstr ""
-"    --localrepo            Afegeix els paquets construïts a un repositori "
-"local"
+msgstr "    --[no]localrepo        Construeix els paquets en un dipòsit local"
 
 #: src/help.rs:88
 msgid ""
 "    --nocheck              Don't resolve checkdepends or run the check "
 "function"
 msgstr ""
-"    --nocheck              No resolguis els «checkdepends» o executis la "
+"    --nocheck              No resolguis els «checkdepends» ni executis la "
 "funció «check»"
 
 #: src/help.rs:90
@@ -707,15 +704,14 @@ msgid ""
 "    --develsuffixes        Suffixes used to decide if a package is a devel "
 "package"
 msgstr ""
-"    --develsuffixes        Sufixos utilitzats per decidir si un paquet és un "
+"    --develsuffixes        Sufixos usats per decidir si un paquet és un "
 "paquet de desenvolupament"
 
 #: src/help.rs:93
-#, fuzzy
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
-"    --ignoredevel          Ignora les actualitzacions dels paquets de "
-"desenvolupament pels paquets especificats"
+"    --ignoredevel          Ignora les actualitzacions de desenvolupament per"
+" als paquets especificats"
 
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
@@ -734,13 +730,16 @@ msgstr ""
 #: src/help.rs:97
 msgid ""
 "    --bottomup             Shows AUR's packages first and then repository's"
-msgstr "    --bottomup             Mostra els paquets de l'AUR primerament"
+msgstr ""
+"    --bottomup             Mostra primer els paquets de l'AUR i després els "
+"dels dipòsits"
 
 #: src/help.rs:98
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
-"    --topdown              Mostra els paquets dels repositoris primerament"
+"    --topdown              Mostra primer els paquets dels dipòsits i després"
+" els de l'AUR"
 
 #: src/help.rs:99
 msgid ""
@@ -754,7 +753,7 @@ msgstr "opcions específiques de «show»:"
 
 #: src/help.rs:102
 msgid "    -c --complete         Used for completions"
-msgstr "    -c --complete         Utilitzat per complecions"
+msgstr "    -c --complete         Usat per a complecions"
 
 #: src/help.rs:103
 msgid "    -s --stats            Display system package statistics"
@@ -776,7 +775,7 @@ msgstr "    -p --print            Imprimeix el PKGBUILD a «stdout»"
 #: src/help.rs:108
 msgid "    -c --comments         Print AUR comments for pkgbuild"
 msgstr ""
-"    -c --comments         Imprimeix els comentaris de l'AUR pel PKGBUILD"
+"    -c --comments         Imprimeix els comentaris de l'AUR per al PKGBUILD"
 
 #: src/help.rs:109
 msgid "    -s --ssh              Clone package using SSH"
@@ -788,7 +787,7 @@ msgstr "Opcions específiques de construcció:"
 
 #: src/help.rs:112
 msgid "    -i --install          Install package as well as building"
-msgstr "    -i --install          Construeix i instal·la el(s) paquet(s)"
+msgstr "    -i --install          Construeix i instal·la el/s paquet/s"
 
 #: src/info.rs:91 src/info.rs:196 src/info.rs:230
 msgid "Name"
@@ -848,7 +847,7 @@ msgstr "Popularitat"
 
 #: src/info.rs:105 src/info.rs:251
 msgid "First Submitted"
-msgstr "Primera vegada enviat"
+msgstr "Primer enviament"
 
 #: src/info.rs:106 src/info.rs:252
 msgid "Last Modified"
@@ -888,16 +887,16 @@ msgstr "no s'han pogut obtenir notícies"
 
 #: src/install.rs:172 src/install.rs:1131
 msgid "Proceed with installation?"
-msgstr "Voleu continuar amb la instal·lació?"
+msgstr "Voleu continuar la instal·lació?"
 
 #: src/install.rs:207
 msgid "could not find .SRCINFO for '{}'"
-msgstr "no s'ha pogut trobar .SRINFO per a '{}'"
+msgstr "no s'ha pogut trobar .SRCINFO per a «{}»"
 
 #: src/install.rs:353
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
-"no s'ha pogut trobar el paquet '{pkg}' a la llista de paquets per a '{base}'"
+"no s'ha pogut trobar el paquet «{pkg}» a la llista de paquets per a «{base}»"
 
 #: src/install.rs:451
 msgid "packages failed to build: {}"
@@ -905,7 +904,7 @@ msgstr "no s'han pogut construir els paquets: {}"
 
 #: src/install.rs:519
 msgid "adding {} to the install list"
-msgstr "s'està afegint {} a la llista d'instal·lació"
+msgstr "s'afegeix {} a la llista d'instal·lació"
 
 #: src/install.rs:549 src/install.rs:564
 msgid "failed to download sources for '{}'"
@@ -917,7 +916,7 @@ msgstr "no s'ha pogut construir «{}»"
 
 #: src/install.rs:576 src/install.rs:780
 msgid "{}: parsing pkg list..."
-msgstr "{}: s'està analitzant la llista de paquets..."
+msgstr "{}: s'analitza la llista de paquets..."
 
 #: src/install.rs:580
 msgid "package list does not match srcinfo"
@@ -925,28 +924,28 @@ msgstr "la llista de paquets no coincideix amb srcinfo"
 
 #: src/install.rs:614
 msgid "{}-{} is up to date -- skipping build"
-msgstr "{}-{} està actualitzat -- s'omet la construcció"
+msgstr "{}-{} està actualitzat -- se n'omet la construcció"
 
 #: src/install.rs:771
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr "no es pot construir {base}, les dependències no satisfetes són: {deps}"
+msgstr "no es pot construir {base}, les dependències no satisfetes són {deps}"
 
 #: src/install.rs:842
 msgid "fetching devel info..."
-msgstr "s'està recuperant la informació de desenvolupament..."
+msgstr "es recupera la informació de desenvolupament..."
 
 #: src/install.rs:907 src/lib.rs:258
 msgid "no targets specified (use -h for help)"
-msgstr "no s'ha especificat cap objectiu (useu -h per ajuda)"
+msgstr "no s'ha especificat cap objectiu (useu -h per a l'ajuda)"
 
 #: src/install.rs:1011 src/install.rs:1101 src/search.rs:456 src/search.rs:482
 #: src/lib.rs:322
 msgid " there is nothing to do"
-msgstr " No hi ha res a fer"
+msgstr " No hi ha res per fer."
 
 #: src/install.rs:1019
 msgid "Resolving dependencies..."
-msgstr "S'estan resolent les dependències..."
+msgstr "Es resolen les dependències..."
 
 #: src/install.rs:1080
 msgid "can't install AUR package as root"
@@ -954,7 +953,7 @@ msgstr "no es pot instal·lar el paquet de l'AUR com a root"
 
 #: src/install.rs:1083
 msgid "--downloadonly can't be used for AUR packages"
-msgstr "--downloadonly no pot ser usat per a paquets de l'AUR"
+msgstr "--downloadonly no es pot usar per a paquets de l'AUR"
 
 #: src/install.rs:1117
 msgid "Remove make dependencies after install?"
@@ -963,7 +962,7 @@ msgstr ""
 
 #: src/install.rs:1128
 msgid "Proceed to review?"
-msgstr "Voleu continuar a la revisió?"
+msgstr "Voleu procedir a la revisió?"
 
 #: src/install.rs:1182
 msgid "no architecture"
@@ -971,11 +970,11 @@ msgstr "sense arquitectura"
 
 #: src/install.rs:1196
 msgid "The following packages are not compatible with your architecture:"
-msgstr "Els següents paquets no són compatibles amb la vostra arquitectura:"
+msgstr "Els paquets següents no són compatibles amb la vostra arquitectura:"
 
 #: src/install.rs:1210
 msgid "Would you like to try build them anyway?"
-msgstr "Voleu provar de construir-los de totes maneres?"
+msgstr "Voleu provar de construir-los tanmateix?"
 
 #: src/install.rs:1343
 msgid "{n} day"
@@ -1035,7 +1034,7 @@ msgid ""
 "    {missing} (wanted by: {stack})"
 msgstr ""
 "\n"
-"    {missing} (desitjat per: {stack})"
+"    {missing} (volgut per: {stack})"
 
 #: src/install.rs:1483 src/install.rs:2226
 msgid "{}-{} is up to date -- skipping"
@@ -1043,11 +1042,11 @@ msgstr "{}-{} està actualitzat -- s'omet"
 
 #: src/install.rs:1491
 msgid "Calculating conflicts..."
-msgstr "Calculant conflictes..."
+msgstr "Es calculen els conflictes..."
 
 #: src/install.rs:1512
 msgid "Calculating inner conflicts..."
-msgstr "Calculant conflictes interns..."
+msgstr "Es calculen els conflictes interns..."
 
 #: src/install.rs:1524
 msgid "Inner conflicts found:"
@@ -1059,7 +1058,7 @@ msgstr "Conflictes trobats:"
 
 #: src/install.rs:1569
 msgid "Conflicting packages will have to be confirmed manually"
-msgstr "Els paquets en conflicte s'hauran de confirmar manualment"
+msgstr "Els paquets en conflicte s'hauran de confirmar manualment."
 
 #: src/install.rs:1573
 msgid "can not install conflicting packages with --noconfirm"
@@ -1104,11 +1103,11 @@ msgstr "no es pot trobar el nom del paquet a la llista de paquets: {}"
 
 #: src/install.rs:2246
 msgid "Signing packages..."
-msgstr "Signant els paquets..."
+msgstr "Se signen paquets..."
 
 #: src/install.rs:2277
 msgid "{}-{} is up to date -- skipping install"
-msgstr "{}-{} està actualitzat -- s'està ometent la instal·lació"
+msgstr "{}-{} està actualitzat -- se n'omet la instal·lació"
 
 #: src/keys.rs:57
 msgid "keys need to be imported:"
@@ -1116,7 +1115,7 @@ msgstr "cal importar les claus:"
 
 #: src/keys.rs:62
 msgid "     {key} wanted by: {base}"
-msgstr "    {key} buscat per: {base}"
+msgstr "     {key} cercat per {base}"
 
 #: src/news.rs:55
 msgid "No Date "
@@ -1132,25 +1131,23 @@ msgstr "no hi ha notícies noves"
 
 #: src/pkgbuild.rs:91
 msgid "repo {} does not have a URL or Path"
-msgstr "el dipòsit {} no disposa d'una URL o camí"
+msgstr "el dipòsit {} no té un URL o camí"
 
 #: src/pkgbuild.rs:153
-#, fuzzy
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
-msgstr ""
-"el dipòsit {} no s'ha descarregat (utilitzeu -Sya per a descarregar-lo)"
+msgstr "el dipòsit {} no s'ha baixat (useu -Sy --pkgbuilds per baixar-lo)"
 
 #: src/pkgbuild.rs:200
 msgid "Generating .SRCINFO for {repo}/{dir}..."
-msgstr "Generant .SRCINFO per {repo}/{dir}..."
+msgstr "Es genera .SRCINFO per {repo}/{dir}..."
 
 #: src/pkgbuild.rs:278
 msgid "failed to parse srcinfo \"{}\""
-msgstr "no s'ha pogut analitzar «srcinfo»"
+msgstr "no s'ha pogut analitzar «srcinfo» «{}»"
 
 #: src/pkgbuild.rs:368
 msgid "Downloading PKGBUILD Repos..."
-msgstr "S'estan baixant els dipòsits amb els PKGBUILDs..."
+msgstr "Es baixen els dipòsits dels PKGBUILD..."
 
 #: src/pkgbuild.rs:422
 msgid "failed to parse srcinfo generated by makepkg"
@@ -1166,15 +1163,15 @@ msgstr "no s'ha pogut obtenir l'exe actual"
 
 #: src/repo.rs:297
 msgid "syncing local databases..."
-msgstr "s'estan sincronitzant les bases de dades locals..."
+msgstr "se sincronitzen les bases de dades locals..."
 
 #: src/repo.rs:303
 msgid "  nothing to do"
-msgstr "  res a fer"
+msgstr "  res per fer"
 
 #: src/repo.rs:334
 msgid "there is nothing to do"
-msgstr "no hi ha res a fer"
+msgstr "no hi ha res per fer"
 
 #: src/repo.rs:340
 msgid "Packages"
@@ -1182,7 +1179,7 @@ msgstr "Paquets"
 
 #: src/repo.rs:353
 msgid "Proceed with removal?"
-msgstr "Voleu continuar amb l'eliminació?"
+msgstr "Voleu continuar l'eliminació?"
 
 #: src/repo.rs:414
 msgid " [installed: {}]"
@@ -1222,12 +1219,11 @@ msgstr "no hi ha cap paquet que coincideixi amb la cerca"
 
 #: src/search.rs:535
 msgid "Packages to install (eg: 1 2 3, 1-3):"
-msgstr "Paquets a instal·lar (p. ex.: 1 2 3, 1-3):"
+msgstr "Paquets per instal·lar (p. ex.: 1 2 3, 1-3):"
 
 #: src/search.rs:537
-#, fuzzy
 msgid "Select packages (eg: 1 2 3, 1-3):"
-msgstr "Paquets a instal·lar (p. ex.: 1 2 3, 1-3):"
+msgstr "Seleccioneu els paquets (per exemple: 1 2 3, 1-3):"
 
 #: src/stats.rs:90
 msgid "Total installed packages: {}"
@@ -1239,7 +1235,7 @@ msgstr "Paquets de l'AUR: {}"
 
 #: src/stats.rs:98
 msgid "Repo packages: {}"
-msgstr "Paquets de repositoris: {}"
+msgstr "Paquets de dipòsits: {}"
 
 #: src/stats.rs:102
 msgid "Explicitly installed packages: {}"
@@ -1255,15 +1251,15 @@ msgstr "Els deu paquets més grans:"
 
 #: src/upgrade.rs:126
 msgid "Looking for PKGBUILD upgrades..."
-msgstr "Buscant actualitzacions dels PKGBUILD..."
+msgstr "Se cerquen actualitzacions dels PKGBUILD..."
 
 #: src/upgrade.rs:134
 msgid "Looking for AUR upgrades..."
-msgstr "Buscant actualitzacions a l'AUR..."
+msgstr "Se cerquen actualitzacions a l'AUR..."
 
 #: src/upgrade.rs:164
 msgid "Looking for devel upgrades..."
-msgstr "Buscant actualitzacions de paquets de desenvolupament..."
+msgstr "Se cerquen actualitzacions de paquets de desenvolupament..."
 
 #: src/upgrade.rs:192 src/upgrade.rs:205
 msgid "warning:"
@@ -1275,7 +1271,7 @@ msgstr "{pkg}: s'ignora l'actualització ({old} => {new})"
 
 #: src/upgrade.rs:399
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
-msgstr "Paquets a excloure (p. ex.: 1 2 3, 1-3):"
+msgstr "Paquets per excloure (p. ex.: 1 2 3, 1-3):"
 
 #: src/util.rs:141
 msgid "[Y/n]:"
@@ -1295,7 +1291,7 @@ msgstr "sí"
 
 #: src/util.rs:318
 msgid "Enter a number (default=1): "
-msgstr "Introduïu un nombre (per defecte=1): "
+msgstr "Introduïu un número (per defecte=1): "
 
 #: src/util.rs:333
 msgid "invalid number: {}"
@@ -1307,7 +1303,7 @@ msgstr "valor no vàlid: {n} no és entre 1 i {max}"
 
 #: src/resolver.rs:83
 msgid "There are {} members in group"
-msgstr "Hi ha {} membres al grup"
+msgstr "Hi ha {} membres al grup."
 
 #: src/resolver.rs:111
 msgid ""
@@ -1322,12 +1318,11 @@ msgstr ""
 #: src/lib.rs:224
 msgid "can not use chroot builds: devtools is not installed"
 msgstr ""
-"no es poden utilitzar les construccions amb «chroot»: devtools no està "
-"instal·lat"
+"no es poden usar les construccions amb «chroot»: devtools no està instal·lat"
 
 #: src/lib.rs:331
 msgid "no operation specified (use -h for help)"
-msgstr "no s'ha especificat cap operació (useu -h per l'ajuda)"
+msgstr "no s'ha especificat cap operació (useu -h per a l'ajuda)"
 
 #~ msgid "[Installed: {}]"
 #~ msgstr "[Instal·lat: {}]"
