@@ -88,8 +88,22 @@ jobs:
           ' releases.json > release.json
 
           if jq -e '. == null' release.json > /dev/null; then
+            gh api --header 'Accept: application/vnd.github.raw+json' \
+              "repos/{owner}/{repo}/contents/CHANGELOG.md?ref=$GITHUB_SHA" > changelog.md
+            awk '
+              /^## / {
+                if (found) exit
+                found = $2 == "Paru" && $3 == ENVIRON["RELEASE_TAG"]
+                if (found) print "# Changelog\n"
+              }
+              found {
+                print
+                if ($1 != "##" && NF) content = 1
+              }
+              END { if (!found || !content) exit 1 }
+            ' changelog.md > release-notes.md
             gh release create "$RELEASE_TAG" "${assets[@]}" \
-              --verify-tag --draft --title "Paru $RELEASE_TAG" --notes ''
+              --verify-tag --draft --title "Paru $RELEASE_TAG" --notes-file release-notes.md
           else
             jq -e 'if .draft == true then true
               else error("refusing to modify a published release") end' \
