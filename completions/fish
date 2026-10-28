@@ -215,6 +215,7 @@ complete -c $progname -n "not $noopt" -l removemake -d 'Remove make deps after i
 complete -c $progname -n "not $noopt" -l noremovemake -d 'Do not remove make deps after install' -f
 complete -c $progname -n "not $noopt" -l topdown -d 'Shows repository packages first and then aur' -f
 complete -c $progname -n "not $noopt" -l bottomup -d 'Shows aur packages first and then repository' -f
+complete -c $progname -n "not $noopt" -l auto -d 'Use bottom-up ordering for menus, top-down otherwise' -f
 complete -c $progname -n "not $noopt" -l devel -d 'Check -git/-svn/-hg development version' -f
 complete -c $progname -n "not $noopt" -l nodevel -d 'Disable development version checking' -f
 complete -c $progname -n "not $noopt" -l develsuffixes -d 'Suffixes to define development packages' -f
