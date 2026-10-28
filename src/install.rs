@@ -1809,6 +1809,17 @@ fn print_dir(
     Ok(())
 }
 
+fn less_prompt_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        if matches!(c, '?' | ':' | '.' | '%' | '\\') {
+            out.push('\\');
+        }
+        out.push(c);
+    }
+    out
+}
+
 pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
     let c = config.color;
 
@@ -1849,7 +1860,19 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 if std::env::var("LESS").is_err() {
                     command.env("LESS", "SRXF");
                 }
-                command.arg("-c").arg(&pager).stdin(Stdio::piped());
+                if pager_unconfigured && pager == "less" {
+                    // less's status line is where people wait for the review to go on,
+                    // so put the hint there too instead of a bare ':'.
+                    let prompt = tr!("Press 'q' to finish reviewing and continue, 'h' for help");
+                    command
+                        .arg("-c")
+                        .arg("less \"$1\"")
+                        .arg("sh")
+                        .arg(format!("-Ps{}", less_prompt_escape(&prompt)));
+                } else {
+                    command.arg("-c").arg(&pager);
+                }
+                command.stdin(Stdio::piped());
                 let mut child = exec::spawn(&mut command)?;
 
                 let mut stdin = child.stdin.take().unwrap();
