@@ -89,6 +89,7 @@ fn config_environment_reaches_help_before_threads_start() {
         "pacman",
         "printf '%s\\n' \"$PARU_TEST_VALUE\" \"$PARU_TEST_NESTED\" \"${AURDEST-unset}\" > \"$PARU_TEST_CAPTURE\"\n\
          set -- /proc/\"$PPID\"/task/*\n\
+         test -d \"$1\"\n\
          printf '%s\\n' \"$#\" >> \"$PARU_TEST_CAPTURE\"",
     );
     fs::write(

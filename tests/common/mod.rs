@@ -179,7 +179,7 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
             )
             .args(args)
             .status()?;
-        Ok(status.code().unwrap_or(1))
+        status.code().context("paru was killed by a signal")
     };
 
     if repo {
