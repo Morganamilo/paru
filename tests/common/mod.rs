@@ -72,7 +72,6 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     )?;
 
     let mut file = fs::OpenOptions::new()
-        .write(true)
         .append(true)
         .open(dir.join("pacman.conf"))?;
 

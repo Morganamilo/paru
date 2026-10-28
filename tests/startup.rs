@@ -278,11 +278,15 @@ fn configured_proxy_routes_the_aur_request() {
     assert!(output.status.success(), "{output:?}");
     assert_eq!(request, format!("POST {aur_url}/rpc HTTP/1.1\r\n"));
     let params: Vec<_> = url::form_urlencoded::parse(body.as_bytes()).collect();
-    assert!(params
-        .iter()
-        .any(|(key, value)| key == "type" && value == "search"));
-    assert!(params
-        .iter()
-        .any(|(key, value)| key == "arg" && value == "startup-proxy-fixture"));
+    assert!(
+        params
+            .iter()
+            .any(|(key, value)| key == "type" && value == "search")
+    );
+    assert!(
+        params
+            .iter()
+            .any(|(key, value)| key == "arg" && value == "startup-proxy-fixture")
+    );
     assert_eq!(output.stdout, b"startup-proxy-fixture\n");
 }

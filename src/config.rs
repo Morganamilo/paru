@@ -10,8 +10,8 @@ use crate::{alpm_debug_enabled, help, printtr, repo};
 use std::env::consts::ARCH;
 use std::env::var;
 use std::fmt;
-use std::fs::{remove_file, OpenOptions};
-use std::io::{stderr, stdin, stdout, BufRead, IsTerminal};
+use std::fs::{OpenOptions, remove_file};
+use std::io::{BufRead, IsTerminal, stderr, stdin, stdout};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -20,7 +20,7 @@ use alpm::{
 };
 use ansiterm::Color::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansiterm::Style;
-use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+use anyhow::{Context, Error, Result, anyhow, bail, ensure};
 
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
@@ -653,14 +653,13 @@ impl Config {
             ..Self::default()
         };
 
-        if let Some(old) = old {
-            if let Ok(devel) = OpenOptions::new().read(true).open(old) {
-                if let Ok(devel) = serde_json::from_reader(devel) {
-                    save_devel_info(&config, &devel)?;
-                    let _ = remove_file(&old_devel_path);
-                    let _ = remove_file(&old_old_devel_path);
-                }
-            }
+        if let Some(old) = old
+            && let Ok(devel) = OpenOptions::new().read(true).open(old)
+            && let Ok(devel) = serde_json::from_reader(devel)
+        {
+            save_devel_info(&config, &devel)?;
+            let _ = remove_file(&old_devel_path);
+            let _ = remove_file(&old_old_devel_path);
         }
 
         if let Ok(conf) = var("PARU_CONF") {
@@ -1329,16 +1328,20 @@ mod sort_tests {
             ("--bottomup", false, false),
             ("--auto", true, false),
         ] {
-            assert!(!config
-                .parse_arg(arg, None, &mut op_count, &mut end_of_ops)
-                .unwrap());
+            assert!(
+                !config
+                    .parse_arg(arg, None, &mut op_count, &mut end_of_ops)
+                    .unwrap()
+            );
             assert_eq!(config.sort_mode.is_top_down(false), search_top_down);
             assert_eq!(config.sort_mode.is_top_down(true), menu_top_down);
         }
         assert_eq!(op_count, 0);
-        assert!(config
-            .parse_arg("--auto=topdown", None, &mut op_count, &mut end_of_ops)
-            .is_err());
+        assert!(
+            config
+                .parse_arg("--auto=topdown", None, &mut op_count, &mut end_of_ops)
+                .is_err()
+        );
     }
 
     #[test]
@@ -1356,7 +1359,7 @@ mod sort_tests {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_release_age, Config};
+    use super::{Config, parse_release_age};
     use globset::{Glob, GlobSetBuilder};
 
     #[test]
@@ -1404,12 +1407,14 @@ mod tests {
 
     #[test]
     fn release_age_exemptions() {
-        let mut config = Config::default();
-        config.devel_suffixes = vec!["-git".into()];
-        config.min_release_age_exclude = GlobSetBuilder::new()
-            .add(Glob::new("trusted-*").unwrap())
-            .build()
-            .unwrap();
+        let config = Config {
+            devel_suffixes: vec!["-git".into()],
+            min_release_age_exclude: GlobSetBuilder::new()
+                .add(Glob::new("trusted-*").unwrap())
+                .build()
+                .unwrap(),
+            ..Default::default()
+        };
         assert!(!config.is_too_new("pkg-git", 100, 100, 60));
         assert!(!config.is_too_new("trusted-pkg", 100, 100, 60));
         assert!(config.is_too_new("pkg", 100, 100, 60));

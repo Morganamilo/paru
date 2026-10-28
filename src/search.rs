@@ -3,11 +3,11 @@ use std::path::Path;
 use crate::config::Config;
 use crate::config::SortBy;
 use crate::fmt::{color_repo, link_str, print_indent};
-use crate::util::{input, is_arch_repo, now_secs, NumberMenu};
+use crate::util::{NumberMenu, input, is_arch_repo, now_secs};
 use crate::{info, printtr};
 
 use ansiterm::Style;
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result, ensure};
 use flate2::read::GzDecoder;
 use indicatif::HumanBytes;
 use raur::{Raur, SearchBy};
@@ -233,7 +233,7 @@ async fn search_aur(config: &Config, targets: &[String]) -> Result<Vec<raur::Pac
     };
 
     match config.sort_by {
-        SortBy::Votes => matches.sort_by(|a, b| b.num_votes.cmp(&a.num_votes)),
+        SortBy::Votes => matches.sort_by_key(|a| std::cmp::Reverse(a.num_votes)),
         SortBy::Popularity => {
             matches.sort_by(|a, b| b.popularity.partial_cmp(&a.popularity).unwrap())
         }
@@ -386,15 +386,15 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     );
     let ver: &str = pkg.version().as_ref();
     let mut repo = color_repo(c.enabled, pkg.db().unwrap().name());
-    if is_arch_repo(pkg.db().unwrap().name()) {
-        if let Ok(url) = config.arch_url.join(&format!(
+    if is_arch_repo(pkg.db().unwrap().name())
+        && let Ok(url) = config.arch_url.join(&format!(
             "packages/{}/{}/{}/",
             pkg.db().unwrap().name(),
             pkg.arch().unwrap_or("any"),
             pkg.name()
-        )) {
-            repo = link_str(c.enabled, &repo, url.as_str());
-        }
+        ))
+    {
+        repo = link_str(c.enabled, &repo, url.as_str());
     }
 
     let name = if let Some(url) = pkg.url() {
@@ -435,10 +435,10 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     let desc = desc.unwrap_or_default().split_whitespace();
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
-    if config.args.count("s", "search") > 1 {
-        if let Some(url) = pkg.url() {
-            info::print(c, 14, config.cols, "    URL", url);
-        }
+    if config.args.count("s", "search") > 1
+        && let Some(url) = pkg.url()
+    {
+        info::print(c, 14, config.cols, "    URL", url);
     }
 }
 

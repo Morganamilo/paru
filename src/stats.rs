@@ -1,4 +1,4 @@
-use crate::config::{version, Config};
+use crate::config::{Config, version};
 use crate::download::cache_info_with_warnings;
 use crate::printtr;
 use crate::util::repo_aur_pkgs;

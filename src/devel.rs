@@ -1,5 +1,5 @@
 use crate::config::{Config, LocalRepos};
-use crate::download::{self, cache_info_with_warnings, Bases};
+use crate::download::{self, Bases, cache_info_with_warnings};
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
@@ -7,7 +7,7 @@ use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::fs::{create_dir_all, read_to_string, OpenOptions};
+use std::fs::{OpenOptions, create_dir_all, read_to_string};
 use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::iter::FromIterator;
@@ -15,9 +15,9 @@ use std::time::Duration;
 
 use alpm_utils::{DbListExt, Target};
 use ansiterm::Style;
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use aur_depends::Base;
-use futures::future::{join_all, select_ok, FutureExt};
+use futures::future::{FutureExt, join_all, select_ok};
 use log::debug;
 use raur::{Cache, Raur};
 use serde::{Deserialize, Serialize, Serializer};
@@ -175,19 +175,19 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
             continue;
         }
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
-        if path.exists() {
-            if let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string()) {
-                let srcinfo = Srcinfo::from_path(path)
-                    .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
+        if path.exists()
+            && let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string())
+        {
+            let srcinfo = Srcinfo::from_path(path)
+                .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
 
-                match srcinfo {
-                    Ok(srcinfo) => {
-                        vacant.insert(srcinfo);
-                    }
-                    Err(err) => {
-                        print_error(config.color.error, err);
-                        continue;
-                    }
+            match srcinfo {
+                Ok(srcinfo) => {
+                    vacant.insert(srcinfo);
+                }
+                Err(err) => {
+                    print_error(config.color.error, err);
+                    continue;
                 }
             }
         }

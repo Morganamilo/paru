@@ -4,7 +4,7 @@ use crate::{exec, print_error};
 
 use std::io::{Read, Write};
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 
 use flate2::read::GzDecoder;
 use raur::Raur;
@@ -36,22 +36,22 @@ pub async fn list(config: &Config) -> Result<i32> {
     let mut ret = 0;
 
     if args.targets.is_empty() {
-        if config.mode.repo() {
-            if let Err(e) = exec::pacman(config, &args) {
-                print_error(c.error, e);
-                ret = 1
-            }
+        if config.mode.repo()
+            && let Err(e) = exec::pacman(config, &args)
+        {
+            print_error(c.error, e);
+            ret = 1
         }
         if config.mode.pkgbuild() {
             for repo in &config.pkgbuild_repos.repos {
                 list_pkgbuilds(config, &config.pkgbuild_repos, &repo.name);
             }
         }
-        if config.mode.aur() {
-            if let Err(e) = list_aur(config).await {
-                print_error(c.error, e);
-                ret = 1
-            }
+        if config.mode.aur()
+            && let Err(e) = list_aur(config).await
+        {
+            print_error(c.error, e);
+            ret = 1
         }
     } else {
         for &target in &args.targets {
