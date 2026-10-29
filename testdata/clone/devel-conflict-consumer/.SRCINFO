@@ -1,0 +1,7 @@
+pkgbase = devel-conflict-consumer
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+	depends = devel-conflict
+
+pkgname = devel-conflict-consumer
