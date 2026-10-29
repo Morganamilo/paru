@@ -478,7 +478,8 @@ disk.
 
 If \fBPath\fR is specified alongside \fBUrl\fR, the specified path will be treated as
 a subdirectory of the repository and paru will only search for pkgbuilds in that
-subdirectory.
+subdirectory. The review step is also limited to that subdirectory: only changes to
+files inside it are shown, and changes elsewhere in the repository are not reviewed.
 
 .TP
 .B Path = /path/to/repo

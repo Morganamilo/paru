@@ -18,6 +18,7 @@ mod pkgbuild;
 mod query;
 mod remove;
 mod repo;
+mod review_target;
 mod search;
 mod stats;
 mod sync;

@@ -62,7 +62,7 @@ impl Status {
     }
 }
 
-fn command_err(cmd: &Command) -> String {
+pub fn command_err(cmd: &Command) -> String {
     format!(
         "{} {} {}",
         tr!("failed to run:"),

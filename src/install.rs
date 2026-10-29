@@ -21,6 +21,7 @@ use crate::fmt::{print_indent, print_install, print_install_verbose};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
+use crate::review_target::{self, ReviewTarget};
 use crate::upgrade::{Upgrades, get_upgrades};
 use crate::util::{ask, now_secs, repo_aur_pkgs, split_repo_aur_targets};
 use crate::{args, exec, news, print_error, printtr, repo};
@@ -1163,16 +1164,16 @@ impl Installer {
         }
 
         if !config.skip_review {
-            let pkgs = actions
+            let targets = actions
                 .build
                 .iter()
                 .filter(|b| b.build())
                 .filter_map(|b| match b {
-                    Base::Aur(pkg) => Some(pkg.package_base()),
+                    Base::Aur(pkg) => Some(ReviewTarget::whole(pkg.package_base())),
                     Base::Pkgbuild(_) => None,
                 })
                 .collect::<Vec<_>>();
-            review(config, &config.fetch, &pkgs)?;
+            review(config, &config.fetch, &targets)?;
         }
 
         let arch = config
@@ -1684,12 +1685,12 @@ fn file_manager(
     config: &Config,
     fetch: &aur_fetch::Fetch,
     fm: &str,
-    pkgs: &[&str],
+    targets: &[ReviewTarget],
 ) -> Result<tempfile::TempDir> {
-    let has_diff = fetch.has_diff(pkgs)?;
-    fetch.save_diffs(&has_diff)?;
+    let has_diff = review_target::has_diff(fetch, targets)?;
+    review_target::save_diffs(fetch, &has_diff)?;
     let view = tempfile::Builder::new().prefix("aur").tempdir()?;
-    fetch.make_view(view.path(), pkgs, &has_diff)?;
+    review_target::make_view(fetch, view.path(), targets, &has_diff)?;
     run_file_manager(config, fm, view.path())?;
     Ok(view)
 }
@@ -1809,28 +1810,29 @@ fn print_dir(
     Ok(())
 }
 
-pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+pub fn review(config: &Config, fetch: &aur_fetch::Fetch, targets: &[ReviewTarget]) -> Result<()> {
     let c = config.color;
+    let names = targets.iter().map(|t| t.name).collect::<Vec<_>>();
 
-    if pkgs.is_empty() {
+    if targets.is_empty() {
         return Ok(());
     }
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
-            let _view = file_manager(config, fetch, fm, pkgs)?;
+            let _view = file_manager(config, fetch, fm, targets)?;
 
             if !ask(config, &tr!("Accept changes?"), true) {
                 return Status::err(1);
             }
 
             if config.save_changes {
-                fetch.commit(pkgs, "paru save changes")?;
+                fetch.commit(&names, "paru save changes")?;
             }
         } else {
-            let unseen = fetch.unseen(pkgs)?;
-            let has_diff = fetch.has_diff(&unseen)?;
-            let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
-            let diffs = fetch.diff(&has_diff, config.color.enabled)?;
+            let unseen = review_target::unseen(fetch, targets)?;
+            let has_diff = review_target::has_diff(fetch, &unseen)?;
+            let printed = !has_diff.is_empty() || unseen.iter().any(|t| !has_diff.contains(t));
+            let diffs = review_target::diff(fetch, &has_diff, config.color.enabled)?;
 
             if printed {
                 let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
@@ -1864,12 +1866,12 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                     let _ = stdin.write_all(b"\n\n");
                 }
 
-                for (&pkg, diff) in has_diff.iter().zip(diffs) {
+                for (target, diff) in has_diff.iter().zip(diffs) {
                     let _ = write!(
                         stdin,
                         "{} {}:\n    ",
                         c.action.paint("::"),
-                        c.bold.paint(pkg)
+                        c.bold.paint(target.name)
                     );
                     let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
                     let _ = stdin.write_all(b"\n\n");
@@ -1878,10 +1880,15 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 let bat = config.color.enabled && has_command(&config.bat_bin);
 
                 let mut buf = Vec::new();
-                for &pkg in &unseen {
-                    if !has_diff.contains(&pkg) {
-                        let dir = fetch.clone_dir.join(pkg);
-                        let _ = writeln!(stdin, "{} {}:", c.action.paint("::"), c.bold.paint(pkg));
+                for target in &unseen {
+                    if !has_diff.contains(target) {
+                        let dir = target.dir(fetch);
+                        let _ = writeln!(
+                            stdin,
+                            "{} {}:",
+                            c.action.paint("::"),
+                            c.bold.paint(target.name)
+                        );
                         print_dir(config, &dir, &dir, &mut stdin, &mut buf, bat, 1)?;
                     }
                 }
@@ -1899,7 +1906,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
         }
     }
 
-    fetch.mark_seen(pkgs)?;
+    fetch.mark_seen(&names)?;
     Ok(())
 }
 
