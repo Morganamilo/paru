@@ -572,6 +572,12 @@ impl Ini for Config {
 
     fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
         let err = match cb.kind {
+            CallbackKind::Directive(_, key, value) => {
+                let value = value
+                    .map(|value| expand_env_with(value, |name| var(name).ok()))
+                    .transpose()?;
+                self.parse_directive(key, value.as_deref())
+            }
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
@@ -584,12 +590,6 @@ impl Ini for Config {
                     self.pkgbuild_repos.add_repo(section.to_string());
                 }
                 Ok(())
-            }
-            CallbackKind::Directive(_, key, value) => {
-                let value = value
-                    .map(|value| expand_env_with(value, |name| var(name).ok()))
-                    .transpose()?;
-                self.parse_directive(key, value.as_deref())
             }
         };
 
