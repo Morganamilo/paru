@@ -1,0 +1,6 @@
+pkgbase = devel-bin
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+
+pkgname = devel-bin

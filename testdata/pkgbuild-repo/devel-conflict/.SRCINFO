@@ -1,0 +1,7 @@
+pkgbase = devel-conflict
+	pkgver = 1
+	pkgrel = 1
+	arch = any
+	conflicts = devel
+
+pkgname = devel-conflict

@@ -1484,24 +1484,57 @@ fn check_actions(
         );
     }
 
+    let build_only_targets = if install_targets {
+        None
+    } else {
+        let mut build_only_targets = HashSet::new();
+
+        for base in &actions.build {
+            match base {
+                Base::Aur(base) => build_only_targets.extend(
+                    base.pkgs
+                        .iter()
+                        .filter(|pkg| pkg.target)
+                        .map(|pkg| pkg.pkg.name.clone()),
+                ),
+                Base::Pkgbuild(base) => build_only_targets.extend(
+                    base.pkgs
+                        .iter()
+                        .filter(|pkg| pkg.target)
+                        .map(|pkg| pkg.pkg.pkgname.clone()),
+                ),
+            }
+        }
+
+        // Installed copies of build-only targets stay installed, so their conflicts still matter
+        build_only_targets.retain(|pkg| config.alpm.localdb().pkg(pkg.as_str()).is_err());
+
+        Some(build_only_targets)
+    };
+
+    let filter_build_only_targets = |conflicts: &mut Vec<Conflict>| {
+        if let Some(build_only_targets) = build_only_targets.as_ref() {
+            conflicts.retain_mut(|conflict| {
+                if build_only_targets.contains(&conflict.pkg) {
+                    return false;
+                }
+
+                conflict
+                    .conflicting
+                    .retain(|pkg| !build_only_targets.contains(&pkg.pkg));
+                !conflict.conflicting.is_empty()
+            });
+        }
+    };
+
     let conflicts = if !config.chroot || install_targets {
         println!(
             "{} {}",
             c.action.paint("::"),
             c.bold.paint(tr!("Calculating conflicts..."))
         );
-        // Hack to ignore conflicts on -B
-        // Only ignores conflicts for the last package instead of all targets
-        // As in theory one target could depend on another and thus must be installed
         let mut conflicts = actions.calculate_conflicts(!config.chroot);
-        if !install_targets && let Some(build) = actions.build.last() {
-            let pkgs = build.packages().map(|s| s.to_string()).collect::<Vec<_>>();
-            conflicts.retain(|c| {
-                !c.conflicting
-                    .iter()
-                    .all(|conflicting| pkgs.contains(&conflicting.pkg))
-            });
-        }
+        filter_build_only_targets(&mut conflicts);
         conflicts
     } else {
         Vec::new()
@@ -1511,7 +1544,8 @@ fn check_actions(
         c.action.paint("::"),
         c.bold.paint(tr!("Calculating inner conflicts..."))
     );
-    let inner_conflicts = actions.calculate_inner_conflicts(!config.chroot);
+    let mut inner_conflicts = actions.calculate_inner_conflicts(!config.chroot);
+    filter_build_only_targets(&mut inner_conflicts);
 
     if !conflicts.is_empty() || !inner_conflicts.is_empty() {
         eprintln!();
