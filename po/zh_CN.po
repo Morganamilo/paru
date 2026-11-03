@@ -20,6 +20,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.4.1\n"
 
 #: src/clean.rs:36
@@ -191,7 +192,7 @@ msgstr "非有效的 toml：{}"
 
 #: src/config.rs:1297
 msgid "release age '{}' is too large"
-msgstr ""
+msgstr "发布时长 '{}' 过大"
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
@@ -265,7 +266,7 @@ msgstr "重复的软件包：{}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "软件包 '{}' 存在，但没有 PKGBUILD -- 跳过"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -654,7 +655,7 @@ msgstr "    --nocheck               不要解决依赖项或运行检查功能"
 msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
-msgstr ""
+msgstr "    --rootchrootpkgs       要安装到 root chroot 中的软件包（默认：base-devel）"
 
 #: src/help.rs:92
 msgid ""
@@ -668,17 +669,17 @@ msgstr "    --ignoredevel           忽略指定软件包的开发版更新"
 
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
-msgstr ""
+msgstr "    --minimumreleaseage <duration>  AUR 软件包变更需经过的最短时间"
 
 #: src/help.rs:95
 msgid ""
 "    --nominimumreleaseage          Disable the minimum release age check"
-msgstr ""
+msgstr "    --nominimumreleaseage          禁用最短发布时限检查"
 
 #: src/help.rs:96
 msgid ""
 "    --minimumreleaseageexclude <packages>  Exempt packages from the age check"
-msgstr ""
+msgstr "    --minimumreleaseageexclude <packages>  免除软件包的最短发布时限检查"
 
 #: src/help.rs:97
 msgid ""
@@ -696,7 +697,7 @@ msgstr ""
 msgid ""
 "    --auto                 Use bottom-up ordering for menus, top-down "
 "otherwise"
-msgstr ""
+msgstr "    --auto                 菜单使用 bottom-up 排序，其他情况使用 top-down"
 
 #: src/help.rs:101
 msgid "show specific options:"
@@ -926,46 +927,42 @@ msgstr "你还是想要构建它们吗？"
 #: src/install.rs:1343
 msgid "{n} day"
 msgid_plural "{n} days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} 天"
 
 #: src/install.rs:1346
 msgid "{n} hour"
 msgid_plural "{n} hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} 小时"
 
 #: src/install.rs:1349
 msgid "{n} minute"
 msgid_plural "{n} minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} 分钟"
 
 #: src/install.rs:1351
 msgid "{n} second"
 msgid_plural "{n} seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} 秒"
 
 #: src/install.rs:1386
 msgid ""
 "AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
-msgstr ""
+msgstr "下载 PKGBUILD 期间，AUR 软件包 '{}' 发生了变化；请重试该操作"
 
 #: src/install.rs:1420
 msgid "updated {} ago"
-msgstr ""
+msgstr "更新于 {} 前"
 
 #: src/install.rs:1427
 msgid ""
 "the following AUR packages are newer than the minimum release age of {}: {}"
-msgstr ""
+msgstr "以下 AUR 软件包的发布时间距今不足最短发布时限 {}：{}"
 
 #: src/install.rs:1432
 msgid ""
 "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --"
 "nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
-msgstr ""
+msgstr "在操作中加入 --nominimumreleaseage 可覆盖此检查（例如 paru -Syu --nominimumreleaseage），或将软件包添加到 MinimumReleaseAgeExclude"
 
 #: src/install.rs:1453
 msgid "duplicate packages: {}"
@@ -1038,7 +1035,7 @@ msgstr "接受更改？"
 
 #: src/install.rs:1862
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
-msgstr ""
+msgstr "正在使用 less 分页。按 'q' 退出，按 'h' 获取帮助。"
 
 #: src/install.rs:1897
 msgid " nothing new to review"
