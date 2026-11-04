@@ -572,6 +572,12 @@ impl Ini for Config {
 
     fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
         let err = match cb.kind {
+            CallbackKind::Directive(_, key, value) => {
+                let value = value
+                    .map(|value| expand_env_with(value, |name| var(name).ok()))
+                    .transpose()?;
+                self.parse_directive(key, value.as_deref())
+            }
             CallbackKind::Section(section) => {
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
@@ -585,7 +591,6 @@ impl Ini for Config {
                 }
                 Ok(())
             }
-            CallbackKind::Directive(_, key, value) => self.parse_directive(key, value),
         };
 
         let filename = cb.filename.unwrap_or("paru.conf");
@@ -596,6 +601,136 @@ impl Ini for Config {
 /// Whether `pkg` ends with any of the configured devel suffixes.
 pub fn matches_devel(suffixes: &[String], pkg: &str) -> bool {
     suffixes.iter().any(|suff| pkg.ends_with(suff))
+}
+
+enum ExpansionState {
+    Backslash(usize),
+    Dollar,
+    Name(String),
+    NameBraced(String),
+    Text,
+}
+
+fn expand_env_with<F>(value: &str, mut resolve_var: F) -> Result<String>
+where
+    F: FnMut(&str) -> Option<String>,
+{
+    let mut expansion_state = ExpansionState::Text;
+    let mut output = String::with_capacity(value.len());
+
+    for character in value.chars() {
+        expansion_state = match expansion_state {
+            ExpansionState::Backslash(count) => match character {
+                '$' => {
+                    if count % 2 == 1 {
+                        for _ in 0..count - 1 {
+                            output.push('\\');
+                        }
+                        output.push('$');
+                        ExpansionState::Text
+                    } else {
+                        for _ in 0..count {
+                            output.push('\\');
+                        }
+                        ExpansionState::Dollar
+                    }
+                }
+                '\\' => ExpansionState::Backslash(count + 1),
+                _ => {
+                    for _ in 0..count {
+                        output.push('\\');
+                    }
+                    output.push(character);
+                    ExpansionState::Text
+                }
+            },
+            ExpansionState::Dollar => match character {
+                '$' => {
+                    output.push('$');
+                    ExpansionState::Dollar
+                }
+                '\\' => {
+                    output.push('$');
+                    ExpansionState::Backslash(1)
+                }
+                '{' => ExpansionState::NameBraced(String::new()),
+                _ => {
+                    if character.is_ascii_alphanumeric() || character == '_' {
+                        ExpansionState::Name(character.to_string())
+                    } else {
+                        output.push('$');
+                        output.push(character);
+                        ExpansionState::Text
+                    }
+                }
+            },
+            ExpansionState::Name(mut name) => {
+                if character.is_ascii_alphanumeric() || character == '_' {
+                    name.push(character);
+                    ExpansionState::Name(name)
+                } else {
+                    output.push_str(&resolve_var(&name).unwrap_or_default());
+                    match character {
+                        '$' => ExpansionState::Dollar,
+                        '\\' => ExpansionState::Backslash(1),
+                        _ => {
+                            output.push(character);
+                            ExpansionState::Text
+                        }
+                    }
+                }
+            }
+            ExpansionState::NameBraced(mut name) => {
+                if character == '}' {
+                    ensure!(
+                        !name.is_empty()
+                            && name
+                                .starts_with(|character: char| character.is_ascii_alphanumeric()
+                                    || character == '_')
+                            && name
+                                .chars()
+                                .skip(1)
+                                .all(|character| character.is_ascii_alphanumeric()
+                                    || character == '_'),
+                        tr!("invalid environment variable name '{}'", name)
+                    );
+                    output.push_str(&resolve_var(&name).unwrap_or_default());
+                    ExpansionState::Text
+                } else {
+                    name.push(character);
+                    ExpansionState::NameBraced(name)
+                }
+            }
+            ExpansionState::Text => match character {
+                '$' => ExpansionState::Dollar,
+                '\\' => ExpansionState::Backslash(1),
+                _ => {
+                    output.push(character);
+                    ExpansionState::Text
+                }
+            },
+        };
+    }
+
+    match expansion_state {
+        ExpansionState::Backslash(count) => {
+            for _ in 0..count {
+                output.push('\\');
+            }
+        }
+        ExpansionState::Dollar => {
+            output.push('$');
+        }
+        ExpansionState::Name(name) => {
+            output.push_str(&resolve_var(&name).unwrap_or_default());
+        }
+        ExpansionState::NameBraced(_) => {
+            bail!(tr!("unclosed environment variable expansion"));
+        }
+        ExpansionState::Text => {}
+    }
+
+    Ok(output)
 }
 
 impl Config {
@@ -1308,6 +1443,75 @@ fn log(level: LogLevel, msg: &str, color: &mut Colors) {
         LogLevel::ERROR => eprint!("{} {}", err.paint("error:"), msg),
         LogLevel::DEBUG if alpm_debug_enabled() => eprint!("debug: <alpm> {}", msg),
         _ => (),
+    }
+}
+
+#[cfg(test)]
+mod env_tests {
+    use super::expand_env_with;
+    use std::collections::HashMap;
+
+    fn expand(value: &str) -> String {
+        let vars = vars();
+        expand_env_with(value, |name| vars.get(name).map(|value| value.to_string())).unwrap()
+    }
+
+    fn vars() -> HashMap<&'static str, &'static str> {
+        [
+            ("HOME", "/home/user"),
+            ("XDG_DATA_HOME", "/home/user/.local/share"),
+        ]
+        .into_iter()
+        .collect()
+    }
+
+    #[test]
+    fn errors_on_invalid_name() {
+        assert!(expand_env_with("${HOME-}", |_| None::<String>).is_err());
+        assert!(expand_env_with("${}", |_| None::<String>).is_err());
+    }
+
+    #[test]
+    fn errors_on_unclosed_braced() {
+        assert!(expand_env_with("${HOME", |_| None::<String>).is_err());
+    }
+
+    #[test]
+    fn escapes() {
+        assert_eq!(expand("\\$!"), "$!");
+        assert_eq!(expand("\\$HOME"), "$HOME");
+        assert_eq!(expand("\\\\"), "\\\\");
+        assert_eq!(expand("\\n"), "\\n");
+    }
+
+    #[test]
+    fn expands_braced() {
+        assert_eq!(expand("${HOME}"), "/home/user");
+    }
+
+    #[test]
+    fn expands_multiple() {
+        assert_eq!(
+            expand("$HOME/${XDG_DATA_HOME}"),
+            "/home/user//home/user/.local/share"
+        );
+    }
+
+    #[test]
+    fn expands_simple() {
+        assert_eq!(expand("$HOME"), "/home/user");
+    }
+
+    #[test]
+    fn expands_undefined_to_empty() {
+        assert_eq!(expand("$UNDEFINED"), "");
+    }
+
+    #[test]
+    fn preserves_literals() {
+        assert_eq!(expand("$ HOME"), "$ HOME");
+        assert_eq!(expand("$"), "$");
+        assert_eq!(expand("$\\"), "$\\");
     }
 }
 
