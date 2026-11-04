@@ -604,6 +604,12 @@ mod tests {
 
     #[tokio::test]
     async fn ls_remote_does_not_parse_remote_as_option() {
+        let repo = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/git-repo");
+        let commit = ls_remote_internal("git", &[], repo.to_str().unwrap(), None)
+            .await
+            .unwrap();
+        assert_eq!(commit, "2545915d2a057d068a8585ebfc0592ba543189a7");
+
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("missing-repo");
 
