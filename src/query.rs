@@ -140,17 +140,63 @@ pub async fn print_upgrade_list(config: &mut Config) -> Result<i32> {
 }
 
 fn print_upgrade(config: &Config, name: &str, local_ver: &str, new_ver: &str) {
-    let bold = config.color.bold;
-    let upgrade = config.color.upgrade;
-
     if config.args.has_arg("q", "quiet") {
         println!("{}", name);
     } else {
+        let mut br = 0;
+        let mut dots = 0;
+        let mut n = 0;
+        let mut pkgver_match = false;
+
+        let mut local_ver_iter = local_ver.chars();
+        let mut new_ver_iter = new_ver.chars();
+        while let Some(local) = local_ver_iter.next() {
+            if let Some(new) = new_ver_iter.next() {
+                if local != new {
+                    break;
+                }
+                n += local.len_utf8();
+                match local {
+                    '.' => {
+                        dots += 1;
+                        br = n;
+                    }
+                    ':' => {
+                        br = n;
+                    }
+                    '-' => {
+                        pkgver_match = true;
+                        br = n;
+                        break;
+                    }
+                    _ => {}
+                }
+            } else {
+                break;
+            }
+        }
+
+        let (common_ver, local_diff) = local_ver.split_at(br);
+        let (_, new_diff) = new_ver.split_at(br);
+
+        let bold = config.color.bold;
+        let upgrade = if pkgver_match {
+            config.color.bold
+        } else {
+            match dots {
+                0 => config.color.upgrade_major,
+                1 => config.color.upgrade_minor,
+                _ => config.color.upgrade_patch,
+            }
+        };
+
         print!(
-            "{} {} -> {}",
+            "{} {}{} -> {}{}",
             bold.paint(name),
-            upgrade.paint(local_ver),
-            upgrade.paint(new_ver)
+            common_ver,
+            upgrade.paint(local_diff),
+            common_ver,
+            upgrade.paint(new_diff)
         );
         if config.alpm.localdb().pkg(name).unwrap().should_ignore() {
             print!("{}", tr!(" [ignored]"));
