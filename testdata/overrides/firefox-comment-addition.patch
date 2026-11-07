@@ -1,0 +1,22 @@
+From 02db1a2f0f393209c4b8274de2755f12abe7859f Mon Sep 17 00:00:00 2001
+From: Toria <ninetailedtori@uwu.gal>
+Date: Sat, 18 Apr 2026 20:11:43 +0100
+Subject: [PATCH] Test comment, PKGBUILD for url test.
+
+Signed-off-by: Toria <ninetailedtori@uwu.gal>
+---
+ PKGBUILD | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/PKGBUILD b/PKGBUILD
+index 04f2e7d..a634854 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -1,3 +1,4 @@
++# This is for a test!
+ # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+ # Contributor: Ionut Biru <ibiru@archlinux.org>
+ # Contributor: Jakub Schmidtke <sjakub@gmail.com>
+-- 
+2.53.0
+
