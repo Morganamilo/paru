@@ -622,24 +622,18 @@ where
         expansion_state = match expansion_state {
             ExpansionState::Backslash(count) => match character {
                 '$' => {
-                    if count % 2 == 1 {
-                        for _ in 0..count - 1 {
-                            output.push('\\');
-                        }
+                    if count % 2 == 0 {
+                        output.extend(std::iter::repeat_n('\\', count));
+                        ExpansionState::Dollar
+                    } else {
+                        output.extend(std::iter::repeat_n('\\', count - 1));
                         output.push('$');
                         ExpansionState::Text
-                    } else {
-                        for _ in 0..count {
-                            output.push('\\');
-                        }
-                        ExpansionState::Dollar
                     }
                 }
                 '\\' => ExpansionState::Backslash(count + 1),
                 _ => {
-                    for _ in 0..count {
-                        output.push('\\');
-                    }
+                    output.extend(std::iter::repeat_n('\\', count));
                     output.push(character);
                     ExpansionState::Text
                 }
@@ -685,11 +679,7 @@ where
                     ensure!(
                         !name.is_empty()
                             && name
-                                .starts_with(|character: char| character.is_ascii_alphanumeric()
-                                    || character == '_')
-                            && name
                                 .chars()
-                                .skip(1)
                                 .all(|character| character.is_ascii_alphanumeric()
                                     || character == '_'),
                         tr!("invalid environment variable name '{}'", name)
@@ -714,9 +704,7 @@ where
 
     match expansion_state {
         ExpansionState::Backslash(count) => {
-            for _ in 0..count {
-                output.push('\\');
-            }
+            output.extend(std::iter::repeat_n('\\', count));
         }
         ExpansionState::Dollar => {
             output.push('$');
