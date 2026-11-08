@@ -3,8 +3,9 @@ use std::collections::{HashMap, HashSet};
 use std::env::var;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
-use std::fs::{OpenOptions, read_dir, read_link};
+use std::fs::{OpenOptions, read_link, symlink_metadata};
 use std::io::{BufRead, Read, Write};
+use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
@@ -1743,101 +1744,138 @@ fn run_file_manager(config: &Config, fm: &str, dir: &Path) -> Result<()> {
 fn print_dir(
     config: &Config,
     pkgdir: &Path,
-    path: &Path,
     stdin: &mut impl Write,
     buf: &mut Vec<u8>,
     bat: bool,
-    recurse: u32,
 ) -> Result<()> {
+    let c = config.color;
+    let root = pkgdir.canonicalize()?;
+    let mut files = Vec::new();
+    for args in [
+        &["ls-files", "--cached", "-z"][..],
+        &[
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "--directory",
+            "-z",
+        ][..],
+    ] {
+        files.extend(
+            exec::command_output(
+                Command::new(&config.git_bin)
+                    .args(&config.git_flags)
+                    .args(args)
+                    .current_dir(pkgdir),
+            )?
+            .stdout,
+        );
+    }
+
+    for name in files
+        .split(|&byte| byte == 0)
+        .filter(|name| !name.is_empty())
     {
-        let c = config.color;
-        let has_pkgbuild = path.join("PKGBUILD").exists();
-
-        for file in read_dir(path).with_context(|| tr!("failed to read dir: {}", path.display()))? {
-            let file = file?;
-
-            if file.file_type()?.is_dir() && file.path().file_name() == Some(OsStr::new(".git")) {
-                continue;
+        let file = pkgdir.join(OsStr::from_bytes(name));
+        let metadata = match symlink_metadata(&file) {
+            Ok(metadata) => metadata,
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(err) => {
+                return Err(err)
+                    .with_context(|| tr!("failed to open: {}", file.display().to_string()));
             }
-            if file.file_type()?.is_file()
-                && file.path().file_name() == Some(OsStr::new(".SRCINFO"))
-            {
-                continue;
-            }
-            if file.file_type()?.is_dir() {
-                if recurse == 0 {
-                    continue;
-                }
-                print_dir(config, pkgdir, &file.path(), stdin, buf, bat, recurse - 1)?;
-            }
-            if !has_pkgbuild {
-                continue;
-            }
-            if file.file_type()?.is_symlink() {
-                let s = format!(
-                    "  {} -> {}\n\n",
-                    file.path().strip_prefix(pkgdir)?.display(),
-                    read_link(file.path())?.display()
-                );
-                let _ = write!(stdin, "  {}", c.bold.paint(s));
-                continue;
-            }
-            if file.file_type()?.is_dir() {
-                continue;
-            }
-
+        };
+        if metadata.file_type().is_symlink() {
+            let s = format!(
+                "  {} -> {}\n\n",
+                file.strip_prefix(pkgdir)?.display(),
+                read_link(&file)?.display()
+            );
+            let _ = write!(stdin, "  {}", c.bold.paint(s));
+            continue;
+        }
+        if name == b".SRCINFO" {
+            continue;
+        }
+        if metadata.is_dir() {
+            let file = file.strip_prefix(pkgdir)?;
             let _ = writeln!(
                 stdin,
-                "  {}:",
+                "  {}\n",
                 c.bold
-                    .paint(file.path().strip_prefix(pkgdir)?.display().to_string())
+                    .paint(tr!("directory: {}", file.display().to_string()))
             );
-            if bat {
-                let mut cmd = Command::new(&config.bat_bin);
-                cmd.arg("--paging=never")
-                    .arg("--style=plain")
-                    .arg("--color=always")
-                    .arg(file.path())
-                    .args(&config.bat_flags);
-                let output = exec::command_output(&mut cmd)?;
-
-                for line in output.stdout.lines() {
-                    let _ = stdin.write_all(b"    ");
-                    let _ = stdin.write_all(line?.as_bytes());
-                    let _ = stdin.write_all(b"\n");
-                }
-            } else {
-                let mut pkgfile = OpenOptions::new()
-                    .read(true)
-                    .open(file.path())
-                    .with_context(|| {
-                        tr!("failed to open: {}", file.path().display().to_string())
-                    })?;
-                buf.clear();
-                pkgfile.read_to_end(buf)?;
-
-                match std::str::from_utf8(buf) {
-                    Ok(_) => {
-                        for line in buf.lines() {
-                            let _ = stdin.write_all(b"    ");
-                            let _ = stdin.write_all(line?.as_bytes());
-                            let _ = stdin.write_all(b"\n");
-                        }
-                    }
-                    Err(_) => {
-                        let file = file.path();
-                        let file = file.strip_prefix(pkgdir)?;
-                        let _ = write!(
-                            stdin,
-                            "  {}",
-                            c.bold
-                                .paint(tr!("binary file: {}", file.display().to_string()))
-                        );
-                    }
-                };
-            }
-            let _ = stdin.write_all(b"\n");
+            continue;
         }
+        if !metadata.is_file() || !file.canonicalize()?.starts_with(&root) {
+            continue;
+        }
+
+        let mut pkgfile = OpenOptions::new()
+            .read(true)
+            .open(&file)
+            .with_context(|| tr!("failed to open: {}", file.display().to_string()))?;
+        buf.clear();
+        std::io::Read::by_ref(&mut pkgfile)
+            .take(8192)
+            .read_to_end(buf)?;
+        if buf.contains(&0)
+            || std::str::from_utf8(buf)
+                .is_err_and(|err| err.error_len().is_some() || buf.len() < 8192)
+        {
+            let file = file.strip_prefix(pkgdir)?;
+            let _ = writeln!(
+                stdin,
+                "  {}\n",
+                c.bold
+                    .paint(tr!("binary file: {}", file.display().to_string()))
+            );
+            continue;
+        }
+
+        let _ = writeln!(
+            stdin,
+            "  {}:",
+            c.bold
+                .paint(file.strip_prefix(pkgdir)?.display().to_string())
+        );
+        if bat {
+            let mut cmd = Command::new(&config.bat_bin);
+            cmd.arg("--paging=never")
+                .arg("--style=plain")
+                .arg("--color=always")
+                .arg(&file)
+                .args(&config.bat_flags);
+            let output = exec::command_output(&mut cmd)?;
+
+            for line in output.stdout.lines() {
+                let _ = stdin.write_all(b"    ");
+                let _ = stdin.write_all(line?.as_bytes());
+                let _ = stdin.write_all(b"\n");
+            }
+        } else {
+            pkgfile.read_to_end(buf)?;
+
+            match std::str::from_utf8(buf) {
+                Ok(_) => {
+                    for line in buf.lines() {
+                        let _ = stdin.write_all(b"    ");
+                        let _ = stdin.write_all(line?.as_bytes());
+                        let _ = stdin.write_all(b"\n");
+                    }
+                }
+                Err(_) => {
+                    let file = file.strip_prefix(pkgdir)?;
+                    let _ = write!(
+                        stdin,
+                        "  {}",
+                        c.bold
+                            .paint(tr!("binary file: {}", file.display().to_string()))
+                    );
+                }
+            };
+        }
+        let _ = stdin.write_all(b"\n");
     }
 
     Ok(())
@@ -1916,7 +1954,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                     if !has_diff.contains(&pkg) {
                         let dir = fetch.clone_dir.join(pkg);
                         let _ = writeln!(stdin, "{} {}:", c.action.paint("::"), c.bold.paint(pkg));
-                        print_dir(config, &dir, &dir, &mut stdin, &mut buf, bat, 1)?;
+                        print_dir(config, &dir, &mut stdin, &mut buf, bat)?;
                     }
                 }
 
@@ -2321,6 +2359,151 @@ fn needs_install(config: &Config, base: &Base, version: &str, pkg: &str) -> bool
 
 fn is_ver_char(c: char) -> bool {
     matches!(c, '<' | '=' | '>')
+}
+
+#[cfg(test)]
+mod review_tests {
+    use super::print_dir;
+    use crate::config::{Colors, Config};
+    use std::ffi::OsStr;
+    use std::fs;
+    use std::os::unix::ffi::OsStrExt;
+    use std::os::unix::fs::symlink;
+    use std::path::Path;
+    use std::process::Command;
+
+    fn git(path: &Path, args: &[&str]) {
+        let output = Command::new("git")
+            .current_dir(path)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{output:?}");
+    }
+
+    #[test]
+    fn initial_review_includes_nested_and_local_files() {
+        let dir = tempfile::tempdir().unwrap();
+        let repo = dir.path().join("repo");
+        fs::create_dir(&repo).unwrap();
+        git(&repo, &["init"]);
+        fs::create_dir_all(repo.join("keys/pgp")).unwrap();
+        fs::write(repo.join("PKGBUILD"), "pkgname=fixture\n").unwrap();
+        fs::write(repo.join("keys/pgp/helper.asc"), "nested-body\n").unwrap();
+        fs::write(repo.join("keys/.SRCINFO"), "nested-srcinfo\n").unwrap();
+        fs::create_dir_all(repo.join("packages/local")).unwrap();
+        fs::write(repo.join("packages/local/PKGBUILD"), "pkgname=local\n").unwrap();
+        fs::write(repo.join(".SRCINFO"), "hidden-srcinfo\n").unwrap();
+        fs::write(repo.join("archive.bin"), b"\0binary-body\xff").unwrap();
+        fs::write(repo.join(".gitignore"), "ignored*\n").unwrap();
+        fs::write(repo.join("edited"), "original-body\n").unwrap();
+        fs::write(repo.join("deleted"), "deleted-body\n").unwrap();
+        fs::write(repo.join("renamed"), "renamed-body\n").unwrap();
+        fs::create_dir(repo.join("replaced")).unwrap();
+        fs::write(repo.join("replaced/file"), "old-directory-body\n").unwrap();
+        fs::write(
+            repo.join(OsStr::from_bytes(b"non-utf8-\xff")),
+            "non-utf8-body\n",
+        )
+        .unwrap();
+        let external = dir.path().join("external");
+        fs::write(&external, "external-private-body\n").unwrap();
+        symlink(&external, repo.join("external-link")).unwrap();
+        git(&repo, &["add", "."]);
+        fs::write(repo.join("ignored-tracked"), "tracked-ignored-body\n").unwrap();
+        git(&repo, &["add", "-f", "ignored-tracked"]);
+        fs::write(repo.join("edited"), "edited-body\n").unwrap();
+        fs::remove_file(repo.join("deleted")).unwrap();
+        fs::remove_file(repo.join("replaced/file")).unwrap();
+        fs::remove_dir(repo.join("replaced")).unwrap();
+        let outside = dir.path().join("outside");
+        fs::create_dir(&outside).unwrap();
+        fs::write(outside.join("file"), "outside-directory-body\n").unwrap();
+        symlink(&outside, repo.join("replaced")).unwrap();
+        git(&repo, &["mv", "renamed", "destination"]);
+        fs::write(repo.join("new"), "untracked-body\n").unwrap();
+        fs::write(
+            repo.join("packages/local/local.patch"),
+            "local-patch-body\n",
+        )
+        .unwrap();
+        fs::create_dir_all(repo.join("build-tree/nested")).unwrap();
+        fs::write(
+            repo.join("build-tree/nested/output"),
+            "build-residue-body\n",
+        )
+        .unwrap();
+        fs::write(repo.join("ignored-build"), "ignored-build-body\n").unwrap();
+
+        let mut config = Config::default();
+        config.color = Colors::from("never");
+        config.git_flags = vec!["-c".into(), "core.quotePath=true".into()];
+        let mut output = Vec::new();
+        print_dir(&config, &repo, &mut output, &mut Vec::new(), false).unwrap();
+        let output = String::from_utf8(output).unwrap();
+        for body in [
+            "nested-body",
+            "nested-srcinfo",
+            "edited-body",
+            "renamed-body",
+            "non-utf8-body",
+            "tracked-ignored-body",
+            "untracked-body",
+            "local-patch-body",
+        ] {
+            assert!(output.contains(&format!("    {body}\n")), "{output}");
+        }
+        assert!(output.contains("destination:"), "{output}");
+        assert!(output.contains("binary file: archive.bin"), "{output}");
+        assert!(output.contains("directory: build-tree"), "{output}");
+        assert!(output.find("nested-body").unwrap() < output.find("untracked-body").unwrap());
+        assert!(
+            output.contains(&format!("external-link -> {}", external.display())),
+            "{output}"
+        );
+        for absent in [
+            "hidden-srcinfo",
+            "original-body",
+            "deleted-body",
+            "external-private-body",
+            "outside-directory-body",
+            "ignored-build-body",
+            "binary-body",
+            "build-residue-body",
+            "renamed:",
+        ] {
+            assert!(!output.contains(absent), "{output}");
+        }
+
+        fs::remove_file(repo.join(".SRCINFO")).unwrap();
+        symlink(&external, repo.join(".SRCINFO")).unwrap();
+        let mut output = Vec::new();
+        print_dir(&config, &repo, &mut output, &mut Vec::new(), false).unwrap();
+        let output = String::from_utf8(output).unwrap();
+        assert!(
+            output.contains(&format!(".SRCINFO -> {}", external.display())),
+            "{output}"
+        );
+        assert!(!output.contains("external-private-body"), "{output}");
+    }
+
+    #[test]
+    fn initial_review_summarizes_binary_files_before_bat() {
+        let dir = tempfile::tempdir().unwrap();
+        git(dir.path(), &["init"]);
+        fs::write(dir.path().join("archive.bin"), b"\0binary-body\xff").unwrap();
+        git(dir.path(), &["add", "archive.bin"]);
+        let mut config = Config::default();
+        config.color = Colors::from("never");
+        config.bat_bin = "/bin/false".into();
+        let mut output = Vec::new();
+        print_dir(&config, dir.path(), &mut output, &mut Vec::new(), true).unwrap();
+        let output = String::from_utf8(output).unwrap();
+        assert!(output.contains("binary file: archive.bin"), "{output}");
+        assert!(!output.contains("binary-body"), "{output}");
+    }
 }
 
 #[cfg(all(test, feature = "mock"))]
