@@ -8,13 +8,20 @@ use std::time::{Duration, SystemTime};
 
 use anyhow::{Context, Result, ensure};
 use flate2::read::GzDecoder;
-use reqwest::get;
 use tr::tr;
 use url::Url;
 
 async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     let url = aur_url.join("packages.gz")?;
-    let resp = get(url.clone())
+    let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+
+    // Add user agent header so Anubis lets the request through
+    let client = reqwest::Client::builder()
+        .user_agent(format!("paru/{}", ver))
+        .build()?;
+    let resp = client
+        .get(url.clone())
+        .send()
         .await
         .with_context(|| format!("get {}", url))?;
     let success = resp.status().is_success();
