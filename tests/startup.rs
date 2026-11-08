@@ -264,6 +264,220 @@ fn pkgbuild_refresh_marks_the_merged_tree_as_accepted() {
 }
 
 #[test]
+fn unaccepted_pkgbuild_repositories_are_not_loaded() {
+    for committed_srcinfo in [false, true] {
+        for answer in ["n\n", ""] {
+            let repo = PkgbuildReview::new("", committed_srcinfo);
+            repo.push(1);
+            let output = repo.refresh(answer);
+            assert_eq!(output.status.code(), Some(1), "{output:?}");
+            assert_eq!(repo.trace(), "review\n");
+
+            for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+                let output = repo.run(&args, "");
+                assert!(output.stdout.is_empty(), "{output:?}");
+                assert_eq!(repo.trace(), "", "{args:?}: {output:?}");
+            }
+            for target in ["unrelated", "fixture/fixture"] {
+                let output = repo.run(&["-S", target], "y\n");
+                assert!(!output.status.success(), "{output:?}");
+                assert_eq!(repo.trace(), "", "{target}: {output:?}");
+            }
+        }
+    }
+}
+
+#[test]
+fn unavailable_pkgbuild_repositories_warn_once_per_command() {
+    for downloaded in [false, true] {
+        let repo = PkgbuildReview::new("", false);
+        repo.push(1);
+        if downloaded {
+            let output = repo.refresh("n\n");
+            assert_eq!(output.status.code(), Some(1), "{output:?}");
+        }
+
+        let output = repo.run(&["-Si", "a", "b", "c", "d", "e"], "");
+        assert!(output.stdout.is_empty(), "{output:?}");
+        assert_eq!(repo.trace(), "");
+        let warning = if downloaded {
+            "repo fixture has unreviewed changes"
+        } else {
+            "repo fixture not downloaded"
+        };
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert_eq!(stderr.matches(warning).count(), 1, "{stderr}");
+    }
+}
+
+#[test]
+fn pkgbuild_repository_is_not_loaded_after_interrupted_diff_review() {
+    let mut repo = PkgbuildReview::new("", true);
+    repo.push(1);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+
+    repo.committed_srcinfo = false;
+    fs::remove_file(repo.tmp.path().join("remote/.SRCINFO")).unwrap();
+    repo.push(2);
+    let wrapper = script(
+        repo.tmp.path(),
+        "interrupt-git",
+        "case \"$*\" in\n\
+           'diff --stat --patch --cached '*)\n\
+             printf 'interrupt\\n' >> \"$PARU_TEST_CAPTURE\"\n\
+             kill -KILL \"$PPID\"\n\
+             exit 99;;\n\
+         esac\n\
+         exec git \"$@\"",
+    );
+    let config = repo.tmp.path().join("paru.conf");
+    let original = fs::read_to_string(&config).unwrap();
+    fs::write(
+        &config,
+        original.replace("[bin]\n", &format!("[bin]\nGit = {}\n", wrapper.display())),
+    )
+    .unwrap();
+
+    let output = repo.refresh("");
+    assert!(!output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "interrupt\n");
+    fs::write(config, original).unwrap();
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+    assert!(repo.clone_dir().join(".git/MERGE_HEAD").exists());
+    assert!(!repo.clone_dir().join(".SRCINFO").exists());
+    assert!(
+        fs::read_to_string(repo.clone_dir().join("PKGBUILD"))
+            .unwrap()
+            .contains("pkgver=2")
+    );
+
+    for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+        let output = repo.run(&args, "");
+        assert!(output.stdout.is_empty(), "{output:?}");
+        assert_eq!(repo.trace(), "", "{args:?}: {output:?}");
+    }
+    let output = repo.run(&["-S", "fixture/fixture"], "y\n");
+    assert!(!output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "");
+
+    git(&repo.clone_dir(), &["merge", "--abort"]);
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(output.stdout, b"fixture\n");
+}
+
+#[test]
+fn pkgbuild_repository_is_not_loaded_during_rebase() {
+    let repo = PkgbuildReview::new("", true);
+    repo.push(1);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    git(
+        &repo.clone_dir(),
+        &["commit", "--allow-empty", "-m", "local"],
+    );
+    let editor = script(
+        repo.tmp.path(),
+        "sequence-editor",
+        "sed -i '1ibreak' \"$1\"",
+    );
+    git(
+        &repo.clone_dir(),
+        &[
+            "-c",
+            &format!("sequence.editor={}", editor.display()),
+            "rebase",
+            "-i",
+            "HEAD~1",
+        ],
+    );
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+    assert!(repo.clone_dir().join(".git/rebase-merge").is_dir());
+
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.stdout.is_empty(), "{output:?}");
+    assert_eq!(repo.trace(), "");
+
+    git(&repo.clone_dir(), &["rebase", "--abort"]);
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(output.stdout, b"fixture\n");
+}
+
+#[test]
+fn pkgbuild_skip_review_explicitly_allows_loading_the_repository() {
+    let repo = PkgbuildReview::new("SkipReview\n", false);
+    repo.push(1);
+    let output = repo.refresh("");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "makepkg\nsource-1\n");
+
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(output.stdout, b"fixture\n");
+    fs::remove_file(repo.clone_dir().join(".SRCINFO")).unwrap();
+    let output = repo.run(&["-Si", "fixture/fixture"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "makepkg\nsource-1\n");
+}
+
+#[test]
+fn pkgbuild_refresh_without_confirmation_marks_the_accepted_tree() {
+    let repo = PkgbuildReview::new("", false);
+    repo.push(1);
+    let output = repo.run(&["-Sy", "--noconfirm"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "makepkg\nsource-1\n");
+    assert_eq!(repo.tree("AUR_SEEN"), repo.tree("HEAD"));
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(output.stdout, b"fixture\n");
+}
+
+#[test]
+fn pkgbuild_url_cache_without_git_metadata_is_not_loaded() {
+    for committed_srcinfo in [false, true] {
+        let repo = PkgbuildReview::new("", committed_srcinfo);
+        repo.push(1);
+        fs::create_dir_all(repo.clone_dir()).unwrap();
+        for file in ["PKGBUILD", ".SRCINFO"] {
+            let source = repo.tmp.path().join("remote").join(file);
+            if source.exists() {
+                fs::copy(source, repo.clone_dir().join(file)).unwrap();
+            }
+        }
+
+        for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+            let output = repo.run(&args, "");
+            assert!(output.stdout.is_empty(), "{output:?}");
+            assert_eq!(repo.trace(), "", "{args:?}: {output:?}");
+        }
+    }
+}
+
+#[test]
+fn pkgbuild_path_repository_does_not_require_a_review_marker() {
+    let repo = PkgbuildReview::new("", false);
+    repo.push(1);
+    let remote = repo.tmp.path().join("remote");
+    let config = repo.tmp.path().join("paru.conf");
+    fs::write(
+        &config,
+        fs::read_to_string(&config).unwrap().replace(
+            &format!("Url = {}", url::Url::from_directory_path(&remote).unwrap()),
+            &format!("Path = {}", remote.display()),
+        ),
+    )
+    .unwrap();
+
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.status.success(), "{output:?}");
+    assert!(output.stdout.ends_with(b"fixture\n"), "{output:?}");
+    assert_eq!(repo.trace(), "makepkg\nsource-1\n");
+}
+
+#[test]
 fn config_environment_reaches_help_before_threads_start() {
     let tmp = tempfile::tempdir().unwrap();
     let dir = tmp.path();
@@ -355,7 +569,8 @@ fn configured_aurdest_and_cli_select_the_cached_repository() {
     let pacman_conf = pacman_conf(dir);
     for name in ["configured", "environment", "cli"] {
         let repo = dir.join(name).join("repo/fixture");
-        fs::create_dir_all(repo.join(".git")).unwrap();
+        fs::create_dir_all(&repo).unwrap();
+        git(&repo, &["init", "-b", "master"]);
         fs::write(repo.join("PKGBUILD"), "").unwrap();
         fs::write(
             repo.join(".SRCINFO"),
@@ -367,7 +582,8 @@ fn configured_aurdest_and_cli_select_the_cached_repository() {
         dir.join("paru.conf"),
         format!(
             "[bin]\nPacmanConf = {0}\n[env]\nAURDEST = {1}/environment\n\
-             [options]\nBuildDir = {1}/configured\n[fixture]\nUrl = https://paru.invalid/fixture.git\n",
+             [options]\nBuildDir = {1}/configured\n\
+             [fixture]\nUrl = https://paru.invalid/fixture.git\nSkipReview\n",
             pacman_conf.display(),
             dir.display(),
         ),

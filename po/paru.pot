@@ -1027,6 +1027,10 @@ msgstr ""
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
 
+#: src/pkgbuild.rs:176
+msgid "repo {} has unreviewed changes (use -Sy --pkgbuilds to review)"
+msgstr ""
+
 #: src/pkgbuild.rs:200
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr ""
