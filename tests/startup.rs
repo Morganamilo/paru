@@ -80,6 +80,189 @@ fn pacman_conf(dir: &Path) -> PathBuf {
     script(dir, "pacman-conf", "/bin/cat pacman.conf")
 }
 
+fn git(dir: &Path, args: &[&str]) -> Output {
+    let output = output(
+        Command::new("git")
+            .current_dir(dir)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .args([
+                "-c",
+                "user.name=fixture",
+                "-c",
+                "user.email=fixture@localhost",
+            ])
+            .args(args),
+    );
+    assert!(output.status.success(), "{output:?}");
+    output
+}
+
+struct PkgbuildReview {
+    tmp: tempfile::TempDir,
+    committed_srcinfo: bool,
+}
+
+impl PkgbuildReview {
+    fn new(options: &str, committed_srcinfo: bool) -> Self {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        let remote = dir.join("remote");
+        fs::create_dir(&remote).unwrap();
+        git(&remote, &["init", "-b", "master"]);
+        let pacman_conf = pacman_conf(dir);
+        let pager = script(
+            dir,
+            "pager",
+            "cat > reviewed\nprintf 'review\\n' >> \"$PARU_TEST_CAPTURE\"",
+        );
+        let makepkg = script(
+            dir,
+            "makepkg",
+            "printf 'makepkg\\n' >> \"$PARU_TEST_CAPTURE\"\n\
+             test \"$*\" = --printsrcinfo\n\
+             . ./PKGBUILD\n\
+             printf 'pkgbase = fixture\\n\\tpkgver = %s\\n\\tpkgrel = 1\\n\\tarch = any\\npkgname = fixture\\n' \"$pkgver\"",
+        );
+        let forbidden = script(dir, "forbidden", "exit 99");
+        fs::write(
+            dir.join("paru.conf"),
+            format!(
+                "[bin]\nPacmanConf = {0}\nPager = {1}\nMakepkg = {2}\n\
+                 Pacman = {3}\nSudo = {3}\n[options]\nBuildDir = {4}/build\n\
+                 AurUrl = http://127.0.0.1:9\n[fixture]\nUrl = {5}\n{options}",
+                pacman_conf.display(),
+                pager.display(),
+                makepkg.display(),
+                forbidden.display(),
+                dir.display(),
+                url::Url::from_directory_path(&remote).unwrap(),
+            ),
+        )
+        .unwrap();
+        Self {
+            tmp,
+            committed_srcinfo,
+        }
+    }
+
+    fn clone_dir(&self) -> PathBuf {
+        self.tmp.path().join("build/repo/fixture")
+    }
+
+    fn push(&self, version: u32) {
+        let remote = self.tmp.path().join("remote");
+        fs::write(
+            remote.join("PKGBUILD"),
+            format!(
+                "pkgname=fixture\npkgver={version}\npkgrel=1\n\
+                 printf 'source-{version}\\n' >> \"$PARU_TEST_CAPTURE\"\n"
+            ),
+        )
+        .unwrap();
+        if self.committed_srcinfo {
+            fs::write(
+                remote.join(".SRCINFO"),
+                format!(
+                    "pkgbase = fixture\n\tpkgver = {version}\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n"
+                ),
+            )
+            .unwrap();
+        }
+        git(&remote, &["add", "."]);
+        git(&remote, &["commit", "-m", "fixture"]);
+    }
+
+    fn run(&self, args: &[&str], answer: &str) -> Output {
+        let dir = self.tmp.path();
+        fs::write(dir.join("capture"), "").unwrap();
+        fs::write(dir.join("reviewed"), "").unwrap();
+        fs::write(dir.join("answer"), answer).unwrap();
+        output(
+            command(dir)
+                .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                .env("GIT_CONFIG_NOSYSTEM", "1")
+                .stdin(fs::File::open(dir.join("answer")).unwrap())
+                .args(["--pkgbuilds", "--color", "never"])
+                .args(args),
+        )
+    }
+
+    fn refresh(&self, answer: &str) -> Output {
+        self.run(&["-Sy"], answer)
+    }
+
+    fn trace(&self) -> String {
+        fs::read_to_string(self.tmp.path().join("capture")).unwrap()
+    }
+
+    fn tree(&self, reference: &str) -> Vec<u8> {
+        git(
+            &self.clone_dir(),
+            &["rev-parse", &format!("{reference}^{{tree}}")],
+        )
+        .stdout
+    }
+}
+
+#[test]
+fn pkgbuild_refresh_reviews_the_upstream_of_an_unaccepted_clone() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    repo.push(1);
+    let output = repo.refresh("n\n");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(repo.trace(), "review\n");
+
+    repo.push(2);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+    assert!(reviewed.contains("pkgver=2"), "{reviewed}");
+    assert!(!reviewed.contains("pkgver=1"), "{reviewed}");
+    assert_eq!(repo.trace(), "review\nmakepkg\nsource-2\n");
+}
+
+#[test]
+fn pkgbuild_refresh_keeps_the_accepted_tree_after_rejection() {
+    for answer in ["n\n", ""] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        repo.push(1);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+        let accepted = repo.tree("HEAD");
+
+        repo.push(2);
+        let output = repo.refresh(answer);
+        assert_eq!(output.status.code(), Some(1), "{output:?}");
+        assert_eq!(repo.trace(), "review\n");
+        assert_eq!(repo.tree("HEAD"), accepted);
+        fs::remove_file(repo.clone_dir().join(".SRCINFO")).unwrap();
+
+        let output = repo.run(&["-Si", "fixture/fixture"], "");
+        assert!(output.status.success(), "{output:?}");
+        assert_eq!(repo.trace(), "makepkg\nsource-1\n");
+    }
+}
+
+#[test]
+fn pkgbuild_refresh_marks_the_merged_tree_as_accepted() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    for version in [1, 2] {
+        repo.push(version);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+        assert_eq!(repo.tree("AUR_SEEN"), repo.tree("HEAD"));
+    }
+
+    let output = repo.refresh("");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "makepkg\nsource-2\n");
+    assert_eq!(
+        fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap(),
+        ""
+    );
+}
+
 #[test]
 fn config_environment_reaches_help_before_threads_start() {
     let tmp = tempfile::tempdir().unwrap();

@@ -405,10 +405,23 @@ impl PkgbuildRepos {
             })
             .map(|r| r.name.as_str())
             .collect::<Vec<_>>();
+
+        // Without a seen marker, review reads the working tree rather than a diff.
+        let unseen = self.fetch.unseen(&review_repos)?;
+        let has_diff = self.fetch.has_diff(&unseen)?;
+        let never_accepted = unseen
+            .iter()
+            .copied()
+            .filter(|r| !has_diff.contains(r))
+            .collect::<Vec<_>>();
+        self.fetch.merge(&never_accepted)?;
+
         review(config, &self.fetch, &review_repos)?;
 
         let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
         self.fetch.merge(&all_repos)?;
+        // Diff review records HEAD before the merge.
+        self.fetch.mark_seen(&review_repos)?;
 
         self.repos.iter().for_each(|r| r.generate_srcinfos(config));
         Ok(())
