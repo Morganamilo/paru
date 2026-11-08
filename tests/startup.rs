@@ -696,6 +696,207 @@ fn configured_proxy_routes_the_aur_request() {
     assert_eq!(output.stdout, b"startup-proxy-fixture\n");
 }
 
+fn pkgbuild_copy_repo(dir: &Path, base: &str) {
+    let pacman_conf = pacman_conf(dir);
+    let forbidden = script(
+        dir,
+        "forbidden",
+        "printf called > \"$PARU_TEST_CAPTURE\"\nexit 99",
+    );
+    let repo = dir.join("repo");
+    for (folder, pkgbase, pkgname) in [("recipe", base, "target"), ("other", "aaa-good", "good")] {
+        let path = repo.join(folder);
+        fs::create_dir_all(&path).unwrap();
+        fs::write(path.join("PKGBUILD"), "exit 99\n").unwrap();
+        fs::write(
+            path.join(".SRCINFO"),
+            format!("pkgbase = {pkgbase}\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = {pkgname}\n"),
+        )
+        .unwrap();
+    }
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\nMakepkg = {}\nSudo = {}\n[fixture]\nPath = {}\n",
+            pacman_conf.display(),
+            forbidden.display(),
+            forbidden.display(),
+            repo.display(),
+        ),
+    )
+    .unwrap();
+}
+
+#[test]
+fn pkgbuild_copy_rejects_unsafe_bases_before_removing_anything() {
+    for base in [
+        "../outside",
+        "/absolute",
+        "link/outside",
+        "outside/",
+        "./outside",
+        ".",
+        "..",
+        ".git",
+        ".ssh",
+        "-outside",
+        "out side",
+        "out:side",
+        "out\\side",
+        "café",
+        "out\0side",
+        "out\x1b]2;name-marker\x07side",
+    ] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path().join("work");
+        fs::create_dir(&dir).unwrap();
+        std::os::unix::fs::symlink(tmp.path(), dir.join("link")).unwrap();
+        let base = if base == "/absolute" {
+            tmp.path().join("outside").to_str().unwrap().to_owned()
+        } else {
+            base.to_owned()
+        };
+        pkgbuild_copy_repo(&dir, &base);
+        let hidden = matches!(base.as_str(), ".git" | ".ssh");
+        let victim = (!base.contains('\0') && !hidden).then(|| dir.join(&base));
+        if let Some(victim) = &victim {
+            fs::create_dir_all(victim).unwrap();
+            fs::write(victim.join("PKGBUILD"), "original package\n").unwrap();
+            fs::write(victim.join("marker"), "keep\n").unwrap();
+        }
+        fs::create_dir(dir.join("aaa-good")).unwrap();
+        fs::write(dir.join("aaa-good/PKGBUILD"), "original good package\n").unwrap();
+
+        let output = output(command(&dir).args([
+            "-G",
+            "--color",
+            "never",
+            "--pkgbuilds",
+            "fixture/good",
+            "fixture/target",
+        ]));
+        assert_eq!(output.status.code(), Some(1), "{base}: {output:?}");
+        if let Some(victim) = &victim {
+            assert_eq!(
+                fs::read(victim.join("marker")).unwrap(),
+                b"keep\n",
+                "{base}"
+            );
+        }
+        if hidden {
+            assert!(!dir.join(&base).exists(), "{base}");
+        }
+        assert!(
+            !output.stderr.iter().any(|byte| [0, 7, 27].contains(byte)),
+            "{base:?}: {output:?}"
+        );
+        assert_eq!(
+            fs::read(dir.join("aaa-good/PKGBUILD")).unwrap(),
+            b"original good package\n",
+            "{base}"
+        );
+        assert!(!dir.join("capture").exists(), "{base}");
+    }
+}
+
+#[test]
+fn pkgbuild_copy_rejects_overlapping_directories_before_removing_anything() {
+    for (cwd, base) in [
+        ("repo", "recipe"),
+        (".", "repo"),
+        ("repo/recipe", "nested"),
+        (".", "alias"),
+    ] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        pkgbuild_copy_repo(dir, base);
+        let source = dir.join("repo/recipe");
+        fs::write(source.join("marker"), "keep source\n").unwrap();
+        fs::write(dir.join("repo/PKGBUILD"), "exit 99\n").unwrap();
+        fs::write(
+            dir.join("repo/.SRCINFO"),
+            "pkgbase = root\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = root\n",
+        )
+        .unwrap();
+        std::os::unix::fs::symlink(&source, dir.join("alias")).unwrap();
+        script(dir, "pacman-conf", "/bin/cat \"$PARU_TEST_PACMAN_CONF\"");
+        let cwd = dir.join(cwd);
+        fs::create_dir(cwd.join("aaa-good")).unwrap();
+        fs::write(cwd.join("aaa-good/PKGBUILD"), "original good package\n").unwrap();
+        fs::write(
+            cwd.join("aaa-good/.SRCINFO"),
+            "pkgbase = aaa-good\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = old-good\n",
+        )
+        .unwrap();
+
+        let output = output(
+            command(dir)
+                .current_dir(&cwd)
+                .env("PARU_TEST_PACMAN_CONF", dir.join("pacman.conf"))
+                .args(["-G", "--pkgbuilds", "fixture/good", "fixture/target"]),
+        );
+        assert_eq!(output.status.code(), Some(1), "{cwd:?}: {output:?}");
+        assert_eq!(fs::read(source.join("marker")).unwrap(), b"keep source\n");
+        assert_eq!(fs::read(source.join("PKGBUILD")).unwrap(), b"exit 99\n");
+        assert_eq!(
+            fs::read(cwd.join("aaa-good/PKGBUILD")).unwrap(),
+            b"original good package\n"
+        );
+        assert!(!dir.join("capture").exists());
+        assert!(!source.join("nested").exists());
+    }
+}
+
+#[test]
+fn pkgbuild_copy_keeps_other_selected_sources() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    pkgbuild_copy_repo(dir, "downloaded");
+    let repo = dir.join("repo");
+    let source = repo.join("aaa-good");
+    fs::rename(repo.join("recipe"), &source).unwrap();
+    fs::write(source.join("marker"), "keep source\n").unwrap();
+    fs::write(source.join("PKGBUILD"), "target recipe\n").unwrap();
+    script(dir, "pacman-conf", "/bin/cat \"$PARU_TEST_PACMAN_CONF\"");
+
+    let output = output(
+        command(dir)
+            .current_dir(&repo)
+            .env("PARU_TEST_PACMAN_CONF", dir.join("pacman.conf"))
+            .args(["-G", "--pkgbuilds", "fixture/good", "fixture/target"]),
+    );
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(fs::read(source.join("marker")).unwrap(), b"keep source\n");
+    assert_eq!(
+        fs::read(source.join("PKGBUILD")).unwrap(),
+        b"target recipe\n"
+    );
+    assert!(!repo.join("downloaded").exists());
+    assert!(!dir.join("capture").exists());
+}
+
+#[test]
+fn pkgbuild_copy_keeps_independent_recipe_directory_names() {
+    for base in ["downloaded", "@Mixed_Name+1.0-2"] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        pkgbuild_copy_repo(dir, base);
+        let destination = dir.join(base);
+        fs::create_dir(&destination).unwrap();
+        fs::write(destination.join("PKGBUILD"), "original\n").unwrap();
+        fs::write(destination.join("marker"), "old\n").unwrap();
+
+        let output = output(command(dir).args(["-G", "--pkgbuilds", "fixture/target"]));
+        assert!(output.status.success(), "{base}: {output:?}");
+        assert_eq!(
+            fs::read(destination.join("PKGBUILD")).unwrap(),
+            b"exit 99\n"
+        );
+        assert!(!destination.join("marker").exists());
+        assert!(!dir.join("capture").exists());
+    }
+}
+
 #[cfg(not(feature = "mock"))]
 #[test]
 fn package_descriptions_and_urls_escape_terminal_controls() {

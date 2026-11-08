@@ -1,7 +1,7 @@
 use crate::RaurHandle;
 use crate::config::{Colors, Config, YesNoAll};
 use crate::exec::has_command;
-use crate::fmt::print_indent;
+use crate::fmt::{escape_control, print_indent};
 use crate::util::is_arch_repo;
 use crate::{exec, printtr};
 
@@ -17,7 +17,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, bail, ensure};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
@@ -282,7 +282,16 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
             continue;
         };
 
-        match pkgs.entry(base.srcinfo.pkgbase()) {
+        let pkgbase = base.srcinfo.pkgbase();
+        ensure!(
+            !pkgbase.is_empty()
+                && !pkgbase.starts_with(['-', '.'])
+                && pkgbase
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || b"@._+-".contains(&byte)),
+            tr!("invalid package base '{}'", escape_control(pkgbase))
+        );
+        match pkgs.entry(pkgbase) {
             Entry::Vacant(v) => {
                 v.insert(base);
             }
@@ -292,6 +301,28 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
                 }
             }
         }
+    }
+
+    let sources = pkgs
+        .values()
+        .map(|pkg| pkg.path.canonicalize())
+        .collect::<std::io::Result<Vec<_>>>()?;
+    for pkgbase in pkgs.keys() {
+        let destination = cwd.join(pkgbase);
+        let destination = if destination.exists() {
+            destination.canonicalize()?
+        } else {
+            destination
+        };
+        ensure!(
+            sources.iter().all(|source| {
+                !source.starts_with(&destination) && !destination.starts_with(source)
+            }),
+            tr!(
+                "copy destination for '{}' overlaps a source directory",
+                escape_control(pkgbase)
+            )
+        );
     }
 
     for (n, pkg) in pkgs.values().enumerate() {

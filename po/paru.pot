@@ -246,6 +246,14 @@ msgstr ""
 msgid "package '{}' was not found"
 msgstr ""
 
+#: src/download.rs:290
+msgid "invalid package base '{}'"
+msgstr ""
+
+#: src/download.rs:302
+msgid "copy destination for '{}' overlaps a source directory"
+msgstr ""
+
 #: src/download.rs:291
 msgid "duplicate PKGBUILD: {}"
 msgstr ""
