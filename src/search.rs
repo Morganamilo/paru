@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::config::Config;
 use crate::config::SortBy;
-use crate::fmt::{color_repo, link_str, print_indent};
+use crate::fmt::{color_repo, escape_control, link_str, print_indent};
 use crate::util::{NumberMenu, input, is_arch_repo, now_secs};
 use crate::{info, printtr};
 
@@ -267,28 +267,35 @@ fn print_pkgbuild_pkg(
     quiet: bool,
 ) {
     if quiet {
-        println!("{}", pkg.pkgname);
+        println!("{}", escape_control(&pkg.pkgname));
         return;
     }
 
     let c = config.color;
 
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.pkgname), url)
+        link_str(
+            c.enabled,
+            &c.ss_name.paint(escape_control(&pkg.pkgname)),
+            url,
+        )
     } else {
-        c.ss_name.paint(&pkg.pkgname).to_string()
+        c.ss_name.paint(escape_control(&pkg.pkgname)).to_string()
     };
 
     print!(
         "{}/{} {}",
-        color_repo(c.enabled, repo),
+        color_repo(c.enabled, &escape_control(repo)),
         name,
-        c.ss_ver.paint(srcinfo.version()),
+        c.ss_ver.paint(escape_control(&srcinfo.version())),
     );
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.pkgname) {
         let installed = if repo_pkg.version().as_str() != srcinfo.version() {
-            tr!("[installed: {}]", repo_pkg.version())
+            tr!(
+                "[installed: {}]",
+                escape_control(repo_pkg.version().as_str())
+            )
         } else {
             tr!("[installed]")
         };
@@ -298,7 +305,12 @@ fn print_pkgbuild_pkg(
 
     let none = tr!("None");
     print!("\n    ");
-    let desc = pkg.pkgdesc.as_deref().unwrap_or(&none).split_whitespace();
+    let desc = pkg
+        .pkgdesc
+        .as_deref()
+        .unwrap_or(&none)
+        .split_whitespace()
+        .map(escape_control);
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
     if config.args.count("s", "search") > 1 {
@@ -308,7 +320,7 @@ fn print_pkgbuild_pkg(
 
 fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     if quiet {
-        println!("{}", pkg.name);
+        println!("{}", escape_control(&pkg.name));
         return;
     }
 
@@ -322,15 +334,15 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         aur
     };
     let name = if let Some(url) = &pkg.url {
-        link_str(c.enabled, &c.ss_name.paint(&pkg.name), url)
+        link_str(c.enabled, &c.ss_name.paint(escape_control(&pkg.name)), url)
     } else {
-        c.ss_name.paint(&pkg.name).to_string()
+        c.ss_name.paint(escape_control(&pkg.name)).to_string()
     };
     print!(
         "{}/{} {} [{}]",
         color_repo(c.enabled, &aur),
         c.ss_name.paint(name),
-        c.ss_ver.paint(&pkg.version),
+        c.ss_ver.paint(escape_control(&pkg.version)),
         c.ss_stats.paint(stats),
     );
 
@@ -341,7 +353,10 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(&*pkg.name) {
         let installed = if repo_pkg.version().as_str() != pkg.version {
-            tr!("[installed: {}]", repo_pkg.version())
+            tr!(
+                "[installed: {}]",
+                escape_control(repo_pkg.version().as_str())
+            )
         } else {
             tr!("[installed]")
         };
@@ -359,7 +374,8 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
         .description
         .as_deref()
         .unwrap_or(&none)
-        .split_whitespace();
+        .split_whitespace()
+        .map(escape_control);
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
     if config.args.count("s", "search") > 1 {
@@ -374,7 +390,7 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
 
 fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     if quiet {
-        println!("{}", pkg.name());
+        println!("{}", escape_control(pkg.name()));
         return;
     }
 
@@ -385,7 +401,7 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
         HumanBytes(pkg.isize() as u64)
     );
     let ver: &str = pkg.version().as_ref();
-    let mut repo = color_repo(c.enabled, pkg.db().unwrap().name());
+    let mut repo = color_repo(c.enabled, &escape_control(pkg.db().unwrap().name()));
     if is_arch_repo(pkg.db().unwrap().name())
         && let Ok(url) = config.arch_url.join(&format!(
             "packages/{}/{}/{}/",
@@ -398,22 +414,25 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
     }
 
     let name = if let Some(url) = pkg.url() {
-        link_str(c.enabled, &c.ss_name.paint(pkg.name()), url)
+        link_str(c.enabled, &c.ss_name.paint(escape_control(pkg.name())), url)
     } else {
-        c.ss_name.paint(pkg.name()).to_string()
+        c.ss_name.paint(escape_control(pkg.name())).to_string()
     };
 
     print!(
         "{}/{} {} [{}]",
         color_repo(c.enabled, &repo),
         c.ss_name.paint(name),
-        c.ss_ver.paint(ver),
+        c.ss_ver.paint(escape_control(ver)),
         c.ss_stats.paint(stats),
     );
 
     if let Ok(repo_pkg) = config.alpm.localdb().pkg(pkg.name()) {
         let installed = if repo_pkg.version() != pkg.version() {
-            tr!("[installed: {}]", repo_pkg.version())
+            tr!(
+                "[installed: {}]",
+                escape_control(repo_pkg.version().as_str())
+            )
         } else {
             tr!("[installed]")
         };
@@ -423,16 +442,23 @@ fn print_alpm_pkg(config: &Config, pkg: &alpm::Package, quiet: bool) {
 
     if !pkg.groups().is_empty() {
         print!(" {}", c.ss_orphaned.paint("("));
-        print!("{}", c.ss_orphaned.paint(pkg.groups().first().unwrap()));
+        print!(
+            "{}",
+            c.ss_orphaned
+                .paint(escape_control(pkg.groups().first().unwrap()))
+        );
         for group in pkg.groups().iter().skip(1) {
-            print!(" {}", c.ss_orphaned.paint(group));
+            print!(" {}", c.ss_orphaned.paint(escape_control(group)));
         }
         print!("{}", c.ss_orphaned.paint(")"));
     }
 
     print!("\n    ");
     let desc = pkg.desc();
-    let desc = desc.unwrap_or_default().split_whitespace();
+    let desc = desc
+        .unwrap_or_default()
+        .split_whitespace()
+        .map(escape_control);
     print_indent(Style::new(), 4, 4, config.cols, " ", desc);
 
     if config.args.count("s", "search") > 1

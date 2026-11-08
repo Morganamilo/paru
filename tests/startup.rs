@@ -1,6 +1,8 @@
 #![cfg(target_os = "linux")]
 
 use std::fs;
+#[cfg(not(feature = "mock"))]
+use std::net::{TcpListener, TcpStream};
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
@@ -300,13 +302,15 @@ fn unavailable_pkgbuild_repositories_warn_once_per_command() {
         let output = repo.run(&["-Si", "a", "b", "c", "d", "e"], "");
         assert!(output.stdout.is_empty(), "{output:?}");
         assert_eq!(repo.trace(), "");
-        let warning = if downloaded {
-            "repo fixture has unreviewed changes"
-        } else {
-            "repo fixture not downloaded"
-        };
         let stderr = String::from_utf8_lossy(&output.stderr);
-        assert_eq!(stderr.matches(warning).count(), 1, "{stderr}");
+        assert_eq!(
+            stderr
+                .lines()
+                .filter(|line| line.starts_with(":: "))
+                .count(),
+            1,
+            "{stderr}"
+        );
     }
 }
 
@@ -477,6 +481,26 @@ fn pkgbuild_path_repository_does_not_require_a_review_marker() {
     assert_eq!(repo.trace(), "makepkg\nsource-1\n");
 }
 
+#[cfg(not(feature = "mock"))]
+fn accept(listener: &TcpListener) -> TcpStream {
+    listener.set_nonblocking(true).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(10);
+    let stream = loop {
+        match listener.accept() {
+            Ok((stream, _)) => break stream,
+            Err(err) if err.kind() == std::io::ErrorKind::WouldBlock => {
+                assert!(Instant::now() < deadline, "server received no request");
+                thread::sleep(Duration::from_millis(10));
+            }
+            Err(err) => panic!("{err}"),
+        }
+    };
+    stream
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    stream
+}
+
 #[test]
 fn config_environment_reaches_help_before_threads_start() {
     let tmp = tempfile::tempdir().unwrap();
@@ -606,14 +630,12 @@ fn configured_aurdest_and_cli_select_the_cached_repository() {
 #[test]
 fn configured_proxy_routes_the_aur_request() {
     use std::io::{BufRead, BufReader, Read, Write};
-    use std::net::TcpListener;
 
     let tmp = tempfile::tempdir().unwrap();
     let dir = tmp.path();
     let pacman_conf = pacman_conf(dir);
     let origin = TcpListener::bind("127.0.0.1:0").unwrap();
     let proxy = TcpListener::bind("127.0.0.1:0").unwrap();
-    proxy.set_nonblocking(true).unwrap();
     let aur_url = format!("http://{}", origin.local_addr().unwrap());
     fs::write(
         dir.join("paru.conf"),
@@ -626,23 +648,7 @@ fn configured_proxy_routes_the_aur_request() {
     )
     .unwrap();
     let server = thread::spawn(move || {
-        let deadline = Instant::now() + Duration::from_secs(10);
-        let mut stream = loop {
-            match proxy.accept() {
-                Ok((stream, _)) => break stream,
-                Err(err) if err.kind() == std::io::ErrorKind::WouldBlock => {
-                    assert!(
-                        Instant::now() < deadline,
-                        "configured proxy received no request"
-                    );
-                    thread::sleep(Duration::from_millis(10));
-                }
-                Err(err) => panic!("{err}"),
-            }
-        };
-        stream
-            .set_read_timeout(Some(Duration::from_secs(2)))
-            .unwrap();
+        let mut stream = accept(&proxy);
         let mut reader = BufReader::new(&stream);
         let mut request = String::new();
         reader.read_line(&mut request).unwrap();
@@ -688,4 +694,206 @@ fn configured_proxy_routes_the_aur_request() {
             .any(|(key, value)| key == "arg" && value == "startup-proxy-fixture")
     );
     assert_eq!(output.stdout, b"startup-proxy-fixture\n");
+}
+
+#[cfg(not(feature = "mock"))]
+#[test]
+fn package_descriptions_and_urls_escape_terminal_controls() {
+    use std::io::{BufRead, BufReader, Read, Write};
+
+    for (name, version, url, description, rendered_name, rendered_version, rendered_description) in [
+        (
+            "terminal-fixture",
+            "1-1",
+            "https://example.org/naïve",
+            "naïve 日本語 café",
+            "terminal-fixture",
+            "1-1",
+            "naïve 日本語 café",
+        ),
+        (
+            "terminal-fixture\x1b]2;name-marker\x07\x7f\u{009b}",
+            "1\x1b]2;version-marker\x07-1",
+            "https://example.org/\x1b\\\x1b]2;url-marker\x07",
+            "safe\x1b]2;desc-marker\x07tail\x7f\u{009b}",
+            r"terminal-fixture\u{1b}]2;name-marker\u{7}\u{7f}\u{9b}",
+            r"1\u{1b}]2;version-marker\u{7}-1",
+            r"safe\u{1b}]2;desc-marker\u{7}tail\u{7f}\u{9b}",
+        ),
+    ] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        let pacman_conf = pacman_conf(dir);
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        fs::write(
+            dir.join("paru.conf"),
+            format!(
+                "[bin]\nPacmanConf = {}\n[options]\nAurUrl = http://{}\n",
+                pacman_conf.display(),
+                listener.local_addr().unwrap()
+            ),
+        )
+        .unwrap();
+        let server = thread::spawn(move || {
+            for _ in 0..7 {
+                let mut stream = accept(&listener);
+                let mut reader = BufReader::new(&stream);
+                let mut request = String::new();
+                reader.read_line(&mut request).unwrap();
+                assert_eq!(request, "POST /rpc HTTP/1.1\r\n");
+                let mut length = 0;
+                loop {
+                    let mut header = String::new();
+                    assert_ne!(reader.read_line(&mut header).unwrap(), 0);
+                    if header == "\r\n" {
+                        break;
+                    }
+                    if let Some(value) = header.to_ascii_lowercase().strip_prefix("content-length:")
+                    {
+                        length = value.trim().parse().unwrap();
+                    }
+                }
+                let mut body = vec![0; length];
+                reader.read_exact(&mut body).unwrap();
+                let info = url::form_urlencoded::parse(&body)
+                    .any(|(key, value)| key == "type" && value == "info");
+                let response = serde_json::json!({
+                    "version": 5,
+                    "type": if info { "multiinfo" } else { "search" },
+                    "resultcount": 1,
+                    "results": [raur::Package {
+                        name: name.into(),
+                        package_base: "terminal-fixture".into(),
+                        version: version.into(),
+                        description: Some(description.into()),
+                        url: Some(url.into()),
+                        ..Default::default()
+                    }],
+                })
+                .to_string();
+                write!(stream, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", response.len(), response).unwrap();
+            }
+        });
+        for mode in ["-Ss", "-Sss", "-Si"] {
+            for color in ["always", "never"] {
+                let output = output(command(dir).args([mode, "--aur", "--color", color, name]));
+                assert!(output.status.success(), "{mode} {color}: {output:?}");
+                let text = String::from_utf8(output.stdout).unwrap();
+                assert!(
+                    text.contains(rendered_description),
+                    "{mode} {color}: {text:?}"
+                );
+                assert!(text.contains(rendered_name), "{mode} {color}: {text:?}");
+                assert!(text.contains(rendered_version), "{mode} {color}: {text:?}");
+                assert!(!text.contains("\x1b]2;url-marker"), "{text:?}");
+                assert!(!text.contains("\x1b]2;desc-marker"), "{text:?}");
+                assert!(!text.contains(['\x07', '\x7f', '\u{009b}']), "{text:?}");
+                if color == "always" {
+                    assert!(text.contains("\x1b[1m"), "{text:?}");
+                    if mode != "-Si" && !url.contains('\x1b') {
+                        assert!(text.contains(&format!("\x1b]8;;{url}\x1b\\")), "{text:?}");
+                    }
+                } else {
+                    assert!(!text.contains('\x1b'), "{text:?}");
+                }
+                if url.contains('\x1b') {
+                    assert!(!text.contains("\x1b]8;;https://example.org/"), "{text:?}");
+                }
+            }
+        }
+        let output = output(command(dir).args(["-Ssq", "--aur", "--color", "always", name]));
+        assert!(output.status.success(), "{output:?}");
+        assert_eq!(output.stdout, format!("{rendered_name}\n").as_bytes());
+        server.join().unwrap();
+    }
+}
+
+#[test]
+fn pkgbuild_search_and_info_escape_terminal_metadata() {
+    let repo = PkgbuildReview::new("", true);
+    repo.push(1);
+    let name = "terminal-fixture\x1b]2;name-marker\x07";
+    let version = "1\x1b]2;version-marker\x07";
+    let repository = "fixture\x07repo-marker";
+    let arch = "x86_64\x1b\x1b\x1b\x1b\x1b\x07";
+    let rendered_name = r"terminal-fixture\u{1b}]2;name-marker\u{7}";
+    let rendered_version = r"1\u{1b}]2;version-marker\u{7}-1";
+    let rendered_repository = r"fixture\u{7}repo-marker";
+    let rendered_arch = r"x86_64\u{1b}\u{1b}\u{1b}\u{1b}\u{1b}\u{7}";
+    let remote = repo.tmp.path().join("remote");
+    fs::write(
+        remote.join(".SRCINFO"),
+        format!(
+            "pkgbase = fixture\n\tpkgver = {version}\n\tpkgrel = 1\n\tarch = any\n\tarch = {arch}\n\
+             pkgname = {name}\n\tpkgdesc = naïve 日本語 café\n\
+             \turl = https://example.org/\n\tdepends_{arch} = dep\x1b]2;dep-marker\x07\n"
+        ),
+    )
+    .unwrap();
+    git(&remote, &["add", ".SRCINFO"]);
+    git(&remote, &["commit", "-m", "metadata fixture"]);
+    let config = repo.tmp.path().join("paru.conf");
+    fs::write(
+        &config,
+        fs::read_to_string(&config)
+            .unwrap()
+            .replace("[fixture]", &format!("[{repository}]")),
+    )
+    .unwrap();
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "review\n");
+
+    for mode in ["-Ss", "-Sss", "-Ssq", "-Si"] {
+        for color in ["always", "never"] {
+            let target = if mode == "-Si" {
+                name
+            } else {
+                "terminal-fixture"
+            };
+            let output = repo.run(&[mode, "--color", color, target], "");
+            assert!(output.stderr.is_empty(), "{mode} {color}: {output:?}");
+            assert_eq!(repo.trace(), "");
+            let text = String::from_utf8(output.stdout).unwrap();
+            assert!(text.contains(rendered_name), "{mode} {color}: {text:?}");
+            assert!(!text.contains(['\x07', '\x7f', '\u{009b}']), "{text:?}");
+            for marker in ["name", "version", "repo", "dep"] {
+                assert!(
+                    !text.contains(&format!("\x1b]2;{marker}-marker")),
+                    "{text:?}"
+                );
+            }
+            if mode == "-Ssq" {
+                assert_eq!(text, format!("{rendered_name}\n"));
+            } else {
+                assert!(text.contains(rendered_version), "{mode} {color}: {text:?}");
+                assert!(
+                    text.contains(rendered_repository),
+                    "{mode} {color}: {text:?}"
+                );
+            }
+            if color == "never" {
+                assert!(!text.contains('\x1b'), "{text:?}");
+            } else if mode != "-Ssq" {
+                assert!(text.contains("\x1b["), "{text:?}");
+            }
+            if mode == "-Si" {
+                assert!(
+                    text.contains(&format!("Depends On {rendered_arch}")),
+                    "{text:?}"
+                );
+                assert!(text.contains(r"dep\u{1b}]2;dep-marker\u{7}"), "{text:?}");
+                if color == "never" {
+                    let widths = text
+                        .lines()
+                        .filter_map(|line| {
+                            line.split_once(": ")
+                                .map(|(label, _)| label.chars().count())
+                        })
+                        .collect::<Vec<_>>();
+                    assert!(widths.iter().all(|width| *width == widths[0]), "{text:?}");
+                }
+            }
+        }
+    }
 }
