@@ -502,6 +502,57 @@ fn accept(listener: &TcpListener) -> TcpStream {
 }
 
 #[test]
+fn pgp_keys_are_passed_as_operands() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let pacman_conf = pacman_conf(dir);
+    let gpg = script(
+        dir,
+        "gpg",
+        "printf '%s\\n' \"$@\" >> \"$PARU_TEST_CAPTURE\"\n\
+         case \"$2\" in --list-keys) exit 1;; --recv-keys) exit 78;; *) exit 79;; esac",
+    );
+    let makepkg = script(
+        dir,
+        "makepkg",
+        "printf 'makepkg\\n' >> \"$PARU_TEST_CAPTURE\"\nexit 77",
+    );
+    let repo = dir.join("repo");
+    fs::create_dir(&repo).unwrap();
+    fs::write(repo.join("PKGBUILD"), "exit 76\n").unwrap();
+    fs::write(
+        repo.join(".SRCINFO"),
+        "pkgbase = keys-fixture\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+         \tvalidpgpkeys = --version\npkgname = keys-fixture\n",
+    )
+    .unwrap();
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\nGpg = {}\nGpgFlags = --no-options\nMakepkg = {}\n\
+             Sudo = /usr/bin/true\n[fixture]\nPath = {}\n",
+            pacman_conf.display(),
+            gpg.display(),
+            makepkg.display(),
+            repo.display(),
+        ),
+    )
+    .unwrap();
+    let output = output(command(dir).args([
+        "-S",
+        "--pkgbuilds",
+        "--noconfirm",
+        "--pgpfetch",
+        "fixture/keys-fixture",
+    ]));
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(
+        fs::read_to_string(dir.join("capture")).unwrap(),
+        "--no-options\n--list-keys\n--\n--version\n--no-options\n--recv-keys\n--\n--version\n"
+    );
+}
+
+#[test]
 fn config_environment_reaches_help_before_threads_start() {
     let tmp = tempfile::tempdir().unwrap();
     let dir = tmp.path();
