@@ -13,7 +13,7 @@ use std::{
 use crate::{
     download::print_download,
     exec,
-    install::{review, seen_repos},
+    install::{merge_reviewed, review, seen_repos},
 };
 use alpm_utils::Targ;
 use anyhow::{Context, Result, anyhow, bail};
@@ -223,7 +223,7 @@ impl PkgbuildRepo {
                 return false;
             }
 
-            // An interrupted diff can leave unreviewed files with HEAD still at AUR_SEEN.
+            // An interrupted merge can leave unreviewed files with HEAD still at AUR_SEEN.
             let git_dir = Path::new(OsStr::from_bytes(git_dir));
             ["MERGE_HEAD", "rebase-merge", "rebase-apply"]
                 .iter()
@@ -398,6 +398,22 @@ impl PkgbuildRepos {
         self.repos.iter_mut().find(|r| r.name == name)
     }
 
+    pub fn ensure_reviewed(&self, config: &Config) -> Result<()> {
+        for repo in &self.repos {
+            if matches!(repo.source, RepoSource::Url(_, _))
+                && !repo.skip_review
+                && repo.path.join(".git").exists()
+                && !repo.reviewed(config)
+            {
+                bail!(tr!(
+                    "repo {} has unreviewed changes (use -Sy --pkgbuilds to review)",
+                    repo.name
+                ));
+            }
+        }
+        Ok(())
+    }
+
     pub fn aur_depends_repo(&self, config: &Config) -> Vec<aur_depends::PkgbuildRepo<'_>> {
         self.repos
             .iter()
@@ -484,12 +500,10 @@ impl PkgbuildRepos {
             .collect::<Vec<_>>();
         self.fetch.merge(&never_accepted)?;
 
-        review(config, &self.fetch, &review_repos)?;
+        let reviewed = review(config, &self.fetch, &review_repos, true)?;
 
         let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
-        self.fetch.merge(&all_repos)?;
-        // Diff review records HEAD before the merge.
-        self.fetch.mark_seen(&review_repos)?;
+        merge_reviewed(&self.fetch, &reviewed, &all_repos)?;
 
         self.repos.iter().for_each(|r| r.generate_srcinfos(config));
         Ok(())
@@ -507,12 +521,12 @@ pub fn read_srcinfo_from_pkgbuild(config: &Config, dir: &Path) -> Result<Srcinfo
 
 #[cfg(test)]
 mod tests {
-    use super::{PkgbuildRepo, RepoSource};
+    use super::{PkgbuildRepo, PkgbuildRepos, RepoSource};
     use crate::config::Config;
     use std::{fs, process::Command};
 
     #[test]
-    fn rejected_repo_is_loaded_after_its_tree_is_accepted() {
+    fn rejected_repo_is_loaded_and_resolved_after_its_tree_is_accepted() {
         let tmp = tempfile::tempdir().unwrap();
         let dir = tmp.path();
         let git = |args: &[&str]| {
@@ -544,11 +558,30 @@ mod tests {
         let mut repo = PkgbuildRepo::new("fixture".into(), dir.into());
         repo.source = RepoSource::Url("https://paru.invalid/fixture.git".parse().unwrap(), None);
         let config = Config::default();
-        assert!(repo.pkgs(&config).is_empty());
+        let mut repos = PkgbuildRepos::new(aur_fetch::Fetch::with_cache_dir(dir));
+        repos.repos.push(repo);
+        assert!(repos.repos[0].pkgs(&config).is_empty());
+        assert!(repos.ensure_reviewed(&config).is_err());
+
+        repos.repos[0].skip_review = true;
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        repos.repos[0].skip_review = false;
+        let source = repos.repos[0].source.clone();
+        repos.repos[0].source = RepoSource::Path(dir.into());
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        repos.repos[0].source = source;
 
         git(&["update-ref", "AUR_SEEN", "HEAD"]);
-        let pkgs = repo.pkgs(&config);
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        let pkgs = repos.repos[0].pkgs(&config);
         assert_eq!(pkgs.len(), 1);
         assert_eq!(pkgs[0].srcinfo.pkgbase(), "fixture");
+
+        fs::write(dir.join("PKGBUILD"), "exit 98\n").unwrap();
+        git(&["commit", "-am", "unreviewed"]);
+        assert!(repos.ensure_reviewed(&config).is_err());
+
+        repos.repos[0].path = dir.join("missing");
+        assert!(repos.ensure_reviewed(&config).is_ok());
     }
 }

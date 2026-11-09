@@ -247,6 +247,124 @@ fn pkgbuild_refresh_keeps_the_accepted_tree_after_rejection() {
 }
 
 #[test]
+fn pkgbuild_refresh_reviews_changes_after_an_upstream_rewind() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    for version in [1, 2] {
+        repo.push(version);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+    }
+    let clone = repo.clone_dir();
+    git(&clone, &["config", "user.name", "fixture"]);
+    git(&clone, &["config", "user.email", "fixture@localhost"]);
+    fs::write(clone.join("settings"), "local settings\n").unwrap();
+    git(&clone, &["add", "settings"]);
+    git(&clone, &["commit", "-m", "local settings"]);
+    git(&clone, &["update-ref", "AUR_SEEN", "HEAD"]);
+    let accepted = repo.tree("AUR_SEEN");
+    let remote = repo.tmp.path().join("remote");
+    git(&remote, &["reset", "--hard", "HEAD~1"]);
+
+    let output = repo.refresh("n\n");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(repo.tree("HEAD"), accepted);
+    assert_eq!(repo.tree("AUR_SEEN"), accepted);
+    assert_eq!(repo.trace(), "review\n");
+    let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+    assert!(reviewed.contains("-pkgver=2"), "{reviewed}");
+    assert!(reviewed.contains("+pkgver=1"), "{reviewed}");
+
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+    assert_eq!(repo.trace(), "review\nmakepkg\nsource-1\n");
+    assert_eq!(
+        fs::read(clone.join("settings")).unwrap(),
+        b"local settings\n"
+    );
+
+    repo.push(2);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    let accepted = repo.tree("AUR_SEEN");
+    git(&remote, &["reset", "--hard", "HEAD~1"]);
+    fs::write(remote.join("notes"), "upstream notes\n").unwrap();
+    git(&remote, &["add", "notes"]);
+    git(&remote, &["commit", "-m", "upstream notes"]);
+    let output = repo.refresh("n\n");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(repo.tree("HEAD"), accepted);
+    assert_eq!(repo.tree("AUR_SEEN"), accepted);
+    assert_eq!(repo.trace(), "review\n");
+    let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+    assert!(reviewed.contains("+upstream notes"), "{reviewed}");
+    assert!(reviewed.contains("-pkgver=2"), "{reviewed}");
+    assert!(reviewed.contains("+pkgver=1"), "{reviewed}");
+
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+    assert_eq!(repo.trace(), "review\nmakepkg\nsource-1\n");
+    assert_eq!(
+        fs::read(clone.join("settings")).unwrap(),
+        b"local settings\n"
+    );
+    assert_eq!(fs::read(clone.join("notes")).unwrap(), b"upstream notes\n");
+}
+
+#[test]
+fn pkgbuild_refresh_reviews_a_checkout_that_differs_from_its_marker() {
+    for version in [1, 3] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        for initial in [1, 2] {
+            repo.push(initial);
+            let output = repo.refresh("y\n");
+            assert!(output.status.success(), "{output:?}");
+        }
+        let clone = repo.clone_dir();
+        let accepted = repo.tree("AUR_SEEN");
+        if version == 1 {
+            git(
+                &repo.tmp.path().join("remote"),
+                &["reset", "--hard", "HEAD~1"],
+            );
+            git(&clone, &["reset", "--hard", "HEAD~1"]);
+        } else {
+            let pkgbuild = fs::read_to_string(clone.join("PKGBUILD")).unwrap();
+            fs::write(
+                clone.join("PKGBUILD"),
+                pkgbuild
+                    .replace("pkgver=2", "pkgver=3")
+                    .replace("source-2", "source-3"),
+            )
+            .unwrap();
+            git(&clone, &["commit", "-am", "local version"]);
+        }
+        let head = repo.tree("HEAD");
+
+        let output = repo.refresh("n\n");
+        assert_eq!(output.status.code(), Some(1), "{version}: {output:?}");
+        assert_eq!(repo.tree("HEAD"), head);
+        assert_eq!(repo.tree("AUR_SEEN"), accepted);
+        assert_eq!(repo.trace(), "review\n");
+        let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+        assert!(
+            reviewed.contains(&format!("+pkgver={version}")),
+            "{reviewed}"
+        );
+        assert!(reviewed.contains("-pkgver=2"), "{reviewed}");
+        let output = repo.run(&["-Slq"], "");
+        assert!(output.stdout.is_empty(), "{version}: {output:?}");
+        assert_eq!(repo.trace(), "");
+
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{version}: {output:?}");
+        assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+        assert_eq!(repo.trace(), format!("review\nmakepkg\nsource-{version}\n"));
+    }
+}
+
+#[test]
 fn pkgbuild_refresh_marks_the_merged_tree_as_accepted() {
     let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
     for version in [1, 2] {
@@ -286,6 +404,209 @@ fn unaccepted_pkgbuild_repositories_are_not_loaded() {
                 assert_eq!(repo.trace(), "", "{target}: {output:?}");
             }
         }
+    }
+}
+
+#[test]
+#[cfg(not(feature = "mock"))]
+fn unreviewed_pkgbuild_repositories_do_not_fall_back_to_matching_aur_packages() {
+    use std::io::{BufRead, BufReader, Read, Write};
+    use std::sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
+    };
+
+    for state in ["unaccepted", "stale", "accepted"] {
+        let repo = PkgbuildReview::new("", true);
+        repo.push(1);
+        let initial = repo.refresh(if state == "unaccepted" { "n\n" } else { "y\n" });
+        assert_eq!(
+            initial.status.success(),
+            state != "unaccepted",
+            "{initial:?}"
+        );
+        if state == "stale" {
+            repo.push(2);
+            git(&repo.clone_dir(), &["fetch"]);
+            git(&repo.clone_dir(), &["reset", "--hard", "HEAD@{u}"]);
+        }
+        let dir = repo.tmp.path();
+        let local = dir.join("db/local");
+        fs::create_dir_all(local.join("fixture-1-1")).unwrap();
+        fs::write(local.join("ALPM_DB_VERSION"), "9\n").unwrap();
+        fs::write(
+            local.join("fixture-1-1/desc"),
+            "%NAME%\nfixture\n\n%VERSION%\n1-1\n\n%BASE%\nfixture\n\n\
+             %DESC%\nfixture\n\n%ARCH%\nany\n\n%REASON%\n0\n\n%VALIDATION%\nnone\n",
+        )
+        .unwrap();
+        script(
+            dir,
+            "makepkg",
+            "printf 'makepkg\\n' >> \"$PARU_TEST_CAPTURE\"\nexit 99",
+        );
+        script(
+            dir,
+            "forbidden",
+            "printf 'forbidden\\n' >> \"$PARU_TEST_CAPTURE\"\nexit 99",
+        );
+        let git_wrapper = script(
+            dir,
+            "local-git",
+            "for arg; do\n\
+               case \"$arg\" in clone|fetch|ls-remote)\n\
+                 printf 'git-network\\n' >> \"$PARU_TEST_CAPTURE\"\nexit 99;;\n\
+               esac\n\
+             done\n\
+             exec git \"$@\"",
+        );
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let config = dir.join("paru.conf");
+        fs::write(
+            &config,
+            fs::read_to_string(&config)
+                .unwrap()
+                .replace(
+                    "[bin]\n",
+                    &format!("[bin]\nGit = {}\n", git_wrapper.display()),
+                )
+                .replace(
+                    "http://127.0.0.1:9",
+                    &format!("http://{}", listener.local_addr().unwrap()),
+                ),
+        )
+        .unwrap();
+        let requests = Arc::new(Mutex::new(Vec::new()));
+        let done = Arc::new(AtomicBool::new(false));
+        let server_requests = requests.clone();
+        let server_done = done.clone();
+        let server = thread::spawn(move || {
+            loop {
+                let mut stream = match listener.accept() {
+                    Ok((stream, _)) => stream,
+                    Err(err) if err.kind() == std::io::ErrorKind::WouldBlock => {
+                        if server_done.load(Ordering::Relaxed) {
+                            break;
+                        }
+                        thread::sleep(Duration::from_millis(10));
+                        continue;
+                    }
+                    Err(err) => panic!("{err}"),
+                };
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(2)))
+                    .unwrap();
+                let mut reader = BufReader::new(&stream);
+                let mut request = String::new();
+                if reader.read_line(&mut request).unwrap() == 0 {
+                    continue;
+                }
+                let mut length = 0;
+                loop {
+                    let mut header = String::new();
+                    if reader.read_line(&mut header).unwrap() == 0 || header == "\r\n" {
+                        break;
+                    }
+                    if let Some(value) = header.to_ascii_lowercase().strip_prefix("content-length:")
+                    {
+                        length = value.trim().parse().unwrap();
+                    }
+                }
+                let mut body = vec![0; length];
+                reader.read_exact(&mut body).unwrap();
+                request.push_str(&String::from_utf8(body).unwrap());
+                server_requests.lock().unwrap().push(request);
+                let response = serde_json::json!({
+                    "version": 5, "type": "multiinfo", "resultcount": 1,
+                    "results": [raur::Package {
+                        name: "fixture".into(),
+                        package_base: "fixture".into(),
+                        version: "2-1".into(),
+                        ..Default::default()
+                    }],
+                })
+                .to_string();
+                let _ = write!(
+                    stream,
+                    "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                    response.len(),
+                    response
+                );
+            }
+        });
+        let operations = [
+            vec!["-S", "fixture"],
+            vec!["-Su"],
+            vec!["-Su", "--mode=aur,pkgbuilds"],
+        ];
+        let run = |args: &[&str]| {
+            fs::write(dir.join("capture"), "").unwrap();
+            output(
+                command(dir)
+                    .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                    .env("GIT_CONFIG_NOSYSTEM", "1")
+                    .stdin(Stdio::null())
+                    .args(["--color", "never", "--noconfirm", "--combinedupgrade"])
+                    .args(args),
+            )
+        };
+        let blocked = operations
+            .iter()
+            .filter(|_| state != "accepted")
+            .map(|args| {
+                let before = requests.lock().unwrap().len();
+                let output = run(args);
+                let after = requests.lock().unwrap().len();
+                let observed = requests.lock().unwrap()[before..after].to_vec();
+                (args, output, repo.trace(), before, after, observed)
+            })
+            .collect::<Vec<_>>();
+        let aur_operations = [vec!["-Sua"], vec!["-S", "--aur", "fixture"]];
+        let explicit_aur = aur_operations
+            .iter()
+            .map(|args| {
+                let before = requests.lock().unwrap().len();
+                let output = run(args);
+                let after = requests.lock().unwrap().len();
+                (args, output, before, after)
+            })
+            .collect::<Vec<_>>();
+
+        fs::rename(repo.clone_dir(), dir.join("saved-clone")).unwrap();
+        let controls = operations
+            .iter()
+            .map(|args| {
+                let before = requests.lock().unwrap().len();
+                let output = run(args);
+                let after = requests.lock().unwrap().len();
+                (args, output, before, after)
+            })
+            .collect::<Vec<_>>();
+        done.store(true, Ordering::Relaxed);
+        server.join().unwrap();
+
+        for (args, output, trace, before, after, observed) in blocked {
+            assert_eq!(
+                before, after,
+                "{state} {args:?}: requests {before} -> {after}: {observed:?}; {output:?}; trace={trace:?}"
+            );
+            assert!(!output.status.success(), "{args:?}: {output:?}");
+            assert_eq!(trace, "", "{args:?}: {output:?}");
+        }
+        for (args, output, before, after) in explicit_aur {
+            assert!(after > before, "{state} clone {args:?}: {output:?}");
+        }
+        for (args, output, before, after) in controls {
+            assert!(after > before, "missing clone {args:?}: {output:?}");
+        }
+        assert!(
+            requests
+                .lock()
+                .unwrap()
+                .iter()
+                .any(|request| request.contains("/rpc") && request.contains("fixture"))
+        );
     }
 }
 
@@ -408,24 +729,458 @@ fn file_manager_reviews_the_full_tree_with_an_upstream_aur_seen_tag() {
 }
 
 #[test]
-fn pkgbuild_repository_is_not_loaded_after_interrupted_diff_review() {
-    let mut repo = PkgbuildReview::new("", true);
+fn interrupted_pkgbuild_diff_keeps_the_accepted_checkout() {
+    for phase in ["merge-tree", "diff"] {
+        let mut repo = PkgbuildReview::new("", true);
+        repo.push(1);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+        let clone = repo.clone_dir();
+        fs::write(clone.join("staged-note"), "staged\n").unwrap();
+        git(&clone, &["add", "staged-note"]);
+        fs::write(clone.join("local-note"), "untracked\n").unwrap();
+        let accepted = ["PKGBUILD", ".SRCINFO", ".git/index"]
+            .map(|path| (path, fs::read(clone.join(path)).unwrap()));
+        let head = repo.tree("HEAD");
+
+        repo.committed_srcinfo = false;
+        let remote = repo.tmp.path().join("remote");
+        fs::remove_file(remote.join(".SRCINFO")).unwrap();
+        fs::create_dir(remote.join("new")).unwrap();
+        fs::write(remote.join("new/PKGBUILD"), "pkgver=2\n").unwrap();
+        repo.push(2);
+        let wrapper = script(
+            repo.tmp.path(),
+            "interrupt-git",
+            &format!(
+                "for arg; do\n\
+                   if [ \"$arg\" = {phase} ]; then\n\
+                     git \"$@\"\n\
+                     printf 'interrupt\\n' >> \"$PARU_TEST_CAPTURE\"\n\
+                     kill -KILL \"$PPID\"\n\
+                     exit 99\n\
+                   fi\n\
+                 done\n\
+                 exec git \"$@\""
+            ),
+        );
+        let config = repo.tmp.path().join("paru.conf");
+        let original = fs::read_to_string(&config).unwrap();
+        fs::write(
+            &config,
+            original.replace("[bin]\n", &format!("[bin]\nGit = {}\n", wrapper.display())),
+        )
+        .unwrap();
+
+        let output = repo.refresh("");
+        assert!(!output.status.success(), "{phase}: {output:?}");
+        assert_eq!(repo.trace(), "interrupt\n", "{phase}: {output:?}");
+        fs::write(config, original).unwrap();
+        assert_eq!(repo.tree("HEAD"), head);
+        assert_eq!(repo.tree("AUR_SEEN"), head);
+        for (path, contents) in &accepted {
+            assert_eq!(
+                fs::read(clone.join(path)).unwrap(),
+                *contents,
+                "{phase}: {path}"
+            );
+        }
+        assert_eq!(fs::read(clone.join("staged-note")).unwrap(), b"staged\n");
+        assert_eq!(fs::read(clone.join("local-note")).unwrap(), b"untracked\n");
+        assert!(!clone.join(".git/MERGE_HEAD").exists());
+        assert!(!clone.join("new").exists());
+
+        let output = repo.run(&["-Slq"], "");
+        assert!(output.status.success(), "{phase}: {output:?}");
+        assert_eq!(output.stdout, b"fixture\n");
+        assert_eq!(repo.trace(), "");
+
+        git(&clone, &["reset", "--quiet", "HEAD", "--", "staged-note"]);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{phase}: {output:?}");
+        assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+        assert!(clone.join("new/PKGBUILD").exists());
+        assert!(repo.trace().contains("source-2\n"));
+        assert_eq!(fs::read(clone.join("staged-note")).unwrap(), b"staged\n");
+        assert_eq!(fs::read(clone.join("local-note")).unwrap(), b"untracked\n");
+    }
+}
+
+#[test]
+fn pkgbuild_diff_conflicts_leave_the_checkout_usable_for_retry() {
+    let repo = PkgbuildReview::new("", true);
+    let remote = repo.tmp.path().join("remote");
+    fs::write(remote.join("settings"), "original\n").unwrap();
     repo.push(1);
     let output = repo.refresh("y\n");
     assert!(output.status.success(), "{output:?}");
+    let clone = repo.clone_dir();
+    git(&clone, &["config", "user.name", "fixture"]);
+    git(&clone, &["config", "user.email", "fixture@localhost"]);
+    fs::write(clone.join("settings"), "local\n").unwrap();
+    git(&clone, &["commit", "-am", "local settings"]);
+    git(&clone, &["update-ref", "AUR_SEEN", "HEAD"]);
+    let accepted = ["PKGBUILD", ".SRCINFO", "settings", ".git/index"]
+        .map(|path| (path, fs::read(clone.join(path)).unwrap()));
+    let head = repo.tree("HEAD");
 
-    repo.committed_srcinfo = false;
-    fs::remove_file(repo.tmp.path().join("remote/.SRCINFO")).unwrap();
+    fs::write(remote.join("settings"), "upstream\n").unwrap();
+    repo.push(2);
+    for _ in 0..2 {
+        let output = repo.refresh("y\n");
+        assert!(!output.status.success(), "{output:?}");
+        assert_eq!(repo.trace(), "");
+        assert_eq!(repo.tree("HEAD"), head);
+        assert!(!clone.join(".git/MERGE_HEAD").exists());
+        for (path, contents) in &accepted {
+            assert_eq!(fs::read(clone.join(path)).unwrap(), *contents, "{path}");
+        }
+        let output = repo.run(&["-Slq"], "");
+        assert!(output.status.success(), "{output:?}");
+        assert_eq!(output.stdout, b"fixture\n");
+    }
+
+    fs::write(remote.join("settings"), "local\n").unwrap();
+    repo.push(3);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+    assert_eq!(fs::read(clone.join("settings")).unwrap(), b"local\n");
+    assert!(
+        fs::read_to_string(clone.join("PKGBUILD"))
+            .unwrap()
+            .contains("pkgver=3")
+    );
+}
+
+#[test]
+fn file_manager_saves_local_edits_after_reviewing_the_upstream_diff() {
+    for edit in [false, true] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        repo.push(1);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+        let clone = repo.clone_dir();
+        git(&clone, &["config", "user.name", "fixture"]);
+        git(&clone, &["config", "user.email", "fixture@localhost"]);
+        let remote = repo.tmp.path().join("remote");
+        fs::write(remote.join("notes"), "upstream notes\n").unwrap();
+        git(&remote, &["add", "notes"]);
+        git(&remote, &["commit", "-m", "upstream notes"]);
+        let edit_script = if edit {
+            "sed -i 's/pkgver=1/pkgver=3/;s/source-1/source-3/' \"$1/fixture/PKGBUILD\"\n"
+        } else {
+            ""
+        };
+        let fm = script(
+            repo.tmp.path(),
+            "file-manager",
+            &format!(
+                "cat \"$1/fixture.diff\" > \"${{PARU_TEST_CAPTURE%/*}}/reviewed\"\n\
+                 {edit_script}\
+                 printf 'review\\n' >> \"$PARU_TEST_CAPTURE\""
+            ),
+        );
+        let output = repo.run(
+            &["-Sy", "--fm", fm.to_str().unwrap(), "--savechanges"],
+            "y\n",
+        );
+        assert!(output.status.success(), "{edit}: {output:?}");
+        let version = if edit { 3 } else { 1 };
+        assert_eq!(repo.trace(), format!("review\nmakepkg\nsource-{version}\n"));
+        let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+        assert!(reviewed.contains("+upstream notes"), "{reviewed}");
+        assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+        assert!(
+            String::from_utf8(git(&clone, &["show", "HEAD:PKGBUILD"]).stdout)
+                .unwrap()
+                .contains(&format!("pkgver={version}"))
+        );
+        assert_eq!(fs::read(clone.join("notes")).unwrap(), b"upstream notes\n");
+    }
+}
+
+#[test]
+fn file_manager_commits_are_accepted_only_after_confirmation() {
+    for save_changes in [false, true] {
+        for commits in [1, 2] {
+            for answer in ["n\n", "y\n"] {
+                let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+                repo.push(1);
+                let output = repo.refresh("y\n");
+                assert!(output.status.success(), "{output:?}");
+                let clone = repo.clone_dir();
+                git(&clone, &["config", "user.name", "fixture"]);
+                git(&clone, &["config", "user.email", "fixture@localhost"]);
+                let accepted = repo.tree("AUR_SEEN");
+                let remote = repo.tmp.path().join("remote");
+                fs::write(remote.join("notes"), "upstream notes\n").unwrap();
+                git(&remote, &["add", "notes"]);
+                git(&remote, &["commit", "-m", "upstream notes"]);
+                let versions = if commits == 1 { "3" } else { "3 4" };
+                let edit = if save_changes {
+                    "printf 'pkgrel=2\\n' >> \"$1/fixture/PKGBUILD\"\n"
+                } else {
+                    ""
+                };
+                let fm = script(
+                    repo.tmp.path(),
+                    "file-manager",
+                    &format!(
+                        "cat \"$1/fixture.diff\" > \"${{PARU_TEST_CAPTURE%/*}}/reviewed\"\n\
+                         for version in {versions}; do\n\
+                           sed -i \"s/^pkgver=.*/pkgver=$version/;s/source-[0-9]*/source-$version/\" \"$1/fixture/PKGBUILD\"\n\
+                           git -C \"$1/fixture\" commit -am \"file manager commit $version\"\n\
+                         done\n\
+                         {edit}\
+                         printf 'review\\n' >> \"$PARU_TEST_CAPTURE\""
+                    ),
+                );
+                let save = if save_changes {
+                    "--savechanges"
+                } else {
+                    "--nosavechanges"
+                };
+                let output = repo.run(&["-Sy", "--fm", fm.to_str().unwrap(), save], answer);
+                if answer == "n\n" {
+                    assert_eq!(
+                        output.status.code(),
+                        Some(1),
+                        "{save_changes}/{commits}: {output:?}"
+                    );
+                    assert_eq!(repo.tree("AUR_SEEN"), accepted);
+                    assert_eq!(repo.trace(), "review\n");
+                    let output = repo.run(&["-Slq"], "");
+                    assert!(output.stdout.is_empty(), "{output:?}");
+                    assert_eq!(repo.trace(), "");
+                } else {
+                    assert!(
+                        output.status.success(),
+                        "{save_changes}/{commits}: {output:?}"
+                    );
+                    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+                    assert_eq!(
+                        repo.trace(),
+                        format!("review\nmakepkg\nsource-{}\n", commits + 2)
+                    );
+                    let pkgbuild =
+                        String::from_utf8(git(&clone, &["show", "HEAD:PKGBUILD"]).stdout).unwrap();
+                    assert!(
+                        pkgbuild.contains(&format!("pkgver={}", commits + 2)),
+                        "{pkgbuild}"
+                    );
+                    if save_changes {
+                        assert!(pkgbuild.contains("pkgrel=2"), "{pkgbuild}");
+                    }
+                    assert_eq!(fs::read(clone.join("notes")).unwrap(), b"upstream notes\n");
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn file_manager_can_integrate_upstream_before_accepting() {
+    for local_commit in [false, true] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        repo.push(1);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{output:?}");
+        let clone = repo.clone_dir();
+        git(&clone, &["config", "user.name", "fixture"]);
+        git(&clone, &["config", "user.email", "fixture@localhost"]);
+        if local_commit {
+            fs::write(clone.join("settings"), "local settings\n").unwrap();
+            git(&clone, &["add", "settings"]);
+            git(&clone, &["commit", "-m", "local settings"]);
+        }
+        repo.push(2);
+        repo.push(3);
+        let update = if local_commit {
+            "rebase"
+        } else {
+            "merge --ff-only"
+        };
+        let fm = script(
+            repo.tmp.path(),
+            "file-manager",
+            &format!(
+                "git -C \"$1/fixture\" {update} '@{{u}}'\n\
+                 printf 'review\\n' >> \"$PARU_TEST_CAPTURE\""
+            ),
+        );
+        let output = repo.run(
+            &["-Sy", "--fm", fm.to_str().unwrap(), "--nosavechanges"],
+            "y\n",
+        );
+        assert!(output.status.success(), "{local_commit}: {output:?}");
+        assert_eq!(
+            git(&clone, &["rev-parse", "HEAD"]).stdout,
+            git(&clone, &["rev-parse", "AUR_SEEN"]).stdout,
+        );
+        assert_eq!(repo.trace(), "review\nmakepkg\nsource-3\n");
+        git(&clone, &["merge-base", "--is-ancestor", "@{u}", "HEAD"]);
+        if local_commit {
+            assert_eq!(
+                fs::read(clone.join("settings")).unwrap(),
+                b"local settings\n"
+            );
+        } else {
+            assert_eq!(
+                git(&clone, &["rev-parse", "HEAD"]).stdout,
+                git(&clone, &["rev-parse", "@{u}"]).stdout,
+            );
+        }
+        assert!(!clone.join(".git/rebase-merge").exists());
+        assert!(!clone.join(".git/rebase-apply").exists());
+    }
+}
+
+#[test]
+fn file_manager_local_edits_preserve_upstream_rewinds() {
+    for operation in ["append", "drop", "amend", "merge"] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        for version in [1, 2] {
+            repo.push(version);
+            let output = repo.refresh("y\n");
+            assert!(output.status.success(), "{output:?}");
+        }
+        let clone = repo.clone_dir();
+        git(&clone, &["config", "user.name", "fixture"]);
+        git(&clone, &["config", "user.email", "fixture@localhost"]);
+        if operation != "append" {
+            fs::write(clone.join("settings"), "local settings\n").unwrap();
+            git(&clone, &["add", "settings"]);
+            git(&clone, &["commit", "-m", "local settings"]);
+            git(&clone, &["update-ref", "AUR_SEEN", "HEAD"]);
+        }
+        let remote = repo.tmp.path().join("remote");
+        git(&remote, &["reset", "--hard", "HEAD~1"]);
+        if operation == "merge" {
+            fs::write(remote.join("notes"), "replacement upstream\n").unwrap();
+            git(&remote, &["add", "notes"]);
+            git(&remote, &["commit", "-m", "replacement upstream"]);
+        }
+        let change = match operation {
+            "append" => {
+                "printf 'local settings\\n' > \"$1/fixture/settings\"\n\
+                         git -C \"$1/fixture\" add settings\n\
+                         git -C \"$1/fixture\" commit -m 'local settings'"
+            }
+            "drop" => "git -C \"$1/fixture\" reset --hard HEAD~1",
+            "amend" => {
+                "printf 'amended settings\\n' > \"$1/fixture/settings\"\n\
+                        git -C \"$1/fixture\" commit -am 'amended settings' --amend"
+            }
+            "merge" => "git -C \"$1/fixture\" merge --no-edit '@{u}'",
+            _ => unreachable!(),
+        };
+        let fm = script(
+            repo.tmp.path(),
+            "file-manager",
+            &format!(
+                "cat \"$1/fixture.diff\" > \"${{PARU_TEST_CAPTURE%/*}}/reviewed\"\n\
+                 {change}\n\
+                 printf 'review\\n' >> \"$PARU_TEST_CAPTURE\""
+            ),
+        );
+        let output = repo.run(
+            &["-Sy", "--fm", fm.to_str().unwrap(), "--nosavechanges"],
+            "y\n",
+        );
+        assert!(output.status.success(), "{operation}: {output:?}");
+        assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+        assert_eq!(repo.trace(), "review\nmakepkg\nsource-1\n", "{operation}");
+        let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+        assert!(reviewed.contains("-pkgver=2"), "{operation}: {reviewed}");
+        assert!(reviewed.contains("+pkgver=1"), "{operation}: {reviewed}");
+        if operation == "drop" {
+            assert!(!clone.join("settings").exists());
+            assert_eq!(repo.tree("HEAD"), repo.tree("@{u}"));
+        } else {
+            let settings = if operation == "amend" {
+                "amended settings\n"
+            } else {
+                "local settings\n"
+            };
+            assert_eq!(
+                fs::read_to_string(clone.join("settings")).unwrap(),
+                settings
+            );
+            assert_eq!(repo.tree("HEAD~1"), repo.tree("@{u}"));
+        }
+        if operation == "merge" {
+            assert_eq!(
+                fs::read(clone.join("notes")).unwrap(),
+                b"replacement upstream\n"
+            );
+        }
+        assert!(!clone.join(".git/rebase-merge").exists());
+        assert!(!clone.join(".git/rebase-apply").exists());
+    }
+}
+
+#[test]
+fn file_manager_can_reset_below_the_original_fork_point() {
+    for rewind in [false, true] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        let accepted_version = if rewind { 3 } else { 2 };
+        for version in 1..=accepted_version {
+            repo.push(version);
+            let output = repo.refresh("y\n");
+            assert!(output.status.success(), "{output:?}");
+        }
+        if rewind {
+            git(
+                &repo.tmp.path().join("remote"),
+                &["reset", "--hard", "HEAD~2"],
+            );
+        } else {
+            repo.push(3);
+        }
+        let fm = script(
+            repo.tmp.path(),
+            "file-manager",
+            "git -C \"$1/fixture\" reset --hard HEAD~1\n\
+             printf 'review\\n' >> \"$PARU_TEST_CAPTURE\"",
+        );
+        let output = repo.run(
+            &["-Sy", "--fm", fm.to_str().unwrap(), "--nosavechanges"],
+            "y\n",
+        );
+        assert!(output.status.success(), "{output:?}");
+        let clone = repo.clone_dir();
+        let head = git(&clone, &["rev-parse", "HEAD"]).stdout;
+        assert_eq!(head, git(&clone, &["rev-parse", "AUR_SEEN"]).stdout);
+        assert_eq!(head, git(&clone, &["rev-parse", "@{u}"]).stdout);
+        let version = if rewind { 1 } else { 3 };
+        assert_eq!(repo.trace(), format!("review\nmakepkg\nsource-{version}\n"));
+        assert!(!repo.clone_dir().join(".git/rebase-merge").exists());
+        assert!(!repo.clone_dir().join(".git/rebase-apply").exists());
+    }
+}
+
+#[test]
+fn pkgbuild_refresh_does_not_accept_a_different_tree_after_updating() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    repo.push(1);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    let clone = repo.clone_dir();
+    git(&clone, &["config", "user.name", "fixture"]);
+    git(&clone, &["config", "user.email", "fixture@localhost"]);
     repo.push(2);
     let wrapper = script(
         repo.tmp.path(),
-        "interrupt-git",
-        "case \"$*\" in\n\
-           'diff --stat --patch --cached '*)\n\
-             printf 'interrupt\\n' >> \"$PARU_TEST_CAPTURE\"\n\
-             kill -KILL \"$PPID\"\n\
-             exit 99;;\n\
-         esac\n\
+        "changed-tree-git",
+        "for arg; do\n\
+           if [ \"$arg\" = rebase ]; then\n\
+             git \"$@\"\n\
+             printf 'pkgver=999\\n' >> PKGBUILD\n\
+             git commit -am 'unexpected tree'\n\
+             exit 0\n\
+           fi\n\
+         done\n\
          exec git \"$@\"",
     );
     let config = repo.tmp.path().join("paru.conf");
@@ -436,18 +1191,84 @@ fn pkgbuild_repository_is_not_loaded_after_interrupted_diff_review() {
     )
     .unwrap();
 
-    let output = repo.refresh("");
+    let output = repo.refresh("y\n");
     assert!(!output.status.success(), "{output:?}");
-    assert_eq!(repo.trace(), "interrupt\n");
+    assert!(!clone.join(".git/AUR_SEEN").exists());
+    assert_eq!(repo.trace(), "review\n");
     fs::write(config, original).unwrap();
+    let output = repo.run(&["-Slq"], "");
+    assert!(output.stdout.is_empty(), "{output:?}");
+    assert_eq!(repo.trace(), "");
+}
+
+#[test]
+fn interrupted_pkgbuild_update_cannot_load_a_partial_checkout() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    repo.push(1);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    let clone = repo.clone_dir();
+    let head = repo.tree("HEAD");
+    repo.push(2);
+    let wrapper = script(
+        repo.tmp.path(),
+        "interrupt-update-git",
+        "for arg; do\n\
+           if [ \"$arg\" = rebase ]; then\n\
+             printf 'pkgver=999\\n' >> PKGBUILD\n\
+             printf 'interrupt\\n' >> \"$PARU_TEST_CAPTURE\"\n\
+             kill -KILL \"$PPID\"\n\
+             exit 99\n\
+           fi\n\
+         done\n\
+         exec git \"$@\"",
+    );
+    let config = repo.tmp.path().join("paru.conf");
+    let original = fs::read_to_string(&config).unwrap();
+    fs::write(
+        &config,
+        original.replace("[bin]\n", &format!("[bin]\nGit = {}\n", wrapper.display())),
+    )
+    .unwrap();
+
+    let output = repo.refresh("y\n");
+    assert!(!output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "review\ninterrupt\n");
+    assert_eq!(repo.tree("HEAD"), head);
+    for state in ["AUR_SEEN", "MERGE_HEAD", "rebase-merge", "rebase-apply"] {
+        assert!(!clone.join(".git").join(state).exists(), "{state}");
+    }
+    fs::write(config, original).unwrap();
+    for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+        let output = repo.run(&args, "");
+        assert!(output.stdout.is_empty(), "{output:?}");
+        assert_eq!(repo.trace(), "");
+    }
+
+    let output = repo.refresh("n\n");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(repo.trace(), "review\n");
+    assert!(!clone.join(".git/AUR_SEEN").exists());
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "review\nmakepkg\nsource-2\n");
+    assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
+}
+
+#[test]
+fn pkgbuild_repository_is_not_loaded_during_a_merge() {
+    let repo = PkgbuildReview::new("", true);
+    repo.push(1);
+    let output = repo.refresh("y\n");
+    assert!(output.status.success(), "{output:?}");
+    repo.push(2);
+    git(&repo.clone_dir(), &["fetch"]);
+    git(
+        &repo.clone_dir(),
+        &["merge", "--no-ff", "--no-commit", "HEAD@{u}"],
+    );
     assert_eq!(repo.tree("HEAD"), repo.tree("AUR_SEEN"));
     assert!(repo.clone_dir().join(".git/MERGE_HEAD").exists());
-    assert!(!repo.clone_dir().join(".SRCINFO").exists());
-    assert!(
-        fs::read_to_string(repo.clone_dir().join("PKGBUILD"))
-            .unwrap()
-            .contains("pkgver=2")
-    );
 
     for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
         let output = repo.run(&args, "");

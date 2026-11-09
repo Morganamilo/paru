@@ -947,6 +947,11 @@ impl Installer {
         repo_targets: &[Targ<'a>],
         aur_targets: &[Targ<'a>],
     ) -> Result<()> {
+        if (config.mode.aur() || config.mode.pkgbuild())
+            && (self.sysupgrade != 0 || !aur_targets.is_empty())
+        {
+            config.pkgbuild_repos.ensure_reviewed(config)?;
+        }
         let mut cache = Cache::new();
         let flags = flags(config);
         let c = config.color;
@@ -1173,7 +1178,8 @@ impl Installer {
                     Base::Pkgbuild(_) => None,
                 })
                 .collect::<Vec<_>>();
-            review(config, &config.fetch, &pkgs)?;
+            let reviewed = review(config, &config.fetch, &pkgs, false)?;
+            mark_reviewed(&config.fetch, &reviewed)?;
         }
 
         let arch = config
@@ -1715,17 +1721,410 @@ fn pre_build_command(config: &Config, dir: &Path, base: &str, version: &str) -> 
     Ok(())
 }
 
+pub(crate) struct ReviewedRepo {
+    name: String,
+    head: String,
+    upstream: Option<String>,
+    fork_point: Option<String>,
+    seen: Option<(String, String)>,
+    tree: String,
+}
+
+impl ReviewedRepo {
+    fn changed(&self) -> bool {
+        self.seen
+            .as_ref()
+            .is_none_or(|(_, tree)| tree != &self.tree)
+    }
+}
+
+fn review_command(fetch: &aur_fetch::Fetch, pkg: &str, args: &[&str]) -> Command {
+    let mut cmd = Command::new(&fetch.git);
+    cmd.current_dir(fetch.clone_dir.join(pkg))
+        .args(&fetch.git_flags)
+        .args(["-c", "core.warnAmbiguousRefs=false"])
+        .args(args);
+    cmd
+}
+
+fn review_git(fetch: &aur_fetch::Fetch, pkg: &str, args: &[&str]) -> Result<std::process::Output> {
+    exec::command_output(&mut review_command(fetch, pkg, args))
+}
+
+fn review_fork_point(fetch: &aur_fetch::Fetch, pkg: &str, head: &str) -> Result<Option<String>> {
+    let config = review_git(
+        fetch,
+        pkg,
+        &[
+            "config",
+            "--bool",
+            "--default=true",
+            "--get",
+            "rebase.forkPoint",
+        ],
+    )?;
+    if std::str::from_utf8(&config.stdout)?.trim() == "false" {
+        return Ok(None);
+    }
+    let output = review_command(
+        fetch,
+        pkg,
+        &["merge-base", "--fork-point", "HEAD@{u}", head],
+    )
+    .output()?;
+    if output.status.code() == Some(1) && output.stdout.is_empty() {
+        return Ok(None);
+    }
+    ensure!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr).trim()
+    );
+    let point = std::str::from_utf8(&output.stdout)?.trim();
+    ensure!(!point.is_empty(), "missing fork point");
+    Ok(Some(point.to_owned()))
+}
+
+fn merged_tree(
+    fetch: &aur_fetch::Fetch,
+    pkg: &str,
+    head: &str,
+    upstream: &str,
+    fork_point: Option<&str>,
+) -> Result<String> {
+    let base = fork_point.map(|point| format!("--merge-base={point}"));
+    let mut args = vec!["merge-tree", "--write-tree"];
+    if let Some(base) = &base {
+        args.push(base);
+    }
+    args.extend([head, upstream]);
+    let output = review_git(fetch, pkg, &args)?;
+    Ok(std::str::from_utf8(&output.stdout)?.trim().to_owned())
+}
+
+fn review_plan(fetch: &aur_fetch::Fetch, pkgs: &[&str], merge: bool) -> Result<Vec<ReviewedRepo>> {
+    let seen = seen_repos(fetch, pkgs);
+    pkgs.iter()
+        .map(|&pkg| {
+            let mut args = vec!["rev-parse", "HEAD^{commit}", "HEAD^{tree}"];
+            if merge {
+                args.push("HEAD@{u}^{commit}");
+            }
+            if seen.contains(&pkg) {
+                args.extend([
+                    "AUR_SEEN^{commit}",
+                    "AUR_SEEN^{tree}",
+                    "--symbolic-full-name",
+                    "AUR_SEEN",
+                ]);
+            }
+            let output = review_git(fetch, pkg, &args)?;
+            let mut refs = std::str::from_utf8(&output.stdout)?.lines();
+            let head = refs.next().context("missing HEAD")?.to_owned();
+            let mut tree = refs.next().context("missing HEAD tree")?.to_owned();
+            let upstream = if merge {
+                Some(refs.next().context("missing upstream")?.to_owned())
+            } else {
+                None
+            };
+            let seen = if seen.contains(&pkg) {
+                let commit = refs.next().context("missing review marker")?.to_owned();
+                let tree = refs.next().context("missing reviewed tree")?.to_owned();
+                ensure!(refs.next() == Some("AUR_SEEN"), "invalid review marker");
+                Some((commit, tree))
+            } else {
+                None
+            };
+            ensure!(refs.next().is_none(), "unexpected review references");
+            let fork_point = if merge {
+                review_fork_point(fetch, pkg, &head)?
+            } else {
+                None
+            };
+            if let Some(upstream) = &upstream {
+                tree = merged_tree(fetch, pkg, &head, upstream, fork_point.as_deref())?;
+            }
+            Ok(ReviewedRepo {
+                name: pkg.to_owned(),
+                head,
+                upstream,
+                fork_point,
+                seen,
+                tree,
+            })
+        })
+        .collect()
+}
+
+pub(crate) fn mark_reviewed(fetch: &aur_fetch::Fetch, repos: &[ReviewedRepo]) -> Result<()> {
+    let mut heads = Vec::new();
+    for repo in repos {
+        let output = review_git(
+            fetch,
+            &repo.name,
+            &["rev-parse", "HEAD^{commit}", "HEAD^{tree}"],
+        )?;
+        let mut refs = std::str::from_utf8(&output.stdout)?.lines();
+        let head = refs.next().context("missing HEAD")?.to_owned();
+        ensure!(
+            refs.next() == Some(repo.tree.as_str()) && refs.next().is_none(),
+            tr!("repo {} changed after review; review it again", repo.name)
+        );
+        heads.push(head);
+    }
+    for (repo, head) in repos.iter().zip(heads) {
+        review_git(
+            fetch,
+            &repo.name,
+            &["update-ref", "--no-deref", "AUR_SEEN", &head],
+        )?;
+    }
+    Ok(())
+}
+
+pub(crate) fn merge_reviewed(
+    fetch: &aur_fetch::Fetch,
+    repos: &[ReviewedRepo],
+    pkgs: &[&str],
+) -> Result<()> {
+    let names = repos
+        .iter()
+        .map(|repo| repo.name.as_str())
+        .collect::<Vec<_>>();
+    let seen = seen_repos(fetch, &names);
+    for repo in repos {
+        let output = review_git(fetch, &repo.name, &["rev-parse", "HEAD"])?;
+        ensure!(
+            std::str::from_utf8(&output.stdout)?.trim() == repo.head
+                && seen.contains(&repo.name.as_str()) == repo.seen.is_some(),
+            tr!("repo {} changed after review; review it again", repo.name)
+        );
+    }
+    for repo in repos {
+        if let Some((seen, _)) = &repo.seen {
+            review_git(
+                fetch,
+                &repo.name,
+                &["update-ref", "--no-deref", "-d", "AUR_SEEN", seen],
+            )?;
+        }
+    }
+    for &pkg in pkgs {
+        if let Some(repo) = repos.iter().find(|repo| repo.name == pkg) {
+            let upstream = repo
+                .upstream
+                .as_deref()
+                .context("missing reviewed upstream")?;
+            review_git(fetch, pkg, &["reset", "--hard", "-q", &repo.head])?;
+            review_git(
+                fetch,
+                pkg,
+                &[
+                    "rebase",
+                    "--stat",
+                    "--no-fork-point",
+                    "--onto",
+                    upstream,
+                    repo.fork_point.as_deref().unwrap_or(upstream),
+                ],
+            )?;
+        } else {
+            fetch.merge(&[pkg])?;
+        }
+    }
+    mark_reviewed(fetch, repos)
+}
+
+fn update_review_head(fetch: &aur_fetch::Fetch, repo: &mut ReviewedRepo, head: &str) -> Result<()> {
+    repo.tree = if let Some(upstream) = &repo.upstream {
+        merged_tree(
+            fetch,
+            &repo.name,
+            head,
+            upstream,
+            repo.fork_point.as_deref(),
+        )?
+    } else {
+        let output = review_git(
+            fetch,
+            &repo.name,
+            &["rev-parse", &format!("{head}^{{tree}}")],
+        )?;
+        std::str::from_utf8(&output.stdout)?.trim().to_owned()
+    };
+    repo.head = head.to_owned();
+    Ok(())
+}
+
+fn review_is_ancestor(fetch: &aur_fetch::Fetch, pkg: &str, base: &str, head: &str) -> Result<bool> {
+    let output =
+        review_command(fetch, pkg, &["merge-base", "--is-ancestor", base, head]).output()?;
+    match output.status.code() {
+        Some(0) => Ok(true),
+        Some(1) => Ok(false),
+        _ => bail!("{}", String::from_utf8_lossy(&output.stderr).trim()),
+    }
+}
+
+fn file_manager_changes(fetch: &aur_fetch::Fetch, repos: &mut [ReviewedRepo]) -> Result<()> {
+    for repo in repos {
+        let output = review_git(fetch, &repo.name, &["rev-parse", "HEAD^{commit}"])?;
+        let head = std::str::from_utf8(&output.stdout)?.trim();
+        if head != repo.head {
+            if let Some(upstream) = &repo.upstream {
+                if let Some(fork_point) = &repo.fork_point
+                    && review_is_ancestor(fetch, &repo.name, head, fork_point)?
+                {
+                    repo.fork_point = Some(head.to_owned());
+                } else if review_is_ancestor(fetch, &repo.name, upstream, head)?
+                    && match &repo.fork_point {
+                        None => true,
+                        Some(fork_point) => {
+                            review_is_ancestor(fetch, &repo.name, fork_point, upstream)?
+                                || !review_is_ancestor(fetch, &repo.name, fork_point, head)?
+                        }
+                    }
+                {
+                    repo.fork_point = Some(upstream.clone());
+                }
+            }
+            update_review_head(fetch, repo, head)?;
+        }
+    }
+    Ok(())
+}
+
+fn save_review_changes(fetch: &aur_fetch::Fetch, repos: &mut [ReviewedRepo]) -> Result<()> {
+    for repo in repos.iter() {
+        let output = review_git(fetch, &repo.name, &["rev-parse", "HEAD"])?;
+        ensure!(
+            std::str::from_utf8(&output.stdout)?.trim() == repo.head,
+            tr!("repo {} changed after review; review it again", repo.name)
+        );
+    }
+    let names = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+    fetch.commit(&names, "paru save changes")?;
+    for repo in repos {
+        let output = review_git(
+            fetch,
+            &repo.name,
+            &["rev-list", "--parents", "-n", "1", "HEAD"],
+        )?;
+        let refs = std::str::from_utf8(&output.stdout)?
+            .split_whitespace()
+            .collect::<Vec<_>>();
+        let head = refs.first().context("missing saved commit")?;
+        if *head == repo.head {
+            continue;
+        }
+        ensure!(
+            refs.len() == 2 && refs[1] == repo.head,
+            tr!("repo {} changed after review; review it again", repo.name)
+        );
+        update_review_head(fetch, repo, head)?;
+    }
+    Ok(())
+}
+
+fn review_diffs(
+    fetch: &aur_fetch::Fetch,
+    repos: &[&ReviewedRepo],
+    color: bool,
+) -> Result<Vec<String>> {
+    let color = if color {
+        "--color=always"
+    } else {
+        "--color=never"
+    };
+    repos
+        .iter()
+        .map(|repo| {
+            let git = |args: &[&str]| review_git(fetch, &repo.name, args);
+            let seen = repo
+                .seen
+                .as_ref()
+                .context("missing review marker")?
+                .0
+                .as_str();
+            let tree = repo.tree.as_str();
+            let target = repo.upstream.as_deref().unwrap_or(&repo.head);
+            let log = git(&["log", &format!("{seen}..{target}"), color])?;
+            let mut metadata_only = true;
+            for revision in [seen, tree] {
+                let entries = git(&["ls-tree", "-z", revision])?;
+                for entry in entries.stdout.split(|&byte| byte == 0) {
+                    if let Some(tab) = entry.iter().position(|&byte| byte == b'\t')
+                        && &entry[tab + 1..] == b".SRCINFO"
+                        && !entry.starts_with(b"100644 blob ")
+                        && !entry.starts_with(b"100755 blob ")
+                    {
+                        metadata_only = false;
+                    }
+                }
+            }
+            let mut args = vec![
+                "--no-literal-pathspecs",
+                "-c",
+                "core.attributesFile=/dev/null",
+                "diff",
+                "--stat",
+                "--patch",
+                "--no-ext-diff",
+                "--no-textconv",
+                color,
+                seen,
+                tree,
+                "--",
+            ];
+            if metadata_only {
+                args.push(":(top,exclude,glob).SRCINF[O]");
+            }
+            let git_dir = git(&["rev-parse", "--absolute-git-dir"])?;
+            let git_dir = git_dir
+                .stdout
+                .strip_suffix(b"\n")
+                .context("missing Git directory")?;
+            let worktree = tempfile::tempdir()?;
+            let isolated = |args: &[&str]| {
+                exec::command_output(
+                    review_command(fetch, &repo.name, args)
+                        .current_dir(worktree.path())
+                        .env("GIT_DIR", OsStr::from_bytes(git_dir))
+                        .env("GIT_WORK_TREE", worktree.path())
+                        .env("GIT_INDEX_FILE", worktree.path().join("index"))
+                        .env("GIT_ATTR_NOSYSTEM", "1")
+                        .env_remove("GIT_ATTR_SOURCE"),
+                )
+            };
+            isolated(&["read-tree", "--empty"])?;
+            let diff = isolated(&args)?;
+            let mut text = String::from_utf8_lossy(&log.stdout).into_owned();
+            text.push_str(&String::from_utf8_lossy(&diff.stdout));
+            text.push('\n');
+            Ok(text)
+        })
+        .collect()
+}
+
 fn file_manager(
     config: &Config,
     fetch: &aur_fetch::Fetch,
     fm: &str,
-    pkgs: &[&str],
+    repos: &[ReviewedRepo],
 ) -> Result<tempfile::TempDir> {
-    let seen = seen_repos(fetch, pkgs);
-    let has_diff = fetch.has_diff(&seen)?;
-    fetch.save_diffs(&has_diff)?;
+    let pkgs = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+    let changed = repos
+        .iter()
+        .filter(|r| r.changed() && r.seen.is_some())
+        .collect::<Vec<_>>();
+    let has_diff = changed.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
+    let diffs = review_diffs(fetch, &changed, false)?;
+    std::fs::create_dir_all(&fetch.diff_dir)?;
+    for (pkg, diff) in has_diff.iter().zip(diffs) {
+        std::fs::write(fetch.diff_dir.join(format!("{pkg}.diff")), diff)?;
+    }
     let view = tempfile::Builder::new().prefix("aur").tempdir()?;
-    fetch.make_view(view.path(), pkgs, &has_diff)?;
+    fetch.make_view(view.path(), &pkgs, &has_diff)?;
     run_file_manager(config, fm, view.path())?;
     Ok(view)
 }
@@ -1902,34 +2301,42 @@ pub(crate) fn seen_repos<'a>(fetch: &aur_fetch::Fetch, pkgs: &[&'a str]) -> Vec<
         .collect()
 }
 
-pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
+pub(crate) fn review(
+    config: &Config,
+    fetch: &aur_fetch::Fetch,
+    pkgs: &[&str],
+    merge: bool,
+) -> Result<Vec<ReviewedRepo>> {
     let c = config.color;
 
     if pkgs.is_empty() {
-        return Ok(());
+        return Ok(Vec::new());
     }
+    let mut reviewed = review_plan(fetch, pkgs, merge)?;
     if !config.no_confirm {
         if let Some(ref fm) = config.fm {
-            let _view = file_manager(config, fetch, fm, pkgs)?;
+            let _view = file_manager(config, fetch, fm, &reviewed)?;
+            file_manager_changes(fetch, &mut reviewed)?;
 
             if !ask(config, &tr!("Accept changes?"), true) {
-                return Status::err(1);
+                return Err(Status(1).into());
             }
 
             if config.save_changes {
-                fetch.commit(pkgs, "paru save changes")?;
+                save_review_changes(fetch, &mut reviewed)?;
             }
         } else {
-            let seen = seen_repos(fetch, pkgs);
-            let changed = fetch.unseen(&seen)?;
-            let has_diff = fetch.has_diff(&changed)?;
-            let unseen = pkgs
+            let unseen = reviewed
+                .iter()
+                .filter(|repo| repo.changed())
+                .collect::<Vec<_>>();
+            let has_diff = unseen
                 .iter()
                 .copied()
-                .filter(|pkg| !seen.contains(pkg) || changed.contains(pkg))
+                .filter(|repo| repo.seen.is_some())
                 .collect::<Vec<_>>();
-            let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
-            let diffs = fetch.diff(&has_diff, config.color.enabled)?;
+            let printed = !unseen.is_empty();
+            let diffs = review_diffs(fetch, &has_diff, config.color.enabled)?;
 
             if printed {
                 let pager_unconfigured = var("PARU_PAGER").is_err() && var("PAGER").is_err();
@@ -1963,12 +2370,12 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                     let _ = stdin.write_all(b"\n\n");
                 }
 
-                for (&pkg, diff) in has_diff.iter().zip(diffs) {
+                for (repo, diff) in has_diff.iter().zip(diffs) {
                     let _ = write!(
                         stdin,
                         "{} {}:\n    ",
                         c.action.paint("::"),
-                        c.bold.paint(pkg)
+                        c.bold.paint(&repo.name)
                     );
                     let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
                     let _ = stdin.write_all(b"\n\n");
@@ -1977,10 +2384,15 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 let bat = config.color.enabled && has_command(&config.bat_bin);
 
                 let mut buf = Vec::new();
-                for &pkg in &unseen {
-                    if !has_diff.contains(&pkg) {
-                        let dir = fetch.clone_dir.join(pkg);
-                        let _ = writeln!(stdin, "{} {}:", c.action.paint("::"), c.bold.paint(pkg));
+                for repo in &unseen {
+                    if repo.seen.is_none() {
+                        let dir = fetch.clone_dir.join(&repo.name);
+                        let _ = writeln!(
+                            stdin,
+                            "{} {}:",
+                            c.action.paint("::"),
+                            c.bold.paint(&repo.name)
+                        );
                         print_dir(config, &dir, &mut stdin, &mut buf, bat)?;
                     }
                 }
@@ -1990,7 +2402,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 exec::RAISE_SIGPIPE.store(true, Ordering::Relaxed);
 
                 if !ask(config, &tr!("Accept changes?"), true) {
-                    return Status::err(1);
+                    return Err(Status(1).into());
                 }
             } else {
                 printtr!(" nothing new to review");
@@ -1998,8 +2410,7 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
         }
     }
 
-    fetch.mark_seen(pkgs)?;
-    Ok(())
+    Ok(reviewed)
 }
 
 fn update_aur_list(config: &Config) {
@@ -2390,7 +2801,10 @@ fn is_ver_char(c: char) -> bool {
 
 #[cfg(test)]
 mod review_tests {
-    use super::print_dir;
+    use super::{
+        file_manager_changes, mark_reviewed, print_dir, review_diffs, review_plan,
+        save_review_changes,
+    };
     use crate::config::{Colors, Config};
     use std::ffi::OsStr;
     use std::fs;
@@ -2408,6 +2822,48 @@ mod review_tests {
             .output()
             .unwrap();
         assert!(output.status.success(), "{output:?}");
+    }
+
+    #[test]
+    fn aur_review_accepts_file_manager_commits_and_saved_edits() {
+        let dir = tempfile::tempdir().unwrap();
+        let repo = dir.path().join("fixture");
+        fs::create_dir(&repo).unwrap();
+        git(&repo, &["init", "-b", "master"]);
+        git(&repo, &["config", "user.name", "fixture"]);
+        git(&repo, &["config", "user.email", "fixture@localhost"]);
+        git(&repo, &["config", "commit.gpgsign", "false"]);
+        git(&repo, &["config", "core.hooksPath", "/dev/null"]);
+        fs::write(repo.join("PKGBUILD"), "pkgname=fixture\n").unwrap();
+        git(&repo, &["add", "."]);
+        git(&repo, &["commit", "-m", "fixture"]);
+        git(&repo, &["update-ref", "AUR_SEEN", "HEAD"]);
+        let mut fetch = aur_fetch::Fetch::with_cache_dir(dir.path());
+        fetch.clone_dir = dir.path().into();
+
+        for save in [false, true] {
+            let mut plans = review_plan(&fetch, &["fixture"], false).unwrap();
+            let seen = plans[0].seen.clone();
+            fs::write(repo.join("PKGBUILD"), format!("pkgname=edited-{save}\n")).unwrap();
+            git(&repo, &["commit", "-am", "manual edit"]);
+            file_manager_changes(&fetch, &mut plans).unwrap();
+            assert_eq!(plans[0].seen, seen);
+            assert!(plans[0].upstream.is_none());
+            assert!(plans[0].fork_point.is_none());
+            if save {
+                fs::write(repo.join("PKGBUILD"), "pkgname=saved\n").unwrap();
+                save_review_changes(&fetch, &mut plans).unwrap();
+            }
+            mark_reviewed(&fetch, &plans).unwrap();
+            assert!(!review_plan(&fetch, &["fixture"], false).unwrap()[0].changed());
+        }
+
+        let mut plans = review_plan(&fetch, &["fixture"], false).unwrap();
+        file_manager_changes(&fetch, &mut plans).unwrap();
+        fs::write(repo.join("PKGBUILD"), "pkgname=changed-after-prompt\n").unwrap();
+        git(&repo, &["commit", "-am", "later edit"]);
+        assert!(save_review_changes(&fetch, &mut plans).is_err());
+        assert!(mark_reviewed(&fetch, &plans).is_err());
     }
 
     #[test]
@@ -2530,6 +2986,103 @@ mod review_tests {
         let output = String::from_utf8(output).unwrap();
         assert!(output.contains("binary file: archive.bin"), "{output}");
         assert!(!output.contains("binary-body"), "{output}");
+    }
+
+    #[test]
+    fn review_diff_only_hides_regular_root_srcinfo() {
+        let dir = tempfile::tempdir().unwrap();
+        let repo = dir.path().join("fixture");
+        fs::create_dir_all(repo.join("keys")).unwrap();
+        git(&repo, &["init", "-b", "master"]);
+        git(&repo, &["config", "user.name", "fixture"]);
+        git(&repo, &["config", "user.email", "fixture@localhost"]);
+        git(&repo, &["config", "diff.external", "/bin/false"]);
+        git(&repo, &["config", "diff.refusing.textconv", "/bin/false"]);
+        fs::write(
+            repo.join(".gitattributes"),
+            "* -diff\nPKGBUILD diff=refusing\n",
+        )
+        .unwrap();
+        fs::write(repo.join("PKGBUILD"), "pkgname=fixture-0\n").unwrap();
+        fs::write(repo.join("archive.bin"), b"\0archive-body-0\n").unwrap();
+        fs::write(repo.join(".SRCINFO"), "metadata-0\n").unwrap();
+        fs::write(repo.join("keys/.SRCINFO"), "nested-0\n").unwrap();
+        git(&repo, &["add", "."]);
+        git(&repo, &["commit", "-m", "fixture"]);
+        git(&repo, &["update-ref", "AUR_SEEN", "HEAD"]);
+        git(&repo, &["config", "branch.master.remote", "."]);
+        git(
+            &repo,
+            &["config", "branch.master.merge", "refs/heads/upstream"],
+        );
+        let mut fetch = aur_fetch::Fetch::with_cache_dir(dir.path());
+        fetch.clone_dir = dir.path().into();
+
+        for version in 1..=5 {
+            let metadata = repo.join(".SRCINFO");
+            if metadata.is_dir() {
+                fs::remove_dir_all(&metadata).unwrap();
+            } else {
+                fs::remove_file(&metadata).unwrap();
+            }
+            match version {
+                1 | 5 => fs::write(&metadata, format!("metadata-{version}\n")).unwrap(),
+                2 | 3 => symlink(format!("target-{version}"), &metadata).unwrap(),
+                4 => {
+                    fs::create_dir(&metadata).unwrap();
+                    fs::write(metadata.join("helper"), "directory-body\n").unwrap();
+                }
+                _ => unreachable!(),
+            }
+            fs::write(
+                repo.join("PKGBUILD"),
+                format!("pkgname=fixture-{version}\n"),
+            )
+            .unwrap();
+            fs::write(repo.join("keys/.SRCINFO"), format!("nested-{version}\n")).unwrap();
+            fs::write(
+                repo.join("archive.bin"),
+                format!("\0archive-body-{version}\n"),
+            )
+            .unwrap();
+            git(&repo, &["add", "-A"]);
+            git(&repo, &["commit", "-m", "fixture"]);
+            git(&repo, &["update-ref", "refs/heads/upstream", "HEAD"]);
+            fs::write(repo.join("PKGBUILD"), "dirty-preserved\n").unwrap();
+            let index = fs::read(repo.join(".git/index")).unwrap();
+
+            for literal in [false, true] {
+                fetch.git_flags = if literal {
+                    vec!["--literal-pathspecs".into()]
+                } else {
+                    Vec::new()
+                };
+                let plans = review_plan(&fetch, &["fixture"], true).unwrap();
+                let diff = review_diffs(&fetch, &plans.iter().collect::<Vec<_>>(), false)
+                    .unwrap()
+                    .remove(0);
+                assert!(
+                    diff.contains(&format!("+pkgname=fixture-{version}")),
+                    "{diff}"
+                );
+                assert!(diff.contains(&format!("+nested-{version}")), "{diff}");
+                assert!(diff.contains("archive.bin"), "{diff}");
+                assert!(!diff.contains("archive-body"), "{diff}");
+                assert_eq!(
+                    fs::read(repo.join("PKGBUILD")).unwrap(),
+                    b"dirty-preserved\n"
+                );
+                assert_eq!(fs::read(repo.join(".git/index")).unwrap(), index);
+                match version {
+                    1 => assert!(!diff.contains("metadata-1"), "{diff}"),
+                    2 | 3 => assert!(diff.contains(&format!("+target-{version}")), "{diff}"),
+                    4 => assert!(diff.contains("+directory-body"), "{diff}"),
+                    5 => assert!(diff.contains("-directory-body"), "{diff}"),
+                    _ => unreachable!(),
+                }
+            }
+            git(&repo, &["update-ref", "AUR_SEEN", "HEAD"]);
+        }
     }
 }
 
