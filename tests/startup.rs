@@ -315,6 +315,99 @@ fn unavailable_pkgbuild_repositories_warn_once_per_command() {
 }
 
 #[test]
+fn upstream_refs_named_aur_seen_do_not_replace_review() {
+    for reference in [&["tag", "AUR_SEEN"][..], &["branch", "-m", "AUR_SEEN"][..]] {
+        let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+        repo.push(1);
+        git(&repo.tmp.path().join("remote"), reference);
+
+        for answer in ["n\n", ""] {
+            let output = repo.refresh(answer);
+            assert_eq!(output.status.code(), Some(1), "{reference:?}: {output:?}");
+            assert_eq!(repo.trace(), "review\n");
+            for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+                let output = repo.run(&args, "");
+                assert!(output.stdout.is_empty(), "{reference:?}: {output:?}");
+                assert_eq!(repo.trace(), "");
+            }
+        }
+
+        repo.push(2);
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{reference:?}: {output:?}");
+        let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+        assert!(reviewed.contains("pkgver=2"), "{reviewed}");
+        assert!(!reviewed.contains("pkgver=1"), "{reviewed}");
+        assert_eq!(repo.trace(), "review\nmakepkg\nsource-2\n");
+        assert_eq!(repo.tree("AUR_SEEN"), repo.tree("HEAD"));
+
+        let output = repo.run(&["-Slq"], "");
+        assert!(output.status.success(), "{reference:?}: {output:?}");
+        assert_eq!(output.stdout, b"fixture\n");
+        assert_eq!(repo.trace(), "");
+
+        repo.push(3);
+        let output = repo.refresh("n\n");
+        assert_eq!(output.status.code(), Some(1), "{reference:?}: {output:?}");
+        assert_eq!(repo.trace(), "review\n");
+        let output = repo.refresh("y\n");
+        assert!(output.status.success(), "{reference:?}: {output:?}");
+        assert_eq!(repo.trace(), "review\nmakepkg\nsource-3\n");
+        assert_eq!(repo.tree("AUR_SEEN"), repo.tree("HEAD"));
+    }
+}
+
+#[test]
+fn upstream_refs_named_aur_seen_do_not_allow_loading_cached_repositories() {
+    for reference in [&["tag", "AUR_SEEN"][..], &["branch", "-m", "AUR_SEEN"][..]] {
+        for committed_srcinfo in [false, true] {
+            let repo = PkgbuildReview::new("", committed_srcinfo);
+            repo.push(1);
+            git(&repo.tmp.path().join("remote"), reference);
+            fs::create_dir_all(repo.clone_dir().parent().unwrap()).unwrap();
+            git(repo.tmp.path(), &["clone", "remote", "build/repo/fixture"]);
+
+            for args in [vec!["-Slq"], vec!["-Si", "fixture/fixture"]] {
+                let output = repo.run(&args, "");
+                assert!(output.stdout.is_empty(), "{reference:?}: {output:?}");
+                assert_eq!(repo.trace(), "");
+            }
+        }
+    }
+}
+
+#[test]
+fn file_manager_reviews_the_full_tree_with_an_upstream_aur_seen_tag() {
+    let repo = PkgbuildReview::new("GenerateSrcinfo\n", false);
+    repo.push(1);
+    git(&repo.tmp.path().join("remote"), &["tag", "AUR_SEEN"]);
+    let fm = script(
+        repo.tmp.path(),
+        "file-manager",
+        "test \"$#\" = 1\n\
+         test ! -e \"$1/fixture.diff\"\n\
+         cat \"$1/fixture/PKGBUILD\" > \"${PARU_TEST_CAPTURE%/*}/reviewed\"\n\
+         printf 'review\\n' >> \"$PARU_TEST_CAPTURE\"",
+    );
+    let args = ["-Sy", "--fm", fm.to_str().unwrap()];
+
+    repo.push(2);
+    let output = repo.run(&args, "n\n");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert_eq!(repo.trace(), "review\n");
+    let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+    assert!(reviewed.contains("pkgver=2"), "{reviewed}");
+
+    repo.push(3);
+    let output = repo.run(&args, "y\n");
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(repo.trace(), "review\nmakepkg\nsource-3\n");
+    let reviewed = fs::read_to_string(repo.tmp.path().join("reviewed")).unwrap();
+    assert!(reviewed.contains("pkgver=3"), "{reviewed}");
+    assert_eq!(repo.tree("AUR_SEEN"), repo.tree("HEAD"));
+}
+
+#[test]
 fn pkgbuild_repository_is_not_loaded_after_interrupted_diff_review() {
     let mut repo = PkgbuildReview::new("", true);
     repo.push(1);

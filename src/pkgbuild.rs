@@ -10,7 +10,11 @@ use std::{
     sync::Arc,
 };
 
-use crate::{download::print_download, exec, install::review};
+use crate::{
+    download::print_download,
+    exec,
+    install::{review, seen_repos},
+};
 use alpm_utils::Targ;
 use anyhow::{Context, Result, anyhow, bail};
 use aur_fetch::Fetch;
@@ -195,23 +199,27 @@ impl PkgbuildRepo {
     fn reviewed(&self, config: &Config) -> bool {
         let mut cmd = Command::new(&config.git_bin);
         cmd.current_dir(&self.path).args(&config.git_flags).args([
+            "-c",
+            "core.warnAmbiguousRefs=false",
             "rev-parse",
             "AUR_SEEN^{tree}",
             "HEAD^{tree}",
+            "--symbolic-full-name",
+            "AUR_SEEN",
             "--absolute-git-dir",
         ]);
 
         exec::command_output(&mut cmd).is_ok_and(|output| {
-            let mut lines = output.stdout.splitn(3, |b| *b == b'\n');
-            let (Some(seen), Some(head), Some(git_dir)) =
-                (lines.next(), lines.next(), lines.next())
+            let mut lines = output.stdout.splitn(4, |b| *b == b'\n');
+            let (Some(seen), Some(head), Some(reference), Some(git_dir)) =
+                (lines.next(), lines.next(), lines.next(), lines.next())
             else {
                 return false;
             };
             let Some(git_dir) = git_dir.strip_suffix(b"\n") else {
                 return false;
             };
-            if seen.is_empty() || seen != head || git_dir.is_empty() {
+            if seen.is_empty() || seen != head || reference != b"AUR_SEEN" || git_dir.is_empty() {
                 return false;
             }
 
@@ -468,12 +476,11 @@ impl PkgbuildRepos {
             .collect::<Vec<_>>();
 
         // Without a seen marker, review reads the working tree rather than a diff.
-        let unseen = self.fetch.unseen(&review_repos)?;
-        let has_diff = self.fetch.has_diff(&unseen)?;
-        let never_accepted = unseen
+        let seen = seen_repos(&self.fetch, &review_repos);
+        let never_accepted = review_repos
             .iter()
             .copied()
-            .filter(|r| !has_diff.contains(r))
+            .filter(|r| !seen.contains(r))
             .collect::<Vec<_>>();
         self.fetch.merge(&never_accepted)?;
 

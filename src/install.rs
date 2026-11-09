@@ -1721,7 +1721,8 @@ fn file_manager(
     fm: &str,
     pkgs: &[&str],
 ) -> Result<tempfile::TempDir> {
-    let has_diff = fetch.has_diff(pkgs)?;
+    let seen = seen_repos(fetch, pkgs);
+    let has_diff = fetch.has_diff(&seen)?;
     fetch.save_diffs(&has_diff)?;
     let view = tempfile::Builder::new().prefix("aur").tempdir()?;
     fetch.make_view(view.path(), pkgs, &has_diff)?;
@@ -1881,6 +1882,26 @@ fn print_dir(
     Ok(())
 }
 
+pub(crate) fn seen_repos<'a>(fetch: &aur_fetch::Fetch, pkgs: &[&'a str]) -> Vec<&'a str> {
+    pkgs.iter()
+        .copied()
+        .filter(|&pkg| {
+            let mut cmd = Command::new(&fetch.git);
+            cmd.current_dir(fetch.clone_dir.join(pkg))
+                .args(&fetch.git_flags)
+                .args([
+                    "-c",
+                    "core.warnAmbiguousRefs=false",
+                    "rev-parse",
+                    "--verify",
+                    "--symbolic-full-name",
+                    "AUR_SEEN",
+                ]);
+            exec::command_output(&mut cmd).is_ok_and(|output| output.stdout == b"AUR_SEEN\n")
+        })
+        .collect()
+}
+
 pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Result<()> {
     let c = config.color;
 
@@ -1899,8 +1920,14 @@ pub fn review(config: &Config, fetch: &aur_fetch::Fetch, pkgs: &[&str]) -> Resul
                 fetch.commit(pkgs, "paru save changes")?;
             }
         } else {
-            let unseen = fetch.unseen(pkgs)?;
-            let has_diff = fetch.has_diff(&unseen)?;
+            let seen = seen_repos(fetch, pkgs);
+            let changed = fetch.unseen(&seen)?;
+            let has_diff = fetch.has_diff(&changed)?;
+            let unseen = pkgs
+                .iter()
+                .copied()
+                .filter(|pkg| !seen.contains(pkg) || changed.contains(pkg))
+                .collect::<Vec<_>>();
             let printed = !has_diff.is_empty() || unseen.iter().any(|p| !has_diff.contains(p));
             let diffs = fetch.diff(&has_diff, config.color.enabled)?;
 
