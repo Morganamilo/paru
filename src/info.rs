@@ -1,7 +1,7 @@
 use crate::config::{Colors, Config};
 use crate::download::cache_info_with_warnings;
 use crate::exec;
-use crate::fmt::{date, opt, print_indent};
+use crate::fmt::{date, escape_control, opt, print_indent};
 use crate::util::split_repo_aur_info;
 
 use alpm_utils::Targ;
@@ -143,7 +143,7 @@ fn longest(config: &Config) -> usize {
 fn arch_len(vec: &[ArchVec]) -> usize {
     vec.iter()
         .filter_map(|v| v.arch())
-        .map(|a| a.len() + 1)
+        .map(|a| escape_control(a).width() + 1)
         .max()
         .unwrap_or(0)
 }
@@ -291,15 +291,23 @@ fn print_info<'a>(
     key: &str,
     value: impl IntoIterator<Item = &'a str>,
 ) {
-    let mut prefix = key.to_string();
-    for _ in 0..indent - prefix.width() - 2 {
+    let mut prefix = escape_control(key).into_owned();
+    for _ in 0..indent.saturating_sub(prefix.width() + 2) {
         prefix.push(' ');
     }
     prefix.push_str(": ");
+    let indent = prefix.width();
     print!("{}", color.field.paint(&prefix));
 
     let sep = if list { "  " } else { " " };
-    print_indent(Style::new(), indent, indent, cols, sep, value)
+    print_indent(
+        Style::new(),
+        indent,
+        indent,
+        cols,
+        sep,
+        value.into_iter().map(escape_control),
+    )
 }
 
 #[must_use]

@@ -1,5 +1,6 @@
 use std::fmt::Write;
 
+use std::borrow::Cow;
 use std::collections::HashSet;
 
 use crate::config::Config;
@@ -35,10 +36,56 @@ pub fn ymd(date: i64) -> String {
 }
 
 pub fn link_str(enabled: bool, s: &str, url: &str) -> String {
-    if enabled {
+    if enabled && !url.chars().any(char::is_control) {
         format!("\x1b]8;;{url}\x1b\\{s}\x1b]8;;\x1b\\")
     } else {
         s.to_string()
+    }
+}
+
+pub fn escape_control(s: &str) -> Cow<'_, str> {
+    if !s.chars().any(char::is_control) {
+        return Cow::Borrowed(s);
+    }
+
+    let mut escaped = String::with_capacity(s.len());
+    for c in s.chars() {
+        if c.is_control() {
+            escaped.extend(c.escape_default());
+        } else {
+            escaped.push(c);
+        }
+    }
+    Cow::Owned(escaped)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{escape_control, link_str};
+
+    #[test]
+    fn escapes_terminal_controls_without_changing_unicode() {
+        assert_eq!(escape_control("naïve 日本語 café"), "naïve 日本語 café");
+        assert_eq!(
+            escape_control("a\x1b]2;title\x07b\x7f\u{009b}"),
+            r"a\u{1b}]2;title\u{7}b\u{7f}\u{9b}"
+        );
+    }
+
+    #[test]
+    fn unsafe_link_destinations_keep_the_styled_label() {
+        let label = "\x1b[1mnaïve 日本語\x1b[0m";
+        assert_eq!(
+            link_str(true, label, "https://example.org/"),
+            format!("\x1b]8;;https://example.org/\x1b\\{label}\x1b]8;;\x1b\\")
+        );
+        for control in ['\0', '\x07', '\x1b', '\x7f', '\u{009b}', '\u{009c}'] {
+            assert_eq!(
+                link_str(true, label, &format!("https://example.org/{control}")),
+                label
+            );
+        }
+        assert_eq!(link_str(false, label, "https://example.org/"), label);
     }
 }
 

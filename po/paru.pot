@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: paru 2.2.0\n"
+"Project-Id-Version: paru  2.2.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2026-10-28 16:12+0000\n"
+"POT-Creation-Date: 2026-11-09 01:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,7 +186,7 @@ msgstr ""
 msgid "Querying AUR..."
 msgstr ""
 
-#: src/devel.rs:157 src/devel.rs:182 src/install.rs:203
+#: src/devel.rs:157 src/devel.rs:182 src/install.rs:204
 msgid "failed to parse srcinfo for '{}'"
 msgstr ""
 
@@ -242,23 +242,31 @@ msgstr ""
 msgid "downloading: {pkg}"
 msgstr ""
 
-#: src/download.rs:279 src/download.rs:602 src/info.rs:60 src/info.rs:185 src/query.rs:49
+#: src/download.rs:279 src/download.rs:633 src/info.rs:60 src/info.rs:185 src/query.rs:49
 msgid "package '{}' was not found"
 msgstr ""
 
-#: src/download.rs:291
+#: src/download.rs:292
+msgid "invalid package base '{}'"
+msgstr ""
+
+#: src/download.rs:300
 msgid "duplicate PKGBUILD: {}"
 msgstr ""
 
-#: src/download.rs:307
+#: src/download.rs:322
+msgid "copy destination for '{}' overlaps a source directory"
+msgstr ""
+
+#: src/download.rs:338
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
 msgstr ""
 
-#: src/download.rs:340
+#: src/download.rs:371
 msgid "Downloading PKGBUILDs..."
 msgstr ""
 
-#: src/download.rs:344
+#: src/download.rs:375
 msgid " PKGBUILDs up to date"
 msgstr ""
 
@@ -270,51 +278,51 @@ msgstr ""
 msgid "Pacman is currently in use, please wait..."
 msgstr ""
 
-#: src/fmt.rs:24 src/info.rs:280 src/search.rs:299 src/search.rs:356
+#: src/fmt.rs:25 src/info.rs:280 src/search.rs:306 src/search.rs:371
 msgid "None"
 msgstr ""
 
-#: src/fmt.rs:245
+#: src/fmt.rs:292
 msgid "Repo"
 msgstr ""
 
-#: src/fmt.rs:252
+#: src/fmt.rs:299
 msgid "Repo Make"
 msgstr ""
 
-#: src/fmt.rs:272
+#: src/fmt.rs:319
 msgid "Pkgbuilds Make"
 msgstr ""
 
-#: src/fmt.rs:274
+#: src/fmt.rs:321
 msgid "Aur Make"
 msgstr ""
 
-#: src/fmt.rs:316
+#: src/fmt.rs:363
 msgid "Repo ({})"
 msgstr ""
 
-#: src/fmt.rs:324
+#: src/fmt.rs:371
 msgid "Old Version"
 msgstr ""
 
-#: src/fmt.rs:325
+#: src/fmt.rs:372
 msgid "New Version"
 msgstr ""
 
-#: src/fmt.rs:326
+#: src/fmt.rs:373
 msgid "Make Only"
 msgstr ""
 
-#: src/fmt.rs:327
+#: src/fmt.rs:374
 msgid "Yes"
 msgstr ""
 
-#: src/fmt.rs:328 src/info.rs:226
+#: src/fmt.rs:375 src/info.rs:226
 msgid "No"
 msgstr ""
 
-#: src/fmt.rs:417
+#: src/fmt.rs:464
 msgid "insufficient columns available for table display"
 msgstr ""
 
@@ -778,232 +786,236 @@ msgstr ""
 msgid "Path"
 msgstr ""
 
-#: src/install.rs:166 src/query.rs:48 src/lib.rs:101
+#: src/install.rs:167 src/query.rs:48 src/lib.rs:101
 msgid "error:"
 msgstr ""
 
-#: src/install.rs:167
+#: src/install.rs:168
 msgid "could not get news"
 msgstr ""
 
-#: src/install.rs:172 src/install.rs:1131
+#: src/install.rs:173 src/install.rs:1137
 msgid "Proceed with installation?"
 msgstr ""
 
-#: src/install.rs:207
+#: src/install.rs:208
 msgid "could not find .SRCINFO for '{}'"
 msgstr ""
 
-#: src/install.rs:353
+#: src/install.rs:354
 msgid "could not find package '{pkg}' in package list for '{base}'"
 msgstr ""
 
-#: src/install.rs:451
+#: src/install.rs:452
 msgid "packages failed to build: {}"
 msgstr ""
 
-#: src/install.rs:519
+#: src/install.rs:520
 msgid "adding {} to the install list"
 msgstr ""
 
-#: src/install.rs:549 src/install.rs:564
+#: src/install.rs:550 src/install.rs:565
 msgid "failed to download sources for '{}'"
 msgstr ""
 
-#: src/install.rs:573 src/install.rs:599 src/install.rs:607
+#: src/install.rs:574 src/install.rs:600 src/install.rs:608
 msgid "failed to build '{}'"
 msgstr ""
 
-#: src/install.rs:576 src/install.rs:780
+#: src/install.rs:577 src/install.rs:781
 msgid "{}: parsing pkg list..."
 msgstr ""
 
-#: src/install.rs:580
+#: src/install.rs:581
 msgid "package list does not match srcinfo"
 msgstr ""
 
-#: src/install.rs:614
+#: src/install.rs:615
 msgid "{}-{} is up to date -- skipping build"
 msgstr ""
 
-#: src/install.rs:771
+#: src/install.rs:772
 msgid "can't build {base}, deps not satisfied: {deps}"
 msgstr ""
 
-#: src/install.rs:842
+#: src/install.rs:843
 msgid "fetching devel info..."
 msgstr ""
 
-#: src/install.rs:907 src/lib.rs:258
+#: src/install.rs:908 src/lib.rs:258
 msgid "no targets specified (use -h for help)"
 msgstr ""
 
-#: src/install.rs:1011 src/install.rs:1101 src/search.rs:456 src/search.rs:482 src/lib.rs:322
+#: src/install.rs:1017 src/install.rs:1107 src/search.rs:482 src/search.rs:508 src/lib.rs:322
 msgid " there is nothing to do"
 msgstr ""
 
-#: src/install.rs:1019
+#: src/install.rs:1025
 msgid "Resolving dependencies..."
 msgstr ""
 
-#: src/install.rs:1080
+#: src/install.rs:1086
 msgid "can't install AUR package as root"
 msgstr ""
 
-#: src/install.rs:1083
+#: src/install.rs:1089
 msgid "--downloadonly can't be used for AUR packages"
 msgstr ""
 
-#: src/install.rs:1117
+#: src/install.rs:1123
 msgid "Remove make dependencies after install?"
 msgstr ""
 
-#: src/install.rs:1128
+#: src/install.rs:1134
 msgid "Proceed to review?"
 msgstr ""
 
-#: src/install.rs:1182
+#: src/install.rs:1189
 msgid "no architecture"
 msgstr ""
 
-#: src/install.rs:1196
+#: src/install.rs:1203
 msgid "The following packages are not compatible with your architecture:"
 msgstr ""
 
-#: src/install.rs:1210
+#: src/install.rs:1217
 msgid "Would you like to try build them anyway?"
 msgstr ""
 
-#: src/install.rs:1343
+#: src/install.rs:1350
 msgid "{n} day"
 msgid_plural "{n} days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/install.rs:1346
+#: src/install.rs:1353
 msgid "{n} hour"
 msgid_plural "{n} hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/install.rs:1349
+#: src/install.rs:1356
 msgid "{n} minute"
 msgid_plural "{n} minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/install.rs:1351
+#: src/install.rs:1358
 msgid "{n} second"
 msgid_plural "{n} seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/install.rs:1386
+#: src/install.rs:1393
 msgid "AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
 msgstr ""
 
-#: src/install.rs:1420
+#: src/install.rs:1427
 msgid "updated {} ago"
 msgstr ""
 
-#: src/install.rs:1427
+#: src/install.rs:1434
 msgid "the following AUR packages are newer than the minimum release age of {}: {}"
 msgstr ""
 
-#: src/install.rs:1432
+#: src/install.rs:1439
 msgid "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
 msgstr ""
 
-#: src/install.rs:1453
+#: src/install.rs:1460
 msgid "duplicate packages: {}"
 msgstr ""
 
-#: src/install.rs:1457
+#: src/install.rs:1464
 msgid "could not find all required packages:"
 msgstr ""
 
-#: src/install.rs:1469
+#: src/install.rs:1476
 msgid "\n"
 "    {missing} (wanted by: {stack})"
 msgstr ""
 
-#: src/install.rs:1483 src/install.rs:2226
+#: src/install.rs:1490 src/install.rs:2736
 msgid "{}-{} is up to date -- skipping"
 msgstr ""
 
-#: src/install.rs:1491
+#: src/install.rs:1541
 msgid "Calculating conflicts..."
 msgstr ""
 
-#: src/install.rs:1512
+#: src/install.rs:1552
 msgid "Calculating inner conflicts..."
 msgstr ""
 
-#: src/install.rs:1524
+#: src/install.rs:1565
 msgid "Inner conflicts found:"
 msgstr ""
 
-#: src/install.rs:1546
+#: src/install.rs:1587
 msgid "Conflicts found:"
 msgstr ""
 
-#: src/install.rs:1569
+#: src/install.rs:1610
 msgid "Conflicting packages will have to be confirmed manually"
 msgstr ""
 
-#: src/install.rs:1573
+#: src/install.rs:1614
 msgid "can not install conflicting packages with --noconfirm"
 msgstr ""
 
-#: src/install.rs:1701
+#: src/install.rs:1871 src/install.rs:1900 src/install.rs:2002 src/install.rs:2022
+msgid "repo {} changed after review; review it again"
+msgstr ""
+
+#: src/install.rs:2136
 msgid "failed to execute file manager: {}"
 msgstr ""
 
-#: src/install.rs:1704
+#: src/install.rs:2139
 msgid "file manager '{}' did not execute successfully"
 msgstr ""
 
-#: src/install.rs:1722
-msgid "failed to read dir: {}"
-msgstr ""
-
-#: src/install.rs:1780
+#: src/install.rs:2185 src/install.rs:2217
 msgid "failed to open: {}"
 msgstr ""
 
-#: src/install.rs:1800
+#: src/install.rs:2206
+msgid "directory: {}"
+msgstr ""
+
+#: src/install.rs:2231 src/install.rs:2273
 msgid "binary file: {}"
 msgstr ""
 
-#: src/install.rs:1822 src/install.rs:1893
+#: src/install.rs:2321 src/install.rs:2404
 msgid "Accept changes?"
 msgstr ""
 
-#: src/install.rs:1862
+#: src/install.rs:2368
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
 
-#: src/install.rs:1897
+#: src/install.rs:2408
 msgid " nothing new to review"
 msgstr ""
 
-#: src/install.rs:2174
+#: src/install.rs:2684
 msgid "can't find package name in packagelist: {}"
 msgstr ""
 
-#: src/install.rs:2246
+#: src/install.rs:2756
 msgid "Signing packages..."
 msgstr ""
 
-#: src/install.rs:2277
+#: src/install.rs:2787
 msgid "{}-{} is up to date -- skipping install"
 msgstr ""
 
-#: src/keys.rs:57
+#: src/keys.rs:58
 msgid "keys need to be imported:"
 msgstr ""
 
-#: src/keys.rs:62
+#: src/keys.rs:63
 msgid "     {key} wanted by: {base}"
 msgstr ""
 
@@ -1019,27 +1031,31 @@ msgstr ""
 msgid "no new news"
 msgstr ""
 
-#: src/pkgbuild.rs:91
+#: src/pkgbuild.rs:100
 msgid "repo {} does not have a URL or Path"
 msgstr ""
 
-#: src/pkgbuild.rs:153
+#: src/pkgbuild.rs:170
 msgid "repo {} not downloaded (use -Sy --pkgbuilds to download)"
 msgstr ""
 
-#: src/pkgbuild.rs:200
+#: src/pkgbuild.rs:182 src/pkgbuild.rs:409
+msgid "repo {} has unreviewed changes (use -Sy --pkgbuilds to review)"
+msgstr ""
+
+#: src/pkgbuild.rs:269
 msgid "Generating .SRCINFO for {repo}/{dir}..."
 msgstr ""
 
-#: src/pkgbuild.rs:278
+#: src/pkgbuild.rs:347
 msgid "failed to parse srcinfo \"{}\""
 msgstr ""
 
-#: src/pkgbuild.rs:368
+#: src/pkgbuild.rs:453
 msgid "Downloading PKGBUILD Repos..."
 msgstr ""
 
-#: src/pkgbuild.rs:422
+#: src/pkgbuild.rs:517
 msgid "failed to parse srcinfo generated by makepkg"
 msgstr ""
 
@@ -1083,31 +1099,31 @@ msgstr ""
 msgid "aur search failed"
 msgstr ""
 
-#: src/search.rs:291 src/search.rs:344 src/search.rs:416
+#: src/search.rs:296 src/search.rs:357 src/search.rs:433
 msgid "[installed: {}]"
 msgstr ""
 
-#: src/search.rs:293 src/search.rs:346 src/search.rs:418
+#: src/search.rs:300 src/search.rs:361 src/search.rs:437
 msgid "[installed]"
 msgstr ""
 
-#: src/search.rs:338
+#: src/search.rs:350
 msgid "[out-of-date: {}]"
 msgstr ""
 
-#: src/search.rs:353
+#: src/search.rs:368
 msgid "[orphaned]"
 msgstr ""
 
-#: src/search.rs:497
+#: src/search.rs:523
 msgid "no packages match search"
 msgstr ""
 
-#: src/search.rs:535
+#: src/search.rs:561
 msgid "Packages to install (eg: 1 2 3, 1-3):"
 msgstr ""
 
-#: src/search.rs:537
+#: src/search.rs:563
 msgid "Select packages (eg: 1 2 3, 1-3):"
 msgstr ""
 

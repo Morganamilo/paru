@@ -1,13 +1,20 @@
 use std::{
-    cell::OnceCell,
+    cell::{Cell, OnceCell},
     env::current_dir,
+    ffi::OsStr,
     fs::{File, read_dir},
     io::Write,
+    os::unix::ffi::OsStrExt,
     path::{Path, PathBuf},
+    process::Command,
     sync::Arc,
 };
 
-use crate::{download::print_download, exec, install::review};
+use crate::{
+    download::print_download,
+    exec,
+    install::{merge_reviewed, review, seen_repos},
+};
 use alpm_utils::Targ;
 use anyhow::{Context, Result, anyhow, bail};
 use aur_fetch::Fetch;
@@ -66,6 +73,7 @@ pub struct PkgbuildRepo {
     pub force_srcinfo: bool,
     pub path: PathBuf,
     pkgs: OnceCell<Arc<Vec<PkgbuildPkg>>>,
+    warned: Cell<bool>,
 }
 
 impl PkgbuildRepo {
@@ -78,6 +86,7 @@ impl PkgbuildRepo {
             skip_review: false,
             force_srcinfo: false,
             pkgs: OnceCell::new(),
+            warned: Cell::new(false),
         }
     }
 
@@ -93,8 +102,13 @@ impl PkgbuildRepo {
     }
 
     pub fn pkgs(&self, config: &Config) -> &[PkgbuildPkg] {
-        self.pkgs
-            .get_or_init(move || Arc::new(self.read_pkgs(config)))
+        if let Some(pkgs) = self.pkgs.get() {
+            return pkgs;
+        }
+        let Some(pkgs) = self.read_pkgs(config) else {
+            return &[];
+        };
+        self.pkgs.get_or_init(|| Arc::new(pkgs))
     }
 
     pub fn base(&self, config: &Config, base: &str) -> Option<&PkgbuildPkg> {
@@ -119,6 +133,7 @@ impl PkgbuildRepo {
             force_srcinfo: false,
             path: dir,
             pkgs: Default::default(),
+            warned: Cell::new(false),
         };
 
         repo.pkgs(config);
@@ -144,21 +159,75 @@ impl PkgbuildRepo {
         Ok(repo)
     }
 
-    fn read_pkgs(&self, config: &Config) -> Vec<PkgbuildPkg> {
-        if matches!(self.source, RepoSource::Url(_, _)) && !self.path.join(".git").exists() {
-            eprintln!(
-                "{} {}",
-                config.color.warning.paint("::"),
-                tr!(
-                    "repo {} not downloaded (use -Sy --pkgbuilds to download)",
-                    self.name
-                )
-            );
+    fn read_pkgs(&self, config: &Config) -> Option<Vec<PkgbuildPkg>> {
+        if matches!(self.source, RepoSource::Url(_, _)) {
+            if !self.path.join(".git").exists() {
+                if !self.warned.replace(true) {
+                    eprintln!(
+                        "{} {}",
+                        config.color.warning.paint("::"),
+                        tr!(
+                            "repo {} not downloaded (use -Sy --pkgbuilds to download)",
+                            self.name
+                        )
+                    );
+                }
+                return None;
+            } else if !self.skip_review && !self.reviewed(config) {
+                if !self.warned.replace(true) {
+                    eprintln!(
+                        "{} {}",
+                        config.color.warning.paint("::"),
+                        tr!(
+                            "repo {} has unreviewed changes (use -Sy --pkgbuilds to review)",
+                            self.name
+                        )
+                    );
+                }
+                return None;
+            }
         }
 
-        self.for_each_pkgbuild(Vec::new(), |path, data| match self.read_pkg(config, path) {
-            Ok(srcinfo) => data.push(srcinfo),
-            Err(e) => print_error(config.color.error, e),
+        Some(
+            self.for_each_pkgbuild(Vec::new(), |path, data| match self.read_pkg(config, path) {
+                Ok(srcinfo) => data.push(srcinfo),
+                Err(e) => print_error(config.color.error, e),
+            }),
+        )
+    }
+
+    fn reviewed(&self, config: &Config) -> bool {
+        let mut cmd = Command::new(&config.git_bin);
+        cmd.current_dir(&self.path).args(&config.git_flags).args([
+            "-c",
+            "core.warnAmbiguousRefs=false",
+            "rev-parse",
+            "AUR_SEEN^{tree}",
+            "HEAD^{tree}",
+            "--symbolic-full-name",
+            "AUR_SEEN",
+            "--absolute-git-dir",
+        ]);
+
+        exec::command_output(&mut cmd).is_ok_and(|output| {
+            let mut lines = output.stdout.splitn(4, |b| *b == b'\n');
+            let (Some(seen), Some(head), Some(reference), Some(git_dir)) =
+                (lines.next(), lines.next(), lines.next(), lines.next())
+            else {
+                return false;
+            };
+            let Some(git_dir) = git_dir.strip_suffix(b"\n") else {
+                return false;
+            };
+            if seen.is_empty() || seen != head || reference != b"AUR_SEEN" || git_dir.is_empty() {
+                return false;
+            }
+
+            // An interrupted merge can leave unreviewed files with HEAD still at AUR_SEEN.
+            let git_dir = Path::new(OsStr::from_bytes(git_dir));
+            ["MERGE_HEAD", "rebase-merge", "rebase-apply"]
+                .iter()
+                .all(|name| git_dir.join(name).try_exists().is_ok_and(|exists| !exists))
         })
     }
 
@@ -329,6 +398,22 @@ impl PkgbuildRepos {
         self.repos.iter_mut().find(|r| r.name == name)
     }
 
+    pub fn ensure_reviewed(&self, config: &Config) -> Result<()> {
+        for repo in &self.repos {
+            if matches!(repo.source, RepoSource::Url(_, _))
+                && !repo.skip_review
+                && repo.path.join(".git").exists()
+                && !repo.reviewed(config)
+            {
+                bail!(tr!(
+                    "repo {} has unreviewed changes (use -Sy --pkgbuilds to review)",
+                    repo.name
+                ));
+            }
+        }
+        Ok(())
+    }
+
     pub fn aur_depends_repo(&self, config: &Config) -> Vec<aur_depends::PkgbuildRepo<'_>> {
         self.repos
             .iter()
@@ -405,10 +490,20 @@ impl PkgbuildRepos {
             })
             .map(|r| r.name.as_str())
             .collect::<Vec<_>>();
-        review(config, &self.fetch, &review_repos)?;
+
+        // Without a seen marker, review reads the working tree rather than a diff.
+        let seen = seen_repos(&self.fetch, &review_repos);
+        let never_accepted = review_repos
+            .iter()
+            .copied()
+            .filter(|r| !seen.contains(r))
+            .collect::<Vec<_>>();
+        self.fetch.merge(&never_accepted)?;
+
+        let reviewed = review(config, &self.fetch, &review_repos, true)?;
 
         let all_repos = repos.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
-        self.fetch.merge(&all_repos)?;
+        merge_reviewed(&self.fetch, &reviewed, &all_repos)?;
 
         self.repos.iter().for_each(|r| r.generate_srcinfos(config));
         Ok(())
@@ -422,4 +517,71 @@ pub fn read_srcinfo_from_pkgbuild(config: &Config, dir: &Path) -> Result<Srcinfo
         .context(tr!("failed to parse srcinfo generated by makepkg"))
         .with_context(|| dir.display().to_string())?;
     Ok(srcinfo)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{PkgbuildRepo, PkgbuildRepos, RepoSource};
+    use crate::config::Config;
+    use std::{fs, process::Command};
+
+    #[test]
+    fn rejected_repo_is_loaded_and_resolved_after_its_tree_is_accepted() {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        let git = |args: &[&str]| {
+            let output = Command::new("git")
+                .current_dir(dir)
+                .env("GIT_CONFIG_GLOBAL", "/dev/null")
+                .env("GIT_CONFIG_NOSYSTEM", "1")
+                .args([
+                    "-c",
+                    "user.name=fixture",
+                    "-c",
+                    "user.email=fixture@localhost",
+                ])
+                .args(args)
+                .output()
+                .unwrap();
+            assert!(output.status.success(), "{output:?}");
+        };
+        git(&["init", "-b", "master"]);
+        fs::write(dir.join("PKGBUILD"), "exit 99\n").unwrap();
+        fs::write(
+            dir.join(".SRCINFO"),
+            "pkgbase = fixture\n\tpkgver = 1\n\tpkgrel = 1\npkgname = fixture\n",
+        )
+        .unwrap();
+        git(&["add", "."]);
+        git(&["commit", "-m", "fixture"]);
+
+        let mut repo = PkgbuildRepo::new("fixture".into(), dir.into());
+        repo.source = RepoSource::Url("https://paru.invalid/fixture.git".parse().unwrap(), None);
+        let config = Config::default();
+        let mut repos = PkgbuildRepos::new(aur_fetch::Fetch::with_cache_dir(dir));
+        repos.repos.push(repo);
+        assert!(repos.repos[0].pkgs(&config).is_empty());
+        assert!(repos.ensure_reviewed(&config).is_err());
+
+        repos.repos[0].skip_review = true;
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        repos.repos[0].skip_review = false;
+        let source = repos.repos[0].source.clone();
+        repos.repos[0].source = RepoSource::Path(dir.into());
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        repos.repos[0].source = source;
+
+        git(&["update-ref", "AUR_SEEN", "HEAD"]);
+        assert!(repos.ensure_reviewed(&config).is_ok());
+        let pkgs = repos.repos[0].pkgs(&config);
+        assert_eq!(pkgs.len(), 1);
+        assert_eq!(pkgs[0].srcinfo.pkgbase(), "fixture");
+
+        fs::write(dir.join("PKGBUILD"), "exit 98\n").unwrap();
+        git(&["commit", "-am", "unreviewed"]);
+        assert!(repos.ensure_reviewed(&config).is_err());
+
+        repos.repos[0].path = dir.join("missing");
+        assert!(repos.ensure_reviewed(&config).is_ok());
+    }
 }

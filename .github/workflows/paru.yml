@@ -29,7 +29,7 @@ jobs:
         run: pacman -Syu rust clang gcc git libarchive pkgconf sudo fakeroot --noconfirm --needed
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -65,7 +65,7 @@ jobs:
           yes | pacman -U $(cat list)
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -82,3 +82,21 @@ jobs:
           install -d -o nobody target/tmp testdata/pkg
           sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate,mock --target-dir=/tmp -- --nocapture
           sudo -u nobody TMPDIR="$PWD/target/tmp" XDG_STATE_HOME=/tmp CARGO_HOME=/tmp/cargo cargo test --locked --features git,generate --test startup --target-dir=/tmp -- --nocapture
+
+  msrv:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - name: Install Packages
+        run: pacman -Syu rustup clang gcc git pkgconf --noconfirm --needed
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check MSRV
+        run: |
+          msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
+          rustup toolchain install "$msrv" --profile minimal
+          rustup run "$msrv" cargo check --locked --all-targets --features generate

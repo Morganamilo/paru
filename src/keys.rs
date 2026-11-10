@@ -38,6 +38,7 @@ pub fn check_pgp_keys(
             let mut cmd = Command::new(&config.gpg_bin);
             cmd.args(&config.gpg_flags)
                 .arg("--list-keys")
+                .arg("--")
                 .arg(key)
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
@@ -76,6 +77,7 @@ fn import_keys(config: &Config, import: &HashMap<&str, Vec<&Base>>) -> Result<()
     let mut cmd = Command::new(&config.gpg_bin);
     cmd.args(&config.gpg_flags)
         .arg("--recv-keys")
+        .arg("--")
         .args(import.keys());
     exec::command(&mut cmd)
 }
