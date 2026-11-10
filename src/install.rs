@@ -14,7 +14,9 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
+use crate::config::{
+    Config, LocalRepos, Mode, Op, PackageOverride, PatchSource, Sign, YesNoAllTree, YesNoAsk,
+};
 use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
@@ -525,15 +527,55 @@ impl Installer {
     }
 
     // TODO: sort out args
-    fn build_pkgbuild(
+    async fn build_pkgbuild(
         &mut self,
         config: &mut Config,
         base: &mut Base,
         repo: Option<(&str, &str)>,
         dir: &Path,
+        cwd: &Path,
+    ) -> Result<(HashMap<String, String>, String)> {
+        let pkgdest = repo.map(|r| r.1);
+
+        // Apply per-package overrides
+        let pkg_override = get_base_override(config, base);
+        let saved_makepkg_conf = config.makepkg_conf.clone();
+        let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
+        let saved_env = config.env.clone();
+
+        if let Some(ref ov) = pkg_override {
+            apply_patches(config, cwd, &ov.pkgbuild_patches).await?;
+
+            if let Some(ref conf) = ov.makepkg_conf {
+                config.makepkg_conf = Some(conf.clone());
+                if config.chroot {
+                    self.chroot.makepkg_conf = conf.clone();
+                }
+            }
+            // Keep overrides local to child commands; Tokio may already have threads running.
+            config.env.extend(ov.env.iter().cloned());
+        }
+
+        let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest);
+
+        // Restore original config
+        config.makepkg_conf = saved_makepkg_conf;
+        self.chroot.makepkg_conf = saved_chroot_makepkg_conf;
+        config.env = saved_env;
+
+        result
+    }
+
+    fn build_pkgbuild_inner(
+        &mut self,
+        config: &mut Config,
+        base: &mut Base,
+        repo: Option<(&str, &str)>,
+        dir: &Path,
+        pkgdest: Option<&str>,
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
-        let pkgdest = repo.map(|r| r.1);
+
         let mut env = config.env.clone();
         env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
@@ -546,7 +588,7 @@ impl Installer {
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
             self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+                .build(dir, &extra, &chroot_flags, &["-ofA"], &env)
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
@@ -694,11 +736,12 @@ impl Installer {
         Ok(())
     }
 
-    fn build_install_pkgbuild(
+    async fn build_install_pkgbuild(
         &mut self,
         config: &mut Config,
         base: &mut Base,
         repo: Option<(&str, &str)>,
+        cwd: &Path,
     ) -> Result<()> {
         let dir = match base {
             Base::Aur(_) => config.build_dir.join(base.package_base()),
@@ -776,7 +819,7 @@ impl Installer {
         }
 
         let (mut pkgdest, version) = if build {
-            self.build_pkgbuild(config, base, repo, &dir)?
+            self.build_pkgbuild(config, base, repo, &dir, cwd).await?
         } else {
             printtr!("{}: parsing pkg list...", base);
             let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
@@ -838,6 +881,7 @@ impl Installer {
         &mut self,
         config: &mut Config,
         build: &mut [Base],
+        cwd: &Path,
     ) -> Result<()> {
         if config.devel {
             printtr!("fetching devel info...");
@@ -870,9 +914,9 @@ impl Installer {
                 .as_ref()
                 .map(|(name, file)| (name.as_str(), file.as_str()));
 
-            let err = self.build_install_pkgbuild(config, base, repo_server);
+            let err = self.build_install_pkgbuild(config, base, repo_server, cwd);
 
-            match err {
+            match err.await {
                 Ok(_) => {
                     self.failed.pop().unwrap();
                 }
@@ -937,7 +981,8 @@ impl Installer {
             config.pkgbuild_repos.refresh(config)?;
             self.done_something = true;
         }
-        self.resolve_targets(config, &repo_targets, &aur_targets)
+        let cwd = std::env::current_dir()?;
+        self.resolve_targets(config, &repo_targets, &aur_targets, &cwd)
             .await
     }
 
@@ -946,6 +991,7 @@ impl Installer {
         config: &mut Config,
         repo_targets: &[Targ<'a>],
         aur_targets: &[Targ<'a>],
+        cwd: &Path,
     ) -> Result<()> {
         if (config.mode.aur() || config.mode.pkgbuild())
             && (self.sysupgrade != 0 || !aur_targets.is_empty())
@@ -994,7 +1040,7 @@ impl Installer {
 
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
-        if self.shoud_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
+        if self.should_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
             print_warnings(config, &cache, None);
             let mut args = config.pacman_args();
             let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -1041,7 +1087,7 @@ impl Installer {
         let mut err = Ok(());
 
         if !build.is_empty() {
-            err = self.build_install_pkgbuilds(config, &mut build).await;
+            err = self.build_install_pkgbuilds(config, &mut build, cwd).await;
         }
 
         if err.is_ok() && config.chroot {
@@ -1057,7 +1103,7 @@ impl Installer {
         err
     }
 
-    fn shoud_just_pacman(
+    fn should_just_pacman(
         &self,
         mode: Mode,
         aur_targets: &[Targ<'_>],
@@ -1263,6 +1309,28 @@ impl Installer {
     fn upgrade_later(&self, config: &Config) -> bool {
         config.mode.repo() && config.chroot && (self.sysupgrade != 0 || self.refresh != 0)
     }
+}
+
+async fn apply_patches(config: &Config, dir: &Path, patches: &[PatchSource]) -> Result<()> {
+    for patch in patches {
+        patch.apply(config, dir).await?;
+    }
+    Ok(())
+}
+
+fn get_base_override(config: &Config, base: &Base) -> Option<PackageOverride> {
+    let mut result: Option<PackageOverride> = None;
+
+    for pkg_name in base.packages() {
+        if let Some(ov) = config.overrides.get(pkg_name) {
+            match result {
+                None => result = Some(ov.clone()),
+                Some(ref mut merged) => merged.merge_from(ov),
+            }
+        }
+    }
+
+    result
 }
 
 fn is_debug(pkg: &alpm::Package) -> bool {
