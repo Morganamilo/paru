@@ -82,6 +82,79 @@ fn pacman_conf(dir: &Path) -> PathBuf {
     script(dir, "pacman-conf", "/bin/cat pacman.conf")
 }
 
+fn cache_clean_fixture(dir: &Path, pacman_status: i32) {
+    let pacman_conf = pacman_conf(dir);
+    let pacman = script(
+        dir,
+        "pacman",
+        &format!("touch \"$PARU_TEST_CAPTURE\"\nexit {pacman_status}"),
+    );
+    let sudo = script(dir, "sudo", "exec \"$@\"");
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[options]\nBuildDir = {0}/build\n[bin]\nPacmanConf = {1}\n\
+             Pacman = {2}\nSudo = {3}\n",
+            dir.display(),
+            pacman_conf.display(),
+            pacman.display(),
+            sudo.display(),
+        ),
+    )
+    .unwrap();
+
+    let clone = dir.join("build/fixture");
+    fs::create_dir_all(clone.join(".git")).unwrap();
+    fs::write(
+        clone.join(".SRCINFO"),
+        "pkgbase = fixture\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n",
+    )
+    .unwrap();
+    let diffs = dir.join("cache/paru/diff");
+    fs::create_dir_all(&diffs).unwrap();
+    fs::write(diffs.join("fixture.diff"), "saved diff").unwrap();
+    fs::write(diffs.join("keep.txt"), "keep").unwrap();
+}
+
+#[test]
+fn cache_clean_preserves_pacman_status_and_aur_cleanup() {
+    for mode in ["all", "repo", "aur"] {
+        for pacman_status in [0, 23] {
+            let tmp = tempfile::tempdir().unwrap();
+            let dir = tmp.path();
+            cache_clean_fixture(dir, pacman_status);
+            let result =
+                output(command(dir).args(["-Sc", "--delete", "--noconfirm", "--mode", mode]));
+            let expected = if mode == "aur" { 0 } else { pacman_status };
+            assert_eq!(result.status.code(), Some(expected), "{mode}: {result:?}");
+            assert_eq!(dir.join("capture").exists(), mode != "aur", "{mode}");
+            assert_eq!(dir.join("build/fixture").exists(), mode == "repo", "{mode}");
+            assert_eq!(
+                dir.join("cache/paru/diff/fixture.diff").exists(),
+                mode == "repo",
+                "{mode}",
+            );
+            assert_eq!(
+                fs::read(dir.join("cache/paru/diff/keep.txt")).unwrap(),
+                b"keep",
+            );
+        }
+    }
+}
+
+#[test]
+fn cache_clean_reports_aur_cleanup_failure() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    cache_clean_fixture(dir, 0);
+    fs::remove_dir_all(dir.join("cache/paru/diff")).unwrap();
+    fs::write(dir.join("cache/paru/diff"), "not a directory").unwrap();
+    let result = output(command(dir).args(["-Sc", "--delete", "--noconfirm"]));
+    assert_eq!(result.status.code(), Some(1), "{result:?}");
+    assert!(dir.join("capture").exists());
+    assert!(!dir.join("build/fixture").exists());
+}
+
 fn git(dir: &Path, args: &[&str]) -> Output {
     let output = output(
         Command::new("git")

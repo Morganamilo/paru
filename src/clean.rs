@@ -16,9 +16,10 @@ use anyhow::{Context, Result};
 use srcinfo::Srcinfo;
 use tr::tr;
 
-pub fn clean(config: &Config) -> Result<()> {
+pub fn clean(config: &Config) -> Result<i32> {
+    let mut ret = 0;
     if config.mode.repo() {
-        exec::pacman(config, &config.args)?;
+        ret = exec::pacman(config, &config.args)?.code();
     }
 
     if config.mode.aur() {
@@ -52,7 +53,7 @@ pub fn clean(config: &Config) -> Result<()> {
         }
     }
 
-    Ok(())
+    Ok(ret)
 }
 
 fn clean_diff(config: &Config) -> Result<()> {
