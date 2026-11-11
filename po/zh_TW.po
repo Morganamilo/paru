@@ -186,7 +186,7 @@ msgstr "無效的 toml：{}"
 
 #: src/config.rs:1297
 msgid "release age '{}' is too large"
-msgstr ""
+msgstr "發佈時長「{}」過大"
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
@@ -260,7 +260,7 @@ msgstr "重複的軟體包：{}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "軟體包「{}」存在，但沒有 PKGBUILD -- 略過"
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -649,7 +649,7 @@ msgstr "    --nocheck              不要解決檢查用的依賴關係或是執
 msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
-msgstr ""
+msgstr "    --rootchrootpkgs       要安裝在 root chroot 中的軟體包（預設：base-devel）"
 
 #: src/help.rs:92
 msgid ""
@@ -663,17 +663,17 @@ msgstr "    --ignoredevel          忽略指定軟體包的開發升級"
 
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
-msgstr ""
+msgstr "    --minimumreleaseage <duration>  AUR 軟體包變更需經過的最短時間"
 
 #: src/help.rs:95
 msgid ""
 "    --nominimumreleaseage          Disable the minimum release age check"
-msgstr ""
+msgstr "    --nominimumreleaseage          停用最短發佈時限檢查"
 
 #: src/help.rs:96
 msgid ""
 "    --minimumreleaseageexclude <packages>  Exempt packages from the age check"
-msgstr ""
+msgstr "    --minimumreleaseageexclude <packages>  免除軟體包的最短發佈時限檢查"
 
 #: src/help.rs:97
 msgid ""
@@ -689,7 +689,7 @@ msgstr "    --topdown              先顯示軟體庫的軟體包，然後才是
 msgid ""
 "    --auto                 Use bottom-up ordering for menus, top-down "
 "otherwise"
-msgstr ""
+msgstr "    --auto                 選單使用 bottom-up 排序，其他情況使用 top-down"
 
 #: src/help.rs:101
 msgid "show specific options:"
@@ -919,42 +919,42 @@ msgstr "您無論如何都想要建置它們嗎？"
 #: src/install.rs:1343
 msgid "{n} day"
 msgid_plural "{n} days"
-msgstr[0] ""
+msgstr[0] "{n} 天"
 
 #: src/install.rs:1346
 msgid "{n} hour"
 msgid_plural "{n} hours"
-msgstr[0] ""
+msgstr[0] "{n} 小時"
 
 #: src/install.rs:1349
 msgid "{n} minute"
 msgid_plural "{n} minutes"
-msgstr[0] ""
+msgstr[0] "{n} 分鐘"
 
 #: src/install.rs:1351
 msgid "{n} second"
 msgid_plural "{n} seconds"
-msgstr[0] ""
+msgstr[0] "{n} 秒"
 
 #: src/install.rs:1386
 msgid ""
 "AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
-msgstr ""
+msgstr "下載 PKGBUILD 期間，AUR 軟體包「{}」發生變更；請重試該操作"
 
 #: src/install.rs:1420
 msgid "updated {} ago"
-msgstr ""
+msgstr "更新於 {} 前"
 
 #: src/install.rs:1427
 msgid ""
 "the following AUR packages are newer than the minimum release age of {}: {}"
-msgstr ""
+msgstr "以下 AUR 軟體包的發佈時間距今不足最短發佈時限 {}：{}"
 
 #: src/install.rs:1432
 msgid ""
 "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --"
 "nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
-msgstr ""
+msgstr "在操作中加入 --nominimumreleaseage 以覆寫此檢查（例如 paru -Syu --nominimumreleaseage），或將軟體包加入 MinimumReleaseAgeExclude"
 
 #: src/install.rs:1453
 msgid "duplicate packages: {}"
@@ -1027,7 +1027,7 @@ msgstr "接受變更？"
 
 #: src/install.rs:1862
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
-msgstr ""
+msgstr "正在使用 less 分頁。按 'q' 退出，按 'h' 取得說明。"
 
 #: src/install.rs:1897
 msgid " nothing new to review"
