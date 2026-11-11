@@ -241,7 +241,7 @@ pub fn save_devel_info(config: &Config, devel_info: &DevelInfo) -> Result<()> {
 
     std::fs::rename(&temp, &config.devel_path).with_context(|| {
         tr!(
-            "failed to rename '{temp}' to '{devel_toml}",
+            "failed to rename '{temp}' to '{devel_toml}'",
             temp = temp.display(),
             devel_toml = config.devel_path.display()
         )
