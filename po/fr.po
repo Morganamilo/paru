@@ -221,7 +221,7 @@ msgid "failed to write to temporary file: {}"
 msgstr "échec de l'écriture d'un fichier temporaire : {}"
 
 #: src/devel.rs:244
-msgid "failed to rename '{temp}' to '{devel_toml}"
+msgid "failed to rename '{temp}' to '{devel_toml}'"
 msgstr "erreur de renommage '{temp}' en '{devel_toml}'"
 
 #: src/devel.rs:496

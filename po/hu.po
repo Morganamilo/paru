@@ -220,7 +220,7 @@ msgid "failed to write to temporary file: {}"
 msgstr "nem sikerült írni az ideiglenes fájlba: {}"
 
 #: src/devel.rs:244
-msgid "failed to rename '{temp}' to '{devel_toml}"
+msgid "failed to rename '{temp}' to '{devel_toml}'"
 msgstr "nem sikerült a(z) „{temp}” átnevezése a következőre: „{devel_toml}”"
 
 #: src/devel.rs:496
