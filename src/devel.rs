@@ -5,7 +5,6 @@ use crate::repo;
 use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
 
 use std::cmp::Ordering;
-use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::fs::{OpenOptions, create_dir_all, read_to_string};
 use std::hash::{Hash, Hasher};
@@ -148,7 +147,15 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 
     let bases = Bases::from_iter(warnings.pkgs);
     let mut srcinfos = HashMap::new();
-    let mut failed = HashSet::new();
+    for base in &bases.bases {
+        let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
+        if let Ok(srcinfo) = Srcinfo::from_path(path) {
+            srcinfos.insert(base.package_base().to_string(), srcinfo);
+        }
+    }
+
+    download::new_aur_pkgbuilds(config, &bases, &srcinfos).await?;
+    srcinfos.clear();
 
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
@@ -158,37 +165,9 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
 
             match srcinfo {
                 Ok(srcinfo) => {
-                    srcinfos.insert(srcinfo.base.pkgbase.to_string(), srcinfo);
+                    srcinfos.insert(base.package_base().to_string(), srcinfo);
                 }
-                Err(err) => {
-                    print_error(config.color.error, err);
-                    failed.insert(base.package_base());
-                }
-            };
-        }
-    }
-
-    download::new_aur_pkgbuilds(config, &bases, &srcinfos).await?;
-
-    for base in &bases.bases {
-        if failed.contains(base.package_base()) || srcinfos.contains_key(base.package_base()) {
-            continue;
-        }
-        let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
-        if path.exists()
-            && let Entry::Vacant(vacant) = srcinfos.entry(base.package_base().to_string())
-        {
-            let srcinfo = Srcinfo::from_path(path)
-                .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
-
-            match srcinfo {
-                Ok(srcinfo) => {
-                    vacant.insert(srcinfo);
-                }
-                Err(err) => {
-                    print_error(config.color.error, err);
-                    continue;
-                }
+                Err(err) => print_error(config.color.error, err),
             }
         }
     }
