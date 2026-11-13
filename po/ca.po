@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-10-28 16:12+0000\n"
-"PO-Revision-Date: 2026-11-11 19:45+0000\n"
+"PO-Revision-Date: 2026-11-12 12:03+0100\n"
 "Last-Translator: David Medina <opensusecatala@gmail.com>\n"
 "Language-Team: \n"
 "Language: ca\n"
@@ -16,14 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.6\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
-msgstr "Voleu eliminar TOTS els paquets de l'AUR de la memòria cau?"
+msgstr "Voleu suprimir TOTS els paquets de l'AUR de la memòria cau?"
 
 #: src/clean.rs:38
 msgid "Do you want to clean all other AUR packages from cache?"
-msgstr "Voleu eliminar tots els altres paquets de l'AUR de la memòria cau?"
+msgstr "Voleu suprimir tots els altres paquets de l'AUR de la memòria cau?"
 
 #: src/clean.rs:41
 msgid "Clone Directory: {}"
@@ -39,7 +40,7 @@ msgstr ""
 
 #: src/clean.rs:49
 msgid "Do you want to remove all saved diffs?"
-msgstr "Voleu eliminar totes les diferències (diff) desades?"
+msgstr "Voleu suprimir totes les diferències (diff) desades?"
 
 #: src/clean.rs:65
 msgid "can't open diff dir: {}"
@@ -47,7 +48,7 @@ msgstr "no es pot obrir el directori de diferències: {}"
 
 #: src/clean.rs:76 src/clean.rs:180
 msgid "could not remove '{}'"
-msgstr "no s'ha pogut eliminar «{}»"
+msgstr "no s'ha pogut suprimir {}"
 
 #: src/clean.rs:95
 msgid "can't open clone dir: {}"
@@ -74,9 +75,8 @@ msgid "unknown option -{}"
 msgstr "opció desconeguda: -{}"
 
 #: src/completion.rs:26 src/search.rs:179 src/sync.rs:118
-#, fuzzy
 msgid "failed to decode package list"
-msgstr "no s'han pogut baixar les fonts"
+msgstr "ha fallat descodificar la llista de paquets"
 
 #: src/completion.rs:35
 msgid "failed to open cache file '{}'"
@@ -180,13 +180,12 @@ msgid "  failed to sync {}"
 msgstr " no s'ha pogut sincronitzar {}"
 
 #: src/config.rs:1286 src/config.rs:1292
-#, fuzzy
 msgid "invalid release age '{}'"
-msgstr "json no vàlid: {}"
+msgstr "edat de publicació «{}» no vàlida"
 
 #: src/config.rs:1297
 msgid "release age '{}' is too large"
-msgstr ""
+msgstr "l'edat de publicació «{}» és massa gran"
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
@@ -226,7 +225,7 @@ msgstr "el paquet no té cap actualització"
 
 #: src/devel.rs:542
 msgid "failed to lookup: {}"
-msgstr "no s'ha pogut cercar: {}"
+msgstr "no s'ha pogut cercar {}"
 
 #: src/devel.rs:570
 msgid "invalid toml: {}"
@@ -251,16 +250,15 @@ msgstr "es baixa: {pkg}"
 #: src/download.rs:279 src/download.rs:602 src/info.rs:60 src/info.rs:185
 #: src/query.rs:49
 msgid "package '{}' was not found"
-msgstr "no s'ha trobat el paquet «{}»"
+msgstr "no s'ha trobat el paquet {}"
 
 #: src/download.rs:291
-#, fuzzy
 msgid "duplicate PKGBUILD: {}"
-msgstr "paquets duplicats: {}"
+msgstr "PKGBUILD duplicat: {}"
 
 #: src/download.rs:307
 msgid "package '{}' exists but has no PKGBUILD -- skipping"
-msgstr ""
+msgstr "El paquet «{}» existeix però no té cap PKGBUILD. S'omet."
 
 #: src/download.rs:340
 msgid "Downloading PKGBUILDs..."
@@ -340,7 +338,7 @@ msgstr "    paru <operació> [...]"
 
 #: src/help.rs:7
 msgid "    paru <package(s)>"
-msgstr "    paru <paquet(s)>"
+msgstr "    paru <paquet/s>"
 
 #: src/help.rs:9
 msgid "Pacman operations:"
@@ -408,7 +406,7 @@ msgstr "Opcions sense operació:"
 
 #: src/help.rs:28
 msgid "    -c --clean            Remove unneeded dependencies"
-msgstr "    -c --clean            Elimina les dependències no necessàries"
+msgstr "    -c --clean            Suprimeix les dependències no necessàries"
 
 #: src/help.rs:29
 msgid ""
@@ -446,8 +444,8 @@ msgid ""
 "    --interactive          Enable interactive package selection for -S, -R, "
 "-Ss and -Qs"
 msgstr ""
-"    --interactive          Habilita la selecció interactiva de paquets per a"
-" -S, -R, -Ss i -Qs"
+"    --interactive          Habilita la selecció interactiva de paquets per a "
+"-S, -R, -Ss i -Qs"
 
 #: src/help.rs:39
 msgid "    --aururl    <url>      Set an alternative AUR URL"
@@ -544,8 +542,7 @@ msgstr "    --searchby  <field>    Cerca paquets per un camp específic"
 msgid ""
 "    --limit     <limit>    Limits the number of items returned in a search"
 msgstr ""
-"    --limit     <límit>    Limita el número d'elements retornats en una "
-"cerca"
+"    --limit     <límit>    Limita el número d'elements retornats en una cerca"
 
 #: src/help.rs:62
 msgid "    -x --regex             Enable regex for aur search"
@@ -574,7 +571,7 @@ msgstr ""
 #: src/help.rs:68
 msgid "    --[no]cleanafter       Remove package sources after install"
 msgstr ""
-"    --[no]cleanafter       Elimina les fonts dels paquets després de la "
+"    --[no]cleanafter       Suprimeix les fonts dels paquets després de la "
 "instal·lació"
 
 #: src/help.rs:69
@@ -595,8 +592,8 @@ msgid ""
 "    --[no]useask           Automatically resolve conflicts using pacman's "
 "ask flag"
 msgstr ""
-"    --[no]useask           Resol els conflictes automàticament usant l'opció"
-" «ask» del Pacman"
+"    --[no]useask           Resol els conflictes automàticament usant l'opció "
+"«ask» del Pacman"
 
 #: src/help.rs:74
 msgid ""
@@ -631,8 +628,8 @@ msgid ""
 "    --[no]provides         Look for matching providers when searching for "
 "packages"
 msgstr ""
-"    --[no]provides         Cerca proveïdors que coincideixin quan se cerquin"
-" paquets"
+"    --[no]provides         Cerca proveïdors que coincideixin quan se cerquin "
+"paquets"
 
 #: src/help.rs:79
 msgid "    --[no]devel            Check development packages during sysupgrade"
@@ -698,6 +695,8 @@ msgid ""
 "    --rootchrootpkgs       Packages to install in the root chroot (default: "
 "base-devel)"
 msgstr ""
+"    --rootchrootpkgs       Paquets per instal·lar al chroot d'arrel (per "
+"defecte: base-devel)"
 
 #: src/help.rs:92
 msgid ""
@@ -710,22 +709,28 @@ msgstr ""
 #: src/help.rs:93
 msgid "    --ignoredevel          Ignore devel upgrades for specified packages"
 msgstr ""
-"    --ignoredevel          Ignora les actualitzacions de desenvolupament per"
-" als paquets especificats"
+"    --ignoredevel          Ignora les actualitzacions de desenvolupament per "
+"als paquets especificats"
 
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
 msgstr ""
+"    --minimumreleaseage <durada>  Canvis en l'edat mínima dels paquets de "
+"l'AUR"
 
 #: src/help.rs:95
 msgid ""
 "    --nominimumreleaseage          Disable the minimum release age check"
 msgstr ""
+"    --nominimumreleaseage          Inhabilita la comprovació de l'edat "
+"mínima de publicació"
 
 #: src/help.rs:96
 msgid ""
 "    --minimumreleaseageexclude <packages>  Exempt packages from the age check"
 msgstr ""
+"    --minimumreleaseageexclude <paquets>  Exclou els paquets de la "
+"verificació d'edat"
 
 #: src/help.rs:97
 msgid ""
@@ -738,14 +743,16 @@ msgstr ""
 msgid ""
 "    --topdown              Shows repository's packages first and then AUR's"
 msgstr ""
-"    --topdown              Mostra primer els paquets dels dipòsits i després"
-" els de l'AUR"
+"    --topdown              Mostra primer els paquets dels dipòsits i després "
+"els de l'AUR"
 
 #: src/help.rs:99
 msgid ""
 "    --auto                 Use bottom-up ordering for menus, top-down "
 "otherwise"
 msgstr ""
+"    --auto                 Usa un ordre de baix a dalt per als menús; en cas "
+"contrari, de dalt a baix."
 
 #: src/help.rs:101
 msgid "show specific options:"
@@ -831,7 +838,7 @@ msgstr "Dependències opcionals"
 
 #: src/info.rs:101 src/info.rs:207 src/info.rs:247
 msgid "Conflicts With"
-msgstr "Conflictes amb"
+msgstr "Té conflicte amb"
 
 #: src/info.rs:102 src/info.rs:248
 msgid "Maintainer"
@@ -908,11 +915,11 @@ msgstr "s'afegeix {} a la llista d'instal·lació"
 
 #: src/install.rs:549 src/install.rs:564
 msgid "failed to download sources for '{}'"
-msgstr "no s'han pogut baixar les fonts per a «{}»"
+msgstr "no s'han pogut baixar les fonts per a {}"
 
 #: src/install.rs:573 src/install.rs:599 src/install.rs:607
 msgid "failed to build '{}'"
-msgstr "no s'ha pogut construir «{}»"
+msgstr "no s'ha pogut construir {}"
 
 #: src/install.rs:576 src/install.rs:780
 msgid "{}: parsing pkg list..."
@@ -928,7 +935,9 @@ msgstr "{}-{} està actualitzat -- se n'omet la construcció"
 
 #: src/install.rs:771
 msgid "can't build {base}, deps not satisfied: {deps}"
-msgstr "no es pot construir {base}, les dependències no satisfetes són {deps}"
+msgstr ""
+"no es pot construir {base}, les dependències no satisfetes són les següents: "
+"{deps}"
 
 #: src/install.rs:842
 msgid "fetching devel info..."
@@ -949,7 +958,7 @@ msgstr "Es resolen les dependències..."
 
 #: src/install.rs:1080
 msgid "can't install AUR package as root"
-msgstr "no es pot instal·lar el paquet de l'AUR com a root"
+msgstr "no es pot instal·lar el paquet de l'AUR com a arrel"
 
 #: src/install.rs:1083
 msgid "--downloadonly can't be used for AUR packages"
@@ -979,46 +988,53 @@ msgstr "Voleu provar de construir-los tanmateix?"
 #: src/install.rs:1343
 msgid "{n} day"
 msgid_plural "{n} days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} dia"
+msgstr[1] "{n} dies"
 
 #: src/install.rs:1346
 msgid "{n} hour"
 msgid_plural "{n} hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} hour"
+msgstr[1] "{n} hores"
 
 #: src/install.rs:1349
 msgid "{n} minute"
 msgid_plural "{n} minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} minut"
+msgstr[1] "{n} minuts"
 
 #: src/install.rs:1351
 msgid "{n} second"
 msgid_plural "{n} seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} segon"
+msgstr[1] "{n} segons"
 
 #: src/install.rs:1386
 msgid ""
 "AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
 msgstr ""
+"El paquet de l'AUR «{}» ha canviat mentre es baixaven els PKGBUILD. Torneu a "
+"intentar l'operació."
 
 #: src/install.rs:1420
 msgid "updated {} ago"
-msgstr ""
+msgstr "actualitzat fa {}"
 
 #: src/install.rs:1427
 msgid ""
 "the following AUR packages are newer than the minimum release age of {}: {}"
 msgstr ""
+"els paquets de l'AUR següents són més recents que l'antiguitat mínima de "
+"publicació de {}: {}"
 
 #: src/install.rs:1432
 msgid ""
 "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --"
 "nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
 msgstr ""
+"Incloeu --nominimumreleaseage a l'operació per anul·lar la restricció (p. "
+"ex., paru -Syu --nominimumreleaseage), o bé afegiu un paquet a "
+"MinimumReleaseAgeExclude."
 
 #: src/install.rs:1453
 msgid "duplicate packages: {}"
@@ -1066,12 +1082,11 @@ msgstr "no es poden instal·lar paquets en conflicte amb --noconfirm"
 
 #: src/install.rs:1701
 msgid "failed to execute file manager: {}"
-msgstr "no s'ha pogut executar el gestor de fitxers: {}"
+msgstr "no s'ha pogut executar el gestor de fitxers, {}"
 
 #: src/install.rs:1704
-#, fuzzy
 msgid "file manager '{}' did not execute successfully"
-msgstr "el gestor de fitxers no s'ha executat correctament"
+msgstr "el gestor de fitxers {} no s'ha executat correctament"
 
 #: src/install.rs:1722
 msgid "failed to read dir: {}"
@@ -1092,6 +1107,8 @@ msgstr "Accepteu els canvis?"
 #: src/install.rs:1862
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
+"Visualització amb menys elements. Premeu «q» per sortir-ne o «h» per obtenir "
+"ajuda."
 
 #: src/install.rs:1897
 msgid " nothing new to review"
@@ -1179,7 +1196,7 @@ msgstr "Paquets"
 
 #: src/repo.rs:353
 msgid "Proceed with removal?"
-msgstr "Voleu continuar l'eliminació?"
+msgstr "Voleu continuar la supressió?"
 
 #: src/repo.rs:414
 msgid " [installed: {}]"
@@ -1194,24 +1211,20 @@ msgid "aur search failed"
 msgstr "ha fallat la cerca a l'AUR"
 
 #: src/search.rs:291 src/search.rs:344 src/search.rs:416
-#, fuzzy
 msgid "[installed: {}]"
-msgstr " [instal·lat: {}]"
+msgstr "[instal·lat: {}]"
 
 #: src/search.rs:293 src/search.rs:346 src/search.rs:418
-#, fuzzy
 msgid "[installed]"
-msgstr " [instal·lat]"
+msgstr "[instal·lat]"
 
 #: src/search.rs:338
-#, fuzzy
 msgid "[out-of-date: {}]"
-msgstr "[No actualitzat: {}]"
+msgstr "[no actualitzat: {}]"
 
 #: src/search.rs:353
-#, fuzzy
 msgid "[orphaned]"
-msgstr "[Orfe]"
+msgstr "[orfe]"
 
 #: src/search.rs:497
 msgid "no packages match search"
@@ -1247,7 +1260,7 @@ msgstr "Mida total ocupada pels paquets: {}"
 
 #: src/stats.rs:113
 msgid "Ten biggest packages:"
-msgstr "Els deu paquets més grans:"
+msgstr "Els deu paquets més grossos:"
 
 #: src/upgrade.rs:126
 msgid "Looking for PKGBUILD upgrades..."
