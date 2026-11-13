@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: paru  2.2.0\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
-"POT-Creation-Date: 2026-11-13 22:31+0000\n"
+"POT-Creation-Date: 2026-11-13 22:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1179,31 +1179,39 @@ msgstr ""
 msgid "Packages to exclude (eg: 1 2 3, 1-3):"
 msgstr ""
 
-#: src/util.rs:141
+#: src/util.rs:95
+msgid "{repo}/{pkg} provides {target}"
+msgstr ""
+
+#: src/util.rs:103
+msgid "Install {repo}/{pkg}?"
+msgstr ""
+
+#: src/util.rs:176
 msgid "[Y/n]:"
 msgstr ""
 
-#: src/util.rs:143
+#: src/util.rs:178
 msgid "[y/N]:"
 msgstr ""
 
-#: src/util.rs:161
+#: src/util.rs:196
 msgid "y"
 msgstr ""
 
-#: src/util.rs:161
+#: src/util.rs:196
 msgid "yes"
 msgstr ""
 
-#: src/util.rs:318
+#: src/util.rs:353
 msgid "Enter a number (default=1): "
 msgstr ""
 
-#: src/util.rs:333
+#: src/util.rs:368
 msgid "invalid number: {}"
 msgstr ""
 
-#: src/util.rs:343
+#: src/util.rs:378
 msgid "invalid value: {n} is not between 1 and {max}"
 msgstr ""
 
