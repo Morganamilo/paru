@@ -39,6 +39,56 @@ Paru's test suite can be run by running:
 cargo test --features mock
 ```
 
+### Chroot dependency isolation
+
+Paru uses `aur-depends`' `Actions::resolved_dependencies` API. When testing paired
+changes with a sibling `aur-depends` checkout, pass Cargo's local dependency
+override to the build and test commands:
+
+```sh
+cargo --config 'patch.crates-io.aur-depends.path="../aur-depends"' test --features mock
+cargo --config 'patch.crates-io.aur-depends.path="../aur-depends"' build --release
+```
+
+This override changes the lockfile's dependency source. Before submitting paired
+changes upstream, update the dependency version and lockfile to a release
+containing this API.
+
+Run the real chroot regression test with the release binary built above:
+
+```sh
+bash tests/chroot.sh
+```
+
+This requires Arch Linux, devtools, ripgrep, and sudo. The test creates a temporary
+chroot and builds independent packages, a versioned provider, a matching explicit
+target, and a consumer with overridden runtime dependencies. It checks the source
+preparation and build commands with check dependencies enabled and disabled.
+An injected provider requires repository Git; the test verifies Git is absent
+from the clean root but installed in the consumer's chroot.
+It also deliberately fails a provider build, verifies that consumers can use
+repository Git, and verifies that unavailable or insufficient dependency versions
+still fail inside the chroot. Successful consumer archives and `.BUILDINFO` prove
+that the run continues while reporting the failed targets. It installs no packages
+on the host and removes the temporary chroot on exit.
+
+Build requirements use the checkout's post-download `.SRCINFO`; archive runtime
+requirements use actual package metadata. Resolver selections are per-consumer
+snapshots, not proof of satisfaction in the chroot. A changed declaration may
+retain a unique Build provider hint, checked against the available archive, but
+cannot inherit an older external-satisfaction decision. A Build hint shared with
+installed or repository choices for the same package retains that identity.
+Conflicting hints defer
+to native resolution rather than becoming unplanned requirements.
+
+Resolved provider choices guide archive injection. They do not require every
+planned rebuild to succeed. Only available archives satisfying the declared
+requirements are injected. Ambiguous provider preferences do not force an
+archive choice. Archive selection returns a list, not a dependency satisfaction
+error. Pacman and makepkg in the chroot resolve requirements
+without a usable archive, including their version constraints. Host installations
+do not establish that those requirements are satisfied inside the chroot.
+
 ## Translating
 
 See https://github.com/Morganamilo/paru/discussions/433 for discussion on localization.
