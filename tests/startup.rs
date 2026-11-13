@@ -1664,6 +1664,130 @@ fn configured_aurdest_and_cli_select_the_cached_repository() {
     }
 }
 
+#[cfg(feature = "mock")]
+#[test]
+fn getpkgbuilds_routes_custom_and_official_repositories() {
+    use std::io::Write;
+
+    let custom_first = ["custom", "extra-staging", "core-debug"];
+    let official_first = ["extra-staging", "custom", "core-debug"];
+    let cases: &[(&[&str], &[&str], Option<&str>, Option<&str>, bool)] = &[
+        (&["devel"], &custom_first, None, Some("devel"), false),
+        (&["devel"], &official_first, Some("devel"), None, false),
+        (&["custom/devel"], &custom_first, None, Some("devel"), false),
+        (
+            &["extra-staging/devel"],
+            &custom_first,
+            Some("devel"),
+            None,
+            false,
+        ),
+        (
+            &["core-debug/devel"],
+            &custom_first,
+            Some("devel"),
+            None,
+            false,
+        ),
+        (
+            &["--repo", "custom/devel"],
+            &custom_first,
+            Some("devel"),
+            None,
+            false,
+        ),
+        (
+            &["--aur", "core-debug/devel"],
+            &custom_first,
+            None,
+            Some("devel"),
+            false,
+        ),
+        (
+            &["custom/devel", "extra-staging/polybar"],
+            &custom_first,
+            Some("polybar"),
+            Some("devel"),
+            false,
+        ),
+        (&["devel"], &custom_first, None, None, true),
+        (&["custom/devel"], &custom_first, None, None, true),
+    ];
+
+    for (args, repos, official, aur, pkgbuild) in cases {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        let pacman_conf = pacman_conf(dir);
+        fs::create_dir(dir.join("db/sync")).unwrap();
+        let mut conf = fs::OpenOptions::new()
+            .append(true)
+            .open(dir.join("pacman.conf"))
+            .unwrap();
+        for repo in *repos {
+            fs::copy(
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/repo/repo.db"),
+                dir.join(format!("db/sync/{repo}.db")),
+            )
+            .unwrap();
+            writeln!(conf, "[{repo}]\nServer = https://repo.invalid").unwrap();
+        }
+        let pkgctl = script(dir, "pkgctl", "printf '%s\\n' \"$@\" >> pkgctl-capture");
+        let git = script(dir, "git", "printf '%s\\n' \"$@\" >> git-capture");
+        let mut config = format!(
+            "[options]\nAurUrl = https://aur.invalid\n[bin]\nPacmanConf = {}\nPkgctl = {}\nGit = {}\n",
+            pacman_conf.display(),
+            pkgctl.display(),
+            git.display(),
+        );
+        if *pkgbuild {
+            let path = dir.join("pkgbuild");
+            fs::create_dir(&path).unwrap();
+            fs::write(path.join("PKGBUILD"), "pkgname=devel\n").unwrap();
+            fs::write(
+                path.join(".SRCINFO"),
+                "pkgbase = devel\n\tpkgver = 1\n\tpkgrel = 1\npkgname = devel\n",
+            )
+            .unwrap();
+            config.push_str(&format!("[custom]\nPath = {}\n", path.display()));
+        }
+        fs::write(dir.join("paru.conf"), config).unwrap();
+
+        let output = output(command(dir).arg("-G").args(*args));
+        assert!(output.status.success(), "{args:?}, {repos:?}: {output:?}");
+        if *pkgbuild {
+            assert_eq!(
+                fs::read_to_string(dir.join("devel/PKGBUILD")).unwrap(),
+                "pkgname=devel\n",
+                "{args:?}, {repos:?}"
+            );
+        }
+        for (name, expected) in [
+            (
+                "pkgctl-capture",
+                official.map(|pkg| format!("repo\nclone\n--protocol\nhttps\n{pkg}\n")),
+            ),
+            (
+                "git-capture",
+                aur.map(|pkg| {
+                    format!("clone\n--no-progress\n--\nhttps://aur.invalid/{pkg}\n{pkg}\n")
+                }),
+            ),
+        ] {
+            match expected {
+                Some(expected) => {
+                    let capture = fs::read_to_string(dir.join(name))
+                        .unwrap_or_else(|err| panic!("{args:?}, {repos:?}: {name}: {err}"));
+                    assert_eq!(capture, expected, "{args:?}, {repos:?}: {name}");
+                }
+                None => assert!(
+                    !dir.join(name).exists(),
+                    "{args:?}, {repos:?}: unexpected {name}"
+                ),
+            }
+        }
+    }
+}
+
 #[cfg(not(feature = "mock"))]
 #[test]
 fn configured_proxy_routes_the_aur_request() {
