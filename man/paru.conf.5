@@ -21,6 +21,11 @@ Additionally, the \fBInclude\fR directive can be used to copy paste files into
 the config. This could be used to extend the system config by including it in
 your user's config and then defining options.
 
+Environment variables in options are expanded using shell-like syntax (e.g.
+\fB$VAR\fR, \fB${VAR}\fR). Environment variable names can contain letters,
+numbers, and underscores. Undefined variables expand to empty strings.
+Invalid names result in errors.
+
 .SH OPTIONS
 Options belonging to the [options] section.
 
