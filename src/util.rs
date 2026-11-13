@@ -1,4 +1,5 @@
 use crate::config::{Config, LocalRepos};
+use crate::fmt::color_repo;
 use crate::repo;
 
 use std::collections::BTreeMap;
@@ -69,13 +70,47 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
                 local.push(targ);
             }
         } else if dbs.pkg(targ.pkg).is_ok()
-            || dbs.find_target_satisfier(targ.pkg).is_some()
             || dbs
                 .iter()
                 .filter(|db| targ.repo.is_none() || db.name() == targ.repo.unwrap())
                 .any(|db| db.group(targ.pkg).is_ok())
         {
             local.push(targ);
+        } else if let Some(provider) = dbs.find_target_satisfier(targ.pkg) {
+            let Some(db) = provider.db() else {
+                aur.push(targ);
+                continue;
+            };
+            let repo_name = db.name();
+            let pkg_name = provider.name();
+
+            if !config.mode.aur() || alpm::Depend::new(targ.pkg).name() == pkg_name {
+                local.push(targ);
+            } else {
+                let c = &config.color;
+                println!(
+                    "{} {}",
+                    c.action.paint("::"),
+                    tr!(
+                        "{repo}/{pkg} provides {target}",
+                        target = targ.pkg,
+                        repo = color_repo(c.enabled, repo_name),
+                        pkg = c.bold.paint(pkg_name)
+                    )
+                );
+                if ask(
+                    config,
+                    &tr!("Install {repo}/{pkg}?", repo = repo_name, pkg = pkg_name),
+                    true,
+                ) {
+                    local.push(targ);
+                } else {
+                    aur.push(Targ {
+                        repo: Some(config.aur_namespace()),
+                        ..targ
+                    });
+                }
+            }
         } else {
             aur.push(targ);
         }
@@ -415,4 +450,160 @@ pub fn is_arch_repo(name: &str) -> bool {
             | "extra-testing"
             | "multilib-testing"
     )
+}
+
+#[cfg(all(test, feature = "mock"))]
+mod provider_tests {
+    use super::split_repo_aur_targets;
+    use crate::config::{Config, Mode};
+    use std::io::Write;
+    use std::path::Path;
+    use std::process::{Command, Stdio};
+
+    #[test]
+    fn provider_selection() {
+        if let Ok(case) = std::env::var("PARU_PROVIDER_TEST_CASE") {
+            check_provider(&case);
+            return;
+        }
+
+        for (case, answer) in [
+            ("decline", "n\n"),
+            ("accept", "y\n"),
+            ("no-confirm", ""),
+            ("exact", ""),
+            ("exact-version", ""),
+            ("repo-qualified", ""),
+            ("aur-qualified", ""),
+            ("repo-only", ""),
+            ("aur-only", ""),
+            ("custom-namespace", "n\n"),
+        ] {
+            let mut child = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "util::provider_tests::provider_selection",
+                    "--nocapture",
+                ])
+                .env("PARU_PROVIDER_TEST_CASE", case)
+                .env("LC_ALL", "C")
+                .env("LANGUAGE", "C")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child
+                .stdin
+                .take()
+                .unwrap()
+                .write_all(answer.as_bytes())
+                .unwrap();
+            let output = child.wait_with_output().unwrap();
+            assert!(
+                output.status.success(),
+                "{case}:\n{}\n{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr),
+            );
+        }
+    }
+
+    fn check_provider(case: &str) {
+        let testdata = Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata");
+        let mut config = Config::default();
+        config.pacman = pacmanconf::Config::with_opts(
+            None,
+            Some(testdata.join("pacman.conf").to_str().unwrap()),
+            None,
+        )
+        .unwrap();
+        config.pacman.root_dir = "/".to_string();
+        config.pacman.db_path = testdata.join("db").to_str().unwrap().to_string();
+        config.mode = match case {
+            "repo-only" => Mode::REPO,
+            "aur-only" => Mode::AUR,
+            _ => Mode::AUR | Mode::REPO,
+        };
+        config.no_confirm = case == "no-confirm";
+        if case == "custom-namespace" {
+            let mut repo = pacmanconf::Repository::default();
+            repo.name = "aur".to_string();
+            config.pacman.repos.push(repo);
+        }
+        config.init_alpm().unwrap();
+        config.raur = Some(crate::mock::Mock::default());
+
+        let target = match case {
+            "exact" => "bash",
+            "exact-version" => "bash>=5",
+            "repo-qualified" => "core/sh",
+            "aur-qualified" => "aur/sh",
+            _ => "sh",
+        };
+        let input_targets = [target];
+        let (repo, aur) = split_repo_aur_targets(&mut config, &input_targets).unwrap();
+        let from_aur = matches!(
+            case,
+            "decline" | "aur-qualified" | "aur-only" | "custom-namespace"
+        );
+        if from_aur {
+            assert!(repo.is_empty());
+            assert_eq!(aur.len(), 1);
+            if case != "aur-only" {
+                assert_eq!(aur[0].repo, Some(config.aur_namespace()));
+            }
+        } else {
+            assert!(aur.is_empty());
+            assert_eq!(repo.len(), 1);
+        }
+
+        config.init_alpm().unwrap();
+        let flags = crate::resolver::flags(&mut config) | aur_depends::Flags::NO_DEPS;
+        let mut cache = raur::Cache::new();
+        cache.insert(
+            raur::Package {
+                name: "sh".to_string(),
+                package_base: "sh".to_string(),
+                version: "1-1".to_string(),
+                ..Default::default()
+            }
+            .into(),
+        );
+        let resolver = crate::resolver::resolver(
+            &config,
+            &config.alpm,
+            config.raur.as_ref().unwrap(),
+            &mut cache,
+            Vec::new(),
+            flags,
+        );
+        let mut targets = repo;
+        targets.extend(aur);
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let actions = runtime
+            .block_on(resolver.resolve_targets(&targets))
+            .unwrap();
+        assert!(actions.missing.is_empty());
+        if from_aur {
+            assert!(actions.install.is_empty());
+            assert_eq!(
+                actions
+                    .iter_aur_pkgs()
+                    .map(|pkg| pkg.pkg.name.as_str())
+                    .collect::<Vec<_>>(),
+                ["sh"],
+            );
+        } else {
+            assert!(actions.build.is_empty());
+            assert_eq!(
+                actions
+                    .install
+                    .iter()
+                    .map(|pkg| pkg.pkg.name())
+                    .collect::<Vec<_>>(),
+                ["bash"],
+            );
+        }
+    }
 }

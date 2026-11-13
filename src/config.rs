@@ -1200,7 +1200,7 @@ then initialise it with:
         Ok(())
     }
 
-    pub fn aur_namespace(&self) -> &str {
+    pub fn aur_namespace(&self) -> &'static str {
         if self.pacman.repos.iter().any(|r| r.name == "aur") {
             // hack for search install
             "__aur__"
