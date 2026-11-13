@@ -1,8 +1,8 @@
-use crate::config::{Config, LocalRepos};
+use crate::config::Config;
 use crate::download::{self, Bases, cache_info_with_warnings};
 use crate::print_error;
 use crate::repo;
-use crate::util::{pkg_base_or_name, split_repo_aur_pkgs};
+use crate::util::{pkg_base_or_name, repo_aur_pkgs, split_repo_aur_pkgs};
 
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
@@ -12,7 +12,7 @@ use std::io::Write;
 use std::iter::FromIterator;
 use std::time::Duration;
 
-use alpm_utils::{DbListExt, Target};
+use alpm_utils::Target;
 use ansiterm::Style;
 use anyhow::{Context, Result, anyhow, bail};
 use aur_depends::Base;
@@ -86,6 +86,12 @@ pub struct DevelInfo {
     #[serde(flatten)]
     #[serde(serialize_with = "ordered_map")]
     pub info: HashMap<String, PkgInfo>,
+}
+
+#[derive(Default, Debug)]
+pub struct DevelUpgrades {
+    pub updates: Vec<String>,
+    pub skipped: Vec<String>,
 }
 
 fn ordered_map<S, T>(value: &HashMap<String, T>, serializer: S) -> Result<S::Ok, S::Error>
@@ -235,9 +241,9 @@ async fn ls_remote_internal(
     remote: &str,
     branch: Option<&str>,
 ) -> Result<String> {
-    #[cfg(feature = "mock")]
+    #[cfg(all(feature = "mock", not(test)))]
     let _ = git;
-    #[cfg(feature = "mock")]
+    #[cfg(all(feature = "mock", not(test)))]
     let git = "git";
 
     let mut command = AsyncCommand::new(git);
@@ -321,39 +327,41 @@ fn parse_url(source: &str) -> Option<(String, &'_ str, Option<&'_ str>)> {
     Some((remote, protocol, branch))
 }
 
-pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
+pub async fn possible_devel_updates(config: &Config) -> Result<DevelUpgrades> {
     let devel_info = load_devel_info(config)?.unwrap_or_default();
-    let db = config.alpm.localdb();
     let mut futures = Vec::new();
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
+    let mut skipped = Vec::new();
 
-    for pkg in db.pkgs().iter() {
+    let (_, pkgs) = repo_aur_pkgs(config);
+    for pkg in pkgs {
         let name = pkg_base_or_name(pkg);
         pkgbases.entry(name).or_default().push(pkg);
     }
 
-    'outer: for (pkg, repos) in &devel_info.info {
-        if let Some(pkgs) = pkgbases.get(pkg.as_str()) {
-            if pkgs.iter().all(|p| p.should_ignore()) {
-                continue;
-            }
-
-            if pkgs.iter().all(|p| config.ignore_devel.is_match(p.name())) {
-                continue;
-            }
+    for (pkg, repos) in &devel_info.info {
+        let custom = config
+            .pkgbuild_repos
+            .repos
+            .iter()
+            .any(|repo| repo.base(config, pkg).is_some());
+        if (custom && !config.mode.pkgbuild()) || (!custom && !config.mode.aur()) {
+            continue;
         }
 
-        if config.repos != LocalRepos::None {
-            let (_, dbs) = repo::repo_aur_dbs(config);
-            for db in dbs {
-                if db.pkg(pkg.as_str()).is_ok() {
-                    futures.push(pkg_has_update(config, pkg, &repos.repos));
-                    continue 'outer;
-                }
-            }
-        } else if config.alpm.syncdbs().pkg(pkg.as_str()).is_err() {
-            futures.push(pkg_has_update(config, pkg, &repos.repos));
+        let Some(pkgs) = pkgbases.get(pkg.as_str()) else {
+            continue;
+        };
+
+        if pkgs
+            .iter()
+            .all(|p| p.should_ignore() || config.ignore_devel.is_match(p.name()))
+        {
+            skipped.extend(pkgs.iter().map(|p| p.name().to_string()));
+            continue;
         }
+
+        futures.push(pkg_has_update(config, pkg, &repos.repos));
     }
 
     let updates = join_all(futures).await;
@@ -366,38 +374,51 @@ pub async fn possible_devel_updates(config: &Config) -> Result<Vec<String>> {
 
     updates.sort_unstable();
     updates.dedup();
+    skipped.sort_unstable();
+    skipped.dedup();
 
-    Ok(updates)
+    Ok(DevelUpgrades { updates, skipped })
 }
 
 pub async fn filter_devel_updates(
     config: &Config,
     cache: &mut Cache,
     updates: &[String],
-) -> Result<Vec<Target>> {
+) -> Result<(Vec<Target>, Vec<String>)> {
     let mut pkgbases: HashMap<&str, Vec<&alpm::Package>> = HashMap::new();
     let mut aur = Vec::new();
-    let mut custom = Vec::new();
-    let db = config.alpm.localdb();
+    let mut targets = Vec::new();
+    let mut ignored = Vec::new();
+    let (_, pkgs) = repo_aur_pkgs(config);
+    for pkg in pkgs {
+        let name = pkg_base_or_name(pkg);
+        pkgbases.entry(name).or_default().push(pkg);
+    }
 
-    'pkg: for update in updates {
-        if let Some((base, pkg)) = config.pkgbuild_repos.pkg(config, update) {
-            custom.push(Target::new(Some(base.repo.clone()), pkg.pkgname.clone()));
-            continue 'pkg;
+    for update in updates {
+        let custom = config
+            .pkgbuild_repos
+            .repos
+            .iter()
+            .find_map(|repo| repo.base(config, update));
+        if let Some(base) = custom {
+            if !config.mode.pkgbuild() {
+                continue;
+            }
+            for pkg in pkgbases.get(update.as_str()).into_iter().flatten() {
+                let name = pkg.name();
+                if base.srcinfo.pkg(name).is_none() {
+                    continue;
+                }
+                if pkg.should_ignore() || config.ignore_devel.is_match(name) {
+                    ignored.push(name.to_string());
+                } else {
+                    targets.push(Target::new(Some(base.repo.clone()), name.to_string()));
+                }
+            }
+        } else {
+            aur.push(update);
         }
-
-        aur.push(update);
-    }
-
-    let (_, dbs) = repo::repo_aur_dbs(config);
-    for pkg in dbs.iter().flat_map(|d| d.pkgs()) {
-        let name = pkg_base_or_name(pkg);
-        pkgbases.entry(name).or_default().push(pkg);
-    }
-
-    for pkg in db.pkgs().iter() {
-        let name = pkg_base_or_name(pkg);
-        pkgbases.entry(name).or_default().push(pkg);
     }
 
     config
@@ -411,25 +432,23 @@ pub async fn filter_devel_updates(
         .map(|u| pkgbases.remove(u.as_str()).unwrap())
         .collect::<Vec<_>>();
 
-    let mut updates = Vec::new();
-
     if config.mode.aur() {
-        let aur = aur
-            .iter()
-            .flatten()
-            .filter(|p| !p.should_ignore())
-            .filter(|p| !config.ignore_devel.is_match(p.name()))
-            .map(|p| p.name().to_string())
-            .filter(|p| cache.contains(p.as_str()))
-            .map(|p| Target::new(Some(config.aur_namespace().to_string()), p));
-
-        updates.extend(aur);
+        for p in aur.iter().flatten() {
+            let name = p.name();
+            if !cache.contains(name) {
+                continue;
+            }
+            if p.should_ignore() || config.ignore_devel.is_match(name) {
+                ignored.push(name.to_string());
+            } else {
+                targets.push(Target::new(
+                    Some(config.aur_namespace().to_string()),
+                    name.to_string(),
+                ));
+            }
+        }
     }
-    if config.mode.pkgbuild() {
-        updates.extend(custom);
-    }
-
-    Ok(updates)
+    Ok((targets, ignored))
 }
 
 pub async fn pkg_has_update<'pkg>(
@@ -580,6 +599,233 @@ pub fn load_devel_info(config: &Config) -> Result<Option<DevelInfo>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::{LocalRepos, Mode};
+    use std::os::unix::fs::PermissionsExt;
+
+    fn ignored_fixture(
+        ignore_pkg: &[&str],
+        ignore_devel: &[&str],
+        remote_commit: &str,
+    ) -> (tempfile::TempDir, Config) {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("db");
+        create_dir_all(db.join("local")).unwrap();
+        std::fs::write(db.join("local/ALPM_DB_VERSION"), "9\n").unwrap();
+
+        for name in ["split-a", "split-b"] {
+            let pkg_dir = db.join("local").join(format!("{}-1-1", name));
+            create_dir_all(&pkg_dir).unwrap();
+            std::fs::write(
+                pkg_dir.join("desc"),
+                format!("%NAME%\n{name}\n\n%VERSION%\n1-1\n\n%BASE%\nsplit\n\n%ARCH%\nany\n\n"),
+            )
+            .unwrap();
+        }
+
+        let mut config = Config::default();
+        config.raur = Some(Default::default());
+        config.mode = Mode::AUR;
+        config.pacman.root_dir = "/".into();
+        config.pacman.db_path = db.to_str().unwrap().into();
+        config.pacman.gpg_dir = dir.path().to_str().unwrap().into();
+        config.pacman.log_file = dir.path().join("pacman.log").to_str().unwrap().into();
+        config.ignore = ignore_pkg.iter().map(|s| s.to_string()).collect();
+        let mut globs = globset::GlobSetBuilder::new();
+        for pattern in ignore_devel {
+            globs.add(globset::Glob::new(pattern).unwrap());
+        }
+        config.ignore_devel = globs.build().unwrap();
+        config.init_alpm().unwrap();
+
+        config.state_dir = dir.path().to_path_buf();
+        config.devel_path = dir.path().join("devel.toml");
+        std::fs::write(
+            &config.devel_path,
+            "[[split]]\nurl = 'https://example.invalid/repo.git'\ncommit = 'before'\n",
+        )
+        .unwrap();
+
+        let git = dir.path().join("git");
+        std::fs::write(
+            &git,
+            "#!/bin/sh\nprintf 'called\\n' >> \"$1\"\nprintf '%s\\tHEAD\\n' \"$2\"\n",
+        )
+        .unwrap();
+        std::fs::set_permissions(&git, std::fs::Permissions::from_mode(0o755)).unwrap();
+        config.git_bin = git.to_str().unwrap().into();
+        config.git_flags = vec![
+            dir.path().join("git-called").to_str().unwrap().into(),
+            remote_commit.into(),
+        ];
+
+        (dir, config)
+    }
+
+    fn split_cache() -> Cache {
+        ["split", "split-a", "split-b"]
+            .into_iter()
+            .map(|name| {
+                raur::Package {
+                    name: name.into(),
+                    package_base: "split".into(),
+                    ..Default::default()
+                }
+                .into()
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn fully_ignored_devel_checks_are_skipped_without_git() {
+        for (ignore_pkg, ignore_devel) in [
+            (vec!["split-a", "split-b"], vec![]),
+            (vec![], vec!["split-*"]),
+            (vec!["split-a"], vec!["split-b"]),
+        ] {
+            let (dir, config) = ignored_fixture(&ignore_pkg, &ignore_devel, "after");
+            let result = possible_devel_updates(&config).await.unwrap();
+
+            assert!(result.updates.is_empty());
+            assert_eq!(result.skipped, ["split-a", "split-b"]);
+            assert!(!dir.path().join("git-called").exists());
+            let (updates, ignored) =
+                filter_devel_updates(&config, &mut split_cache(), &result.updates)
+                    .await
+                    .unwrap();
+            assert!(updates.is_empty());
+            assert!(ignored.is_empty());
+        }
+    }
+
+    #[tokio::test]
+    async fn partially_ignored_split_update_reports_only_confirmed_updates() {
+        for (ignore_pkg, ignore_devel) in [(vec!["split-a"], vec![]), (vec![], vec!["split-a"])] {
+            let (dir, config) = ignored_fixture(&ignore_pkg, &ignore_devel, "after");
+            let result = possible_devel_updates(&config).await.unwrap();
+
+            assert_eq!(result.updates, ["split"]);
+            assert!(result.skipped.is_empty());
+            assert!(dir.path().join("git-called").exists());
+            let (updates, ignored) =
+                filter_devel_updates(&config, &mut split_cache(), &result.updates)
+                    .await
+                    .unwrap();
+            assert_eq!(updates.len(), 1);
+            assert_eq!(updates[0].pkg, "split-b");
+            assert_eq!(ignored, ["split-a"]);
+        }
+    }
+
+    #[tokio::test]
+    async fn unchanged_split_base_does_not_report_ignored_upgrades() {
+        let (dir, config) = ignored_fixture(&[], &["split-a"], "before");
+        let result = possible_devel_updates(&config).await.unwrap();
+
+        assert!(result.updates.is_empty());
+        assert!(result.skipped.is_empty());
+        assert!(dir.path().join("git-called").exists());
+        let (updates, ignored) = filter_devel_updates(&config, &mut split_cache(), &result.updates)
+            .await
+            .unwrap();
+        assert!(updates.is_empty());
+        assert!(ignored.is_empty());
+    }
+
+    #[tokio::test]
+    async fn excluded_devel_bases_are_not_reported_as_skipped() {
+        let (dir, mut config) = ignored_fixture(&[], &["split-*"], "after");
+        config.repos = LocalRepos::Repo(vec!["unrelated".into()]);
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert!(result.updates.is_empty());
+        assert!(result.skipped.is_empty());
+        assert!(!dir.path().join("git-called").exists());
+
+        config.repos = LocalRepos::None;
+        config.mode = Mode::PKGBUILD;
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert!(result.updates.is_empty());
+        assert!(result.skipped.is_empty());
+        assert!(!dir.path().join("git-called").exists());
+    }
+
+    #[tokio::test]
+    async fn local_repo_split_base_uses_package_members_for_scope() {
+        let (dir, mut config) = ignored_fixture(&[], &["split-*"], "after");
+        let db = dir.path().join("db");
+        create_dir_all(db.join("sync")).unwrap();
+        let status = std::process::Command::new("tar")
+            .arg("-czf")
+            .arg(db.join("sync/devel-repo.db"))
+            .arg("-C")
+            .arg(db.join("local"))
+            .args(["split-a-1-1", "split-b-1-1"])
+            .status()
+            .unwrap();
+        assert!(status.success());
+        let mut repo = pacmanconf::Repository::default();
+        repo.name = "devel-repo".into();
+        repo.servers = vec![format!("file://{}", dir.path().display())];
+        config.pacman.repos.push(repo);
+        config.repos = LocalRepos::Repo(vec!["devel-repo".into()]);
+        config.init_alpm().unwrap();
+
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert!(result.updates.is_empty());
+        assert_eq!(result.skipped, ["split-a", "split-b"]);
+        assert!(!dir.path().join("git-called").exists());
+
+        config.repos = LocalRepos::None;
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert!(result.updates.is_empty());
+        assert!(result.skipped.is_empty());
+        assert!(!dir.path().join("git-called").exists());
+    }
+
+    #[tokio::test]
+    async fn custom_split_base_respects_mode_and_routes_package_members() {
+        let (dir, mut config) = ignored_fixture(&["split-a"], &[], "after");
+        let path = dir.path().join("custom");
+        create_dir_all(&path).unwrap();
+        std::fs::write(path.join("PKGBUILD"), "").unwrap();
+        std::fs::write(
+            path.join(".SRCINFO"),
+            "pkgbase = split\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = split-a\npkgname = split-b\n",
+        )
+        .unwrap();
+        config
+            .pkgbuild_repos
+            .add_repo("custom".into())
+            .source
+            .set_path(path);
+
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert!(result.updates.is_empty());
+        assert!(result.skipped.is_empty());
+        assert!(!dir.path().join("git-called").exists());
+
+        config.mode = Mode::PKGBUILD;
+        let result = possible_devel_updates(&config).await.unwrap();
+        assert_eq!(result.updates, ["split"]);
+        assert!(result.skipped.is_empty());
+        assert!(dir.path().join("git-called").exists());
+        let mut cache = Cache::new();
+        let (updates, ignored) = filter_devel_updates(&config, &mut cache, &result.updates)
+            .await
+            .unwrap();
+        assert_eq!(updates.len(), 1);
+        assert_eq!(updates[0].repo.as_deref(), Some("custom"));
+        assert_eq!(updates[0].pkg, "split-b");
+        assert_eq!(ignored, ["split-a"]);
+        assert!(cache.is_empty());
+
+        config.mode = Mode::AUR;
+        let (updates, ignored) = filter_devel_updates(&config, &mut cache, &result.updates)
+            .await
+            .unwrap();
+        assert!(updates.is_empty());
+        assert!(ignored.is_empty());
+        assert!(cache.is_empty());
+    }
 
     #[tokio::test]
     async fn ls_remote_does_not_parse_remote_as_option() {

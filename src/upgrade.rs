@@ -1,5 +1,5 @@
 use crate::config::{Config, LocalRepos};
-use crate::devel::{filter_devel_updates, possible_devel_updates};
+use crate::devel::{DevelUpgrades, filter_devel_updates, possible_devel_updates};
 use crate::fmt::color_repo;
 use crate::util::{NumberMenu, input};
 use crate::{RaurHandle, repo};
@@ -151,9 +151,9 @@ async fn get_resolver_upgrades<'a, 'b>(
     }
 }
 
-async fn get_devel_upgrades(config: &Config, print: bool) -> Result<Vec<String>> {
+async fn get_devel_upgrades(config: &Config, print: bool) -> Result<DevelUpgrades> {
     if !config.devel || (!config.mode.aur() && !config.mode.pkgbuild()) {
-        return Ok(Vec::new());
+        return Ok(DevelUpgrades::default());
     }
 
     let c = config.color;
@@ -172,7 +172,7 @@ pub async fn net_upgrades<'res>(
     config: &'_ Config,
     resolver: &mut Resolver<'res, '_, RaurHandle>,
     print: bool,
-) -> Result<(Updates<'res>, Vec<String>)> {
+) -> Result<(Updates<'res>, DevelUpgrades)> {
     try_join!(
         get_resolver_upgrades(config, resolver, print),
         get_devel_upgrades(config, print)
@@ -183,7 +183,7 @@ pub async fn get_upgrades<'a, 'b>(
     config: &Config,
     resolver: &mut Resolver<'a, 'b, RaurHandle>,
 ) -> Result<Upgrades> {
-    let (upgrades, devel_upgrades) = net_upgrades(config, resolver, true).await?;
+    let (upgrades, devel) = net_upgrades(config, resolver, true).await?;
     let (syncdbs, aurdbs) = repo::repo_aur_dbs(config);
 
     for pkg in upgrades.aur_ignored {
@@ -214,8 +214,36 @@ pub async fn get_upgrades<'a, 'b>(
 
     let mut aur_upgrades = upgrades.aur_updates;
     let pkgbuild_upgrades = upgrades.pkgbuild_updates;
-    let mut devel_upgrades =
-        filter_devel_updates(config, resolver.get_cache_mut(), &devel_upgrades).await?;
+    let (mut devel_upgrades, mut devel_ignored) =
+        filter_devel_updates(config, resolver.get_cache_mut(), &devel.updates).await?;
+
+    for name in &devel.skipped {
+        eprintln!(
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
+            tr!("{}: skipping devel update check (ignored)", name),
+        );
+    }
+
+    devel_ignored.sort_unstable();
+    devel_ignored.dedup();
+
+    let localdb = config.alpm.localdb();
+    for name in &devel_ignored {
+        let Ok(pkg) = devel_current_pkg(name, aurdbs.list(), localdb) else {
+            continue;
+        };
+        eprintln!(
+            "{} {}",
+            config.color.warning.paint(tr!("warning:")),
+            tr!(
+                "{pkg}: ignoring package upgrade ({old} => {new})",
+                pkg = name.as_str(),
+                old = pkg.version(),
+                new = "latest-commit",
+            )
+        );
+    }
 
     let repo_upgrades = if config.mode.repo() && config.combined_upgrade {
         repo_upgrades(config)?
@@ -361,7 +389,7 @@ pub async fn get_upgrades<'a, 'b>(
             .map(|p| p.db().unwrap().name())
             .map(|p| format!("{}-devel", p));
         let remote = remote.as_deref().unwrap_or("devel");
-        let current = aurdbs.pkg(pkg).or_else(|_| db.pkg(pkg)).unwrap();
+        let current = devel_current_pkg(pkg, aurdbs.list(), db).unwrap();
         let ver = current.version();
         print_upgrade(
             config,
@@ -466,6 +494,14 @@ pub async fn get_upgrades<'a, 'b>(
     Ok(upgrades)
 }
 
+fn devel_current_pkg<'a>(
+    name: &str,
+    aurdbs: AlpmList<&'a Db>,
+    localdb: &'a Db,
+) -> alpm::Result<&'a alpm::Package> {
+    aurdbs.pkg(name).or_else(|_| localdb.pkg(name))
+}
+
 fn db_len(name: &str, repo_name: &str, aurdbs: AlpmList<&Db>) -> usize {
     name.len()
         + aurdbs
@@ -474,4 +510,47 @@ fn db_len(name: &str, repo_name: &str, aurdbs: AlpmList<&Db>) -> usize {
             .and_then(|pkg| pkg.db())
             .map(|db| db.name().len() + repo_name.len() + 1)
             .unwrap_or(repo_name.len())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn devel_warning_and_menu_use_local_repo_version_before_installed_version() {
+        for installed in [false, true] {
+            let dir = tempfile::tempdir().unwrap();
+            std::fs::create_dir_all(dir.path().join("local")).unwrap();
+            std::fs::create_dir_all(dir.path().join("sync")).unwrap();
+            std::fs::write(dir.path().join("local/ALPM_DB_VERSION"), "9\n").unwrap();
+            std::fs::copy(
+                concat!(env!("CARGO_MANIFEST_DIR"), "/testdata/repo/repo.db.tar.gz"),
+                dir.path().join("sync/repo.db"),
+            )
+            .unwrap();
+            if installed {
+                let pkg = dir.path().join("local/polybar-2-1");
+                std::fs::create_dir_all(&pkg).unwrap();
+                std::fs::write(
+                    pkg.join("desc"),
+                    "%NAME%\npolybar\n\n%VERSION%\n2-1\n\n%ARCH%\nany\n\n",
+                )
+                .unwrap();
+            }
+
+            let alpm = alpm::Alpm::new("/", dir.path().to_str().unwrap()).unwrap();
+            alpm.register_syncdb("repo", alpm::SigLevel::NONE).unwrap();
+            let pkg = devel_current_pkg("polybar", alpm.syncdbs(), alpm.localdb()).unwrap();
+            assert_eq!(pkg.version().as_str(), "1.0.0-1");
+
+            let mut no_local_repos = alpm.syncdbs().to_list_mut();
+            no_local_repos.retain(|_| false);
+            let pkg = devel_current_pkg("polybar", no_local_repos.list(), alpm.localdb());
+            if installed {
+                assert_eq!(pkg.unwrap().version().as_str(), "2-1");
+            } else {
+                assert!(pkg.is_err());
+            }
+        }
+    }
 }
