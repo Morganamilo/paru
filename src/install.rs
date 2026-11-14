@@ -17,7 +17,9 @@ use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
-use crate::fmt::{print_indent, print_install, print_install_verbose};
+use crate::fmt::{
+    escape_control, escape_control_multiline, print_indent, print_install, print_install_verbose,
+};
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
 use crate::resolver::{flags, resolver};
@@ -1992,16 +1994,7 @@ fn save_review_changes(fetch: &aur_fetch::Fetch, repos: &mut [ReviewedRepo]) -> 
     Ok(())
 }
 
-fn review_diffs(
-    fetch: &aur_fetch::Fetch,
-    repos: &[&ReviewedRepo],
-    color: bool,
-) -> Result<Vec<String>> {
-    let color = if color {
-        "--color=always"
-    } else {
-        "--color=never"
-    };
+fn review_diffs(fetch: &aur_fetch::Fetch, repos: &[&ReviewedRepo]) -> Result<Vec<String>> {
     repos
         .iter()
         .map(|repo| {
@@ -2014,7 +2007,7 @@ fn review_diffs(
                 .as_str();
             let tree = repo.tree.as_str();
             let target = repo.upstream.as_deref().unwrap_or(&repo.head);
-            let log = git(&["log", &format!("{seen}..{target}"), color])?;
+            let log = git(&["log", &format!("{seen}..{target}"), "--color=never"])?;
             let mut metadata_only = true;
             for revision in [seen, tree] {
                 let entries = git(&["ls-tree", "-z", revision])?;
@@ -2037,7 +2030,7 @@ fn review_diffs(
                 "--patch",
                 "--no-ext-diff",
                 "--no-textconv",
-                color,
+                "--color=never",
                 seen,
                 tree,
                 "--",
@@ -2084,7 +2077,7 @@ fn file_manager(
         .filter(|r| r.changed() && r.seen.is_some())
         .collect::<Vec<_>>();
     let has_diff = changed.iter().map(|r| r.name.as_str()).collect::<Vec<_>>();
-    let diffs = review_diffs(fetch, &changed, false)?;
+    let diffs = review_diffs(fetch, &changed)?;
     std::fs::create_dir_all(&fetch.diff_dir)?;
     for (pkg, diff) in has_diff.iter().zip(diffs) {
         std::fs::write(fetch.diff_dir.join(format!("{pkg}.diff")), diff)?;
@@ -2154,8 +2147,8 @@ fn print_dir(
         if metadata.file_type().is_symlink() {
             let s = format!(
                 "  {} -> {}\n\n",
-                file.strip_prefix(pkgdir)?.display(),
-                read_link(&file)?.display()
+                escape_control(&file.strip_prefix(pkgdir)?.display().to_string()),
+                escape_control(&read_link(&file)?.display().to_string())
             );
             let _ = write!(stdin, "  {}", c.bold.paint(s));
             continue;
@@ -2168,8 +2161,10 @@ fn print_dir(
             let _ = writeln!(
                 stdin,
                 "  {}\n",
-                c.bold
-                    .paint(tr!("directory: {}", file.display().to_string()))
+                c.bold.paint(tr!(
+                    "directory: {}",
+                    escape_control(&file.display().to_string())
+                ))
             );
             continue;
         }
@@ -2193,19 +2188,37 @@ fn print_dir(
             let _ = writeln!(
                 stdin,
                 "  {}\n",
-                c.bold
-                    .paint(tr!("binary file: {}", file.display().to_string()))
+                c.bold.paint(tr!(
+                    "binary file: {}",
+                    escape_control(&file.display().to_string())
+                ))
             );
             continue;
         }
 
-        let _ = writeln!(
-            stdin,
-            "  {}:",
-            c.bold
-                .paint(file.strip_prefix(pkgdir)?.display().to_string())
-        );
-        if bat {
+        pkgfile.read_to_end(buf)?;
+        let text = match std::str::from_utf8(buf) {
+            Ok(text) if !buf.contains(&0) => escape_control_multiline(text),
+            _ => {
+                let file = file.strip_prefix(pkgdir)?;
+                let _ = writeln!(
+                    stdin,
+                    "  {}\n",
+                    c.bold.paint(tr!(
+                        "binary file: {}",
+                        escape_control(&file.display().to_string())
+                    ))
+                );
+                continue;
+            }
+        };
+
+        let name = file.strip_prefix(pkgdir)?.display().to_string();
+        let _ = writeln!(stdin, "  {}:", c.bold.paint(escape_control(&name)));
+        if bat
+            && !name.chars().any(char::is_control)
+            && matches!(text, std::borrow::Cow::Borrowed(_))
+        {
             let mut cmd = Command::new(&config.bat_bin);
             cmd.arg("--paging=never")
                 .arg("--style=plain")
@@ -2220,31 +2233,37 @@ fn print_dir(
                 let _ = stdin.write_all(b"\n");
             }
         } else {
-            pkgfile.read_to_end(buf)?;
-
-            match std::str::from_utf8(buf) {
-                Ok(_) => {
-                    for line in buf.lines() {
-                        let _ = stdin.write_all(b"    ");
-                        let _ = stdin.write_all(line?.as_bytes());
-                        let _ = stdin.write_all(b"\n");
-                    }
-                }
-                Err(_) => {
-                    let file = file.strip_prefix(pkgdir)?;
-                    let _ = write!(
-                        stdin,
-                        "  {}",
-                        c.bold
-                            .paint(tr!("binary file: {}", file.display().to_string()))
-                    );
-                }
-            };
+            for line in text.lines() {
+                let _ = writeln!(stdin, "    {line}");
+            }
         }
         let _ = stdin.write_all(b"\n");
     }
 
     Ok(())
+}
+
+fn print_review_diff(config: &Config, stdin: &mut impl Write, diff: &str, indent: bool) {
+    let c = config.color;
+    let indent = if indent { "    " } else { "" };
+    for line in diff.trim_end_matches('\n').split('\n') {
+        let style = if line.starts_with("diff ") || line.starts_with("index ") {
+            c.bold
+        } else if line.starts_with('+') {
+            c.new_version
+        } else if line.starts_with('-') {
+            c.old_version
+        } else if line.starts_with("@@") {
+            c.action
+        } else {
+            Style::new()
+        };
+        let _ = writeln!(
+            stdin,
+            "{indent}{}",
+            style.paint(escape_control_multiline(line))
+        );
+    }
 }
 
 pub(crate) fn seen_repos<'a>(fetch: &aur_fetch::Fetch, pkgs: &[&'a str]) -> Vec<&'a str> {
@@ -2302,7 +2321,7 @@ pub(crate) fn review(
                 .filter(|repo| repo.seen.is_some())
                 .collect::<Vec<_>>();
             let printed = !unseen.is_empty();
-            let diffs = review_diffs(fetch, &has_diff, config.color.enabled)?;
+            let diffs = review_diffs(fetch, &has_diff)?;
 
             if printed {
                 let pager_unconfigured = config.pager_cmd.is_none()
@@ -2343,15 +2362,10 @@ pub(crate) fn review(
                         stdin,
                         "{} {}:",
                         c.action.paint("::"),
-                        c.bold.paint(&repo.name)
+                        c.bold.paint(escape_control(&repo.name))
                     );
-                    if pager_unconfigured {
-                        let _ = stdin.write_all(b"    ");
-                        let _ = stdin.write_all(diff.replace('\n', "\n    ").trim_end().as_bytes());
-                    } else {
-                        let _ = stdin.write_all(diff.trim_end().as_bytes());
-                    }
-                    let _ = stdin.write_all(b"\n\n");
+                    print_review_diff(config, &mut stdin, &diff, pager_unconfigured);
+                    let _ = stdin.write_all(b"\n");
                 }
 
                 let bat = config.color.enabled && has_command(&config.bat_bin);
@@ -2364,7 +2378,7 @@ pub(crate) fn review(
                             stdin,
                             "{} {}:",
                             c.action.paint("::"),
-                            c.bold.paint(&repo.name)
+                            c.bold.paint(escape_control(&repo.name))
                         );
                         print_dir(config, &dir, &mut stdin, &mut buf, bat)?;
                     }
@@ -2775,8 +2789,8 @@ fn is_ver_char(c: char) -> bool {
 #[cfg(test)]
 mod review_tests {
     use super::{
-        file_manager_changes, mark_reviewed, print_dir, review_diffs, review_plan,
-        save_review_changes,
+        file_manager_changes, mark_reviewed, print_dir, print_review_diff, review_diffs,
+        review_plan, save_review_changes,
     };
     use crate::config::{Colors, Config};
     use std::ffi::OsStr;
@@ -2962,6 +2976,51 @@ mod review_tests {
     }
 
     #[test]
+    fn initial_review_escapes_terminal_controls_before_bat() {
+        let dir = tempfile::tempdir().unwrap();
+        git(dir.path(), &["init"]);
+        let name = "PKGBUILD\x1b[8m";
+        let text = format!(
+            "{}\n\tvisible\x1b[8mhidden\x1b[0m\rreturned\x07\u{009b}\n",
+            "x".repeat(8192)
+        );
+        fs::write(dir.path().join(name), &text).unwrap();
+        fs::write(dir.path().join("safe\x1b[8m.sh"), "safe-body\n").unwrap();
+        symlink("target\x1b]2;title\x07", dir.path().join("link\x1b[8m")).unwrap();
+        git(dir.path(), &["add", "."]);
+        let mut config = Config::default();
+        config.color = Colors::from("never");
+        config.bat_bin = "/bin/false".into();
+
+        for bat in [false, true] {
+            let mut output = Vec::new();
+            print_dir(&config, dir.path(), &mut output, &mut Vec::new(), bat).unwrap();
+            let output = String::from_utf8(output).unwrap();
+            assert!(output.contains(r"PKGBUILD\u{1b}[8m:"), "{output:?}");
+            assert!(
+                output.contains("safe\\u{1b}[8m.sh:\n    safe-body\n"),
+                "{output:?}"
+            );
+            assert!(
+                output.contains(r"link\u{1b}[8m -> target\u{1b}]2;title\u{7}"),
+                "{output:?}"
+            );
+            assert!(
+                output
+                    .contains("    \tvisible\\u{1b}[8mhidden\\u{1b}[0m\\rreturned\\u{7}\\u{9b}\n"),
+                "{output:?}"
+            );
+            assert!(
+                !output
+                    .chars()
+                    .any(|c| c.is_control() && c != '\n' && c != '\t'),
+                "{output:?}"
+            );
+        }
+        assert_eq!(fs::read_to_string(dir.path().join(name)).unwrap(), text);
+    }
+
+    #[test]
     fn review_diff_only_hides_regular_root_srcinfo() {
         let dir = tempfile::tempdir().unwrap();
         let repo = dir.path().join("fixture");
@@ -3009,7 +3068,7 @@ mod review_tests {
             }
             fs::write(
                 repo.join("PKGBUILD"),
-                format!("pkgname=fixture-{version}\n"),
+                format!("pkgname=fixture-{version}\n# \x1b[8mdiff-hidden\x1b[0m\rreturned\x07\n"),
             )
             .unwrap();
             fs::write(repo.join("keys/.SRCINFO"), format!("nested-{version}\n")).unwrap();
@@ -3019,7 +3078,7 @@ mod review_tests {
             )
             .unwrap();
             git(&repo, &["add", "-A"]);
-            git(&repo, &["commit", "-m", "fixture"]);
+            git(&repo, &["commit", "-m", "fixture\x1b[8mlog-hidden\x1b[0m"]);
             git(&repo, &["update-ref", "refs/heads/upstream", "HEAD"]);
             fs::write(repo.join("PKGBUILD"), "dirty-preserved\n").unwrap();
             let index = fs::read(repo.join(".git/index")).unwrap();
@@ -3031,7 +3090,7 @@ mod review_tests {
                     Vec::new()
                 };
                 let plans = review_plan(&fetch, &["fixture"], true).unwrap();
-                let diff = review_diffs(&fetch, &plans.iter().collect::<Vec<_>>(), false)
+                let diff = review_diffs(&fetch, &plans.iter().collect::<Vec<_>>())
                     .unwrap()
                     .remove(0);
                 assert!(
@@ -3041,6 +3100,28 @@ mod review_tests {
                 assert!(diff.contains(&format!("+nested-{version}")), "{diff}");
                 assert!(diff.contains("archive.bin"), "{diff}");
                 assert!(!diff.contains("archive-body"), "{diff}");
+                for color in ["never", "always"] {
+                    let mut config = Config::default();
+                    config.color = Colors::from(color);
+                    let mut output = Vec::new();
+                    print_review_diff(&config, &mut output, &diff, literal);
+                    let output = String::from_utf8(output).unwrap();
+                    assert!(
+                        output.contains(r"\u{1b}[8mdiff-hidden\u{1b}[0m\rreturned\u{7}"),
+                        "{output:?}"
+                    );
+                    assert!(
+                        output.contains(r"\u{1b}[8mlog-hidden\u{1b}[0m"),
+                        "{output:?}"
+                    );
+                    assert!(!output.contains("\x1b[8m"), "{output:?}");
+                    assert!(!output.contains(['\r', '\x07']), "{output:?}");
+                    if color == "never" {
+                        assert!(!output.contains('\x1b'), "{output:?}");
+                    } else {
+                        assert!(output.contains("\x1b[32m+pkgname="), "{output:?}");
+                    }
+                }
                 assert_eq!(
                     fs::read(repo.join("PKGBUILD")).unwrap(),
                     b"dirty-preserved\n"

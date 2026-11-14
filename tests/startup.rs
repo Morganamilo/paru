@@ -2170,6 +2170,84 @@ fn pkgbuild_copy_keeps_independent_recipe_directory_names() {
 
 #[cfg(not(feature = "mock"))]
 #[test]
+fn aur_comments_escape_terminal_controls_after_html_decoding() {
+    use std::io::{BufRead, BufReader, Read, Write};
+
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let pacman_conf = pacman_conf(dir);
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\n[options]\nAurUrl = http://{}\n",
+            pacman_conf.display(),
+            listener.local_addr().unwrap()
+        ),
+    )
+    .unwrap();
+    let server = thread::spawn(move || {
+        for _ in 0..4 {
+            let mut stream = accept(&listener);
+            let mut reader = BufReader::new(&stream);
+            let mut request = String::new();
+            reader.read_line(&mut request).unwrap();
+            let mut length = 0;
+            loop {
+                let mut header = String::new();
+                assert_ne!(reader.read_line(&mut header).unwrap(), 0);
+                if header == "\r\n" {
+                    break;
+                }
+                if let Some(value) = header.to_ascii_lowercase().strip_prefix("content-length:") {
+                    length = value.trim().parse().unwrap();
+                }
+            }
+            reader.read_exact(&mut vec![0; length]).unwrap();
+            let response = if request.starts_with("POST /rpc ") {
+                serde_json::json!({
+                    "version": 5,
+                    "type": "multiinfo",
+                    "resultcount": 1,
+                    "results": [raur::Package {
+                        name: "fixture".into(),
+                        package_base: "fixture".into(),
+                        version: "1-1".into(),
+                        ..Default::default()
+                    }],
+                })
+                .to_string()
+            } else {
+                assert_eq!(request, "GET /packages/fixture HTTP/1.1\r\n");
+                "<div class='comments'><h4 class='comment-header'>naïve 日本語 &#27;[8mheader&#27;[0m</h4><div class='article-content'>first line\nbody\x1b]2;title\x07 &#27;[8mhidden&#27;[0m</div></div>".into()
+            };
+            write!(stream, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", response.len(), response).unwrap();
+        }
+    });
+
+    for color in ["never", "always"] {
+        let output = output(command(dir).args(["-Gc", "--color", color, "fixture"]));
+        assert!(output.status.success(), "{output:?}");
+        let text = String::from_utf8(output.stdout).unwrap();
+        for expected in [
+            "naïve",
+            "日本語",
+            r"\u{1b}[8mheader\u{1b}[0m",
+            r"body\u{1b}]2;title\u{7}",
+            r"\u{1b}[8mhidden\u{1b}[0m",
+        ] {
+            assert!(text.contains(expected), "{color}: {text:?}");
+        }
+        assert!(!text.contains("\x1b[8m"), "{text:?}");
+        assert!(!text.contains("\x1b]2;"), "{text:?}");
+        assert!(!text.contains('\x07'), "{text:?}");
+        assert_eq!(text.contains('\x1b'), color == "always", "{text:?}");
+    }
+    server.join().unwrap();
+}
+
+#[cfg(not(feature = "mock"))]
+#[test]
 fn package_descriptions_and_urls_escape_terminal_controls() {
     use std::io::{BufRead, BufReader, Read, Write};
 
