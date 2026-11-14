@@ -1137,6 +1137,20 @@ impl Installer {
         self.download_pkgbuilds(config, &bases).await?;
         recheck_release_age(config, actions.iter_aur_pkgs().map(|p| &*p.pkg)).await?;
 
+        if !config.skip_review {
+            let pkgs = actions
+                .build
+                .iter()
+                .filter(|b| b.build())
+                .filter_map(|b| match b {
+                    Base::Aur(pkg) => Some(pkg.package_base()),
+                    Base::Pkgbuild(_) => None,
+                })
+                .collect::<Vec<_>>();
+            let reviewed = review(config, &config.fetch, &pkgs, false)?;
+            mark_reviewed(&config.fetch, &reviewed)?;
+        }
+
         for pkg in &actions.build {
             match pkg {
                 Base::Aur(base) => {
@@ -1154,20 +1168,6 @@ impl Installer {
                     pre_build_command(config, dir, c.package_base(), &c.version())?;
                 }
             }
-        }
-
-        if !config.skip_review {
-            let pkgs = actions
-                .build
-                .iter()
-                .filter(|b| b.build())
-                .filter_map(|b| match b {
-                    Base::Aur(pkg) => Some(pkg.package_base()),
-                    Base::Pkgbuild(_) => None,
-                })
-                .collect::<Vec<_>>();
-            let reviewed = review(config, &config.fetch, &pkgs, false)?;
-            mark_reviewed(&config.fetch, &reviewed)?;
         }
 
         let arch = config
@@ -3405,6 +3405,73 @@ exec git -c core.hooksPath=/dev/null -c init.templateDir= -c "url.file://$(dirna
         config.state_dir = tmp.path().join("state");
         config.devel_path = config.state_dir.join("devel.toml");
         config.raur = Some(crate::mock::Mock::new().unwrap());
+    }
+
+    #[cfg(feature = "mock")]
+    #[tokio::test]
+    async fn pre_build_command_requires_review_acceptance() {
+        if let Some(marker) = std::env::var_os("PARU_REVIEW_HOOK_MARKER") {
+            let (tmp, mut config, _) = fixture(None, NEW_SRCINFO);
+            gendb_config(&tmp, &mut config);
+            config.pager_cmd = Some("cat >/dev/null".into());
+            config.pre_build_command = Some(format!(
+                "printf '%s\\n' \"$PKGBASE\" > '{}'; exit 77",
+                Path::new(&marker).display()
+            ));
+            config.raur = Some(crate::mock::Mock::with_packages(vec![raur::Package {
+                name: "devel".into(),
+                package_base: "devel".into(),
+                version: "1-1".into(),
+                ..Default::default()
+            }]));
+            let mut cache = Cache::new();
+            let mut actions = aur_depends::Resolver::new(
+                &config.alpm,
+                &mut cache,
+                config.raur.as_ref().unwrap(),
+                aur_depends::Flags::AUR,
+            )
+            .resolve_targets(&["devel"])
+            .await
+            .unwrap();
+            let mut installer = Installer::new(&config);
+            assert!(
+                installer
+                    .prepare_build(&config, &cache, &mut actions)
+                    .await
+                    .is_err()
+            );
+            return;
+        }
+
+        let tmp = tempfile::tempdir().unwrap();
+        for (answer, accepted) in [("y\nn\n", false), ("y\ny\n", true)] {
+            let marker = tmp.path().join("hook");
+            let mut child = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "install::tests::pre_build_command_requires_review_acceptance",
+                    "--nocapture",
+                ])
+                .env("PARU_REVIEW_HOOK_MARKER", &marker)
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child
+                .stdin
+                .take()
+                .unwrap()
+                .write_all(answer.as_bytes())
+                .unwrap();
+            let output = child.wait_with_output().unwrap();
+            assert!(output.status.success(), "{output:?}");
+            assert_eq!(marker.exists(), accepted, "{output:?}");
+            if accepted {
+                assert_eq!(fs::read(&marker).unwrap(), b"devel\n");
+            }
+        }
     }
 
     #[cfg(feature = "mock")]
