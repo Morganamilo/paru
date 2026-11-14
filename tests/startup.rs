@@ -155,6 +155,115 @@ fn cache_clean_reports_aur_cleanup_failure() {
     assert!(!dir.join("build/fixture").exists());
 }
 
+#[test]
+fn cache_clean_uses_the_enumerated_directory() {
+    for delete in [false, true] {
+        for case in ["parent", "absolute", "sibling"] {
+            let tmp = tempfile::tempdir().unwrap();
+            let dir = tmp.path();
+            cache_clean_fixture(dir, 0);
+            let cache = dir.join("build/fixture");
+            let outside = if case == "sibling" {
+                dir.join("build/sibling")
+            } else {
+                dir.join("outside")
+            };
+            fs::create_dir(&outside).unwrap();
+            let pkgbase = match case {
+                "parent" => "../outside".to_string(),
+                "absolute" => outside.to_str().unwrap().to_string(),
+                _ => "sibling".to_string(),
+            };
+            fs::write(
+                cache.join(".SRCINFO"),
+                format!(
+                    "pkgbase = {pkgbase}\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n",
+                ),
+            )
+            .unwrap();
+
+            for repo in [&cache, &outside] {
+                git(repo, &["init", "--initial-branch=master"]);
+                fs::write(repo.join("tracked"), "original").unwrap();
+                git(repo, &["add", "."]);
+                git(repo, &["commit", "-m", "cache fixture"]);
+                fs::write(repo.join("tracked"), "edited").unwrap();
+                fs::write(repo.join("artifact"), "artifact").unwrap();
+            }
+
+            let mut cmd = command(dir);
+            cmd.args(["-Sc", "--noconfirm", "--mode", "aur"]);
+            if delete {
+                cmd.arg("--delete");
+            }
+            let result = output(&mut cmd);
+            assert!(
+                result.status.success(),
+                "{case}, delete={delete}: {result:?}"
+            );
+            assert_eq!(
+                fs::read(outside.join("tracked")).unwrap(),
+                b"edited",
+                "{case}, delete={delete}",
+            );
+            assert_eq!(fs::read(outside.join("artifact")).unwrap(), b"artifact");
+            if delete {
+                assert!(!cache.exists(), "{case}");
+            } else {
+                assert_eq!(fs::read(cache.join("tracked")).unwrap(), b"original");
+                assert!(!cache.join("artifact").exists(), "{case}");
+            }
+        }
+    }
+}
+
+#[test]
+fn cache_clean_does_not_follow_directory_symlinks() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    cache_clean_fixture(dir, 0);
+    let outside = dir.join("outside");
+    fs::rename(dir.join("build/fixture"), &outside).unwrap();
+    std::os::unix::fs::symlink(&outside, dir.join("build/fixture")).unwrap();
+    fs::write(outside.join("artifact"), "keep").unwrap();
+
+    let result = output(command(dir).args(["-Sc", "--delete", "--noconfirm", "--mode", "aur"]));
+    assert!(result.status.success(), "{result:?}");
+    assert_eq!(fs::read(outside.join("artifact")).unwrap(), b"keep");
+    assert!(dir.join("build/fixture").is_symlink());
+}
+
+#[test]
+fn cache_clean_keeps_installed_packages_with_different_base_names() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    cache_clean_fixture(dir, 0);
+    let local = dir.join("db/local/fixture-1-1");
+    fs::create_dir_all(&local).unwrap();
+    fs::write(dir.join("db/local/ALPM_DB_VERSION"), "9\n").unwrap();
+    fs::write(
+        local.join("desc"),
+        "%NAME%\nfixture\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n",
+    )
+    .unwrap();
+    let mut config = fs::read_to_string(dir.join("pacman.conf")).unwrap();
+    config.push_str("CleanMethod = KeepInstalled\n");
+    fs::write(dir.join("pacman.conf"), config).unwrap();
+    fs::write(
+        dir.join("build/fixture/.SRCINFO"),
+        "pkgbase = different\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n",
+    )
+    .unwrap();
+    fs::write(dir.join("build/fixture/artifact"), "keep").unwrap();
+
+    let result = output(command(dir).args(["-Sc", "--delete", "--noconfirm", "--mode", "aur"]));
+    assert!(result.status.success(), "{result:?}");
+    assert_eq!(
+        fs::read(dir.join("build/fixture/artifact")).unwrap(),
+        b"keep"
+    );
+}
+
 fn git(dir: &Path, args: &[&str]) -> Output {
     let output = output(
         Command::new("git")
