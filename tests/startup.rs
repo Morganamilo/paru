@@ -264,6 +264,129 @@ fn cache_clean_keeps_installed_packages_with_different_base_names() {
     );
 }
 
+fn local_pkgbuild_fixture(dir: &Path) {
+    let pacman_conf = pacman_conf(dir);
+    let makepkg = script(
+        dir,
+        "makepkg",
+        "test \"$*\" = --printsrcinfo\n\
+         . ./PKGBUILD\n\
+         printf 'pkgbase = %s\\n\\tpkgver = 1\\n\\tpkgrel = 1\\n\\tarch = any\\npkgname = %s\\n' \"$pkgname\" \"$pkgname\"",
+    );
+    let forbidden = script(dir, "forbidden", "exit 99");
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\nMakepkg = {}\nPacman = {}\nSudo = {}\n",
+            pacman_conf.display(),
+            makepkg.display(),
+            forbidden.display(),
+            forbidden.display(),
+        ),
+    )
+    .unwrap();
+    for name in [".", "unselected", "nested/wanted"] {
+        let path = dir.join(name);
+        fs::create_dir_all(&path).unwrap();
+        fs::write(
+            path.join("PKGBUILD"),
+            "touch \"$PARU_TEST_CAPTURE\"\npkgname=unselected\n",
+        )
+        .unwrap();
+    }
+}
+
+#[test]
+fn cwd_targets_do_not_source_unselected_pkgbuilds() {
+    for operation in ["-Si", "-Ss", "-S"] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        local_pkgbuild_fixture(dir);
+        let wanted = dir.join("wanted");
+        fs::create_dir(&wanted).unwrap();
+        fs::write(wanted.join("PKGBUILD"), "pkgname=wanted\n").unwrap();
+        let result = output(
+            command(dir)
+                .args([operation, "--pkgbuilds", "./wanted"])
+                .stdin(Stdio::null()),
+        );
+        assert_eq!(
+            result.status.success(),
+            operation == "-Si",
+            "{operation}: {result:?}"
+        );
+        assert!(wanted.join(".SRCINFO").exists(), "{result:?}");
+        assert!(!dir.join("capture").exists(), "{result:?}");
+        for name in [".", "unselected", "nested/wanted"] {
+            assert!(!dir.join(name).join(".SRCINFO").exists());
+        }
+    }
+}
+
+#[test]
+fn cwd_targets_read_existing_split_metadata_without_sourcing_it() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    local_pkgbuild_fixture(dir);
+    let path = dir.join("different-directory");
+    fs::create_dir(&path).unwrap();
+    fs::write(
+        path.join("PKGBUILD"),
+        "touch \"$PARU_TEST_CAPTURE\"\nexit 99\n",
+    )
+    .unwrap();
+    fs::write(
+        path.join(".SRCINFO"),
+        "pkgbase = split\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+         pkgname = member\n\tprovides = virtual\npkgname = second\n",
+    )
+    .unwrap();
+    let result = output(command(dir).args(["-Si", "--pkgbuilds", "./member", "./second"]));
+    assert!(result.status.success(), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+
+    let consumer = dir.join("consumer");
+    fs::create_dir(&consumer).unwrap();
+    fs::write(consumer.join("PKGBUILD"), "exit 99\n").unwrap();
+    fs::write(
+        consumer.join(".SRCINFO"),
+        "pkgbase = consumer\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+         pkgname = consumer\n\tdepends = virtual\n",
+    )
+    .unwrap();
+    let result = output(
+        command(dir)
+            .args(["-S", "--pkgbuilds", "./consumer"])
+            .stdin(Stdio::null()),
+    );
+    assert_eq!(result.status.code(), Some(1), "{result:?}");
+    let plan = String::from_utf8_lossy(&result.stdout);
+    assert!(plan.contains("member"), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+}
+
+#[test]
+fn explicit_build_does_not_source_the_working_directory() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path().join("cwd");
+    fs::create_dir(&dir).unwrap();
+    local_pkgbuild_fixture(&dir);
+    let wanted = tmp.path().join("wanted");
+    fs::create_dir(&wanted).unwrap();
+    fs::write(wanted.join("PKGBUILD"), "pkgname=wanted\n").unwrap();
+    let result = output(
+        command(&dir)
+            .args(["-B", "--pkgbuilds"])
+            .arg(&wanted)
+            .stdin(Stdio::null()),
+    );
+    assert_eq!(result.status.code(), Some(1), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+    for name in [".", "unselected", "nested/wanted"] {
+        assert!(!dir.join(name).join(".SRCINFO").exists());
+    }
+}
+
 fn git(dir: &Path, args: &[&str]) -> Output {
     let output = output(
         Command::new("git")
