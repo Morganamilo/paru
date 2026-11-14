@@ -74,6 +74,7 @@ pub struct PkgbuildRepo {
     pub path: PathBuf,
     pkgs: OnceCell<Arc<Vec<PkgbuildPkg>>>,
     warned: Cell<bool>,
+    srcinfo_paths: Option<Vec<PathBuf>>,
 }
 
 impl PkgbuildRepo {
@@ -87,6 +88,7 @@ impl PkgbuildRepo {
             force_srcinfo: false,
             pkgs: OnceCell::new(),
             warned: Cell::new(false),
+            srcinfo_paths: None,
         }
     }
 
@@ -131,12 +133,20 @@ impl PkgbuildRepo {
             depth: 3,
             skip_review: true,
             force_srcinfo: false,
-            path: dir,
+            path: dir.clone(),
             pkgs: Default::default(),
             warned: Cell::new(false),
+            srcinfo_paths: Some(
+                config
+                    .targets
+                    .iter()
+                    .map(|target| Targ::from(target.as_str()))
+                    .filter(|target| target.repo == Some("."))
+                    .map(|target| dir.join(alpm::Depend::new(target.pkg).name()))
+                    .collect(),
+            ),
         };
 
-        repo.pkgs(config);
         Ok(repo)
     }
 
@@ -188,12 +198,15 @@ impl PkgbuildRepo {
             }
         }
 
-        Some(
-            self.for_each_pkgbuild(Vec::new(), |path, data| match self.read_pkg(config, path) {
+        Some(self.for_each_pkgbuild(Vec::new(), |path, data| {
+            if !path.join(".SRCINFO").exists() && !self.can_generate_srcinfo(path) {
+                return;
+            }
+            match self.read_pkg(config, path) {
                 Ok(srcinfo) => data.push(srcinfo),
                 Err(e) => print_error(config.color.error, e),
-            }),
-        )
+            }
+        }))
     }
 
     fn reviewed(&self, config: &Config) -> bool {
@@ -240,7 +253,9 @@ impl PkgbuildRepo {
     }
 
     fn generate_srcinfo(&self, config: &Config, path: &Path) -> Result<()> {
-        if !self.force_srcinfo && path.join(".SRCINFO").exists() {
+        if !self.can_generate_srcinfo(path)
+            || (!self.force_srcinfo && path.join(".SRCINFO").exists())
+        {
             return Ok(());
         }
 
@@ -258,6 +273,12 @@ impl PkgbuildRepo {
         }
 
         Ok(())
+    }
+
+    fn can_generate_srcinfo(&self, path: &Path) -> bool {
+        self.srcinfo_paths
+            .as_ref()
+            .is_none_or(|paths| paths.iter().any(|selected| selected == path))
     }
 
     fn print_generate_srcinfo(&self, config: &Config, pkg: &str) {

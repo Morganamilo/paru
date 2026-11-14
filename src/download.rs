@@ -513,10 +513,17 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
 
         if config.sort_mode.is_top_down(false) {
             for (title, comment) in iter.into_iter() {
-                print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
+                print_indent(
+                    c.bold,
+                    0,
+                    0,
+                    config.cols,
+                    " ",
+                    title.split_whitespace().map(escape_control),
+                );
 
                 for line in comment.trim().split('\n') {
-                    let line = line.split_whitespace();
+                    let line = line.split_whitespace().map(escape_control);
                     print!("    ");
                     print_indent(Style::new(), 4, 4, config.cols, " ", line);
                 }
@@ -524,10 +531,17 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
             }
         } else {
             for (title, comment) in iter.into_iter().rev() {
-                print_indent(c.bold, 0, 0, config.cols, " ", title.split_whitespace());
+                print_indent(
+                    c.bold,
+                    0,
+                    0,
+                    config.cols,
+                    " ",
+                    title.split_whitespace().map(escape_control),
+                );
 
                 for line in comment.trim().split('\n') {
-                    let line = line.split_whitespace();
+                    let line = line.split_whitespace().map(escape_control);
                     print!("    ");
                     print_indent(Style::new(), 4, 4, config.cols, " ", line);
                 }

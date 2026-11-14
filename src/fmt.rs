@@ -44,13 +44,21 @@ pub fn link_str(enabled: bool, s: &str, url: &str) -> String {
 }
 
 pub fn escape_control(s: &str) -> Cow<'_, str> {
-    if !s.chars().any(char::is_control) {
+    escape_controls(s, char::is_control)
+}
+
+pub fn escape_control_multiline(s: &str) -> Cow<'_, str> {
+    escape_controls(s, |c| c.is_control() && c != '\n' && c != '\t')
+}
+
+fn escape_controls(s: &str, is_control: impl Fn(char) -> bool) -> Cow<'_, str> {
+    if !s.chars().any(&is_control) {
         return Cow::Borrowed(s);
     }
 
     let mut escaped = String::with_capacity(s.len());
     for c in s.chars() {
-        if c.is_control() {
+        if is_control(c) {
             escaped.extend(c.escape_default());
         } else {
             escaped.push(c);

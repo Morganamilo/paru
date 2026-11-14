@@ -155,6 +155,238 @@ fn cache_clean_reports_aur_cleanup_failure() {
     assert!(!dir.join("build/fixture").exists());
 }
 
+#[test]
+fn cache_clean_uses_the_enumerated_directory() {
+    for delete in [false, true] {
+        for case in ["parent", "absolute", "sibling"] {
+            let tmp = tempfile::tempdir().unwrap();
+            let dir = tmp.path();
+            cache_clean_fixture(dir, 0);
+            let cache = dir.join("build/fixture");
+            let outside = if case == "sibling" {
+                dir.join("build/sibling")
+            } else {
+                dir.join("outside")
+            };
+            fs::create_dir(&outside).unwrap();
+            let pkgbase = match case {
+                "parent" => "../outside".to_string(),
+                "absolute" => outside.to_str().unwrap().to_string(),
+                _ => "sibling".to_string(),
+            };
+            fs::write(
+                cache.join(".SRCINFO"),
+                format!(
+                    "pkgbase = {pkgbase}\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n",
+                ),
+            )
+            .unwrap();
+
+            for repo in [&cache, &outside] {
+                git(repo, &["init", "--initial-branch=master"]);
+                fs::write(repo.join("tracked"), "original").unwrap();
+                git(repo, &["add", "."]);
+                git(repo, &["commit", "-m", "cache fixture"]);
+                fs::write(repo.join("tracked"), "edited").unwrap();
+                fs::write(repo.join("artifact"), "artifact").unwrap();
+            }
+
+            let mut cmd = command(dir);
+            cmd.args(["-Sc", "--noconfirm", "--mode", "aur"]);
+            if delete {
+                cmd.arg("--delete");
+            }
+            let result = output(&mut cmd);
+            assert!(
+                result.status.success(),
+                "{case}, delete={delete}: {result:?}"
+            );
+            assert_eq!(
+                fs::read(outside.join("tracked")).unwrap(),
+                b"edited",
+                "{case}, delete={delete}",
+            );
+            assert_eq!(fs::read(outside.join("artifact")).unwrap(), b"artifact");
+            if delete {
+                assert!(!cache.exists(), "{case}");
+            } else {
+                assert_eq!(fs::read(cache.join("tracked")).unwrap(), b"original");
+                assert!(!cache.join("artifact").exists(), "{case}");
+            }
+        }
+    }
+}
+
+#[test]
+fn cache_clean_does_not_follow_directory_symlinks() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    cache_clean_fixture(dir, 0);
+    let outside = dir.join("outside");
+    fs::rename(dir.join("build/fixture"), &outside).unwrap();
+    std::os::unix::fs::symlink(&outside, dir.join("build/fixture")).unwrap();
+    fs::write(outside.join("artifact"), "keep").unwrap();
+
+    let result = output(command(dir).args(["-Sc", "--delete", "--noconfirm", "--mode", "aur"]));
+    assert!(result.status.success(), "{result:?}");
+    assert_eq!(fs::read(outside.join("artifact")).unwrap(), b"keep");
+    assert!(dir.join("build/fixture").is_symlink());
+}
+
+#[test]
+fn cache_clean_keeps_installed_packages_with_different_base_names() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    cache_clean_fixture(dir, 0);
+    let local = dir.join("db/local/fixture-1-1");
+    fs::create_dir_all(&local).unwrap();
+    fs::write(dir.join("db/local/ALPM_DB_VERSION"), "9\n").unwrap();
+    fs::write(
+        local.join("desc"),
+        "%NAME%\nfixture\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n",
+    )
+    .unwrap();
+    let mut config = fs::read_to_string(dir.join("pacman.conf")).unwrap();
+    config.push_str("CleanMethod = KeepInstalled\n");
+    fs::write(dir.join("pacman.conf"), config).unwrap();
+    fs::write(
+        dir.join("build/fixture/.SRCINFO"),
+        "pkgbase = different\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = fixture\n",
+    )
+    .unwrap();
+    fs::write(dir.join("build/fixture/artifact"), "keep").unwrap();
+
+    let result = output(command(dir).args(["-Sc", "--delete", "--noconfirm", "--mode", "aur"]));
+    assert!(result.status.success(), "{result:?}");
+    assert_eq!(
+        fs::read(dir.join("build/fixture/artifact")).unwrap(),
+        b"keep"
+    );
+}
+
+fn local_pkgbuild_fixture(dir: &Path) {
+    let pacman_conf = pacman_conf(dir);
+    let makepkg = script(
+        dir,
+        "makepkg",
+        "test \"$*\" = --printsrcinfo\n\
+         . ./PKGBUILD\n\
+         printf 'pkgbase = %s\\n\\tpkgver = 1\\n\\tpkgrel = 1\\n\\tarch = any\\npkgname = %s\\n' \"$pkgname\" \"$pkgname\"",
+    );
+    let forbidden = script(dir, "forbidden", "exit 99");
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\nMakepkg = {}\nPacman = {}\nSudo = {}\n",
+            pacman_conf.display(),
+            makepkg.display(),
+            forbidden.display(),
+            forbidden.display(),
+        ),
+    )
+    .unwrap();
+    for name in [".", "unselected", "nested/wanted"] {
+        let path = dir.join(name);
+        fs::create_dir_all(&path).unwrap();
+        fs::write(
+            path.join("PKGBUILD"),
+            "touch \"$PARU_TEST_CAPTURE\"\npkgname=unselected\n",
+        )
+        .unwrap();
+    }
+}
+
+#[test]
+fn cwd_targets_do_not_source_unselected_pkgbuilds() {
+    for operation in ["-Si", "-Ss", "-S"] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        local_pkgbuild_fixture(dir);
+        let wanted = dir.join("wanted");
+        fs::create_dir(&wanted).unwrap();
+        fs::write(wanted.join("PKGBUILD"), "pkgname=wanted\n").unwrap();
+        let result = output(
+            command(dir)
+                .args([operation, "--pkgbuilds", "./wanted"])
+                .stdin(Stdio::null()),
+        );
+        assert_eq!(
+            result.status.success(),
+            operation == "-Si",
+            "{operation}: {result:?}"
+        );
+        assert!(wanted.join(".SRCINFO").exists(), "{result:?}");
+        assert!(!dir.join("capture").exists(), "{result:?}");
+        for name in [".", "unselected", "nested/wanted"] {
+            assert!(!dir.join(name).join(".SRCINFO").exists());
+        }
+    }
+}
+
+#[test]
+fn cwd_targets_read_existing_split_metadata_without_sourcing_it() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    local_pkgbuild_fixture(dir);
+    let path = dir.join("different-directory");
+    fs::create_dir(&path).unwrap();
+    fs::write(
+        path.join("PKGBUILD"),
+        "touch \"$PARU_TEST_CAPTURE\"\nexit 99\n",
+    )
+    .unwrap();
+    fs::write(
+        path.join(".SRCINFO"),
+        "pkgbase = split\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+         pkgname = member\n\tprovides = virtual\npkgname = second\n",
+    )
+    .unwrap();
+    let result = output(command(dir).args(["-Si", "--pkgbuilds", "./member", "./second"]));
+    assert!(result.status.success(), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+
+    let consumer = dir.join("consumer");
+    fs::create_dir(&consumer).unwrap();
+    fs::write(consumer.join("PKGBUILD"), "exit 99\n").unwrap();
+    fs::write(
+        consumer.join(".SRCINFO"),
+        "pkgbase = consumer\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+         pkgname = consumer\n\tdepends = virtual\n",
+    )
+    .unwrap();
+    let result = output(
+        command(dir)
+            .args(["-S", "--pkgbuilds", "./consumer"])
+            .stdin(Stdio::null()),
+    );
+    assert_eq!(result.status.code(), Some(1), "{result:?}");
+    let plan = String::from_utf8_lossy(&result.stdout);
+    assert!(plan.contains("member"), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+}
+
+#[test]
+fn explicit_build_does_not_source_the_working_directory() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path().join("cwd");
+    fs::create_dir(&dir).unwrap();
+    local_pkgbuild_fixture(&dir);
+    let wanted = tmp.path().join("wanted");
+    fs::create_dir(&wanted).unwrap();
+    fs::write(wanted.join("PKGBUILD"), "pkgname=wanted\n").unwrap();
+    let result = output(
+        command(&dir)
+            .args(["-B", "--pkgbuilds"])
+            .arg(&wanted)
+            .stdin(Stdio::null()),
+    );
+    assert_eq!(result.status.code(), Some(1), "{result:?}");
+    assert!(!dir.join("capture").exists(), "{result:?}");
+    for name in [".", "unselected", "nested/wanted"] {
+        assert!(!dir.join(name).join(".SRCINFO").exists());
+    }
+}
+
 fn git(dir: &Path, args: &[&str]) -> Output {
     let output = output(
         Command::new("git")
@@ -2057,6 +2289,84 @@ fn pkgbuild_copy_keeps_independent_recipe_directory_names() {
         assert!(!destination.join("marker").exists());
         assert!(!dir.join("capture").exists());
     }
+}
+
+#[cfg(not(feature = "mock"))]
+#[test]
+fn aur_comments_escape_terminal_controls_after_html_decoding() {
+    use std::io::{BufRead, BufReader, Read, Write};
+
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let pacman_conf = pacman_conf(dir);
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[bin]\nPacmanConf = {}\n[options]\nAurUrl = http://{}\n",
+            pacman_conf.display(),
+            listener.local_addr().unwrap()
+        ),
+    )
+    .unwrap();
+    let server = thread::spawn(move || {
+        for _ in 0..4 {
+            let mut stream = accept(&listener);
+            let mut reader = BufReader::new(&stream);
+            let mut request = String::new();
+            reader.read_line(&mut request).unwrap();
+            let mut length = 0;
+            loop {
+                let mut header = String::new();
+                assert_ne!(reader.read_line(&mut header).unwrap(), 0);
+                if header == "\r\n" {
+                    break;
+                }
+                if let Some(value) = header.to_ascii_lowercase().strip_prefix("content-length:") {
+                    length = value.trim().parse().unwrap();
+                }
+            }
+            reader.read_exact(&mut vec![0; length]).unwrap();
+            let response = if request.starts_with("POST /rpc ") {
+                serde_json::json!({
+                    "version": 5,
+                    "type": "multiinfo",
+                    "resultcount": 1,
+                    "results": [raur::Package {
+                        name: "fixture".into(),
+                        package_base: "fixture".into(),
+                        version: "1-1".into(),
+                        ..Default::default()
+                    }],
+                })
+                .to_string()
+            } else {
+                assert_eq!(request, "GET /packages/fixture HTTP/1.1\r\n");
+                "<div class='comments'><h4 class='comment-header'>naïve 日本語 &#27;[8mheader&#27;[0m</h4><div class='article-content'>first line\nbody\x1b]2;title\x07 &#27;[8mhidden&#27;[0m</div></div>".into()
+            };
+            write!(stream, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", response.len(), response).unwrap();
+        }
+    });
+
+    for color in ["never", "always"] {
+        let output = output(command(dir).args(["-Gc", "--color", color, "fixture"]));
+        assert!(output.status.success(), "{output:?}");
+        let text = String::from_utf8(output.stdout).unwrap();
+        for expected in [
+            "naïve",
+            "日本語",
+            r"\u{1b}[8mheader\u{1b}[0m",
+            r"body\u{1b}]2;title\u{7}",
+            r"\u{1b}[8mhidden\u{1b}[0m",
+        ] {
+            assert!(text.contains(expected), "{color}: {text:?}");
+        }
+        assert!(!text.contains("\x1b[8m"), "{text:?}");
+        assert!(!text.contains("\x1b]2;"), "{text:?}");
+        assert!(!text.contains('\x07'), "{text:?}");
+        assert_eq!(text.contains('\x1b'), color == "always", "{text:?}");
+    }
+    server.join().unwrap();
 }
 
 #[cfg(not(feature = "mock"))]

@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::fmt::print_indent;
+use crate::fmt::{escape_control, escape_control_multiline, print_indent};
 
 use std::str::Chars;
 
@@ -57,7 +57,7 @@ pub async fn news(config: &Config) -> Result<i32> {
 
         let no_title = tr!("No Title");
         let title = item.title().unwrap_or(no_title.as_str());
-        println!("{}", c.bold.paint(title));
+        println!("{}", c.bold.paint(escape_control(title)));
 
         printed = true;
         parse_html(config, item.description().unwrap_or_default());
@@ -72,12 +72,29 @@ pub async fn news(config: &Config) -> Result<i32> {
 }
 
 fn parse_html(config: &Config, html: &str) {
-    let code = config.color.code;
+    let words = format_html(config.color.code, html);
+
+    for line in words.lines() {
+        print!("    ");
+        let line = line.split_whitespace();
+        print_indent(Style::new(), 4, 4, config.cols, " ", line);
+    }
+}
+
+fn format_html(code: Style, html: &str) -> String {
     let mut words = String::with_capacity(html.len());
+    let mut text = String::new();
+
+    let flush = |text: &mut String, words: &mut String| {
+        let decoded = decode_html(text).unwrap_or_else(|_| text.clone());
+        words.push_str(&escape_control_multiline(&decoded));
+        text.clear();
+    };
 
     let mut chars = html.chars();
     while let Some(c) = chars.next() {
         if c == '<' {
+            flush(&mut text, &mut words);
             let tag = parse_tag(&mut chars);
 
             match tag {
@@ -90,18 +107,49 @@ fn parse_html(config: &Config, html: &str) {
                 Tag::Other => (),
             }
         } else {
-            words.push(c);
+            text.push(c);
         }
     }
 
+    flush(&mut text, &mut words);
     words.push_str(&code.suffix().to_string());
-    let words = words;
-    let words = decode_html(&words).unwrap_or(words);
+    words
+}
 
-    for line in words.lines() {
-        print!("    ");
-        let line = line.split_whitespace();
-        print_indent(Style::new(), 4, 4, config.cols, " ", line);
+#[cfg(test)]
+mod tests {
+    use super::format_html;
+    use ansiterm::{Color, Style};
+
+    #[test]
+    fn news_escapes_decoded_controls_before_adding_color() {
+        let html = "<p>naïve 日本語 &lt;literal&gt;\x1b[8mhidden&#27;[0m</p><code>safe&#x1b;]2;title&#7;\rreset\u{009b}</code>";
+        for style in [Style::new(), Style::new().fg(Color::Cyan)] {
+            let text = format_html(style, html);
+            assert!(
+                text.contains("naïve 日本語 <literal>\\u{1b}[8mhidden\\u{1b}[0m\n"),
+                "{text:?}"
+            );
+            assert!(
+                text.contains(r"safe\u{1b}]2;title\u{7}\rreset\u{9b}"),
+                "{text:?}"
+            );
+            let unstyled = text
+                .replace(&style.prefix().to_string(), "")
+                .replace(&style.suffix().to_string(), "");
+            assert!(
+                !unstyled
+                    .chars()
+                    .any(|c| c.is_control() && c != '\n' && c != '\t'),
+                "{text:?}"
+            );
+            if style != Style::new() {
+                assert!(
+                    text.contains(&format!("{}safe", style.prefix())),
+                    "{text:?}"
+                );
+            }
+        }
     }
 }
 

@@ -109,7 +109,11 @@ fn clean_aur(
 
 fn fix_perms(file: &Path) -> Result<()> {
     let pkg = file.join("pkg");
-    let mut perms = pkg.metadata()?.permissions();
+    let metadata = pkg.symlink_metadata()?;
+    if !metadata.is_dir() {
+        return Ok(());
+    }
+    let mut perms = metadata.permissions();
     perms.set_mode(0o755);
     set_permissions(pkg, perms)?;
     Ok(())
@@ -168,11 +172,7 @@ fn clean_aur_pkg(
         }
     }
 
-    do_remove(
-        config,
-        &config.fetch.clone_dir.join(srcinfo.base.pkgbase),
-        rm,
-    )
+    do_remove(config, &file.path(), rm)
 }
 
 fn do_remove(config: &Config, path: &Path, rm: bool) -> Result<()> {
