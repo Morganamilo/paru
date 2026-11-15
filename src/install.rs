@@ -524,8 +524,6 @@ impl Installer {
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
         let pkgdest = repo.map(|r| r.1);
-        let mut env = config.env.clone();
-        env.extend(pkgdest.map(|p| ("PKGDEST".to_string(), p.to_string())));
 
         if config.chroot {
             let mut extra = Vec::new();
@@ -575,6 +573,27 @@ impl Installer {
         if needs_build {
             // actual build
             if config.chroot {
+                let mut destinations = base
+                    .packages()
+                    .filter_map(|pkg| pkgdests.get(pkg))
+                    .map(|path| Path::new(path).parent());
+                let output_dir = destinations
+                    .next()
+                    .flatten()
+                    .context("package list is empty")?;
+                ensure!(
+                    destinations.all(|dest| dest == Some(output_dir)),
+                    "{}",
+                    tr!("package list contains different output directories")
+                );
+                let mut env = config.env.clone();
+                env.push((
+                    "PKGDEST".to_string(),
+                    output_dir
+                        .to_str()
+                        .context("pkgdest is not utf8")?
+                        .to_string(),
+                ));
                 let mut extra = Vec::new();
                 if config.repos == LocalRepos::None {
                     extra.extend(self.built.iter().map(|s| s.as_str()));
@@ -2658,6 +2677,7 @@ fn parse_package_list(
     let output =
         exec::makepkg_output_dest(config, dir, &["--packagelist", "--ignorearch"], pkgdest)?;
     let output = String::from_utf8(output.stdout).context("pkgdest is not utf8")?;
+    let dir = std::path::absolute(dir)?;
     let mut pkgdests = HashMap::new();
     let mut version = String::new();
 
@@ -2676,7 +2696,11 @@ fn parse_package_list(
         // if the PKGEXT contains a dash. Please no one do that.
         let pkgname = split[..split.len() - 3].join("-");
         version = split[split.len() - 3..split.len() - 1].join("-");
-        pkgdests.insert(pkgname, line.to_string());
+        let path = dir.join(line);
+        pkgdests.insert(
+            pkgname,
+            path.to_str().context("pkgdest is not utf8")?.to_string(),
+        );
     }
 
     Ok((pkgdests, version))
