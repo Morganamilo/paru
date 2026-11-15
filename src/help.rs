@@ -27,6 +27,7 @@ pub fn help() {
     printtr!("Options without operation:");
     printtr!("    -c --clean            Remove unneeded dependencies");
     printtr!("       --gendb            Generates development package DB used for updating");
+    printtr!("       --aursource <action> Manage AUR sources: list, add, edit, delete, move");
     println!();
     printtr!("New options:");
     printtr!("       --repo              Assume targets are from the repositories");
@@ -38,6 +39,7 @@ pub fn help() {
     );
     printtr!("    --aururl    <url>      Set an alternative AUR URL");
     printtr!("    --aurrpcur  <url>      Set an alternative URL for the AUR /rpc endpoint");
+    printtr!("    --aururls <url,...>    Ordered list of AUR-compatible sources to query");
     printtr!("    --clonedir  <dir>      Directory used to download and run PKGBUILDs");
     println!();
     printtr!("    --makepkg   <file>     makepkg command to use");

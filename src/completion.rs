@@ -11,14 +11,8 @@ use flate2::read::GzDecoder;
 use tr::tr;
 use url::Url;
 
-async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
+async fn get_aur_list(client: &reqwest::Client, aur_url: &Url) -> Result<String> {
     let url = aur_url.join("packages.gz")?;
-    let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
-
-    // Add user agent header so Anubis lets the request through
-    let client = reqwest::Client::builder()
-        .user_agent(format!("paru/{}", ver))
-        .build()?;
     let resp = client
         .get(url.clone())
         .send()
@@ -31,6 +25,37 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     let decoder = GzDecoder::new(&*data);
     let data =
         std::io::read_to_string(decoder).with_context(|| tr!("failed to decode package list"))?;
+    Ok(data)
+}
+
+/// Saves the merged package lists of `aur_urls`. Sources that fail are
+/// skipped unless all of them fail.
+async fn save_aur_list(aur_urls: &[Url], cache_dir: &Path) -> Result<()> {
+    let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+
+    // Add user agent header so Anubis lets the request through
+    let client = reqwest::Client::builder()
+        .user_agent(format!("paru/{}", ver))
+        .build()?;
+
+    let mut data = String::new();
+    let mut last_err = None;
+    let mut ok = false;
+    for url in aur_urls {
+        match get_aur_list(&client, url).await {
+            Ok(list) => {
+                ok = true;
+                data.push_str(&list);
+                data.push('\n');
+            }
+            Err(e) => last_err = Some(e),
+        }
+    }
+    if let (false, Some(e)) = (ok, last_err) {
+        return Err(e);
+    }
+
+    let mut seen = std::collections::HashSet::new();
 
     create_dir_all(cache_dir)?;
     let path = cache_dir.join("packages.aur");
@@ -41,7 +66,7 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
         .open(&path);
     let mut file = file.with_context(|| tr!("failed to open cache file '{}'", path.display()))?;
 
-    for line in data.lines().filter(|l| !l.is_empty()) {
+    for line in data.lines().filter(|l| !l.is_empty() && seen.insert(*l)) {
         file.write_all(line.as_bytes())?;
         file.write_all(b"\n")?;
     }
@@ -49,7 +74,11 @@ async fn save_aur_list(aur_url: &Url, cache_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u64>) -> Result<()> {
+pub async fn update_aur_cache(
+    aur_urls: &[Url],
+    cache_dir: &Path,
+    timeout: Option<u64>,
+) -> Result<()> {
     let path = cache_dir.join("packages.aur");
     let metadata = metadata(&path);
 
@@ -60,7 +89,7 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
         {
             let _ = std::fs::remove_file(&path);
             let _ = remove_file(&path);
-            save_aur_list(aur_url, cache_dir).await?;
+            save_aur_list(aur_urls, cache_dir).await?;
             return Ok(());
         }
     }
@@ -78,14 +107,19 @@ pub async fn update_aur_cache(aur_url: &Url, cache_dir: &Path, timeout: Option<u
     };
 
     if need_refresh {
-        save_aur_list(aur_url, cache_dir).await?;
+        save_aur_list(aur_urls, cache_dir).await?;
     }
 
     Ok(())
 }
 
 async fn aur_list<W: Write>(config: &Config, w: &mut W, timeout: Option<u64>) -> Result<()> {
-    update_aur_cache(&config.aur_url, &config.cache_dir, timeout)
+    let urls = config
+        .effective_aur_sources()
+        .into_iter()
+        .map(|s| s.url)
+        .collect::<Vec<_>>();
+    update_aur_cache(&urls, &config.cache_dir, timeout)
         .await
         .context(tr!("could not update aur cache"))?;
     let path = config.cache_dir.join("packages.aur");

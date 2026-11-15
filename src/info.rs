@@ -226,16 +226,14 @@ pub fn print_aur_info(
     let no = tr!("No");
 
     for pkg in pkgs {
-        print(&tr!("Repository"), "aur");
+        print(&tr!("Repository"), conf.aur_label(&pkg.name));
         print(&tr!("Name"), &pkg.name);
         print(&tr!("Version"), &pkg.version);
         print(&tr!("Description"), &opt(&pkg.description));
         print("URL", &opt(&pkg.url));
         print(
             "AUR URL",
-            conf.aur_url
-                .join(&format!("packages/{}", pkg.name))?
-                .as_str(),
+            conf.aur_package_url(&pkg.name, &pkg.name)?.as_str(),
         );
         print_list(&tr!("Groups"), &pkg.groups);
         print_list(&tr!("Licenses"), &pkg.license);
@@ -261,7 +259,14 @@ pub fn print_aur_info(
             print_list(&tr!("Keywords"), &pkg.keywords);
             print(
                 &tr!("Snapshot URL"),
-                conf.aur_url.join(&pkg.url_path)?.as_str(),
+                if conf.aur_sources.is_empty() {
+                    conf.aur_url.join(&pkg.url_path)?
+                } else {
+                    conf.aur_source_for(&pkg.name)
+                        .url
+                        .join(pkg.url_path.trim_start_matches('/'))?
+                }
+                .as_str(),
             );
         }
 

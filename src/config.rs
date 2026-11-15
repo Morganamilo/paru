@@ -1,4 +1,5 @@
 use crate::args::Args;
+use crate::aursource::{self, AurSource, Origins};
 use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
@@ -419,6 +420,17 @@ pub struct Config {
     #[default(Url::parse("https://aur.archlinux.org").unwrap())]
     pub aur_url: Url,
     pub aur_rpc_url: Option<Url>,
+    /// Ordered AUR-compatible sources (`AurSource` / `--aururls`). Empty means
+    /// the single source given by `aur_url`/`aur_rpc_url`.
+    pub aur_sources: Vec<AurSource>,
+    /// URLs given with `--aururls` for this run.
+    pub aur_urls_arg: Vec<String>,
+    /// Which source each AUR package was resolved from.
+    pub aur_origins: Origins,
+    /// Host that `--ssh` rewrites clone URLs for.
+    pub aur_ssh_host: Option<String>,
+    /// `--aursource <action>`.
+    pub aur_source_action: Option<String>,
     #[default(Url::parse("https://archlinux.org").unwrap())]
     pub arch_url: Url,
     pub build_dir: PathBuf,
@@ -761,6 +773,16 @@ impl Config {
             self.color = Colors::from("auto");
         }
 
+        if !self.aur_urls_arg.is_empty() {
+            self.aur_sources = aursource::sources_from_urls(&self.aur_urls_arg)?;
+        }
+
+        self.aur_ssh_host = self.aur_url.host_str().map(|s| s.to_string());
+        if let Some(first) = self.aur_sources.first() {
+            self.aur_url = first.url.clone();
+            self.aur_rpc_url = first.rpc_url.clone();
+        }
+
         #[cfg(not(feature = "mock"))]
         {
             use std::time::Duration;
@@ -771,12 +793,33 @@ impl Config {
                 .user_agent(format!("paru/{}", ver))
                 .build()?;
 
-            let rpc_url = match &self.aur_rpc_url {
-                Some(rpc) => rpc.to_string(),
-                None => self.aur_url.join("rpc")?.to_string(),
-            };
+            if self.aur_sources.is_empty() {
+                let rpc_url = match &self.aur_rpc_url {
+                    Some(rpc) => rpc.to_string(),
+                    None => self.aur_url.join("rpc")?.to_string(),
+                };
 
-            self.raur = Some(raur::Handle::new_with_settings(client, rpc_url));
+                self.raur = Some(aursource::MultiRaur::new(
+                    vec!["aur".into()],
+                    vec![raur::Handle::new_with_settings(client, rpc_url)],
+                    self.aur_origins.clone(),
+                    self.color.warning,
+                ));
+            } else {
+                let mut handles = Vec::new();
+                for src in &self.aur_sources {
+                    handles.push(raur::Handle::new_with_settings(
+                        client.clone(),
+                        src.rpc()?.to_string(),
+                    ));
+                }
+                self.raur = Some(aursource::MultiRaur::new(
+                    self.aur_sources.iter().map(|s| s.name.clone()).collect(),
+                    handles,
+                    self.aur_origins.clone(),
+                    self.color.warning,
+                ));
+            }
         }
 
         #[cfg(feature = "mock")]
@@ -1144,6 +1187,9 @@ then initialise it with:
             }
             "AurUrl" => self.aur_url = value?.parse()?,
             "AurRpcUrl" => self.aur_rpc_url = Some(value?.parse()?),
+            "AurSource" => {
+                aursource::push_source(&mut self.aur_sources, AurSource::from_directive(&value?)?)
+            }
             "BuildDir" | "CloneDir" => self.build_dir = PathBuf::from(value?),
             "Redownload" => self.redownload = ConfigEnum::from_str(key, value?.as_str())?,
             "Rebuild" => self.rebuild = ConfigEnum::from_str(key, value?.as_str())?,
@@ -1198,6 +1244,77 @@ then initialise it with:
             );
         }
         Ok(())
+    }
+
+    /// The AUR sources in priority order. Without a configured list this is
+    /// the single source given by AurUrl/AurRpcUrl.
+    pub fn effective_aur_sources(&self) -> Vec<AurSource> {
+        if !self.aur_sources.is_empty() {
+            return self.aur_sources.clone();
+        }
+        vec![AurSource {
+            name: "aur".into(),
+            url: self.aur_url.clone(),
+            rpc_url: self.aur_rpc_url.clone(),
+        }]
+    }
+
+    /// Index into `aur_sources` of the source `pkg` (a package name or base)
+    /// was resolved from, if it is known.
+    pub fn aur_source_index(&self, pkg: &str) -> Option<usize> {
+        if self.aur_sources.len() < 2 {
+            return None;
+        }
+        self.aur_origins.lock().unwrap().get(pkg).copied()
+    }
+
+    /// The source `pkg` was resolved from, defaulting to the first one.
+    pub fn aur_source_for(&self, pkg: &str) -> AurSource {
+        let idx = self.aur_source_index(pkg).unwrap_or(0);
+        self.effective_aur_sources().swap_remove(idx)
+    }
+
+    /// The repo label to show for an AUR package: `aur` for the default
+    /// source, otherwise the name of the source it came from.
+    pub fn aur_label(&self, pkg: &str) -> &str {
+        aursource::label(&self.aur_sources, self.aur_source_index(pkg))
+    }
+
+    /// The web page of a package on the source it came from.
+    pub fn aur_package_url(&self, pkg: &str, lookup: &str) -> Result<Url> {
+        if self.aur_sources.is_empty() {
+            return Ok(self.aur_url.join(&format!("packages/{}", pkg))?);
+        }
+        Ok(self
+            .aur_source_for(lookup)
+            .url
+            .join(&format!("packages/{}", pkg))?)
+    }
+
+    /// The URLs to try when cloning `pkgbase`: its own source first, then the
+    /// others in priority order.
+    pub fn aur_clone_urls(&self, pkgbase: &str) -> Result<Vec<Url>> {
+        let sources = self.effective_aur_sources();
+        let first = self.aur_source_index(pkgbase).unwrap_or(0);
+        let ssh = if self.ssh {
+            self.aur_ssh_host.as_deref()
+        } else {
+            None
+        };
+        let mut urls = vec![sources[first].clone_url(pkgbase, ssh)?];
+        for (i, src) in sources.iter().enumerate() {
+            if i != first {
+                urls.push(src.clone_url(pkgbase, ssh)?);
+            }
+        }
+        Ok(urls)
+    }
+
+    /// Whether `name` names a non-default AUR source that is not also a repo.
+    pub fn is_aur_source_label(&self, name: &str) -> bool {
+        self.aur_sources.iter().skip(1).any(|s| s.name == name)
+            && !self.pacman.repos.iter().any(|r| r.name == name)
+            && self.pkgbuild_repos.repo(name).is_none()
     }
 
     pub fn aur_namespace(&self) -> &'static str {

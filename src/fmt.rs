@@ -342,7 +342,7 @@ fn repo<'a>(config: &'a Config, pkg: &str) -> &'a str {
     let (_, dbs) = repo::repo_aur_dbs(config);
 
     if dbs.is_empty() {
-        return "aur";
+        return config.aur_label(pkg);
     }
 
     dbs.iter()

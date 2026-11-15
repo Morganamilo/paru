@@ -206,6 +206,31 @@ Set an alternative AUR URL.
 Set an alternative URL for the AUR /rpc endpoint.
 
 .TP
+.B AurSource = Name URL [RpcURL]
+Add an AUR-compatible source (an aurweb instance such as the AUR or a mirror).
+Repeat to configure several; their order is their priority. Every source is
+searched and queried for info, dependencies and upgrades and the results are
+merged; when two sources provide a package with the same name the earlier one
+wins. A source that fails is warned about and skipped; paru only errors if all
+of them fail. PKGBUILDs are cloned from \fBURL\fR/<pkgbase>.git of the source the
+package was found in, falling back to the other sources. RpcURL defaults to
+\fBURL\fR/rpc.
+
+Packages from the first source are shown as \fBaur/\fRpkg; packages from other
+sources are shown with the source name, e.g. \fBmirror/\fRpkg, and can be
+installed as such. They are AUR packages in every other respect.
+
+When any \fBAurSource\fR is set it replaces \fBAurUrl\fR and \fBAurRpcUrl\fR; to
+keep the AUR, list it as well. These lines are usually managed with
+\fBparu \-\-aursource\fR. A later line with the same name replaces an earlier one.
+
+Example:
+.nf
+    AurSource = aur https://aur.archlinux.org
+    AurSource = mirror https://aur.example.org
+.fi
+
+.TP
 .B CloneDir = /path/to/dir
 Directory used to download and run PKGBUILDs.
 

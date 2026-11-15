@@ -11,7 +11,7 @@ end
 
 
 # paru constants
-set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb'
+set -l noopt 'not __fish_contains_opt -s G -s V -s P -s S -s D -s Q -s R -s U -s T -s F -s L -s C database query sync remove upgrade deptest files version repoctl chrootctl gendb aursource'
 set -l listall "(paru -Pc | string replace ' ' \t)"
 set -l listpacman "(__fish_print_pacman_packages)"
 set -l show '__fish_contains_opt -s P show'
@@ -168,6 +168,7 @@ complete -c $progname -s C -f -l chrootctl -n "$noopt" -d 'Interactive shell to 
 # paru options
 complete -c $progname -s c -l clean -n "$noopt" -d 'Remove unneeded dependencies' -f
 complete -c $progname -l gendb -n "$noopt" -d 'Generate development package DB' -f
+complete -c $progname -l aursource -n "$noopt" -d 'Manage AUR sources' -xa 'list add edit delete move'
 
 # Show options
 complete -c $progname -n "$show" -s w -l news -d 'Print arch news' -f
@@ -196,6 +197,7 @@ complete -c $progname -n "not $noopt" -l repo -d 'Assume targets are from the re
 complete -c $progname -n "not $noopt" -s a -l aur -d 'Assume targets are from the AUR' -f
 complete -c $progname -n "not $noopt" -l aururl -d 'Set an alternative AUR URL' -f
 complete -c $progname -n "not $noopt" -l aurrpcurl -d 'Set an alternative URL for the AUR /rpc endpoint' -f
+complete -c $progname -n "not $noopt" -l aururls -d 'Ordered list of AUR-compatible sources to query' -f
 complete -c $progname -n "not $noopt" -l clonedir -d 'Directory used to download and run PKGBUILDs' -r
 complete -c $progname -n "not $noopt" -l makepkg -d 'Makepkg command to use' -f
 complete -c $progname -n "not $noopt" -l pacman -d 'Pacman command to use' -f

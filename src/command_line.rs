@@ -171,7 +171,20 @@ impl Config {
         match arg {
             Arg::Long("help") | Arg::Short('h') => self.help = true,
             Arg::Long("version") | Arg::Short('V') => self.version = true,
-            Arg::Long("aururl") => self.aur_url = Url::parse(value?)?,
+            Arg::Long("aururl") => {
+                // An explicit --aururl selects that single source.
+                self.aur_url = Url::parse(value?)?;
+                self.aur_sources.clear();
+                self.aur_urls_arg.clear();
+            }
+            Arg::Long("aururls") => self.aur_urls_arg.extend(
+                value?
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_string()),
+            ),
+            Arg::Long("aursource") => self.aur_source_action = Some(value?.to_string()),
             Arg::Long("aurrpcurl") => self.aur_rpc_url = Some(Url::parse(value?)?),
             Arg::Long("makepkg") => self.makepkg_bin = value?.to_string(),
             Arg::Long("pacman") => self.pacman_bin = value?.to_string(),
@@ -405,6 +418,8 @@ fn takes_value(arg: Arg) -> TakesValue {
     match arg {
         Arg::Long("aururl") => TakesValue::Required,
         Arg::Long("aurrpcurl") => TakesValue::Required,
+        Arg::Long("aururls") => TakesValue::Required,
+        Arg::Long("aursource") => TakesValue::Required,
         Arg::Long("editor") => TakesValue::Required,
         Arg::Long("makepkg") => TakesValue::Required,
         Arg::Long("pacman") => TakesValue::Required,

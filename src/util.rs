@@ -53,7 +53,14 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
     let dbs = config.alpm.syncdbs();
 
     for targ in targets {
-        let targ = targ.as_targ();
+        let mut targ = targ.as_targ();
+        // `<source>/<pkg>` names a package from a non-default AUR source; it
+        // is an AUR package like any other.
+        if let Some(repo) = targ.repo
+            && config.is_aur_source_label(repo)
+        {
+            targ.repo = Some(config.aur_namespace());
+        }
         if !config.mode.repo() {
             aur.push(targ);
         } else if !config.mode.aur() && !config.mode.pkgbuild() {
@@ -475,6 +482,7 @@ mod provider_tests {
             ("exact-version", ""),
             ("repo-qualified", ""),
             ("aur-qualified", ""),
+            ("source-qualified", ""),
             ("repo-only", ""),
             ("aur-only", ""),
             ("custom-namespace", "n\n"),
@@ -531,6 +539,12 @@ mod provider_tests {
             repo.name = "aur".to_string();
             config.pacman.repos.push(repo);
         }
+        if case == "source-qualified" {
+            config.aur_sources = vec![
+                crate::aursource::AurSource::new("aur", "https://aur.archlinux.org", None).unwrap(),
+                crate::aursource::AurSource::new("mirror", "https://m.example", None).unwrap(),
+            ];
+        }
         config.init_alpm().unwrap();
         config.raur = Some(crate::mock::Mock::default());
 
@@ -539,13 +553,14 @@ mod provider_tests {
             "exact-version" => "bash>=5",
             "repo-qualified" => "core/sh",
             "aur-qualified" => "aur/sh",
+            "source-qualified" => "mirror/sh",
             _ => "sh",
         };
         let input_targets = [target];
         let (repo, aur) = split_repo_aur_targets(&mut config, &input_targets).unwrap();
         let from_aur = matches!(
             case,
-            "decline" | "aur-qualified" | "aur-only" | "custom-namespace"
+            "decline" | "aur-qualified" | "source-qualified" | "aur-only" | "custom-namespace"
         );
         if from_aur {
             assert!(repo.is_empty());

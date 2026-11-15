@@ -17,7 +17,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{Context, Result, bail, ensure};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
@@ -353,6 +353,78 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
     Ok(ret)
 }
 
+/// Clones or fetches AUR packages. With several AUR sources each package is
+/// cloned from the source it was found in, falling back to the other sources
+/// if that fails. Without a source list this is `config.fetch.download_cb`.
+fn download_aur<F: Fn(aur_fetch::Callback)>(
+    config: &Config,
+    pkgs: &[&str],
+    f: F,
+) -> Result<Vec<String>> {
+    if config.aur_sources.is_empty() {
+        return Ok(config.fetch.download_cb(pkgs, f)?);
+    }
+
+    let repos = pkgs
+        .iter()
+        .map(|p| {
+            Ok(aur_fetch::Repo {
+                url: config.aur_clone_urls(p)?.remove(0),
+                name: p.to_string(),
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    let n = std::sync::atomic::AtomicUsize::new(0);
+    let count_fn = |cb: aur_fetch::Callback| {
+        let n = n.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+        f(aur_fetch::Callback { n, ..cb })
+    };
+    let count = &count_fn;
+
+    let first_err = match config.fetch.download_repos_cb(&repos, count) {
+        Ok(fetched) => return Ok(fetched),
+        Err(e) => e,
+    };
+
+    // Retry one package at a time, trying every source in order. Packages
+    // that were already cloned are just fetched again.
+    log::debug!("download failed, trying other AUR sources: {}", first_err);
+    n.store(0, std::sync::atomic::Ordering::Relaxed);
+    let mut fetched = Vec::new();
+    for pkg in pkgs {
+        let mut last_err = None;
+        for url in config.aur_clone_urls(pkg)? {
+            let repo = aur_fetch::Repo {
+                url,
+                name: pkg.to_string(),
+            };
+            match config
+                .fetch
+                .download_repos_cb(std::slice::from_ref(&repo), count)
+            {
+                Ok(f) => {
+                    fetched.extend(f);
+                    last_err = None;
+                    break;
+                }
+                Err(e) => {
+                    eprintln!(
+                        "{} {}",
+                        config.color.warning.paint(tr!("warning:")),
+                        tr!("failed to download {} from {}", pkg, repo.url)
+                    );
+                    last_err = Some(e);
+                }
+            }
+        }
+        if let Some(e) = last_err {
+            return Err(e.into());
+        }
+    }
+    Ok(fetched)
+}
+
 async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     let download = bases
         .bases
@@ -377,7 +449,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     }
 
     if cols < 80 {
-        config.fetch.download_cb(&download, |cb| {
+        download_aur(config, &download, |cb| {
             let base = bases
                 .bases
                 .iter()
@@ -399,7 +471,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                 .progress_chars("-> "),
         );
 
-        config.fetch.download_cb(&download, |cb| {
+        download_aur(config, &download, |cb| {
             let base = bases
                 .bases
                 .iter()
@@ -479,9 +551,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let c = config.color;
 
     for base in &bases.bases {
-        let mut url = config
-            .aur_url
-            .join(&format!("packages/{}", base.package_base()))?;
+        let mut url = config.aur_package_url(base.package_base(), base.package_base())?;
 
         if config.comments >= 2 {
             url.set_query(Some("PP=250"));
@@ -680,17 +750,30 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
         for base in &bases.bases {
             let base = base.package_base();
-            let url = config.aur_url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
-            let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
-
-            let response = client
-                .get(url.clone())
-                .send()
-                .await
-                .with_context(|| format!("{}: {}", base, url))?;
-            if !response.status().is_success() {
-                bail!("{}: {}: {}", base, url, response.status());
+            let mut sources = config.effective_aur_sources();
+            if let Some(idx) = config.aur_source_index(base) {
+                let src = sources.remove(idx);
+                sources.insert(0, src);
             }
+
+            // Try the package's own source first, then the others.
+            let mut response = None;
+            let mut last_err = None;
+            for src in &sources {
+                let url = src.url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
+                let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
+                match client.get(url.clone()).send().await {
+                    Ok(r) if r.status().is_success() => {
+                        response = Some(r);
+                        break;
+                    }
+                    Ok(r) => last_err = Some(anyhow!("{}: {}: {}", base, url, r.status())),
+                    Err(e) => last_err = Some(anyhow!(e).context(format!("{}: {}", base, url))),
+                }
+            }
+            let Some(response) = response else {
+                return Err(last_err.unwrap());
+            };
 
             if bat {
                 pipe_bat(config, &response.bytes().await?)?;
