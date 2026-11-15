@@ -831,6 +831,12 @@ impl Config {
             self.raur = Some(crate::mock::Mock::new()?);
         }
 
+        if self.aur_sources.len() > 1 {
+            let warn = matches!(self.op, Op::Sync | Op::Default)
+                || (self.op == Op::Query && self.args.has_arg("u", "upgrades"));
+            aursource::load_pins(self, warn && self.aur_source_action.is_none());
+        }
+
         let aur_url = if self.ssh {
             self.aur_url
                 .to_string()
@@ -1320,10 +1326,19 @@ then initialise it with:
     /// whether the target was pinned.
     pub fn pin_aur_target(&self, repo: Option<&str>, pkg: &str) -> bool {
         let Some(repo) = repo else { return false };
-        if !self.is_aur_source_label(repo) {
-            return false;
-        }
-        let Some(idx) = self.aur_sources.iter().position(|s| s.name == repo) else {
+        let idx = if (repo == "aur" || repo == self.aur_namespace())
+            && self.aur_sources.len() > 1
+            && !self.is_aur_source_label(repo)
+        {
+            // `aur/<pkg>` asks for the default source, overriding a recorded
+            // install source.
+            0
+        } else if self.is_aur_source_label(repo) {
+            match self.aur_sources.iter().position(|s| s.name == repo) {
+                Some(idx) => idx,
+                None => return false,
+            }
+        } else {
             return false;
         };
         let name = alpm::Depend::new(pkg).name().to_string();

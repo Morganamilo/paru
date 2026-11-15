@@ -594,6 +594,192 @@ pub fn write_atomic(path: &Path, contents: &str) -> Result<()> {
     Ok(())
 }
 
+/// The AUR source each installed package came from, persisted so later
+/// upgrades and re-installs use the same source. Only packages installed from
+/// a source other than the first one are recorded.
+#[derive(Debug, Default, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct PinFile {
+    #[serde(default)]
+    pub packages: std::collections::BTreeMap<String, String>,
+}
+
+impl PinFile {
+    pub fn load(path: &Path) -> Result<Self> {
+        match fs::read_to_string(path) {
+            Ok(s) => {
+                toml::from_str(&s).with_context(|| tr!("failed to parse '{}'", path.display()))
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Self::default()),
+            Err(e) => Err(e).with_context(|| tr!("failed to read '{}'", path.display())),
+        }
+    }
+
+    pub fn save(&self, path: &Path) -> Result<()> {
+        if self.packages.is_empty() && !path.exists() {
+            return Ok(());
+        }
+        let mut s = String::from(
+            "# The AUR source each package was installed from. Managed by paru;\n# see `paru --aursource pins` and `paru --aursource unpin`.\n",
+        );
+        s.push_str(&toml::to_string(self)?);
+        write_atomic(path, &s)
+    }
+
+    /// Drops packages that are no longer installed.
+    pub fn prune(&mut self, installed: impl Fn(&str) -> bool) -> Vec<String> {
+        let gone = self
+            .packages
+            .keys()
+            .filter(|p| !installed(p))
+            .cloned()
+            .collect::<Vec<_>>();
+        for p in &gone {
+            self.packages.remove(p);
+        }
+        gone
+    }
+
+    /// Records that `pkgs` were installed from `source`, or from the default
+    /// source when `source` is None.
+    pub fn record<'a>(&mut self, pkgs: impl IntoIterator<Item = &'a str>, source: Option<&str>) {
+        for pkg in pkgs {
+            match source {
+                Some(src) => self.packages.insert(pkg.to_string(), src.to_string()),
+                None => self.packages.remove(pkg),
+            };
+        }
+    }
+
+    pub fn rename_source(&mut self, old: &str, new: &str) -> Vec<String> {
+        let mut changed = Vec::new();
+        for (pkg, src) in self.packages.iter_mut() {
+            if src == old {
+                *src = new.to_string();
+                changed.push(pkg.clone());
+            }
+        }
+        changed
+    }
+
+    pub fn drop_source(&mut self, source: &str) -> Vec<String> {
+        let gone = self
+            .packages
+            .iter()
+            .filter(|(_, s)| *s == source)
+            .map(|(p, _)| p.clone())
+            .collect::<Vec<_>>();
+        for p in &gone {
+            self.packages.remove(p);
+        }
+        gone
+    }
+}
+
+/// Where the installed-from records live, if paru has a state directory.
+pub fn pins_path(config: &crate::config::Config) -> Option<PathBuf> {
+    if config.state_dir.as_os_str().is_empty() {
+        None
+    } else {
+        Some(config.state_dir.join("aursources.toml"))
+    }
+}
+
+/// Loads the recorded sources of installed packages into `config.aur_pins`
+/// so they are looked up and downloaded from where they were installed from.
+/// Records whose source is no longer configured are reported (for commands
+/// that query the AUR) and ignored.
+pub fn load_pins(config: &crate::config::Config, warn: bool) {
+    let Some(path) = pins_path(config) else {
+        return;
+    };
+    let file = match PinFile::load(&path) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("{} {:#}", config.color.warning.paint(tr!("warning:")), e);
+            return;
+        }
+    };
+    let db = config.alpm.localdb();
+    let mut pins = config.aur_pins.lock().unwrap();
+    let mut origins = config.aur_origins.lock().unwrap();
+    for (pkg, src) in &file.packages {
+        if db.pkg(pkg.as_str()).is_err() {
+            continue;
+        }
+        if let Some(idx) = config.aur_sources.iter().position(|s| &s.name == src) {
+            pins.insert(pkg.clone(), idx);
+            origins.insert(pkg.clone(), idx);
+        } else if warn {
+            eprintln!(
+                "{} {}",
+                config.color.warning.paint(tr!("warning:")),
+                tr!(
+                    "{pkg} was installed from AUR source '{source}', which is no longer configured; using the normal source order (see paru --aursource unpin)",
+                    pkg = pkg,
+                    source = src
+                )
+            );
+        }
+    }
+}
+
+/// Records which source the given AUR packages (name, version) came from if
+/// that version is now installed, and forgets packages that are no longer
+/// installed.
+pub fn record_installed(config: &crate::config::Config, pkgs: &[(String, String)]) -> Result<()> {
+    if config.aur_sources.len() < 2 {
+        return Ok(());
+    }
+    let Some(path) = pins_path(config) else {
+        return Ok(());
+    };
+    // pacman ran in a subprocess; read the local database afresh.
+    let alpm = config.new_alpm()?;
+    let db = alpm.localdb();
+    let mut file = PinFile::load(&path)?;
+    let before = file.clone();
+    for (pkg, version) in pkgs {
+        if !db
+            .pkg(pkg.as_str())
+            .is_ok_and(|p| p.version().as_str() == version)
+        {
+            continue;
+        }
+        let idx = config.aur_source_index(pkg).unwrap_or(0);
+        let source = (idx > 0).then(|| config.aur_sources[idx].name.as_str());
+        file.record([pkg.as_str()], source);
+    }
+    file.prune(|p| db.pkg(p).is_ok());
+    if file != before {
+        file.save(&path)?;
+    }
+    Ok(())
+}
+
+fn print_pins(config: &crate::config::Config, file: &PinFile) {
+    if file.packages.is_empty() {
+        println!("{}", tr!("No packages are pinned to an AUR source"));
+        return;
+    }
+    let bold = config.color.bold;
+    let db = config.alpm.localdb();
+    for (pkg, src) in &file.packages {
+        let mut notes = Vec::new();
+        if !config.aur_sources.iter().any(|s| &s.name == src) {
+            notes.push(tr!("source not configured"));
+        }
+        if db.pkg(pkg.as_str()).is_err() {
+            notes.push(tr!("not installed"));
+        }
+        let notes = if notes.is_empty() {
+            String::new()
+        } else {
+            format!(" ({})", notes.join(", "))
+        };
+        println!("{} {}{}", bold.paint(pkg), src, notes);
+    }
+}
+
 /// Parses a paru config file the way paru would and returns its AUR settings.
 fn parse_config(name: &str, contents: &str) -> Result<crate::config::Config> {
     use cini::Ini;
@@ -619,12 +805,14 @@ fn print_sources(config: &crate::config::Config, sources: &[AurSource], configur
     }
 }
 
-const USAGE: &str = "usage: paru --aursource <list|add|edit|delete|move> [args]
+const USAGE: &str = "usage: paru --aursource <list|add|edit|delete|move|pins|unpin> [args]
     paru --aursource list
     paru --aursource add <name> <url> [rpcurl]
     paru --aursource edit <name> [name=<new>] [url=<url>] [rpcurl=<url>]
     paru --aursource delete <name>
-    paru --aursource move <name> <position>";
+    paru --aursource move <name> <position>
+    paru --aursource pins
+    paru --aursource unpin <pkg>...";
 
 /// `paru --aursource <action> [args]`: list or edit the AurSource entries of
 /// the user's paru.conf.
@@ -633,6 +821,34 @@ pub fn command(config: &crate::config::Config) -> Result<i32> {
     let args = &config.targets;
 
     let mutate: Mutation = match action {
+        "pins" => {
+            ensure!(args.is_empty(), "{}", USAGE);
+            let Some(path) = pins_path(config) else {
+                return Ok(0);
+            };
+            print_pins(config, &PinFile::load(&path)?);
+            return Ok(0);
+        }
+        "unpin" => {
+            ensure!(!args.is_empty(), "{}", USAGE);
+            let path = pins_path(config).ok_or_else(|| anyhow!(tr!("no state directory")))?;
+            let mut file = PinFile::load(&path)?;
+            let mut ret = 0;
+            for pkg in args {
+                if file.packages.remove(pkg).is_some() {
+                    println!("{}", tr!("{} is no longer pinned", pkg));
+                } else {
+                    eprintln!(
+                        "{} {}",
+                        config.color.error.paint(tr!("error:")),
+                        tr!("{} is not pinned", pkg)
+                    );
+                    ret = 1;
+                }
+            }
+            file.save(&path)?;
+            return Ok(ret);
+        }
         "list" | "ls" => {
             ensure!(args.is_empty(), "{}", USAGE);
             print_sources(
@@ -682,6 +898,47 @@ pub fn command(config: &crate::config::Config) -> Result<i32> {
     let path = user_config_path()?;
     let sources = update_config_file(&path, Path::new("/etc/paru.conf"), mutate)?;
     println!("{}", tr!("Saved AUR sources to {}", path.display()));
+
+    // Keep the installed-from records in line with renamed/deleted sources.
+    if let Some(pins_path) = pins_path(config) {
+        let mut file = PinFile::load(&pins_path)?;
+        let renamed = args
+            .iter()
+            .skip(1)
+            .find_map(|kv| kv.strip_prefix("name="))
+            .filter(|_| action == "edit");
+        let changed = match (action, renamed) {
+            ("edit", Some(new)) => {
+                let pkgs = file.rename_source(&args[0], new);
+                if !pkgs.is_empty() {
+                    println!(
+                        "{}",
+                        tr!("Updated the source of {} to '{}'", pkgs.join(" "), new)
+                    );
+                }
+                !pkgs.is_empty()
+            }
+            ("delete" | "remove" | "rm", _) => {
+                let pkgs = file.drop_source(&args[0]);
+                if !pkgs.is_empty() {
+                    println!(
+                        "{} {}",
+                        config.color.warning.paint("::"),
+                        tr!(
+                            "{} no longer pinned (installed from deleted source '{}'); they will be upgraded from the normal source order",
+                            pkgs.join(" "),
+                            args[0]
+                        )
+                    );
+                }
+                !pkgs.is_empty()
+            }
+            _ => false,
+        };
+        if changed {
+            file.save(&pins_path)?;
+        }
+    }
     let configured = !sources.is_empty();
     let sources = if configured {
         sources
@@ -1314,7 +1571,9 @@ pub(crate) mod tests {
         )
         .unwrap();
         assert!(!c.pin_aur_target(None, "foo"));
-        assert!(!c.pin_aur_target(Some("aur"), "foo"));
+        // aur/<pkg> selects the default source.
+        assert!(c.pin_aur_target(Some("aur"), "foo"));
+        assert_eq!(c.aur_pins.lock().unwrap()["foo"], 0);
         assert!(!c.pin_aur_target(Some("unknown"), "foo"));
         assert!(c.pin_aur_target(Some("mirror"), "foo>=2"));
         assert_eq!(c.aur_pins.lock().unwrap()["foo"], 1);
@@ -1327,6 +1586,126 @@ pub(crate) mod tests {
         // Without a source list nothing is pinned.
         let c = parse_config("t", "[options]\n").unwrap();
         assert!(!c.pin_aur_target(Some("mirror"), "foo"));
+    }
+
+    fn testdata_config(state: &Path) -> crate::config::Config {
+        let testdata = Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata");
+        let mut config = crate::config::Config::default();
+        config.pacman = pacmanconf::Config::with_opts(
+            None,
+            Some(testdata.join("pacman.conf").to_str().unwrap()),
+            None,
+        )
+        .unwrap();
+        config.pacman.root_dir = "/".to_string();
+        config.pacman.db_path = testdata.join("db").to_str().unwrap().to_string();
+        config.init_alpm().unwrap();
+        config.state_dir = state.to_path_buf();
+        config.aur_sources = vec![
+            src("aur", "https://aur.archlinux.org"),
+            src("mirror", "https://m.example"),
+        ];
+        config
+    }
+
+    #[test]
+    fn pin_file_ops() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("aursources.toml");
+        // Nothing recorded: no file is created.
+        PinFile::default().save(&path).unwrap();
+        assert!(!path.exists());
+
+        let mut f = PinFile::default();
+        f.record(["a", "b"], Some("mirror"));
+        f.record(["c"], Some("other"));
+        f.save(&path).unwrap();
+        let text = fs::read_to_string(&path).unwrap();
+        assert!(text.starts_with("# The AUR source"));
+        assert_eq!(PinFile::load(&path).unwrap(), f);
+
+        f.record(["b"], None);
+        assert!(!f.packages.contains_key("b"));
+        assert_eq!(f.rename_source("mirror", "m2"), ["a"]);
+        assert_eq!(f.packages["a"], "m2");
+        assert_eq!(f.drop_source("other"), ["c"]);
+        assert_eq!(f.prune(|p| p != "a"), ["a"]);
+        assert!(f.packages.is_empty());
+        // An emptied file is still written so old records disappear.
+        f.save(&path).unwrap();
+        assert!(PinFile::load(&path).unwrap().packages.is_empty());
+
+        fs::write(&path, "not = [toml").unwrap();
+        assert!(PinFile::load(&path).is_err());
+        assert!(
+            PinFile::load(&dir.path().join("missing"))
+                .unwrap()
+                .packages
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn load_and_record_installed_sources() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = testdata_config(dir.path());
+        let path = pins_path(&config).unwrap();
+        let mut f = PinFile::default();
+        f.record(["bash"], Some("mirror"));
+        f.record(["acl"], Some("removed-source"));
+        f.record(["not-installed"], Some("mirror"));
+        f.save(&path).unwrap();
+
+        load_pins(&config, true);
+        {
+            let pins = config.aur_pins.lock().unwrap();
+            assert_eq!(pins.get("bash"), Some(&1));
+            assert_eq!(
+                pins.get("acl"),
+                None,
+                "unknown source falls back to priority order"
+            );
+            assert_eq!(pins.get("not-installed"), None);
+        }
+        assert_eq!(config.aur_label("bash"), "mirror");
+        assert_eq!(
+            config.aur_clone_urls("bash").unwrap()[0].as_str(),
+            "https://m.example/bash.git"
+        );
+
+        // acl now installed from mirror, bash re-installed from the default.
+        {
+            let mut o = config.aur_origins.lock().unwrap();
+            o.insert("acl".into(), 1);
+            o.insert("bash".into(), 0);
+        }
+        let ver = |p: &str| config.alpm.localdb().pkg(p).unwrap().version().to_string();
+        record_installed(
+            &config,
+            &[
+                ("acl".into(), ver("acl")),
+                ("bash".into(), ver("bash")),
+                // Not the installed version (the build failed): ignored.
+                ("attr".into(), "0-0".into()),
+            ],
+        )
+        .unwrap();
+        let f = PinFile::load(&path).unwrap();
+        assert_eq!(
+            f.packages.into_iter().collect::<Vec<_>>(),
+            [("acl".to_string(), "mirror".to_string())],
+            "re-pinned, unpinned and pruned"
+        );
+    }
+
+    #[test]
+    fn aur_prefix_overrides_recorded_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = testdata_config(dir.path());
+        config.aur_pins.lock().unwrap().insert("bash".into(), 1);
+        assert!(config.pin_aur_target(Some("aur"), "bash"));
+        assert_eq!(config.aur_pins.lock().unwrap()["bash"], 0);
+        assert_eq!(config.aur_label("bash"), "aur");
     }
 }
 
@@ -1375,10 +1754,19 @@ mod mock_tests {
             Style::new(),
         );
 
-        for (target, want, label) in [("shared", "1-1", "aur"), ("mirror/shared", "2-1", "mirror")]
-        {
+        for (target, recorded, want, label) in [
+            ("shared", false, "1-1", "aur"),
+            ("mirror/shared", false, "2-1", "mirror"),
+            // Installed from mirror earlier: a plain name stays on mirror...
+            ("shared", true, "2-1", "mirror"),
+            // ...unless the default source is asked for explicitly.
+            ("aur/shared", true, "1-1", "aur"),
+        ] {
             config.aur_pins.lock().unwrap().clear();
             config.aur_origins.lock().unwrap().clear();
+            if recorded {
+                config.aur_pins.lock().unwrap().insert("shared".into(), 1);
+            }
             let input = [target];
             let (repo, aur) = crate::util::split_repo_aur_targets(&mut config, &input).unwrap();
             assert!(repo.is_empty());

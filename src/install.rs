@@ -1041,6 +1041,20 @@ impl Installer {
             }
         }
 
+        // Remember which AUR source the installed packages came from.
+        let installed = build
+            .iter()
+            .filter_map(|b| match b {
+                Base::Aur(base) => Some(base),
+                _ => None,
+            })
+            .flat_map(|base| &base.pkgs)
+            .map(|p| (p.pkg.name.clone(), p.pkg.version.clone()))
+            .collect::<Vec<_>>();
+        if let Err(e) = crate::aursource::record_installed(config, &installed) {
+            print_error(config.color.error, e);
+        }
+
         self.build_cleanup(config, &build)?;
         err
     }

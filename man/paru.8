@@ -118,7 +118,17 @@ Remove a source. Removing every source falls back to \fBAurUrl\fR.
 .B move <name> <position>
 Move a source to a 1-based position. Earlier sources win when two sources
 provide a package with the same name.
+.TP
+.B pins
+List installed packages that are pinned to the AUR source they were installed
+from (see \fBAurSource\fR in paru.conf(5)).
+.TP
+.B unpin <pkg>...
+Forget the recorded source of packages so they follow the normal source order.
 .RE
+
+Renaming a source with \fBedit name=\fR updates the packages pinned to it;
+deleting a source unpins its packages with a notice.
 
 .TP
 .B \-\-gendb

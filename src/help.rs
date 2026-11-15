@@ -27,7 +27,9 @@ pub fn help() {
     printtr!("Options without operation:");
     printtr!("    -c --clean            Remove unneeded dependencies");
     printtr!("       --gendb            Generates development package DB used for updating");
-    printtr!("       --aursource <action> Manage AUR sources: list, add, edit, delete, move");
+    printtr!(
+        "       --aursource <action> Manage AUR sources: list, add, edit, delete, move, pins, unpin"
+    );
     println!();
     printtr!("New options:");
     printtr!("       --repo              Assume targets are from the repositories");

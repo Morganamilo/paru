@@ -227,6 +227,18 @@ not have it, paru warns and falls back to the other sources. If a cached clone
 of the package came from a different source, paru stops and asks for it to be
 removed.
 
+When a package is installed from a source other than the first one, paru
+records that source in \fB$XDG_STATE_HOME/paru/aursources.toml\fR (usually
+~/.local/state/paru). Later upgrades (\-Syu, \-Sua, \-Qua, devel checks) and
+re-installs of that package look it up and download it from the recorded
+source first. If that source is no longer configured or no longer has the
+package, paru warns and uses the normal source order. Installing the package
+from another source (\fB<source>/<pkg>\fR) or from the first source
+(\fBaur/<pkg>\fR) updates the record; records of packages that are no longer
+installed are dropped the next time the file is written. Use
+\fBparu \-\-aursource pins\fR and \fBparu \-\-aursource unpin <pkg>\fR to view and
+clear them.
+
 When any \fBAurSource\fR is set it replaces \fBAurUrl\fR and \fBAurRpcUrl\fR; to
 keep the AUR, list it as well. These lines are usually managed with
 \fBparu \-\-aursource\fR. A later line with the same name replaces an earlier one.

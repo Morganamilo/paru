@@ -168,7 +168,7 @@ complete -c $progname -s C -f -l chrootctl -n "$noopt" -d 'Interactive shell to 
 # paru options
 complete -c $progname -s c -l clean -n "$noopt" -d 'Remove unneeded dependencies' -f
 complete -c $progname -l gendb -n "$noopt" -d 'Generate development package DB' -f
-complete -c $progname -l aursource -n "$noopt" -d 'Manage AUR sources' -xa 'list add edit delete move'
+complete -c $progname -l aursource -n "$noopt" -d 'Manage AUR sources' -xa 'list add edit delete move pins unpin'
 
 # Show options
 complete -c $progname -n "$show" -s w -l news -d 'Print arch news' -f
