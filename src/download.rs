@@ -353,6 +353,87 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
     Ok(ret)
 }
 
+/// Strips what does not matter when comparing git remote URLs.
+fn normalize_git_url(url: &str) -> &str {
+    let url = url.trim().trim_end_matches('/');
+    url.strip_suffix(".git")
+        .unwrap_or(url)
+        .trim_end_matches('/')
+}
+
+/// The git remote URL of the clone in `dir`, if it can be read.
+fn clone_origin(config: &Config, dir: &std::path::Path) -> Option<String> {
+    let output = Command::new(&config.git_bin)
+        .args(&config.git_flags)
+        .arg("-C")
+        .arg(dir)
+        .args(["remote", "get-url", "origin"])
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+    let url = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    (output.status.success() && !url.is_empty()).then_some(url)
+}
+
+/// With several AUR sources, makes sure existing clones of `pkgs` under
+/// `root` were cloned from the source each package is now fetched from
+/// (its recorded source, a `<source>/<pkg>` target, a fallback or the
+/// normal priority order). Fetching or building such a clone would otherwise
+/// silently use the source it was first cloned from. Missing clones and
+/// clones whose remote can not be read are not checked.
+pub fn check_clone_origins<S: AsRef<str>>(
+    config: &Config,
+    root: &std::path::Path,
+    pkgs: &[S],
+) -> Result<()> {
+    if config.aur_sources.len() < 2 {
+        return Ok(());
+    }
+
+    let mut errors = Vec::new();
+    for pkg in pkgs {
+        let pkg = pkg.as_ref();
+        let dir = root.join(pkg);
+        if !dir.join(".git").exists() {
+            continue;
+        }
+        let Some(current) = clone_origin(config, &dir) else {
+            continue;
+        };
+        let expected = config.aur_clone_urls(pkg)?.remove(0);
+        let source = config.aur_source_for(pkg);
+        // Either form of the source's URL is fine (--ssh or not).
+        let mut accepted = vec![
+            expected.to_string(),
+            source.clone_url(pkg, None)?.to_string(),
+        ];
+        if let Some(host) = config.aur_ssh_host.as_deref() {
+            accepted.push(source.clone_url(pkg, Some(host))?.to_string());
+        }
+        let current_norm = normalize_git_url(&current);
+        if accepted
+            .iter()
+            .any(|u| normalize_git_url(u) == current_norm)
+        {
+            continue;
+        }
+        errors.push(tr!(
+            "{dir} was cloned from {current} but {pkg} is being fetched from AUR source '{source}' ({expected}); remove {dir} and try again",
+            dir = dir.display(),
+            current = current,
+            pkg = pkg,
+            source = source.name,
+            expected = expected
+        ));
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(anyhow!(errors.join("\n")))
+    }
+}
+
 /// Clones or fetches AUR packages. With several AUR sources each package is
 /// cloned from the source it was found in, falling back to the other sources
 /// if that fails. Without a source list this is `config.fetch.download_cb`.
@@ -365,37 +446,7 @@ fn download_aur<F: Fn(aur_fetch::Callback)>(
         return Ok(config.fetch.download_cb(pkgs, f)?);
     }
 
-    // A cached clone of a package pinned with `<source>/<pkg>` must come from
-    // that source: fetching would otherwise update it from wherever it was
-    // first cloned from.
-    for pkg in pkgs {
-        if !config.aur_pins.lock().unwrap().contains_key(*pkg) {
-            continue;
-        }
-        let dir = config.fetch.clone_dir.join(pkg);
-        if !dir.join(".git").exists() {
-            continue;
-        }
-        let expected = config.aur_clone_urls(pkg)?.remove(0);
-        let output = Command::new(&config.git_bin)
-            .args(&config.git_flags)
-            .arg("-C")
-            .arg(&dir)
-            .args(["remote", "get-url", "origin"])
-            .output()?;
-        let current = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        let same = |a: &str, b: &str| a.trim_end_matches(".git") == b.trim_end_matches(".git");
-        if !same(&current, expected.as_str()) {
-            bail!(tr!(
-                "{dir} was cloned from {current} but {pkg} was requested from AUR source '{source}' ({expected}); remove {dir} and try again",
-                dir = dir.display(),
-                current = current,
-                pkg = pkg,
-                source = config.aur_source_for(pkg).name,
-                expected = expected
-            ));
-        }
-    }
+    check_clone_origins(config, &config.fetch.clone_dir, pkgs)?;
 
     let repos = pkgs
         .iter()
@@ -537,6 +588,10 @@ pub async fn new_aur_pkgbuilds(
         .iter()
         .map(|b| b.package_base())
         .collect::<Vec<_>>();
+
+    // Before the "up to date" shortcut below, which would otherwise build a
+    // cached clone from another AUR source.
+    check_clone_origins(config, &config.fetch.clone_dir, &all_pkgs)?;
 
     if config.redownload == YesNoAll::All {
         aur_pkgbuilds(config, bases).await?;
@@ -912,5 +967,118 @@ mod tests {
             assert!(is_arch_source_repo(repo), "{repo}");
             assert!(!is_arch_repo(repo), "{repo}");
         }
+    }
+}
+
+#[cfg(test)]
+mod clone_origin_tests {
+    use super::*;
+    use crate::aursource::tests::{pkg, src};
+    use std::path::Path;
+
+    fn git(dir: &Path, args: &[&str]) {
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(dir)
+            .args(args)
+            .stdout(Stdio::null())
+            .status()
+            .unwrap();
+        assert!(status.success(), "git {args:?}");
+    }
+
+    fn clone(root: &Path, name: &str, origin: Option<&str>) {
+        let dir = root.join(name);
+        std::fs::create_dir_all(&dir).unwrap();
+        git(&dir, &["init", "-q"]);
+        if let Some(origin) = origin {
+            git(&dir, &["remote", "add", "origin", origin]);
+        }
+    }
+
+    fn config(root: &Path) -> Config {
+        let mut config = Config::default();
+        config.aur_sources = vec![
+            src("aur", "https://aur.archlinux.org"),
+            src("mirror", "https://m.example"),
+        ];
+        config.fetch.clone_dir = root.to_path_buf();
+        config
+    }
+
+    #[test]
+    fn check_clone_origins_compares_with_resolved_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        clone(root, "foo", Some("https://aur.archlinux.org/foo.git"));
+        clone(root, "bar", Some("https://m.example/bar/"));
+        clone(root, "ssh", Some("ssh://aur@aur.archlinux.org/ssh.git"));
+        clone(root, "noremote", None);
+        let mut config = config(root);
+        config.aur_ssh_host = Some("aur.archlinux.org".into());
+
+        // Normal priority: foo comes from the first source, as its clone.
+        check_clone_origins(&config, root, &["foo", "noremote", "missing", "ssh"]).unwrap();
+
+        // Resolved from (recorded on, or requested from) the mirror now.
+        config.aur_origins.lock().unwrap().insert("foo".into(), 1);
+        config.aur_origins.lock().unwrap().insert("bar".into(), 1);
+        let err = check_clone_origins(&config, root, &["foo", "bar"])
+            .unwrap_err()
+            .to_string();
+        let foo = root.join("foo");
+        assert_eq!(
+            err,
+            format!(
+                "{0} was cloned from https://aur.archlinux.org/foo.git but foo is being fetched from AUR source 'mirror' (https://m.example/foo.git); remove {0} and try again",
+                foo.display()
+            )
+        );
+
+        // A single source keeps the old behaviour.
+        config.aur_sources.truncate(1);
+        check_clone_origins(&config, root, &["foo", "bar"]).unwrap();
+    }
+
+    #[test]
+    fn git_url_normalization() {
+        for (a, b) in [
+            ("https://m.example/foo.git", "https://m.example/foo"),
+            ("https://m.example/foo/", "https://m.example/foo.git"),
+            (" https://m.example/foo.git/\n", "https://m.example/foo"),
+        ] {
+            assert_eq!(normalize_git_url(a), normalize_git_url(b));
+        }
+        assert_ne!(
+            normalize_git_url("https://m.example/foo"),
+            normalize_git_url("https://aur.archlinux.org/foo")
+        );
+    }
+
+    /// The "PKGBUILD up to date" shortcut must not build a clone from
+    /// another source, and nothing is fetched.
+    #[tokio::test]
+    async fn new_aur_pkgbuilds_checks_before_up_to_date_shortcut() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        clone(root, "foo", Some("https://aur.archlinux.org/foo.git"));
+        let config = config(root);
+        config.aur_origins.lock().unwrap().insert("foo".into(), 1);
+
+        let bases = Bases::from_iter([Package::from(pkg("foo", "foo", "1-1"))]);
+        let srcinfo: Srcinfo =
+            "pkgbase = foo\n\tpkgver = 5\n\tpkgrel = 1\n\tarch = any\n\npkgname = foo\n"
+                .parse()
+                .unwrap();
+        let srcinfos = HashMap::from([("foo".to_string(), srcinfo)]);
+
+        let err = new_aur_pkgbuilds(&config, &bases, &srcinfos)
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(
+            err.contains("is being fetched from AUR source 'mirror'"),
+            "{err}"
+        );
     }
 }

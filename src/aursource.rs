@@ -1754,6 +1754,29 @@ mod mock_tests {
             Style::new(),
         );
 
+        let clones = tempfile::tempdir().unwrap();
+        let clone = clones.path().join("shared");
+        std::fs::create_dir_all(&clone).unwrap();
+        for args in [
+            &["init", "-q"][..],
+            &[
+                "remote",
+                "add",
+                "origin",
+                "https://aur.archlinux.org/shared.git",
+            ],
+        ] {
+            assert!(
+                std::process::Command::new("git")
+                    .arg("-C")
+                    .arg(&clone)
+                    .args(args)
+                    .status()
+                    .unwrap()
+                    .success()
+            );
+        }
+
         for (target, recorded, want, label) in [
             ("shared", false, "1-1", "aur"),
             ("mirror/shared", false, "2-1", "mirror"),
@@ -1791,6 +1814,11 @@ mod mock_tests {
                     "m.example"
                 })
             );
+
+            // A cached clone from the default source is only usable when the
+            // package resolved there.
+            let check = crate::download::check_clone_origins(&config, clones.path(), &["shared"]);
+            assert_eq!(check.is_ok(), label == "aur", "{target}: {check:?}");
         }
     }
 }
