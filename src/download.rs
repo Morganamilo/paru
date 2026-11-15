@@ -365,6 +365,38 @@ fn download_aur<F: Fn(aur_fetch::Callback)>(
         return Ok(config.fetch.download_cb(pkgs, f)?);
     }
 
+    // A cached clone of a package pinned with `<source>/<pkg>` must come from
+    // that source: fetching would otherwise update it from wherever it was
+    // first cloned from.
+    for pkg in pkgs {
+        if !config.aur_pins.lock().unwrap().contains_key(*pkg) {
+            continue;
+        }
+        let dir = config.fetch.clone_dir.join(pkg);
+        if !dir.join(".git").exists() {
+            continue;
+        }
+        let expected = config.aur_clone_urls(pkg)?.remove(0);
+        let output = Command::new(&config.git_bin)
+            .args(&config.git_flags)
+            .arg("-C")
+            .arg(&dir)
+            .args(["remote", "get-url", "origin"])
+            .output()?;
+        let current = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        let same = |a: &str, b: &str| a.trim_end_matches(".git") == b.trim_end_matches(".git");
+        if !same(&current, expected.as_str()) {
+            bail!(tr!(
+                "{dir} was cloned from {current} but {pkg} was requested from AUR source '{source}' ({expected}); remove {dir} and try again",
+                dir = dir.display(),
+                current = current,
+                pkg = pkg,
+                source = config.aur_source_for(pkg).name,
+                expected = expected
+            ));
+        }
+    }
+
     let repos = pkgs
         .iter()
         .map(|p| {
@@ -537,10 +569,22 @@ pub async fn new_aur_pkgbuilds(
 pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let client = config.raur.as_ref().unwrap().client();
 
+    // Accept `aur/<pkg>` and `<source>/<pkg>`; the latter pins the package
+    // to that source.
+    let targets = config
+        .targets
+        .iter()
+        .map(|t| match t.split_once('/') {
+            Some((repo, pkg)) if repo == config.aur_namespace() || repo == "aur" => pkg.to_string(),
+            Some((repo, pkg)) if config.pin_aur_target(Some(repo), pkg) => pkg.to_string(),
+            _ => t.clone(),
+        })
+        .collect::<Vec<_>>();
+
     let warnings = cache_info_with_warnings(
         config.raur.as_ref().unwrap(),
         &mut config.cache,
-        &config.targets,
+        &targets,
         &[],
         &GlobSet::empty(),
     )
@@ -660,6 +704,7 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
         }
 
         if config.mode.aur() {
+            config.pin_aur_target(targ.repo, targ.pkg);
             aur.push(targ);
         } else if config.mode.repo() {
             local.push(targ)

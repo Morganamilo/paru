@@ -176,6 +176,10 @@ pub fn push_source(list: &mut Vec<AurSource>, src: AurSource) {
 /// was resolved from.
 pub type Origins = Arc<Mutex<HashMap<String, usize>>>;
 
+/// Shared map from package name to the index of the source it was requested
+/// from with a `<source>/<pkg>` target.
+pub type Pins = Arc<Mutex<HashMap<String, usize>>>;
+
 /// The label shown before a package from source `idx` of `sources`, e.g.
 /// `aur` or `mirror`. The first (default) source and single-source setups are
 /// always labelled `aur`.
@@ -260,6 +264,8 @@ pub struct MultiRaur<H> {
     names: Vec<String>,
     handles: Vec<H>,
     origins: Origins,
+    pins: Pins,
+    warned: Arc<Mutex<HashSet<String>>>,
     warning: Style,
 }
 
@@ -272,24 +278,57 @@ impl<H: Default> Default for MultiRaur<H> {
 impl<H> MultiRaur<H> {
     /// A handle over a single source; behaves exactly like `handle`.
     pub fn single(handle: H) -> Self {
-        Self {
-            names: vec!["aur".into()],
-            handles: vec![handle],
-            origins: Origins::default(),
-            warning: Style::new(),
-        }
+        Self::new(
+            vec!["aur".into()],
+            vec![handle],
+            Origins::default(),
+            Pins::default(),
+            Style::new(),
+        )
     }
 
     /// A handle over several sources. `names[i]` names the source queried by
-    /// `handles[i]`; `origins` records which source each package came from.
-    pub fn new(names: Vec<String>, handles: Vec<H>, origins: Origins, warning: Style) -> Self {
+    /// `handles[i]`; `origins` records which source each package came from
+    /// and `pins` which source a package was explicitly requested from.
+    pub fn new(
+        names: Vec<String>,
+        handles: Vec<H>,
+        origins: Origins,
+        pins: Pins,
+        warning: Style,
+    ) -> Self {
         assert_eq!(names.len(), handles.len());
         assert!(!handles.is_empty());
         Self {
             names,
             handles,
             origins,
+            pins,
+            warned: Default::default(),
             warning,
+        }
+    }
+
+    /// Reports packages requested as `<source>/<pkg>` that no source has.
+    fn warn_missing_pins<S: AsRef<str>>(&self, requested: &[S], found: &[Package]) {
+        let pins = self.pins.lock().unwrap();
+        for name in requested {
+            let name = name.as_ref();
+            let Some(&pin) = pins.get(name) else { continue };
+            if found.iter().any(|p| p.name == name)
+                || !self.warned.lock().unwrap().insert(name.to_string())
+            {
+                continue;
+            }
+            eprintln!(
+                "{} {}",
+                self.warning.paint(tr!("warning:")),
+                tr!(
+                    "package '{pkg}' was not found in AUR source '{source}' or any other AUR source",
+                    pkg = name,
+                    source = self.names[pin]
+                )
+            );
         }
     }
 
@@ -306,13 +345,54 @@ impl<H> MultiRaur<H> {
         let mut seen = HashSet::new();
         let mut first_err = None;
         let mut failed = 0;
+        let mut pins = self.pins.lock().unwrap();
         let mut origins = self.origins.lock().unwrap();
+        let mut pinned_bases = Vec::new();
+
+        // Packages requested as <source>/<pkg> come from that source when it
+        // has them, whatever its priority.
+        if !pins.is_empty() {
+            for (i, res) in results.iter().enumerate() {
+                let Ok(pkgs) = res else { continue };
+                for pkg in pkgs {
+                    if pins.get(&pkg.name) == Some(&i) && seen.insert(pkg.name.clone()) {
+                        origins.insert(pkg.name.clone(), i);
+                        origins.insert(pkg.package_base.clone(), i);
+                        pinned_bases.push((pkg.package_base.clone(), i));
+                        merged.push(pkg.clone());
+                    }
+                }
+            }
+        }
+        // The package base is downloaded from the pinned source too.
+        for (base, i) in pinned_bases {
+            pins.entry(base).or_insert(i);
+        }
 
         for (i, res) in results.into_iter().enumerate() {
             match res {
                 Ok(pkgs) => {
                     for pkg in pkgs {
                         if !seen.insert(pkg.name.clone()) {
+                            continue;
+                        }
+                        if let Some(&pin) = pins.get(&pkg.name) {
+                            // The requested source did not provide it.
+                            if self.warned.lock().unwrap().insert(pkg.name.clone()) {
+                                eprintln!(
+                                    "{} {}",
+                                    self.warning.paint(tr!("warning:")),
+                                    tr!(
+                                        "package '{pkg}' was not found in AUR source '{source}', using '{other}' instead",
+                                        pkg = pkg.name,
+                                        source = self.names[pin],
+                                        other = self.names[i]
+                                    )
+                                );
+                            }
+                            origins.insert(pkg.name.clone(), i);
+                            origins.insert(pkg.package_base.clone(), i);
+                            merged.push(pkg);
                             continue;
                         }
                         for key in [&pkg.name, &pkg.package_base] {
@@ -368,7 +448,9 @@ where
         }
         let futs = self.handles.iter().map(|h| h.raw_info(pkg_names));
         let results = futures::future::join_all(futs).await;
-        self.merge(results)
+        let pkgs = self.merge(results)?;
+        self.warn_missing_pins(pkg_names, &pkgs);
+        Ok(pkgs)
     }
 
     async fn search_by<S: AsRef<str> + Send + Sync>(
@@ -738,7 +820,13 @@ pub(crate) mod tests {
 
     fn multi(handles: Vec<Fake>) -> MultiRaur<Fake> {
         let names = (0..handles.len()).map(|i| format!("s{}", i)).collect();
-        MultiRaur::new(names, handles, Origins::default(), Style::new())
+        MultiRaur::new(
+            names,
+            handles,
+            Origins::default(),
+            Pins::default(),
+            Style::new(),
+        )
     }
 
     #[test]
@@ -1145,5 +1233,176 @@ pub(crate) mod tests {
             update_config_file(&path, &system, |l| delete_source(l, "sys").map(|_| ())).is_err()
         );
         assert_eq!(fs::read_to_string(&path).unwrap(), before);
+    }
+
+    fn multi_pinned(handles: Vec<Fake>, pinned: &[(&str, usize)]) -> MultiRaur<Fake> {
+        let names = (0..handles.len()).map(|i| format!("s{}", i)).collect();
+        let pins: Pins = Default::default();
+        for (name, idx) in pinned {
+            pins.lock().unwrap().insert(name.to_string(), *idx);
+        }
+        MultiRaur::new(names, handles, Origins::default(), pins, Style::new())
+    }
+
+    #[tokio::test]
+    async fn pin_prefers_requested_source() {
+        let raur = multi_pinned(
+            vec![
+                Fake(Some(vec![
+                    pkg("shared", "shared-base", "1-1"),
+                    pkg("other", "other", "1-1"),
+                ])),
+                Fake(Some(vec![
+                    pkg("shared", "shared-base", "2-1"),
+                    pkg("other", "other", "2-1"),
+                ])),
+            ],
+            &[("shared", 1)],
+        );
+        let pkgs = raur.info(&["shared", "other"]).await.unwrap();
+        let ver = |n: &str| pkgs.iter().find(|p| p.name == n).unwrap().version.clone();
+        assert_eq!(
+            ver("shared"),
+            "2-1",
+            "pinned package comes from the requested source"
+        );
+        assert_eq!(ver("other"), "1-1", "unpinned packages keep priority order");
+        let origins = raur.origins().lock().unwrap();
+        assert_eq!(origins["shared"], 1);
+        assert_eq!(origins["shared-base"], 1);
+        assert_eq!(origins["other"], 0);
+        // The package base is pinned too, so it is downloaded from there.
+        assert_eq!(raur.pins.lock().unwrap()["shared-base"], 1);
+    }
+
+    #[tokio::test]
+    async fn pin_falls_back_when_source_lacks_package() {
+        let raur = multi_pinned(
+            vec![
+                Fake(Some(vec![pkg("only-0", "only-0", "1-1")])),
+                Fake(Some(vec![])),
+            ],
+            &[("only-0", 1)],
+        );
+        let pkgs = raur.info(&["only-0"]).await.unwrap();
+        assert_eq!(
+            pkgs.len(),
+            1,
+            "a pin never hides a package other sources provide"
+        );
+        assert_eq!(raur.origins().lock().unwrap()["only-0"], 0);
+        assert!(raur.warned.lock().unwrap().contains("only-0"));
+
+        // A pinned source that is down also falls back.
+        let raur = multi_pinned(
+            vec![Fake(Some(vec![pkg("x", "x", "1-1")])), Fake(None)],
+            &[("x", 1)],
+        );
+        assert_eq!(raur.info(&["x"]).await.unwrap().len(), 1);
+
+        // Nobody has it: not found, as usual.
+        let raur = multi_pinned(vec![Fake(Some(vec![])), Fake(Some(vec![]))], &[("y", 1)]);
+        assert!(raur.info(&["y"]).await.unwrap().is_empty());
+        assert!(raur.warned.lock().unwrap().contains("y"));
+    }
+
+    #[test]
+    fn pin_aur_target() {
+        let c = parse_config(
+            "t",
+            "[options]\nAurSource = aur https://aur.archlinux.org\nAurSource = mirror https://m.example\n",
+        )
+        .unwrap();
+        assert!(!c.pin_aur_target(None, "foo"));
+        assert!(!c.pin_aur_target(Some("aur"), "foo"));
+        assert!(!c.pin_aur_target(Some("unknown"), "foo"));
+        assert!(c.pin_aur_target(Some("mirror"), "foo>=2"));
+        assert_eq!(c.aur_pins.lock().unwrap()["foo"], 1);
+        assert_eq!(c.aur_label("foo"), "mirror");
+        assert_eq!(
+            c.aur_clone_urls("foo").unwrap()[0].as_str(),
+            "https://m.example/foo.git"
+        );
+
+        // Without a source list nothing is pinned.
+        let c = parse_config("t", "[options]\n").unwrap();
+        assert!(!c.pin_aur_target(Some("mirror"), "foo"));
+    }
+}
+
+#[cfg(all(test, feature = "mock"))]
+mod mock_tests {
+    use super::*;
+    use crate::config::{Config, Mode};
+    use crate::mock::Mock;
+    use std::path::Path;
+
+    fn shared(version: &str) -> Package {
+        let mut p = tests::pkg("shared", "shared", version);
+        p.last_modified = 0;
+        p
+    }
+
+    /// `paru -S mirror/shared` resolves `shared` from the mirror even though
+    /// the higher-priority source has a package with the same name.
+    #[tokio::test]
+    async fn source_target_pins_resolution() {
+        let testdata = Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata");
+        let mut config = Config::default();
+        config.pacman = pacmanconf::Config::with_opts(
+            None,
+            Some(testdata.join("pacman.conf").to_str().unwrap()),
+            None,
+        )
+        .unwrap();
+        config.pacman.root_dir = "/".to_string();
+        config.pacman.db_path = testdata.join("db").to_str().unwrap().to_string();
+        config.mode = Mode::AUR | Mode::REPO;
+        config.aur_sources = vec![
+            tests::src("aur", "https://aur.archlinux.org"),
+            tests::src("mirror", "https://m.example"),
+        ];
+        config.init_alpm().unwrap();
+
+        let raur = MultiRaur::new(
+            vec!["aur".into(), "mirror".into()],
+            vec![
+                Mock::with_packages([shared("1-1")]),
+                Mock::with_packages([shared("2-1")]),
+            ],
+            config.aur_origins.clone(),
+            config.aur_pins.clone(),
+            Style::new(),
+        );
+
+        for (target, want, label) in [("shared", "1-1", "aur"), ("mirror/shared", "2-1", "mirror")]
+        {
+            config.aur_pins.lock().unwrap().clear();
+            config.aur_origins.lock().unwrap().clear();
+            let input = [target];
+            let (repo, aur) = crate::util::split_repo_aur_targets(&mut config, &input).unwrap();
+            assert!(repo.is_empty());
+            if target.contains('/') {
+                assert_eq!(aur[0].repo, Some(config.aur_namespace()));
+            }
+
+            let flags = crate::resolver::flags(&mut config) | aur_depends::Flags::NO_DEPS;
+            let mut cache = raur::Cache::new();
+            let resolver = aur_depends::Resolver::new(&config.alpm, &mut cache, &raur, flags)
+                .custom_aur_namespace(Some(config.aur_namespace().to_string()));
+            let actions = resolver.resolve_targets(&aur).await.unwrap();
+            let pkgs = actions.iter_aur_pkgs().collect::<Vec<_>>();
+            assert_eq!(pkgs.len(), 1, "{target}");
+            assert_eq!(pkgs[0].pkg.version, want, "{target}");
+            assert_eq!(config.aur_label("shared"), label, "{target}");
+            assert_eq!(
+                config.aur_clone_urls("shared").unwrap()[0].host_str(),
+                Some(if label == "aur" {
+                    "aur.archlinux.org"
+                } else {
+                    "m.example"
+                })
+            );
+        }
     }
 }

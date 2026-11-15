@@ -1,5 +1,5 @@
 use crate::args::Args;
-use crate::aursource::{self, AurSource, Origins};
+use crate::aursource::{self, AurSource, Origins, Pins};
 use crate::devel::save_devel_info;
 use crate::exec::{self, Status};
 use crate::fmt::color_repo;
@@ -427,6 +427,8 @@ pub struct Config {
     pub aur_urls_arg: Vec<String>,
     /// Which source each AUR package was resolved from.
     pub aur_origins: Origins,
+    /// Packages requested as `<source>/<pkg>`, pinned to that source.
+    pub aur_pins: Pins,
     /// Host that `--ssh` rewrites clone URLs for.
     pub aur_ssh_host: Option<String>,
     /// `--aursource <action>`.
@@ -803,6 +805,7 @@ impl Config {
                     vec!["aur".into()],
                     vec![raur::Handle::new_with_settings(client, rpc_url)],
                     self.aur_origins.clone(),
+                    self.aur_pins.clone(),
                     self.color.warning,
                 ));
             } else {
@@ -817,6 +820,7 @@ impl Config {
                     self.aur_sources.iter().map(|s| s.name.clone()).collect(),
                     handles,
                     self.aur_origins.clone(),
+                    self.aur_pins.clone(),
                     self.color.warning,
                 ));
             }
@@ -1308,6 +1312,24 @@ then initialise it with:
             }
         }
         Ok(urls)
+    }
+
+    /// For a `<source>/<pkg>` target naming a non-default AUR source, pins
+    /// `pkg` to that source so it is resolved and downloaded from there even
+    /// if a higher-priority source has a package with the same name. Returns
+    /// whether the target was pinned.
+    pub fn pin_aur_target(&self, repo: Option<&str>, pkg: &str) -> bool {
+        let Some(repo) = repo else { return false };
+        if !self.is_aur_source_label(repo) {
+            return false;
+        }
+        let Some(idx) = self.aur_sources.iter().position(|s| s.name == repo) else {
+            return false;
+        };
+        let name = alpm::Depend::new(pkg).name().to_string();
+        self.aur_pins.lock().unwrap().insert(name.clone(), idx);
+        self.aur_origins.lock().unwrap().insert(name, idx);
+        true
     }
 
     /// Whether `name` names a non-default AUR source that is not also a repo.

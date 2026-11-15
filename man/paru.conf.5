@@ -217,8 +217,15 @@ package was found in, falling back to the other sources. RpcURL defaults to
 \fBURL\fR/rpc.
 
 Packages from the first source are shown as \fBaur/\fRpkg; packages from other
-sources are shown with the source name, e.g. \fBmirror/\fRpkg, and can be
-installed as such. They are AUR packages in every other respect.
+sources are shown with the source name, e.g. \fBmirror/\fRpkg. They are AUR
+packages in every other respect.
+
+A \fB<source>/<pkg>\fR target (with \-S, \-G, \-Gp and \-Gc) pins the package to
+that source: it is resolved and downloaded from there even when a
+higher-priority source has a package with the same name. If that source does
+not have it, paru warns and falls back to the other sources. If a cached clone
+of the package came from a different source, paru stops and asks for it to be
+removed.
 
 When any \fBAurSource\fR is set it replaces \fBAurUrl\fR and \fBAurRpcUrl\fR; to
 keep the AUR, list it as well. These lines are usually managed with

@@ -56,9 +56,7 @@ pub fn split_repo_aur_targets<'a, T: AsTarg>(
         let mut targ = targ.as_targ();
         // `<source>/<pkg>` names a package from a non-default AUR source; it
         // is an AUR package like any other.
-        if let Some(repo) = targ.repo
-            && config.is_aur_source_label(repo)
-        {
+        if config.pin_aur_target(targ.repo, targ.pkg) {
             targ.repo = Some(config.aur_namespace());
         }
         if !config.mode.repo() {
@@ -567,6 +565,9 @@ mod provider_tests {
             assert_eq!(aur.len(), 1);
             if case != "aur-only" {
                 assert_eq!(aur[0].repo, Some(config.aur_namespace()));
+            }
+            if case == "source-qualified" {
+                assert_eq!(config.aur_pins.lock().unwrap().get("sh"), Some(&1));
             }
         } else {
             assert!(aur.is_empty());
