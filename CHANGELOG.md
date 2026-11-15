@@ -1,5 +1,48 @@
 # Changelog
 
+## Paru v2.2.1 (2026-11-14)
+
+### Added
+
+- Ask before installing a differently named repository provider for a target without a repository prefix. Declining searches the AUR instead. Noninteractive behavior is unchanged. 9b40a13
+
+### Changed
+
+- Reviewing PKGBUILD repositories requires Git 2.40 or newer. 32ebc72
+- Generate missing `.SRCINFO` only for directories selected by `./` targets. Unrelated PKGBUILDs in the current directory are no longer sourced. ddf77cb
+- Run `PreBuildCommand` after you accept interactive AUR review. 945f1b1
+- Review diffs use Paru's colors rather than Git's diff color settings. 2c540f0
+
+With `./` targets, local dependencies you haven't selected need an existing `.SRCINFO`. The same applies when directory and package names differ. Use `-B <directory>` to select a directory directly. Local dependencies without metadata may resolve from configured repositories or the AUR instead.
+
+### Fixed
+
+- Keep cache cleanup inside the selected checkout, even if `.SRCINFO` names another package base. Skip `pkg` symlinks when fixing permissions. cc213d1
+- Escape terminal control characters in package metadata, AUR comments, news and Paru's PKGBUILD review. Use plain text instead of bat when file contents or names need escaping. 84f876a 2c540f0
+- Reject invalid package bases and overlapping source and destination directories when copying PKGBUILDs with `-G`. 605a9d3
+- Prevent signing-key values from acting as GPG options. 72c623b
+- Review updates to previously accepted PKGBUILD repositories before applying them. Declining leaves the update unapplied; accepted updates must match the reviewed tree. 29a9f2b 32ebc72
+- Require review before using changed URL-based PKGBUILD repositories, unless `SkipReview` is set. Upstream branches or tags named `AUR_SEEN` no longer count as local review markers. 248c46e a609d17 32ebc72
+- Ignore external diff commands, text conversion and repository attributes in review diffs. 32ebc72
+- Include nested tracked files in initial review. Summarize binary files and show symlink targets without following them. 0eea558
+- Remove indentation from review diffs sent to explicitly configured pagers, such as delta. 699d540
+- Use the updated `.SRCINFO` for signing-key, architecture and devel-source checks. 7395282
+- Fix false conflict errors with `-B --noconfirm`. Keep checking conflicts with installed packages and build dependencies. cf2d92b eb8c1dc
+- Let `-G` find PKGBUILDs for packages from custom binary repositories in configured PKGBUILD repositories or the AUR. f160d33
+- Distinguish skipped devel checks from ignored updates. Respect package and local repository selection, and fix split-package selection in PKGBUILD repositories. fc71207
+- Return pacman's failure status after cache cleanup. c4c753c
+- Fix AUR completion downloads rejected by request filtering. dab55ca
+
+With `-G`, use an official repository prefix such as `extra/<package>` if a custom repository shadows the package.
+
+Terminal escaping covers Paru's own display. It does not cover external file managers or raw `-Gp` output.
+
+### Localization
+
+- Add Hong Kong Chinese translations. 5113f33
+- Update Catalan messages. 45bf0c9
+- Update Simplified Chinese and Traditional Chinese messages. 5113f33
+
 ## Paru v2.2.0 (2026-10-28)
 
 ### Added
