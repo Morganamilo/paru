@@ -7,12 +7,13 @@ use crate::config::Config;
 use crate::repo;
 
 use alpm::Ver;
-use aur_depends::{Actions, Base};
+use aur_depends::{Actions, AurBase, Base};
 
 use ansiterm::Style;
 use chrono::{Local, TimeZone, Utc};
 use tr::tr;
 use unicode_width::UnicodeWidthStr;
+use url::Url;
 
 struct ToInstall {
     install: Vec<String>,
@@ -67,9 +68,161 @@ fn escape_controls(s: &str, is_control: impl Fn(char) -> bool) -> Cow<'_, str> {
     Cow::Owned(escaped)
 }
 
+pub fn base_link(enabled: bool, aur_url: &Url, base: &Base) -> String {
+    match base {
+        Base::Aur(base) => aur_base_link(enabled, aur_url, base),
+        Base::Pkgbuild(base) => escape_control(&base.to_string()).into_owned(),
+    }
+}
+
+pub fn aur_base_link(enabled: bool, aur_url: &Url, base: &AurBase) -> String {
+    link_pkgbase(enabled, aur_url, base.package_base(), &base.to_string())
+}
+
+pub fn pkgbase_link(enabled: bool, aur_url: &Url, pkgbase: &str) -> String {
+    link_pkgbase(enabled, aur_url, pkgbase, pkgbase)
+}
+
+fn link_pkgbase(enabled: bool, aur_url: &Url, pkgbase: &str, label: &str) -> String {
+    let label = escape_control(label);
+    match aur_url.join(&format!("pkgbase/{pkgbase}")) {
+        Ok(url) => link_str(enabled, &label, url.as_str()),
+        Err(_) => label.into_owned(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{escape_control, link_str};
+    use super::{Base, Url, base_link, escape_control, link_str, pkgbase_link};
+    use aur_depends::{AurBase, AurPackage, Pkgbuild, PkgbuildPackages};
+
+    fn aur_url() -> Url {
+        Url::parse("https://aur.archlinux.org").unwrap()
+    }
+
+    fn aur_base(pkgbase: &str, version: &str, names: &[&str]) -> Base {
+        let pkgs = names
+            .iter()
+            .map(|name| AurPackage {
+                pkg: raur::Package {
+                    name: name.to_string(),
+                    package_base: pkgbase.to_string(),
+                    version: version.to_string(),
+                    ..Default::default()
+                }
+                .into(),
+                make: false,
+                target: true,
+            })
+            .collect();
+        Base::Aur(AurBase { pkgs, build: true })
+    }
+
+    fn pkgbuild_base(name: &str) -> Base {
+        let srcinfo: srcinfo::Srcinfo = format!(
+            "pkgbase = {name}\n\tpkgver = 1\n\tpkgrel = 2\n\tarch = any\n\npkgname = {name}\n"
+        )
+        .parse()
+        .unwrap();
+        let pkg = srcinfo.pkgs[0].clone();
+        Base::Pkgbuild(PkgbuildPackages {
+            repo: "custom".to_string(),
+            srcinfo: Box::new(srcinfo),
+            pkgs: vec![Pkgbuild {
+                pkg,
+                make: false,
+                target: true,
+            }],
+            build: true,
+        })
+    }
+
+    #[test]
+    fn base_link_links_aur_base_to_its_pkgbase_page() {
+        let base = aur_base("pince", "0.5-1", &["pince"]);
+        assert_eq!(
+            base_link(true, &aur_url(), &base),
+            "\x1b]8;;https://aur.archlinux.org/pkgbase/pince\x1b\\pince-0.5-1\x1b]8;;\x1b\\"
+        );
+    }
+
+    #[test]
+    fn base_link_links_split_base_to_its_pkgbase_page() {
+        let base = aur_base(
+            "linux-musl-bin",
+            "1.2-1",
+            &["aarch64-linux-musl-bin", "arm-linux-musleabi-bin"],
+        );
+        assert_eq!(
+            base_link(true, &aur_url(), &base),
+            "\x1b]8;;https://aur.archlinux.org/pkgbase/linux-musl-bin\x1b\\\
+             linux-musl-bin-1.2-1 (aarch64-linux-musl-bin arm-linux-musleabi-bin)\
+             \x1b]8;;\x1b\\"
+        );
+    }
+
+    #[test]
+    fn base_link_joins_onto_the_aur_url() {
+        let base = aur_base("pince", "0.5-1", &["pince"]);
+        let url = Url::parse("https://example.com/aur/").unwrap();
+        assert_eq!(
+            base_link(true, &url, &base),
+            "\x1b]8;;https://example.com/aur/pkgbase/pince\x1b\\pince-0.5-1\x1b]8;;\x1b\\"
+        );
+        let url = Url::parse("https://example.com/aur").unwrap();
+        assert_eq!(
+            base_link(true, &url, &base),
+            "\x1b]8;;https://example.com/pkgbase/pince\x1b\\pince-0.5-1\x1b]8;;\x1b\\"
+        );
+    }
+
+    #[test]
+    fn base_link_is_plain_without_color() {
+        let base = aur_base("pince", "0.5-1", &["pince"]);
+        assert_eq!(base_link(false, &aur_url(), &base), "pince-0.5-1");
+    }
+
+    #[test]
+    fn base_link_escapes_controls_in_the_label() {
+        let base = aur_base("ev\x1b]2;x\x07il", "1-1", &["ev\x1b]2;x\x07il"]);
+        assert_eq!(
+            base_link(true, &aur_url(), &base),
+            "\x1b]8;;https://aur.archlinux.org/pkgbase/ev%1B]2;x%07il\x1b\\\
+             ev\\u{1b}]2;x\\u{7}il-1-1\
+             \x1b]8;;\x1b\\"
+        );
+        assert_eq!(
+            base_link(false, &aur_url(), &base),
+            "ev\\u{1b}]2;x\\u{7}il-1-1"
+        );
+    }
+
+    #[test]
+    fn base_link_leaves_pkgbuild_repo_base_unlinked() {
+        let base = pkgbuild_base("foo");
+        assert_eq!(base_link(true, &aur_url(), &base), "foo-1-2");
+    }
+
+    #[test]
+    fn base_link_escapes_controls_in_pkgbuild_repo_base() {
+        let base = pkgbuild_base("fo\x1bo");
+        assert_eq!(base_link(true, &aur_url(), &base), "fo\\u{1b}o-1-2");
+    }
+
+    #[test]
+    fn base_link_falls_back_to_the_label_when_the_url_cannot_join() {
+        let url = Url::parse("mailto:x@y.z").unwrap();
+        let base = aur_base("pince", "0.5-1", &["pince"]);
+        assert_eq!(base_link(true, &url, &base), "pince-0.5-1");
+    }
+
+    #[test]
+    fn pkgbase_link_labels_the_link_with_the_pkgbase() {
+        assert_eq!(
+            pkgbase_link(true, &aur_url(), "pince"),
+            "\x1b]8;;https://aur.archlinux.org/pkgbase/pince\x1b\\pince\x1b]8;;\x1b\\"
+        );
+    }
 
     #[test]
     fn escapes_terminal_controls_without_changing_unicode() {

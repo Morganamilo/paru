@@ -18,7 +18,8 @@ use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
 use crate::fmt::{
-    escape_control, escape_control_multiline, print_indent, print_install, print_install_verbose,
+    aur_base_link, base_link, escape_control, escape_control_multiline, pkgbase_link, print_indent,
+    print_install, print_install_verbose,
 };
 use crate::keys::check_pgp_keys;
 use crate::pkgbuild::PkgbuildRepo;
@@ -196,12 +197,19 @@ impl Installer {
         for base in &bases.bases {
             let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
             if path.exists() {
-                let srcinfo = Srcinfo::from_path(path)
-                    .with_context(|| tr!("failed to parse srcinfo for '{}'", base))?;
+                let srcinfo = Srcinfo::from_path(path).with_context(|| {
+                    tr!(
+                        "failed to parse srcinfo for '{}'",
+                        aur_base_link(config.color.enabled, &config.aur_url, base)
+                    )
+                })?;
                 self.srcinfos
                     .insert(base.package_base().to_string(), srcinfo);
             } else {
-                bail!(tr!("could not find .SRCINFO for '{}'", base.package_base()));
+                bail!(tr!(
+                    "could not find .SRCINFO for '{}'",
+                    pkgbase_link(config.color.enabled, &config.aur_url, base.package_base())
+                ));
             }
         }
         Ok(())
@@ -352,8 +360,8 @@ impl Installer {
         let path = pkgdest.remove(pkg).with_context(|| {
             tr!(
                 "could not find package '{pkg}' in package list for '{base}'",
-                pkg = pkg,
-                base = base
+                pkg = escape_control(pkg),
+                base = base_link(config.color.enabled, &config.aur_url, base)
             )
         })?;
 
@@ -437,7 +445,7 @@ impl Installer {
             let failed = self
                 .failed
                 .iter()
-                .map(|f| f.to_string())
+                .map(|f| base_link(config.color.enabled, &config.aur_url, f))
                 .collect::<Vec<_>>();
             bail!(tr!("packages failed to build: {}", failed.join("  ")));
         }
@@ -537,7 +545,12 @@ impl Installer {
             chroot_flags.push("-cu");
             self.chroot
                 .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+                .with_context(|| {
+                    tr!(
+                        "failed to download sources for '{}'",
+                        base_link(c.enabled, &config.aur_url, base)
+                    )
+                })?;
 
             if !self.chroot.extra_pkgs.is_empty() {
                 let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
@@ -552,7 +565,12 @@ impl Installer {
             }
             exec::makepkg(config, dir, &args)?
                 .success()
-                .with_context(|| tr!("failed to download sources for '{}'", base))?;
+                .with_context(|| {
+                    tr!(
+                        "failed to download sources for '{}'",
+                        base_link(c.enabled, &config.aur_url, base)
+                    )
+                })?;
 
             // pkgver bump
             let mut args = vec!["-ofA"];
@@ -561,7 +579,12 @@ impl Installer {
             }
             exec::makepkg(config, dir, &args)?
                 .success()
-                .with_context(|| tr!("failed to build '{}'", base))?;
+                .with_context(|| {
+                    tr!(
+                        "failed to build '{}'",
+                        base_link(c.enabled, &config.aur_url, base)
+                    )
+                })?;
         }
 
         printtr!("{}: parsing pkg list...", base);
@@ -587,7 +610,12 @@ impl Installer {
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
                         &env,
                     )
-                    .with_context(|| tr!("failed to build '{}'", base))?;
+                    .with_context(|| {
+                        tr!(
+                            "failed to build '{}'",
+                            base_link(c.enabled, &config.aur_url, base)
+                        )
+                    })?;
             } else {
                 let mut args = vec!["-feA", "--noconfirm", "--noprepare", "--holdver"];
                 if !config.keep_src {
@@ -595,7 +623,12 @@ impl Installer {
                 }
                 exec::makepkg_dest(config, dir, &args, pkgdest)?
                     .success()
-                    .with_context(|| tr!("failed to build '{}'", base))?;
+                    .with_context(|| {
+                        tr!(
+                            "failed to build '{}'",
+                            base_link(c.enabled, &config.aur_url, base)
+                        )
+                    })?;
             }
         } else {
             println!(
@@ -764,7 +797,7 @@ impl Installer {
         if !missing.is_empty() {
             bail!(tr!(
                 "can't build {base}, deps not satisfied: {deps}",
-                base = base,
+                base = base_link(config.color.enabled, &config.aur_url, base),
                 deps = missing.join("  ")
             ));
         }

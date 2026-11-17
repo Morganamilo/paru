@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::download::{self, Bases, cache_info_with_warnings};
+use crate::fmt::aur_base_link;
 use crate::print_error;
 use crate::repo;
 use crate::util::{pkg_base_or_name, repo_aur_pkgs, split_repo_aur_pkgs};
@@ -166,8 +167,12 @@ pub async fn gendb(config: &mut Config) -> Result<()> {
     for base in &bases.bases {
         let path = config.build_dir.join(base.package_base()).join(".SRCINFO");
         if path.exists() {
-            let srcinfo = Srcinfo::from_path(path)
-                .with_context(|| tr!("failed to parse srcinfo for '{}'", base));
+            let srcinfo = Srcinfo::from_path(path).with_context(|| {
+                tr!(
+                    "failed to parse srcinfo for '{}'",
+                    aur_base_link(config.color.enabled, &config.aur_url, base)
+                )
+            });
 
             match srcinfo {
                 Ok(srcinfo) => {
