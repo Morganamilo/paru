@@ -6,10 +6,15 @@ use std::env::var;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use tempfile::TempDir;
 
 async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
+    let (tmp, ret, _) = run_capturing_stdout(run_args, repo)?;
+    Ok((tmp, ret))
+}
+
+fn run_capturing_stdout(run_args: &[&str], repo: bool) -> Result<(TempDir, i32, String)> {
     let tmp = TempDir::new().unwrap();
     let dir = tmp.path();
     let testdata = Path::new(&var("CARGO_MANIFEST_DIR").unwrap()).join("testdata");
@@ -137,8 +142,8 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
     path.push(':');
     path.push_str(testdata.join("bin").to_str().unwrap());
 
-    let execute = |args: &[&str]| -> Result<i32> {
-        let status = Command::new(env!("CARGO_BIN_EXE_paru"))
+    let execute = |args: &[&str]| -> Result<(i32, String)> {
+        let output = Command::new(env!("CARGO_BIN_EXE_paru"))
             .current_dir(env!("CARGO_MANIFEST_DIR"))
             .env("CARGO_MANIFEST_DIR", env!("CARGO_MANIFEST_DIR"))
             .env("TOKIO_WORKER_THREADS", "1")
@@ -177,19 +182,28 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
                 .map(|key| (key, "1")),
             )
             .args(args)
-            .status()?;
-        status.code().context("paru was killed by a signal")
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::inherit())
+            .output()?;
+        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+        print!("{stdout}");
+        let code = output
+            .status
+            .code()
+            .context("paru was killed by a signal")?;
+        Ok((code, stdout))
     };
 
     if repo {
         let mut args = args.clone();
         args.push("-Ly");
-        let ret = execute(&args)?;
+        let (ret, _) = execute(&args)?;
         assert_eq!(ret, 0);
     }
 
     args.extend(run_args);
-    let ret = execute(&args)?;
+    let (ret, stdout) = execute(&args)?;
 
     for pkg in std::fs::read_dir(dir.join("cache/pkg"))? {
         let path = pkg?.path();
@@ -200,11 +214,15 @@ async fn run(run_args: &[&str], repo: bool) -> Result<(TempDir, i32)> {
         }
     }
 
-    Ok((tmp, ret))
+    Ok((tmp, ret, stdout))
 }
 
 pub async fn run_normal(run_args: &[&str]) -> Result<(TempDir, i32)> {
     run(run_args, false).await
+}
+
+pub fn run_normal_capturing_stdout(run_args: &[&str]) -> Result<(TempDir, i32, String)> {
+    run_capturing_stdout(run_args, false)
 }
 
 pub async fn run_combined(run_args: &[&str]) -> Result<(TempDir, i32)> {
