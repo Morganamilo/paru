@@ -1820,6 +1820,151 @@ fn config_environment_reaches_help_before_threads_start() {
 }
 
 #[test]
+fn chroot_builds_use_the_package_list_destination() {
+    for destination in ["absolute", "relative", "default", "extra-output", "mixed"] {
+        let tmp = tempfile::tempdir().unwrap();
+        let root = tmp.path().canonicalize().unwrap();
+        let dir = root.as_path();
+        let pacman_conf = pacman_conf(dir);
+        let recipe = dir.join("recipe");
+        fs::create_dir(&recipe).unwrap();
+        fs::create_dir_all(dir.join("chroot/root")).unwrap();
+        fs::write(recipe.join("PKGBUILD"), "exit 99\n").unwrap();
+        fs::write(
+            recipe.join(".SRCINFO"),
+            "pkgbase = fixture\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\n\
+             pkgname = fixture-one\npkgname = fixture-two\n",
+        )
+        .unwrap();
+        let expected = match destination {
+            "absolute" | "extra-output" | "mixed" => dir.join("package output"),
+            "relative" => recipe.join("package output"),
+            _ => recipe.clone(),
+        };
+        let setting = match destination {
+            "absolute" | "extra-output" | "mixed" => {
+                format!("PKGDEST='{}'\n", expected.display())
+            }
+            "relative" => "PKGDEST='package output'\n".to_string(),
+            _ => String::new(),
+        };
+        fs::write(dir.join("makepkg.conf"), setting).unwrap();
+        let makepkg = script(
+            dir,
+            "makepkg",
+            "test \"$1\" = --config\n\
+             . \"$2\"\nshift 2\n\
+             test \"$*\" = '--packagelist --ignorearch'\n\
+             printf 'packagelist\\n' >> \"$PARU_TEST_CAPTURE\"\n\
+             dest=${PKGDEST:-$PWD}\nmkdir -p \"$dest\"\n\
+             if test \"$PARU_TEST_DESTINATION\" = extra-output; then\n\
+               printf 'elsewhere/unrelated-1-1-any.pkg.tar.zst\\n'\n\
+             fi\n\
+             printf '%s/fixture-one-1-1-any.pkg.tar.zst\\n' \"$dest\"\n\
+             if test \"$PARU_TEST_DESTINATION\" = mixed; then dest=elsewhere; fi\n\
+             printf '%s/fixture-two-1-1-any.pkg.tar.zst\\n' \"$dest\"",
+        );
+        script(
+            dir,
+            "makechrootpkg",
+            "case \" $* \" in\n\
+               *' -ofA '*) printf 'prepare\\n' >> \"$PARU_TEST_CAPTURE\";;\n\
+               *' -feA '*)\n\
+                 printf 'build=%s\\n' \"${PKGDEST-unset}\" >> \"$PARU_TEST_CAPTURE\"\n\
+                 test -d \"$PKGDEST\"\n\
+                 touch \"$PKGDEST/fixture-one-1-1-any.pkg.tar.zst\"\n\
+                 touch \"$PKGDEST/fixture-two-1-1-any.pkg.tar.zst\";;\n\
+               *) exit 99;;\n\
+             esac",
+        );
+        let pacman = script(
+            dir,
+            "pacman",
+            "install=false\n\
+             for arg do\n\
+               case \"$arg\" in *.pkg.tar.zst)\n\
+                 printf 'install=%s\\n' \"$arg\" >> \"$PARU_TEST_CAPTURE\"\n\
+                 test -f \"$arg\"\ninstall=true;;\n\
+               esac\n\
+             done\n\
+             if \"$install\"; then exit 78; fi",
+        );
+        let sudo = script(
+            dir,
+            "sudo",
+            "case \"$1\" in cp|arch-nspawn|-v) exit 0;; esac\nexec \"$@\"",
+        );
+        script(dir, "arch-nspawn", "exit 0");
+        fs::write(
+            dir.join("paru.conf"),
+            format!(
+                "[options]\nSkipReview\nChroot = {0}/chroot\nMakepkgConf = {0}/makepkg.conf\n\
+                 [bin]\nPacmanConf = {1}\nMakepkg = {2}\nPacman = {3}\nSudo = {4}\n\
+                 [fixture]\nPath = {5}\n",
+                dir.display(),
+                pacman_conf.display(),
+                makepkg.display(),
+                pacman.display(),
+                sudo.display(),
+                recipe.display(),
+            ),
+        )
+        .unwrap();
+        let path = std::env::join_paths(std::iter::once(dir.to_path_buf()).chain(
+            std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()),
+        ))
+        .unwrap();
+        let result = output(
+            command(dir)
+                .env("PATH", path)
+                .env("PARU_TEST_DESTINATION", destination)
+                .env_remove("PKGDEST")
+                .env_remove("MAKEPKG_CONF")
+                .args(["-S", "--pkgbuilds", "--noconfirm", "--config"])
+                .arg(dir.join("pacman.conf"))
+                .args(["fixture/fixture-one", "fixture/fixture-two"]),
+        );
+        assert!(!result.status.success(), "{destination}: {result:?}");
+        let capture = fs::read_to_string(dir.join("capture")).unwrap_or_else(|err| {
+            panic!(
+                "{destination}: {err}\nstatus: {}\nstdout: {}\nstderr: {}",
+                result.status,
+                String::from_utf8_lossy(&result.stdout),
+                String::from_utf8_lossy(&result.stderr),
+            )
+        });
+        if destination == "mixed" {
+            assert_eq!(capture, "prepare\npackagelist\n", "{result:?}");
+        } else {
+            let mut lines = capture.lines();
+            assert_eq!(lines.next(), Some("prepare"), "{result:?}");
+            assert_eq!(lines.next(), Some("packagelist"), "{result:?}");
+            assert_eq!(
+                lines.next(),
+                Some(format!("build={}", expected.display()).as_str()),
+                "{destination}: {result:?}"
+            );
+            let mut installed = lines.collect::<Vec<_>>();
+            installed.sort_unstable();
+            assert_eq!(
+                installed,
+                [
+                    format!(
+                        "install={}/fixture-one-1-1-any.pkg.tar.zst",
+                        expected.display()
+                    ),
+                    format!(
+                        "install={}/fixture-two-1-1-any.pkg.tar.zst",
+                        expected.display()
+                    ),
+                ],
+                "{destination}: {result:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn chroot_clears_pkgext_before_reading_pacman_configuration() {
     let tmp = tempfile::tempdir().unwrap();
     let dir = tmp.path();

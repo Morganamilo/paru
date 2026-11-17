@@ -830,6 +830,10 @@ msgstr ""
 msgid "package list does not match srcinfo"
 msgstr ""
 
+#: src/install.rs:587
+msgid "package list contains different output directories"
+msgstr ""
+
 #: src/install.rs:603
 msgid "{}-{} is up to date -- skipping build"
 msgstr ""
