@@ -1894,6 +1894,7 @@ fn chroot_builds_use_the_package_list_destination() {
             "sudo",
             "case \"$1\" in cp|arch-nspawn|-v) exit 0;; esac\nexec \"$@\"",
         );
+        script(dir, "arch-nspawn", "exit 0");
         fs::write(
             dir.join("paru.conf"),
             format!(
@@ -1924,7 +1925,14 @@ fn chroot_builds_use_the_package_list_destination() {
                 .args(["fixture/fixture-one", "fixture/fixture-two"]),
         );
         assert!(!result.status.success(), "{destination}: {result:?}");
-        let capture = fs::read_to_string(dir.join("capture")).unwrap();
+        let capture = fs::read_to_string(dir.join("capture")).unwrap_or_else(|err| {
+            panic!(
+                "{destination}: {err}\nstatus: {}\nstdout: {}\nstderr: {}",
+                result.status,
+                String::from_utf8_lossy(&result.stdout),
+                String::from_utf8_lossy(&result.stderr),
+            )
+        });
         if destination == "mixed" {
             assert_eq!(capture, "prepare\npackagelist\n", "{result:?}");
         } else {
