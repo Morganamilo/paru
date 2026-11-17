@@ -418,7 +418,7 @@ fn handle_repo(config: &mut Config) -> Result<i32> {
     repos.retain(|r| {
         config.delete >= 1
             || config.targets.is_empty()
-            || config.targets.contains(&r.name().to_string())
+            || config.targets.iter().any(|i| i == r.name())
     });
 
     repo::print(repos, config, repoc, pkgc, version, installedc);
