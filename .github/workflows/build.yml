@@ -21,10 +21,13 @@ jobs:
         platform:
           - docker: amd64
             arch: x86_64
+            image: docker.io/archlinux:base-devel@sha256:fa2d4ce3310ddd90a4208e5168be8ad367da5129af1245f38fd2d803bcbe3239
           - docker: arm64/v8
             arch: aarch64
+            image: docker.io/menci/archlinuxarm:base-devel-20261116.43817319678@sha256:c1e4247a7354e90d9b2fdcb43ce7bed6d0825866f7c163773d1396a8a13efa51
           - docker: arm/v7
             arch: armv7h
+            image: docker.io/menci/archlinuxarm:base-devel-20261116.43817319678@sha256:c1e4247a7354e90d9b2fdcb43ce7bed6d0825866f7c163773d1396a8a13efa51
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,8 +42,10 @@ jobs:
       - name: Build archive
         env:
           RELEASE_ARCH: ${{ matrix.platform.arch }}
+          BASE_IMAGE: ${{ matrix.platform.image }}
         run: |
-          docker buildx build --platform=linux/${{ matrix.platform.docker }} -o . .
+          docker buildx build --platform=linux/${{ matrix.platform.docker }} \
+            --build-arg BASE_IMAGE="$BASE_IMAGE" -o . .
           mv paru.tar.zst "paru-$RELEASE_VERSION-$RELEASE_ARCH.tar.zst"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

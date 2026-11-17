@@ -1,41 +1,20 @@
-FROM debian:13 AS build-stage
+ARG BASE_IMAGE=docker.io/archlinux:base-devel@sha256:fa2d4ce3310ddd90a4208e5168be8ad367da5129af1245f38fd2d803bcbe3239
+FROM ${BASE_IMAGE} AS build-stage
 
-ARG PACMAN_HASH=b9f7d4a5b0bea75953f5892621a2caecc5672de5
-ARG PACMAN_VER=7.1.0
-ARG DEBIAN_FRONTEND=noninteractive
+# QEMU user emulation does not support pacman's sandbox syscalls.
+RUN pacman-key --init && pacman-key --populate && \
+    pacman --disable-sandbox -Syu --noconfirm --needed \
+        ca-certificates clang gettext git openssl pacman pkgconf python rust zstd
 
-WORKDIR /pacman
-
-RUN apt-get update -y
-RUN apt-get install -y build-essential git libcurl4-openssl-dev curl meson ninja-build \
-        libarchive-dev pkg-config libgpgme-dev libssl-dev clang python3 python3-setuptools \
-        gettext zstd
-
-RUN curl -L -o pacman-${PACMAN_VER}.tar.xz https://gitlab.archlinux.org/pacman/pacman/-/archive/${PACMAN_HASH}/pacman-${PACMAN_HASH}.tar.gz
-RUN tar -xf pacman-${PACMAN_VER}.tar.xz
-
-WORKDIR pacman-${PACMAN_HASH}
-
-RUN meson setup \
-        --prefix=/usr \
-        --buildtype=plain \
-        build
-
-RUN ninja -C build
-RUN ninja -C build install
+ENV CARGO_HOME=/usr/local/cargo
 
 WORKDIR /paru
 
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
+COPY . .
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
-     sh -s -- -y --no-modify-path --profile minimal --default-toolchain nightly
-
-COPY ../ .
-
-RUN --mount=type=tmpfs,target=/usr/local/cargo/git ./scripts/dist
+RUN --mount=type=tmpfs,target=/usr/local/cargo/git \
+    OPENSSL_STATIC=0 ./scripts/dist && \
+    python3 scripts/check-release.py target/release/paru paru.tar.zst
 
 FROM scratch AS export-stage
 COPY --from=build-stage /paru/paru.tar.zst /
