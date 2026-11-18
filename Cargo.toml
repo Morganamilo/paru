@@ -1,6 +1,6 @@
 [package]
 name = "paru"
-version = "2.2.1"
+version = "2.2.2"
 authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2024"
 
@@ -11,7 +11,7 @@ documentation = "https://docs.rs/paru"
 license = "GPL-3.0"
 keywords = ["archlinux", "arch", "alpm", "pacman", "aur"]
 include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "help"]
-rust-version = "1.88"
+rust-version = "1.100"
 
 
 [dependencies]

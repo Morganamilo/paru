@@ -165,7 +165,7 @@ pub fn delete(config: &mut Config) -> Result<(), Error> {
         config.delete >= 1
             || config.uninstall
             || config.targets.is_empty()
-            || config.targets.contains(&r.name().to_string())
+            || config.targets.iter().any(|i| i == r.name())
     });
 
     if config.delete >= 1 {
