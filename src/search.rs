@@ -383,8 +383,9 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
             info::print(c, 14, config.cols, "    URL", url);
         }
 
-        let aur_url = format!("{}packages/{}", config.aur_url, pkg.package_base);
-        info::print(c, 14, config.cols, "    AUR URL", aur_url.as_str());
+        if let Ok(aur_url) = config.aur_url.join(&format!("packages/{}", pkg.name)) {
+            info::print(c, 14, config.cols, "    AUR URL", aur_url.as_str());
+        }
     }
 }
 

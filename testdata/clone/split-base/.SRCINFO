@@ -1,0 +1,7 @@
+pkgbase = split-base
+	pkgdesc = A split package base whose name is no package name
+	pkgver = 1.0
+	pkgrel = 1
+	arch = any
+
+pkgname = split-base-docs
