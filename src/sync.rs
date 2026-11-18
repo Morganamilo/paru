@@ -48,7 +48,7 @@ pub async fn list(config: &Config) -> Result<i32> {
             }
         }
         if config.mode.aur()
-            && let Err(e) = list_aur(config).await
+            && let Err(e) = list_aur(config, None).await
         {
             print_error(c.error, e);
             ret = 1
@@ -65,8 +65,19 @@ pub async fn list(config: &Config) -> Result<i32> {
                 }
             } else if config.pkgbuild_repos.repo(target).is_some() && config.mode.pkgbuild() {
                 list_pkgbuilds(config, &config.pkgbuild_repos, target);
-            } else if target == config.aur_namespace() && config.mode.aur() {
-                if let Err(e) = list_aur(config).await {
+            } else if (target == config.aur_namespace() || config.is_aur_source_label(target))
+                && config.mode.aur()
+            {
+                let only = if config.aur_sources.len() > 1 {
+                    Some(if target == config.aur_namespace() {
+                        "aur"
+                    } else {
+                        target
+                    })
+                } else {
+                    None
+                };
+                if let Err(e) = list_aur(config, only).await {
                     print_error(c.error, e);
                     ret = 1;
                 }
@@ -99,9 +110,9 @@ pub fn list_pkgbuilds(config: &Config, repos: &PkgbuildRepos, repo: &str) {
     }
 }
 
-pub async fn list_aur(config: &Config) -> Result<()> {
-    let url = config.aur_url.join("packages.gz")?;
-    let client = config.raur.as_ref().unwrap().client();
+/// Downloads and decodes the packages.gz name list of an AUR source.
+pub async fn fetch_package_list(client: &reqwest::Client, aur_url: &url::Url) -> Result<Vec<u8>> {
+    let url = aur_url.join("packages.gz")?;
     let resp = client
         .get(url.clone())
         .send()
@@ -116,15 +127,56 @@ pub async fn list_aur(config: &Config) -> Result<()> {
     decoder
         .read_to_end(&mut data)
         .with_context(|| tr!("failed to decode package list"))?;
+    Ok(data)
+}
+
+/// Lists the packages of every AUR source (or only the one labelled `only`),
+/// each labelled with its source. Names already listed by an earlier source
+/// are skipped.
+pub async fn list_aur(config: &Config, only: Option<&str>) -> Result<()> {
+    let client = config.raur.as_ref().unwrap().client();
+    #[allow(clippy::needless_borrow)]
+    let client: &reqwest::Client = &client;
+    let sources = config.effective_aur_sources();
+    let mut seen = std::collections::HashSet::new();
+    let mut ok = false;
+    let mut last_err = None;
 
     let stdout = std::io::stdout();
     let mut stdout = stdout.lock();
 
-    for line in data.split(|b| *b == b'\n').filter(|l| !l.is_empty()) {
-        print_pkg(config, &mut stdout, line, "aur", "unknown-version");
+    for (i, src) in sources.iter().enumerate() {
+        let label = crate::aursource::label(&config.aur_sources, Some(i));
+        if only.is_some_and(|only| only != label) {
+            continue;
+        }
+
+        let data = match fetch_package_list(client, &src.url).await {
+            Ok(data) => data,
+            Err(e) if sources.len() > 1 => {
+                eprintln!(
+                    "{} {}",
+                    config.color.warning.paint(tr!("warning:")),
+                    tr!("AUR source '{}' failed: {}", src.name, e)
+                );
+                last_err = Some(e);
+                continue;
+            }
+            Err(e) => return Err(e),
+        };
+        ok = true;
+
+        for line in data.split(|b| *b == b'\n').filter(|l| !l.is_empty()) {
+            if seen.insert(line.to_vec()) {
+                print_pkg(config, &mut stdout, line, label, "unknown-version");
+            }
+        }
     }
 
-    Ok(())
+    match last_err {
+        Some(e) if !ok => Err(e),
+        _ => Ok(()),
+    }
 }
 
 fn print_pkg(config: &Config, mut stdout: impl Write, line: &[u8], repo: &str, version: &str) {

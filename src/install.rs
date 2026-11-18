@@ -1060,6 +1060,20 @@ impl Installer {
             }
         }
 
+        // Remember which AUR source the installed packages came from.
+        let installed = build
+            .iter()
+            .filter_map(|b| match b {
+                Base::Aur(base) => Some(base),
+                _ => None,
+            })
+            .flat_map(|base| &base.pkgs)
+            .map(|p| (p.pkg.name.clone(), p.pkg.version.clone()))
+            .collect::<Vec<_>>();
+        if let Err(e) = crate::aursource::record_installed(config, &installed) {
+            print_error(config.color.error, e);
+        }
+
         self.build_cleanup(config, &build)?;
         err
     }
@@ -2420,12 +2434,16 @@ pub(crate) fn review(
 }
 
 fn update_aur_list(config: &Config) {
-    let url = config.aur_url.clone();
+    let urls = config
+        .effective_aur_sources()
+        .into_iter()
+        .map(|s| s.url)
+        .collect::<Vec<_>>();
     let dir = config.cache_dir.clone();
     let interval = config.completion_interval;
 
     tokio::spawn(async move {
-        let _ = update_aur_cache(&url, &dir, Some(interval)).await;
+        let _ = update_aur_cache(&urls, &dir, Some(interval)).await;
     });
 }
 

@@ -315,11 +315,13 @@ pub async fn get_upgrades<'a, 'b>(
     let db_pkg_max = repo_upgrades
         .iter()
         .map(|u| u.name().len() + u.db().unwrap().name().len())
-        .chain(
-            aur_upgrades
-                .iter()
-                .map(|u| db_len(u.local.name(), "aur", aurdbs.list())),
-        )
+        .chain(aur_upgrades.iter().map(|u| {
+            db_len(
+                u.local.name(),
+                config.aur_label(&u.remote.name),
+                aurdbs.list(),
+            )
+        }))
         .chain(
             devel_upgrades
                 .iter()
@@ -367,7 +369,9 @@ pub async fn get_upgrades<'a, 'b>(
         let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| format!("{}-aur", p.db().unwrap().name()));
-        let remote = remote.as_deref().unwrap_or("aur");
+        let remote = remote
+            .as_deref()
+            .unwrap_or_else(|_| config.aur_label(&pkg.remote.name));
         print_upgrade(
             config,
             index,
@@ -445,7 +449,7 @@ pub async fn get_upgrades<'a, 'b>(
         let remote = aurdbs
             .pkg(pkg.local.name())
             .map(|p| p.db().unwrap().name())
-            .unwrap_or("aur");
+            .unwrap_or_else(|_| config.aur_label(&pkg.remote.name));
         if !number_menu.contains(index, remote) || input.is_empty() {
             aur_keep.push(pkg.local.name().to_string());
         }

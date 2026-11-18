@@ -17,7 +17,7 @@ use std::result::Result as StdResult;
 use alpm::Version;
 use alpm_utils::{AsTarg, DbListExt, Targ};
 use ansiterm::Style;
-use anyhow::{Context, Result, bail, ensure};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use aur_depends::AurBase;
 
 use globset::GlobSet;
@@ -353,6 +353,161 @@ fn pkgbuild_pkgbuilds(config: &Config, pkgbuild: &[Targ]) -> Result<i32> {
     Ok(ret)
 }
 
+/// Strips what does not matter when comparing git remote URLs.
+fn normalize_git_url(url: &str) -> &str {
+    let url = url.trim().trim_end_matches('/');
+    url.strip_suffix(".git")
+        .unwrap_or(url)
+        .trim_end_matches('/')
+}
+
+/// The git remote URL of the clone in `dir`, if it can be read.
+fn clone_origin(config: &Config, dir: &std::path::Path) -> Option<String> {
+    let output = Command::new(&config.git_bin)
+        .args(&config.git_flags)
+        .arg("-C")
+        .arg(dir)
+        .args(["remote", "get-url", "origin"])
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+    let url = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    (output.status.success() && !url.is_empty()).then_some(url)
+}
+
+/// With several AUR sources, makes sure existing clones of `pkgs` under
+/// `root` were cloned from the source each package is now fetched from
+/// (its recorded source, a `<source>/<pkg>` target, a fallback or the
+/// normal priority order). Fetching or building such a clone would otherwise
+/// silently use the source it was first cloned from. Missing clones and
+/// clones whose remote can not be read are not checked.
+pub fn check_clone_origins<S: AsRef<str>>(
+    config: &Config,
+    root: &std::path::Path,
+    pkgs: &[S],
+) -> Result<()> {
+    if config.aur_sources.len() < 2 {
+        return Ok(());
+    }
+
+    let mut errors = Vec::new();
+    for pkg in pkgs {
+        let pkg = pkg.as_ref();
+        let dir = root.join(pkg);
+        if !dir.join(".git").exists() {
+            continue;
+        }
+        let Some(current) = clone_origin(config, &dir) else {
+            continue;
+        };
+        let expected = config.aur_clone_urls(pkg)?.remove(0);
+        let source = config.aur_source_for(pkg);
+        // Either form of the source's URL is fine (--ssh or not).
+        let mut accepted = vec![
+            expected.to_string(),
+            source.clone_url(pkg, None)?.to_string(),
+        ];
+        if let Some(host) = config.aur_ssh_host.as_deref() {
+            accepted.push(source.clone_url(pkg, Some(host))?.to_string());
+        }
+        let current_norm = normalize_git_url(&current);
+        if accepted
+            .iter()
+            .any(|u| normalize_git_url(u) == current_norm)
+        {
+            continue;
+        }
+        errors.push(tr!(
+            "{dir} was cloned from {current} but {pkg} is being fetched from AUR source '{source}' ({expected}); remove {dir} and try again",
+            dir = dir.display(),
+            current = current,
+            pkg = pkg,
+            source = source.name,
+            expected = expected
+        ));
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(anyhow!(errors.join("\n")))
+    }
+}
+
+/// Clones or fetches AUR packages. With several AUR sources each package is
+/// cloned from the source it was found in, falling back to the other sources
+/// if that fails. Without a source list this is `config.fetch.download_cb`.
+fn download_aur<F: Fn(aur_fetch::Callback)>(
+    config: &Config,
+    pkgs: &[&str],
+    f: F,
+) -> Result<Vec<String>> {
+    if config.aur_sources.is_empty() {
+        return Ok(config.fetch.download_cb(pkgs, f)?);
+    }
+
+    check_clone_origins(config, &config.fetch.clone_dir, pkgs)?;
+
+    let repos = pkgs
+        .iter()
+        .map(|p| {
+            Ok(aur_fetch::Repo {
+                url: config.aur_clone_urls(p)?.remove(0),
+                name: p.to_string(),
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    let n = std::sync::atomic::AtomicUsize::new(0);
+    let count_fn = |cb: aur_fetch::Callback| {
+        let n = n.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+        f(aur_fetch::Callback { n, ..cb })
+    };
+    let count = &count_fn;
+
+    let first_err = match config.fetch.download_repos_cb(&repos, count) {
+        Ok(fetched) => return Ok(fetched),
+        Err(e) => e,
+    };
+
+    // Retry one package at a time, trying every source in order. Packages
+    // that were already cloned are just fetched again.
+    log::debug!("download failed, trying other AUR sources: {}", first_err);
+    n.store(0, std::sync::atomic::Ordering::Relaxed);
+    let mut fetched = Vec::new();
+    for pkg in pkgs {
+        let mut last_err = None;
+        for url in config.aur_clone_urls(pkg)? {
+            let repo = aur_fetch::Repo {
+                url,
+                name: pkg.to_string(),
+            };
+            match config
+                .fetch
+                .download_repos_cb(std::slice::from_ref(&repo), count)
+            {
+                Ok(f) => {
+                    fetched.extend(f);
+                    last_err = None;
+                    break;
+                }
+                Err(e) => {
+                    eprintln!(
+                        "{} {}",
+                        config.color.warning.paint(tr!("warning:")),
+                        tr!("failed to download {} from {}", pkg, repo.url)
+                    );
+                    last_err = Some(e);
+                }
+            }
+        }
+        if let Some(e) = last_err {
+            return Err(e.into());
+        }
+    }
+    Ok(fetched)
+}
+
 async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     let download = bases
         .bases
@@ -377,7 +532,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
     }
 
     if cols < 80 {
-        config.fetch.download_cb(&download, |cb| {
+        download_aur(config, &download, |cb| {
             let base = bases
                 .bases
                 .iter()
@@ -399,7 +554,7 @@ async fn aur_pkgbuilds(config: &Config, bases: &Bases) -> Result<()> {
                 .progress_chars("-> "),
         );
 
-        config.fetch.download_cb(&download, |cb| {
+        download_aur(config, &download, |cb| {
             let base = bases
                 .bases
                 .iter()
@@ -434,6 +589,10 @@ pub async fn new_aur_pkgbuilds(
         .map(|b| b.package_base())
         .collect::<Vec<_>>();
 
+    // Before the "up to date" shortcut below, which would otherwise build a
+    // cached clone from another AUR source.
+    check_clone_origins(config, &config.fetch.clone_dir, &all_pkgs)?;
+
     if config.redownload == YesNoAll::All {
         aur_pkgbuilds(config, bases).await?;
         config.fetch.merge(&all_pkgs)?;
@@ -465,10 +624,22 @@ pub async fn new_aur_pkgbuilds(
 pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let client = config.raur.as_ref().unwrap().client();
 
+    // Accept `aur/<pkg>` and `<source>/<pkg>`; the latter pins the package
+    // to that source.
+    let targets = config
+        .targets
+        .iter()
+        .map(|t| match t.split_once('/') {
+            Some((repo, pkg)) if repo == config.aur_namespace() || repo == "aur" => pkg.to_string(),
+            Some((repo, pkg)) if config.pin_aur_target(Some(repo), pkg) => pkg.to_string(),
+            _ => t.clone(),
+        })
+        .collect::<Vec<_>>();
+
     let warnings = cache_info_with_warnings(
         config.raur.as_ref().unwrap(),
         &mut config.cache,
-        &config.targets,
+        &targets,
         &[],
         &GlobSet::empty(),
     )
@@ -479,9 +650,7 @@ pub async fn show_comments(config: &mut Config) -> Result<i32> {
     let c = config.color;
 
     for base in &bases.bases {
-        let mut url = config
-            .aur_url
-            .join(&format!("packages/{}", base.package_base()))?;
+        let mut url = config.aur_package_url(base.package_base(), base.package_base())?;
 
         if config.comments >= 2 {
             url.set_query(Some("PP=250"));
@@ -590,6 +759,7 @@ fn split_target_pkgbuilds<'a, T: AsTarg>(
         }
 
         if config.mode.aur() {
+            config.pin_aur_target(targ.repo, targ.pkg);
             aur.push(targ);
         } else if config.mode.repo() {
             local.push(targ)
@@ -680,17 +850,30 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
 
         for base in &bases.bases {
             let base = base.package_base();
-            let url = config.aur_url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
-            let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
-
-            let response = client
-                .get(url.clone())
-                .send()
-                .await
-                .with_context(|| format!("{}: {}", base, url))?;
-            if !response.status().is_success() {
-                bail!("{}: {}: {}", base, url, response.status());
+            let mut sources = config.effective_aur_sources();
+            if let Some(idx) = config.aur_source_index(base) {
+                let src = sources.remove(idx);
+                sources.insert(0, src);
             }
+
+            // Try the package's own source first, then the others.
+            let mut response = None;
+            let mut last_err = None;
+            for src in &sources {
+                let url = src.url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
+                let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
+                match client.get(url.clone()).send().await {
+                    Ok(r) if r.status().is_success() => {
+                        response = Some(r);
+                        break;
+                    }
+                    Ok(r) => last_err = Some(anyhow!("{}: {}: {}", base, url, r.status())),
+                    Err(e) => last_err = Some(anyhow!(e).context(format!("{}: {}", base, url))),
+                }
+            }
+            let Some(response) = response else {
+                return Err(last_err.unwrap());
+            };
 
             if bat {
                 pipe_bat(config, &response.bytes().await?)?;
@@ -784,5 +967,118 @@ mod tests {
             assert!(is_arch_source_repo(repo), "{repo}");
             assert!(!is_arch_repo(repo), "{repo}");
         }
+    }
+}
+
+#[cfg(test)]
+mod clone_origin_tests {
+    use super::*;
+    use crate::aursource::tests::{pkg, src};
+    use std::path::Path;
+
+    fn git(dir: &Path, args: &[&str]) {
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(dir)
+            .args(args)
+            .stdout(Stdio::null())
+            .status()
+            .unwrap();
+        assert!(status.success(), "git {args:?}");
+    }
+
+    fn clone(root: &Path, name: &str, origin: Option<&str>) {
+        let dir = root.join(name);
+        std::fs::create_dir_all(&dir).unwrap();
+        git(&dir, &["init", "-q"]);
+        if let Some(origin) = origin {
+            git(&dir, &["remote", "add", "origin", origin]);
+        }
+    }
+
+    fn config(root: &Path) -> Config {
+        let mut config = Config::default();
+        config.aur_sources = vec![
+            src("aur", "https://aur.archlinux.org"),
+            src("mirror", "https://m.example"),
+        ];
+        config.fetch.clone_dir = root.to_path_buf();
+        config
+    }
+
+    #[test]
+    fn check_clone_origins_compares_with_resolved_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        clone(root, "foo", Some("https://aur.archlinux.org/foo.git"));
+        clone(root, "bar", Some("https://m.example/bar/"));
+        clone(root, "ssh", Some("ssh://aur@aur.archlinux.org/ssh.git"));
+        clone(root, "noremote", None);
+        let mut config = config(root);
+        config.aur_ssh_host = Some("aur.archlinux.org".into());
+
+        // Normal priority: foo comes from the first source, as its clone.
+        check_clone_origins(&config, root, &["foo", "noremote", "missing", "ssh"]).unwrap();
+
+        // Resolved from (recorded on, or requested from) the mirror now.
+        config.aur_origins.lock().unwrap().insert("foo".into(), 1);
+        config.aur_origins.lock().unwrap().insert("bar".into(), 1);
+        let err = check_clone_origins(&config, root, &["foo", "bar"])
+            .unwrap_err()
+            .to_string();
+        let foo = root.join("foo");
+        assert_eq!(
+            err,
+            format!(
+                "{0} was cloned from https://aur.archlinux.org/foo.git but foo is being fetched from AUR source 'mirror' (https://m.example/foo.git); remove {0} and try again",
+                foo.display()
+            )
+        );
+
+        // A single source keeps the old behaviour.
+        config.aur_sources.truncate(1);
+        check_clone_origins(&config, root, &["foo", "bar"]).unwrap();
+    }
+
+    #[test]
+    fn git_url_normalization() {
+        for (a, b) in [
+            ("https://m.example/foo.git", "https://m.example/foo"),
+            ("https://m.example/foo/", "https://m.example/foo.git"),
+            (" https://m.example/foo.git/\n", "https://m.example/foo"),
+        ] {
+            assert_eq!(normalize_git_url(a), normalize_git_url(b));
+        }
+        assert_ne!(
+            normalize_git_url("https://m.example/foo"),
+            normalize_git_url("https://aur.archlinux.org/foo")
+        );
+    }
+
+    /// The "PKGBUILD up to date" shortcut must not build a clone from
+    /// another source, and nothing is fetched.
+    #[tokio::test]
+    async fn new_aur_pkgbuilds_checks_before_up_to_date_shortcut() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        clone(root, "foo", Some("https://aur.archlinux.org/foo.git"));
+        let config = config(root);
+        config.aur_origins.lock().unwrap().insert("foo".into(), 1);
+
+        let bases = Bases::from_iter([Package::from(pkg("foo", "foo", "1-1"))]);
+        let srcinfo: Srcinfo =
+            "pkgbase = foo\n\tpkgver = 5\n\tpkgrel = 1\n\tarch = any\n\npkgname = foo\n"
+                .parse()
+                .unwrap();
+        let srcinfos = HashMap::from([("foo".to_string(), srcinfo)]);
+
+        let err = new_aur_pkgbuilds(&config, &bases, &srcinfos)
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(
+            err.contains("is being fetched from AUR source 'mirror'"),
+            "{err}"
+        );
     }
 }

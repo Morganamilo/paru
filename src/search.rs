@@ -166,23 +166,50 @@ async fn search_target(config: &Config, targets: &mut Vec<String>) -> Result<Vec
 }
 
 async fn search_aur_regex(config: &Config, targets: &[String]) -> Result<Vec<raur::Package>> {
-    let url = config.aur_url.join("packages.gz")?;
-    let resp = get(url.clone())
-        .await
-        .with_context(|| format!("get {}", url))?;
-    let success = resp.status().is_success();
-    ensure!(success, "get {}: {}", url, resp.status());
+    let mut data = String::new();
+    let mut ok = false;
+    let mut last_err = None;
+    for src in config.effective_aur_sources() {
+        let res: Result<String> = async {
+            let url = src.url.join("packages.gz")?;
+            let resp = get(url.clone())
+                .await
+                .with_context(|| format!("get {}", url))?;
+            let success = resp.status().is_success();
+            ensure!(success, "get {}: {}", url, resp.status());
 
-    let data = resp.bytes().await?;
-    let decoder = GzDecoder::new(&*data);
-    let data =
-        std::io::read_to_string(decoder).with_context(|| tr!("failed to decode package list"))?;
+            let data = resp.bytes().await?;
+            let decoder = GzDecoder::new(&*data);
+            std::io::read_to_string(decoder).with_context(|| tr!("failed to decode package list"))
+        }
+        .await;
+        match res {
+            Ok(list) => {
+                ok = true;
+                data.push_str(&list);
+                data.push('\n');
+            }
+            Err(e) if config.aur_sources.len() > 1 => {
+                eprintln!(
+                    "{} {}",
+                    config.color.warning.paint(tr!("warning:")),
+                    tr!("AUR source '{}' failed: {}", src.name, e)
+                );
+                last_err = Some(e);
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    if let (false, Some(e)) = (ok, last_err) {
+        return Err(e);
+    }
 
     let regex = RegexSet::new(targets)?;
 
+    let mut seen = std::collections::HashSet::new();
     let pkgs = data
         .lines()
-        .filter(|pkg| regex.is_match(pkg))
+        .filter(|pkg| !pkg.is_empty() && regex.is_match(pkg) && seen.insert(*pkg))
         .collect::<Vec<_>>();
     ensure!(pkgs.len() < 2000, "too many packages");
     let pkgs = config.raur.as_ref().unwrap().info(&pkgs).await?;
@@ -327,8 +354,8 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
     let c = config.color;
     let stats = format!("+{} ~{:.2}", pkg.num_votes, pkg.popularity);
 
-    let aur = color_repo(c.enabled, "aur");
-    let aur = if let Ok(url) = config.aur_url.join(&format!("packages/{}", pkg.name)) {
+    let aur = color_repo(c.enabled, config.aur_label(&pkg.name));
+    let aur = if let Ok(url) = config.aur_package_url(&pkg.name, &pkg.name) {
         link_str(c.enabled, &aur, url.as_str())
     } else {
         aur
@@ -383,7 +410,14 @@ fn print_pkg(config: &Config, pkg: &raur::Package, quiet: bool) {
             info::print(c, 14, config.cols, "    URL", url);
         }
 
-        let aur_url = format!("{}packages/{}", config.aur_url, pkg.package_base);
+        let aur_url = if config.aur_sources.is_empty() {
+            format!("{}packages/{}", config.aur_url, pkg.package_base)
+        } else {
+            config
+                .aur_package_url(&pkg.package_base, &pkg.name)
+                .map(|u| u.to_string())
+                .unwrap_or_default()
+        };
         info::print(c, 14, config.cols, "    AUR URL", aur_url.as_str());
     }
 }

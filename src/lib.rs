@@ -1,4 +1,5 @@
 mod args;
+mod aursource;
 mod chroot;
 mod clean;
 mod command_line;
@@ -29,7 +30,7 @@ mod mock;
 mod resolver;
 
 #[cfg(not(feature = "mock"))]
-type RaurHandle = raur::Handle;
+type RaurHandle = crate::aursource::MultiRaur<raur::Handle>;
 #[cfg(feature = "mock")]
 type RaurHandle = crate::mock::Mock;
 
@@ -305,7 +306,9 @@ async fn handle_get_pkg_build(config: &mut Config) -> Result<i32> {
 }
 
 async fn handle_default(config: &mut Config) -> Result<i32> {
-    if config.gendb {
+    if config.aur_source_action.is_some() {
+        aursource::command(config)
+    } else if config.gendb {
         devel::gendb(config).await?;
         Ok(0)
     } else if config.clean > 0 {

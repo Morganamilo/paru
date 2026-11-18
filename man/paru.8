@@ -93,6 +93,44 @@ Interactive search and install. Displays a list of packages matching the search
 terms and prompts the user on which packages to install.
 
 .TP
+.B \-\-aursource <action> [args]
+Manage the ordered list of AUR-compatible sources stored as \fBAurSource\fR
+lines in the user config file (\fB$PARU_CONF\fR if set, otherwise
+\fB~/.config/paru/paru.conf\fR). Only the \fBAurSource\fR lines are rewritten;
+comments and other settings are kept, and the file is replaced atomically so it
+is left untouched on error. If the user config does not exist it is created
+with an \fBInclude\fR of /etc/paru.conf. Actions:
+.RS
+.TP
+.B list
+Show the sources in priority order.
+.TP
+.B add <name> <url> [rpcurl]
+Append a source. If no sources are configured yet, the current \fBAurUrl\fR
+is kept as the first source, named \fBaur\fR.
+.TP
+.B edit <name> [name=<new>] [url=<url>] [rpcurl=<url>]
+Change fields of a source. An empty \fBrpcurl=\fR resets it to <url>/rpc.
+.TP
+.B delete <name>
+Remove a source. Removing every source falls back to \fBAurUrl\fR.
+.TP
+.B move <name> <position>
+Move a source to a 1-based position. Earlier sources win when two sources
+provide a package with the same name.
+.TP
+.B pins
+List installed packages that are pinned to the AUR source they were installed
+from (see \fBAurSource\fR in paru.conf(5)).
+.TP
+.B unpin <pkg>...
+Forget the recorded source of packages so they follow the normal source order.
+.RE
+
+Renaming a source with \fBedit name=\fR updates the packages pinned to it;
+deleting a source unpins its packages with a notice.
+
+.TP
 .B \-\-gendb
 Generate the development package database. This tracks the latest commit for
 each development package, so when there is a new commit paru will know to
@@ -301,6 +339,13 @@ Set an alternative AUR URL.
 .TP
 .B \-\-aurrpcurl
 Set an alternative URL for the AUR /rpc endpoint.
+
+.TP
+.B \-\-aururls <url[,url...]>
+Use an ordered list of AUR-compatible sources for this run instead of the
+configured ones. May be repeated. Each source is named after its host
+(\fBaur\fR for aur.archlinux.org). An explicit \-\-aururl selects that single
+source instead. See \fBAurSource\fR in paru.conf(5).
 
 .TP
 .B \-\-clonedir <dir>
