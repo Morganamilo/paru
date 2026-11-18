@@ -1,0 +1,25 @@
+From cc955c6b5a182f8d0f0cd7dfa1cdc44bf5b0d11d Mon Sep 17 00:00:00 2001
+From: Toria <ninetailedtori@uwu.gal>
+Date: Sat, 18 Apr 2026 20:04:10 +0100
+Subject: [PATCH] PKGREL bump for paru test.
+
+Signed-off-by: Toria <ninetailedtori@uwu.gal>
+---
+ PKGBUILD | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/PKGBUILD b/PKGBUILD
+index 04f2e7d..ae4b0ee 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -4,7 +4,7 @@
+
+ pkgname=firefox
+ pkgver=149.0.2
+-pkgrel=1
++pkgrel=2
+ pkgdesc="Fast, Private & Safe Web Browser"
+ url="https://www.mozilla.org/firefox/"
+ arch=(x86_64)
+--
+2.53.0
