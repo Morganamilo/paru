@@ -5,7 +5,6 @@ authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2024"
 
 description = "Feature packed AUR helper"
-homepage = "https://github.com/Morganamilo/paru"
 repository = "https://github.com/Morganamilo/paru"
 documentation = "https://docs.rs/paru"
 license = "GPL-3.0"
