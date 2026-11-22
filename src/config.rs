@@ -763,13 +763,7 @@ impl Config {
 
         #[cfg(not(feature = "mock"))]
         {
-            use std::time::Duration;
-
-            let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
-            let client = reqwest::Client::builder()
-                .tcp_keepalive(Duration::new(15, 0))
-                .user_agent(format!("paru/{}", ver))
-                .build()?;
+            let client = build_aur_client(AUR_RPC_TIMEOUT)?;
 
             let rpc_url = match &self.aur_rpc_url {
                 Some(rpc) => rpc.to_string(),
@@ -1357,9 +1351,25 @@ mod sort_tests {
     }
 }
 
+#[cfg(any(not(feature = "mock"), test))]
+const AUR_RPC_CONNECT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(15);
+#[cfg(any(not(feature = "mock"), test))]
+const AUR_RPC_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+
+#[cfg(any(not(feature = "mock"), test))]
+fn build_aur_client(timeout: std::time::Duration) -> reqwest::Result<reqwest::Client> {
+    let ver = option_env!("PARU_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+    reqwest::Client::builder()
+        .tcp_keepalive(std::time::Duration::from_secs(15))
+        .connect_timeout(AUR_RPC_CONNECT_TIMEOUT)
+        .timeout(timeout)
+        .user_agent(format!("paru/{}", ver))
+        .build()
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Config, parse_release_age};
+    use super::{AUR_RPC_TIMEOUT, Config, build_aur_client, parse_release_age};
     use globset::{Glob, GlobSetBuilder};
 
     #[test]
@@ -1418,5 +1428,53 @@ mod tests {
         assert!(!config.is_too_new("pkg-git", 100, 100, 60));
         assert!(!config.is_too_new("trusted-pkg", 100, 100, 60));
         assert!(config.is_too_new("pkg", 100, 100, 60));
+    }
+
+    #[tokio::test]
+    async fn aur_rpc_client_times_out_on_stalled_response_body() {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+        use std::sync::mpsc;
+        use std::thread;
+        use std::time::Duration;
+
+        use raur::Raur;
+
+        assert_eq!(AUR_RPC_TIMEOUT, Duration::from_secs(30));
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = listener.local_addr().unwrap();
+        let (done_tx, done_rx) = mpsc::channel::<()>();
+
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut buf = [0u8; 1024];
+            let _ = stream.read(&mut buf);
+            let response =
+                b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 2\r\n\r\n{";
+            let _ = stream.write_all(response);
+            let _ = stream.flush();
+            let _ = done_rx.recv_timeout(Duration::from_secs(5));
+        });
+
+        let client = build_aur_client(Duration::from_millis(200)).unwrap();
+        let handle = raur::Handle::new_with_settings(client, format!("http://{addr}/rpc"));
+        let err = handle
+            .info(&["paru"])
+            .await
+            .expect_err("stalled AUR RPC response should time out");
+
+        let _ = done_tx.send(());
+        server.join().unwrap();
+
+        match err {
+            raur::Error::Reqwest(req_err) => {
+                assert!(
+                    req_err.is_timeout(),
+                    "expected timeout error, got: {req_err}"
+                );
+            }
+            other => panic!("expected reqwest timeout error, got: {other:?}"),
+        }
     }
 }
