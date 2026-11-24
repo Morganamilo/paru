@@ -9,14 +9,15 @@ msgstr ""
 "Project-Id-Version: paru VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/Morganamilo/paru\n"
 "POT-Creation-Date: 2026-10-28 16:12+0000\n"
-"PO-Revision-Date: 2026-01-09 05:48+0000\n"
+"PO-Revision-Date: 2026-11-24 19:58+0100\n"
 "Last-Translator: Luna Jernberg <droidbittin@gmail.com>\n"
 "Language-Team: \n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.10\n"
 
 #: src/clean.rs:36
 msgid "Do you want to clean ALL AUR packages from cache?"
@@ -180,13 +181,12 @@ msgid "  failed to sync {}"
 msgstr "  misslyckades med att synkronisera {}"
 
 #: src/config.rs:1286 src/config.rs:1292
-#, fuzzy
 msgid "invalid release age '{}'"
-msgstr "ogiltig toml: {}"
+msgstr "ogiltig utgivningsålder ”{}”"
 
 #: src/config.rs:1297
 msgid "release age '{}' is too large"
-msgstr ""
+msgstr "utgivningsålder '{}' är för stor"
 
 #: src/devel.rs:136 src/download.rs:207
 msgid "Querying AUR..."
@@ -706,16 +706,20 @@ msgstr ""
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
 msgstr ""
+"    --minimumreleaseage <varaktighet>  Minsta ålder för ändringar i AUR-paket"
 
 #: src/help.rs:95
 msgid ""
 "    --nominimumreleaseage          Disable the minimum release age check"
 msgstr ""
+"    --nominimumreleaseage          Inaktivera kontroll av den lägsta åldern "
+"för utgivning"
 
 #: src/help.rs:96
 msgid ""
 "    --minimumreleaseageexclude <packages>  Exempt packages from the age check"
 msgstr ""
+"    --minimumreleaseageexclude <paket>  Undanta paket från ålderskontrollen"
 
 #: src/help.rs:97
 msgid ""
@@ -732,6 +736,8 @@ msgid ""
 "    --auto                 Use bottom-up ordering for menus, top-down "
 "otherwise"
 msgstr ""
+"    --auto                 Använd nerifrån och upp ordning för menyer, i "
+"övrigt uppifrån och ner"
 
 #: src/help.rs:101
 msgid "show specific options:"
@@ -961,46 +967,50 @@ msgstr "Vill ni försöka bygga de ändå?"
 #: src/install.rs:1343
 msgid "{n} day"
 msgid_plural "{n} days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} dag"
+msgstr[1] "{n} dagar"
 
 #: src/install.rs:1346
 msgid "{n} hour"
 msgid_plural "{n} hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} timme"
+msgstr[1] "{n} timmar"
 
 #: src/install.rs:1349
 msgid "{n} minute"
 msgid_plural "{n} minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} minut"
+msgstr[1] "{n} minuter"
 
 #: src/install.rs:1351
 msgid "{n} second"
 msgid_plural "{n} seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} sekund"
+msgstr[1] "{n} sekunder"
 
 #: src/install.rs:1386
 msgid ""
 "AUR package '{}' changed while downloading PKGBUILDs; retry the operation"
 msgstr ""
+"AUR-paketet ”{}” ändrades under nedladdningen av PKGBUILD-filer; försök igen"
 
 #: src/install.rs:1420
 msgid "updated {} ago"
-msgstr ""
+msgstr "uppdaterad för {} sedan"
 
 #: src/install.rs:1427
 msgid ""
 "the following AUR packages are newer than the minimum release age of {}: {}"
-msgstr ""
+msgstr "följande AUR-paket är nyare än den minsta utgivningsåldern på {}: {}"
 
 #: src/install.rs:1432
 msgid ""
 "pass --nominimumreleaseage with your operation to override (e.g. paru -Syu --"
 "nominimumreleaseage), or add a package to MinimumReleaseAgeExclude"
 msgstr ""
+"använd --nominimumreleaseage med din åtgärd för att åsidosätta (t.ex. paru "
+"-Syu --nominimumreleaseage), eller lägg till ett paket i "
+"MinimumReleaseAgeExclude"
 
 #: src/install.rs:1453
 msgid "duplicate packages: {}"
