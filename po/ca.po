@@ -715,7 +715,7 @@ msgstr ""
 #: src/help.rs:94
 msgid "    --minimumreleaseage <duration>  Minimum age of AUR package changes"
 msgstr ""
-"    --minimumreleaseage <durada>  Canvis en l'edat mínima dels paquets de "
+"    --minimumreleaseage <durada>  Edat mínima dels canvis dels paquets de "
 "l'AUR"
 
 #: src/help.rs:95
@@ -994,7 +994,7 @@ msgstr[1] "{n} dies"
 #: src/install.rs:1346
 msgid "{n} hour"
 msgid_plural "{n} hours"
-msgstr[0] "{n} hour"
+msgstr[0] "{n} hora"
 msgstr[1] "{n} hores"
 
 #: src/install.rs:1349
@@ -1107,7 +1107,7 @@ msgstr "Accepteu els canvis?"
 #: src/install.rs:1862
 msgid "Paging with less. Press 'q' to quit or 'h' for help."
 msgstr ""
-"Visualització amb menys elements. Premeu «q» per sortir-ne o «h» per obtenir "
+"Paginació amb Less. Premeu «q» per sortir-ne o «h» per obtenir "
 "ajuda."
 
 #: src/install.rs:1897
