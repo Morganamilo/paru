@@ -2262,6 +2262,17 @@ fn print_dir(
     Ok(())
 }
 
+fn less_prompt_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars().filter(|&c| c != '$') {
+        if matches!(c, '?' | ':' | '.' | '%' | '\\') {
+            out.push('\\');
+        }
+        out.push(c);
+    }
+    out
+}
+
 fn print_review_diff(config: &Config, stdin: &mut impl Write, diff: &str, indent: bool) {
     let c = config.color;
     let indent = if indent { "    " } else { "" };
@@ -2358,9 +2369,12 @@ pub(crate) fn review(
                 exec::RAISE_SIGPIPE.store(false, Ordering::Relaxed);
                 let mut command = Command::new("sh");
 
-                if std::env::var("LESS").is_err() {
-                    command.env("LESS", "SRXF");
+                let mut less = var("LESS").unwrap_or_else(|_| "SRXF".to_string());
+                if pager_unconfigured && pager == "less" {
+                    let prompt = tr!("Press 'q' to finish reviewing and continue, 'h' for help");
+                    less = format!("-Ps{}$ {}", less_prompt_escape(&prompt), less);
                 }
+                command.env("LESS", less);
                 command.arg("-c").arg(&pager).stdin(Stdio::piped());
                 let mut child = exec::spawn(&mut command)?;
 
