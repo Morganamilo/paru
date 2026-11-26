@@ -652,7 +652,8 @@ pub struct Config {
 
     pub env: Vec<(String, String)>,
 
-    pub overrides: HashMap<String, PackageOverride>,
+    package_overrides: HashMap<String, PackageOverride>,
+    group_overrides: HashMap<String, PackageOverride>,
     override_parse_state: Option<OverrideParseState>,
 
     //pacman
@@ -1426,7 +1427,7 @@ then initialise it with:
                         name
                     )
                 );
-                self.overrides.insert(
+                self.package_overrides.insert(
                     name,
                     PackageOverride {
                         makepkg_conf,
@@ -1449,23 +1450,34 @@ then initialise it with:
                     makepkg_conf.is_some() || !env.is_empty(),
                     tr!("override.group.{} must have MakepkgConf or Overrides", name)
                 );
+                let group = PackageOverride {
+                    makepkg_conf,
+                    env,
+                    pkgbuild_patches: Vec::new(),
+                };
                 for pkg in packages {
-                    let entry = self.overrides.entry(pkg).or_default();
-                    if let Some(ref conf) = makepkg_conf {
-                        entry.makepkg_conf = Some(conf.clone());
-                    }
-                    for (k, v) in &env {
-                        if let Some(existing) = entry.env.iter_mut().find(|(ek, _)| ek == k) {
-                            existing.1 = v.clone();
-                        } else {
-                            entry.env.push((k.clone(), v.clone()));
-                        }
-                    }
+                    self.group_overrides
+                        .entry(pkg)
+                        .or_default()
+                        .merge_from(&group);
                 }
             }
         }
 
         Ok(())
+    }
+
+    /// CONTRACT: Merge group matches before name-specific matches, in package order within each.
+    pub fn override_for(&self, pkgs: &[&str]) -> Option<PackageOverride> {
+        let mut matches = [&self.group_overrides, &self.package_overrides]
+            .into_iter()
+            .flat_map(|overrides| pkgs.iter().filter_map(|name| overrides.get(*name)));
+        let mut result = PackageOverride::default();
+        result.merge_from(matches.next()?);
+        for next in matches {
+            result.merge_from(next);
+        }
+        Some(result)
     }
 
     pub fn aur_namespace(&self) -> &'static str {
@@ -1704,7 +1716,67 @@ mod sort_tests {
 #[cfg(test)]
 mod tests {
     use super::{Config, parse_overrides_map, parse_release_age};
+    use cini::Ini;
     use globset::{Glob, GlobSetBuilder};
+
+    fn parse_overrides(input: &str) -> Config {
+        let mut config = Config::default();
+        config.parse(None, input).unwrap();
+        config.finalize_override().unwrap();
+        config
+    }
+
+    #[test]
+    fn package_override_wins_in_either_section_order() {
+        let group = "[override.group.g]\nPackages = foo\nMakepkgConf = /group.conf\n\
+                     Overrides = { A = grp, B = grp }\n";
+        for conf in ["", "MakepkgConf = /package.conf\n"] {
+            let package = format!("[override.package.foo]\nOverrides = {{ A = pkg }}\n{conf}");
+            for input in [format!("{package}{group}"), format!("{group}{package}")] {
+                let ov = parse_overrides(&input).override_for(&["foo"]).unwrap();
+                assert_eq!(
+                    ov.makepkg_conf.as_deref(),
+                    Some(if conf.is_empty() {
+                        "/group.conf"
+                    } else {
+                        "/package.conf"
+                    }),
+                    "{input}"
+                );
+                assert_eq!(
+                    ov.env,
+                    [("A".into(), "pkg".into()), ("B".into(), "grp".into())],
+                    "{input}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn later_group_overrides_conflicts_without_dropping_other_settings() {
+        let config = parse_overrides(
+            "[override.group.one]\nPackages = foo\nMakepkgConf = /one.conf\n\
+             Overrides = { A = one, B = one }\n\
+             [override.group.two]\nPackages = foo\nOverrides = { A = two }\n",
+        );
+        let ov = config.override_for(&["foo"]).unwrap();
+        assert_eq!(ov.makepkg_conf.as_deref(), Some("/one.conf"));
+        assert_eq!(
+            ov.env,
+            [("A".into(), "two".into()), ("B".into(), "one".into())]
+        );
+    }
+
+    #[test]
+    fn split_base_applies_groups_before_packages() {
+        let config = parse_overrides(
+            "[override.package.a]\nOverrides = { X = pkg }\n\
+             [override.group.g]\nPackages = b\nOverrides = { X = grp }\n",
+        );
+        let ov = config.override_for(&["a", "b"]).unwrap();
+        assert_eq!(ov.env, [("X".into(), "pkg".into())]);
+        assert!(config.override_for(&["unknown"]).is_none());
+    }
 
     #[test]
     fn release_age_units() {

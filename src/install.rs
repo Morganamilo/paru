@@ -13,9 +13,7 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{
-    Config, LocalRepos, Mode, Op, PackageOverride, PatchSource, Sign, YesNoAllTree, YesNoAsk,
-};
+use crate::config::{Config, LocalRepos, Mode, Op, PatchSource, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
@@ -528,7 +526,7 @@ impl Installer {
         let pkgdest = repo.map(|r| r.1);
 
         // Apply per-package overrides
-        let pkg_override = get_base_override(config, base);
+        let pkg_override = config.override_for(&base.packages().collect::<Vec<_>>());
         let saved_makepkg_conf = config.makepkg_conf.clone();
         let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
         let saved_env = config.env.clone();
@@ -1322,21 +1320,6 @@ async fn apply_patches(config: &Config, dir: &Path, patches: &[PatchSource]) -> 
         patch.apply(config, dir).await?;
     }
     Ok(())
-}
-
-fn get_base_override(config: &Config, base: &Base) -> Option<PackageOverride> {
-    let mut result: Option<PackageOverride> = None;
-
-    for pkg_name in base.packages() {
-        if let Some(ov) = config.overrides.get(pkg_name) {
-            match result {
-                None => result = Some(ov.clone()),
-                Some(ref mut merged) => merged.merge_from(ov),
-            }
-        }
-    }
-
-    result
 }
 
 fn is_debug(pkg: &alpm::Package) -> bool {
