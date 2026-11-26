@@ -535,18 +535,20 @@ impl Installer {
         let saved_makepkg_conf = config.makepkg_conf.clone();
         let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
         let saved_overrides = std::mem::take(&mut config.makepkg_overrides);
+        let mut sync_chroot_conf = false;
 
         if let Some(ov) = pkg_override {
             if let Some(conf) = ov.makepkg_conf {
                 config.makepkg_conf = Some(conf.clone());
                 if config.chroot {
                     self.chroot.makepkg_conf = conf;
+                    sync_chroot_conf = true;
                 }
             }
             config.makepkg_overrides = ov.env;
         }
 
-        let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest);
+        let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest, sync_chroot_conf);
 
         // Restore original config
         config.makepkg_conf = saved_makepkg_conf;
@@ -563,6 +565,7 @@ impl Installer {
         repo: Option<(&str, &str)>,
         dir: &Path,
         pkgdest: Option<&str>,
+        sync_chroot_conf: bool,
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
         let mut chroot_env = Vec::new();
@@ -584,6 +587,10 @@ impl Installer {
                 let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
                 pkgs.extend(self.chroot.extra_pkgs.iter().map(|s| s.as_str()));
                 self.chroot.run_usr(&pkgs)?;
+            } else if sync_chroot_conf {
+                // RATIONALE: The clean prepare pass copied the root's config. Install
+                // the override in the build copy, as run_usr does for extra packages.
+                self.chroot.run_usr(&["true"])?;
             }
         } else {
             // download sources

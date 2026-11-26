@@ -1860,7 +1860,12 @@ fn override_build_command(dir: &Path, options: &str, overrides: &str) -> Command
         dir,
         "sudo",
         &format!(
-            "case \"$1\" in arch-nspawn) {record}\nexit 0;; cp|-v) exit 0;; esac\nexec \"$@\""
+            "case \"$1\" in\n\
+               arch-nspawn) {record}\n\
+                 case \"$*\" in *'/override.conf '*' true') exit \"${{PARU_TEST_SYNC_STATUS:-0}}\";; esac\n\
+                 exit 0;;\n\
+               cp|-v) exit 0;;\n\
+             esac\nexec \"$@\""
         ),
     );
     let pacman = script(
@@ -1945,6 +1950,106 @@ fn package_overrides_are_passed_to_makepkg_as_arguments() {
                 line.ends_with(" [CFLAGS=-O3 -march=native]"),
                 expected,
                 "{line}"
+            );
+        }
+    }
+}
+
+#[test]
+fn chroot_build_copy_receives_the_package_makepkg_conf() {
+    for (extra_pkgs, sync_fails) in [(false, false), (true, false), (false, true)] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        fs::create_dir_all(dir.join("chroot/root")).unwrap();
+        let override_conf = dir.join("override.conf");
+        let global_conf = dir.join("global.conf");
+        fs::write(&override_conf, "CFLAGS=-O2\n").unwrap();
+        fs::write(&global_conf, "CFLAGS=-O1\n").unwrap();
+        let mut cmd = override_build_command(
+            dir,
+            &format!(
+                "Chroot = {0}/chroot\nMakepkgConf = {0}/global.conf",
+                dir.display()
+            ),
+            &format!(
+                "MakepkgConf = {}\nOverrides = {{ CFLAGS = \"-O3\" }}",
+                override_conf.display()
+            ),
+        );
+        cmd.arg("fixture/fixture");
+        if extra_pkgs {
+            cmd.args(["--chrootpkgs", "extra"]);
+        }
+        if sync_fails {
+            cmd.args(["--nofailfast", "other/other"])
+                .env("PARU_TEST_SYNC_STATUS", "42");
+        }
+        let result = output(&mut cmd);
+        let capture = fs::read_to_string(dir.join("capture"))
+            .unwrap_or_else(|err| panic!("{err}: {result:?}"));
+        let lines: Vec<_> = capture.lines().collect();
+        let at = |prefix: &str, marker: &str| {
+            lines
+                .iter()
+                .position(|line| line.starts_with(prefix) && line.contains(marker))
+                .unwrap_or_else(|| panic!("missing {prefix} … {marker}: {capture}\n{result:?}"))
+        };
+        let prepare = at("makechrootpkg:fixture", "[-ofA]");
+        let sync_marker = format!("[-M] [{}]", override_conf.display());
+        let sync = at("sudo:", &sync_marker);
+        assert!(prepare < sync, "{capture}");
+        assert_eq!(
+            lines
+                .iter()
+                .filter(|line| line.contains(&sync_marker))
+                .count(),
+            1,
+            "{capture}"
+        );
+        assert!(
+            lines[sync].contains("/chroot/") && !lines[sync].contains("/chroot/root]"),
+            "{capture}"
+        );
+        assert!(
+            lines[sync].ends_with(if extra_pkgs { "[extra]" } else { "[true]" }),
+            "{capture}"
+        );
+        assert!(
+            lines[prepare].ends_with("[--] [-ofA] [CFLAGS=-O3]"),
+            "{capture}"
+        );
+        if sync_fails {
+            assert!(
+                lines.iter().all(|line| !line.starts_with("makepkg:fixture")
+                    && !(line.starts_with("makechrootpkg:fixture") && line.contains("[-feA]"))),
+                "{capture}"
+            );
+            let other = at("makepkg:other", "[--packagelist]");
+            assert!(sync < other, "{capture}");
+            assert!(
+                lines[other].contains(&format!("[--config] [{}]", global_conf.display())),
+                "{capture}"
+            );
+            assert!(!lines[other].contains("[CFLAGS=-O3]"), "{capture}");
+            assert_eq!(
+                lines
+                    .iter()
+                    .filter(|line| line.starts_with("sudo:"))
+                    .count(),
+                2,
+                "{capture}"
+            );
+        } else {
+            let list = at("makepkg:fixture", "[--packagelist]");
+            let build = at("makechrootpkg:fixture", "[-feA]");
+            assert!(sync < list && list < build, "{capture}");
+            assert!(
+                lines[list].contains(&format!("[--config] [{}]", override_conf.display())),
+                "{capture}"
+            );
+            assert!(
+                lines[build].contains("[--] [-feA]") && lines[build].ends_with("[CFLAGS=-O3]"),
+                "{capture}"
             );
         }
     }
