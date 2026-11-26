@@ -503,9 +503,9 @@ repositories that forget to update their .SRCINFO files.
 Per-package build overrides allow customizing build settings for specific packages.
 There are two types of override sections: package overrides and group overrides.
 
-Package overrides always take precedence over group overrides. When multiple group
-overrides apply to the same package, later groups in the config file merge over
-earlier ones, with conflicting keys being overwritten.
+Package overrides take precedence over group overrides for conflicting settings.
+Settings that do not conflict are kept. When multiple group overrides apply to
+the same package, later groups in the config file win on conflicts.
 
 .SS PACKAGE OVERRIDES
 
@@ -518,18 +518,22 @@ A package override section targets a single package by name:
 .TP
 .B MakepkgConf = /path/to/makepkg.conf
 Use a different makepkg.conf for building this package. This overrides the global
-MakepkgConf option for this package only.
+MakepkgConf option for this package only. In chroot mode, the selected file is
+installed in the build copy after the initial source preparation pass and before
+the final build.
 
 .TP
 .B Overrides = { KEY = value, KEY2 = "value2" }
-Set environment variables for building this package. Values may optionally be
-quoted with double quotes. Multiple key-value pairs are separated by commas.
+Pass \fBKEY=value\fR arguments to makepkg. These settings take precedence over
+makepkg.conf. Keys must be shell variable names. Values are literal; shell
+expansion is not performed. Separate assignments with commas and use double
+quotes around values that contain commas. A local repository's output directory
+takes precedence over a \fBPKGDEST\fR override.
 
 .TP
 .B PkgbuildPatches = { https://url-patch.patch, /local/patch.patch }
-List patches for the PKGBUILD to apply to the PKGBUILD before building this
-package. You may for example add patches to the source of PKGBUILD by adding them
-locally then generating a PKGBUILD patch.
+Apply these patches in the package checkout before building. Relative patch
+file paths are resolved from the directory where paru was launched.
 
 .SS GROUP OVERRIDES
 
@@ -570,7 +574,7 @@ Set custom compiler flags for a group of packages:
 [override.group.lto-builds]
 Packages = mesa vulkan-radeon
 MakepkgConf = /etc/makepkg-lto.conf
-Overrides = { MAKEFLAGS = "-j$(nproc)", CFLAGS = "-O3 -march=native" }
+Overrides = { MAKEFLAGS = "-j8", CFLAGS = "-O3 -march=native" }
 .fi
 .RE
 
