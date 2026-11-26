@@ -405,20 +405,20 @@ pub enum PatchSource {
 }
 
 impl PatchSource {
-    pub async fn apply(&self, config: &Config, dir: &Path) -> Result<()> {
+    pub async fn apply(
+        &self,
+        config: &Config,
+        dir: &Path,
+        allow_already_applied: bool,
+    ) -> Result<()> {
         match self {
             PatchSource::Path(path) => {
-                let patch_path = if path.is_absolute() {
-                    path.clone()
-                } else {
-                    dir.join(path)
-                };
-
-                let mut cmd = Command::new(&config.git_bin);
-                cmd.arg("apply").arg("-v").arg(&patch_path).current_dir(dir);
-
-                exec::command(&mut cmd)
-                    .with_context(|| tr!("failed to apply patch '{}'", patch_path.display()))?;
+                git_apply(
+                    config,
+                    dir,
+                    &std::path::absolute(path)?,
+                    allow_already_applied,
+                )?;
             }
             PatchSource::Url(url) => {
                 let bytes = get(url.clone())
@@ -434,16 +434,48 @@ impl PatchSource {
                 use std::io::Write;
                 temp.write_all(&bytes)?;
 
-                let mut cmd = Command::new(&config.git_bin);
-                cmd.arg("apply").arg("-v").arg(temp.path()).current_dir(dir);
-
-                exec::command(&mut cmd)
-                    .with_context(|| tr!("failed to apply patch '{}'", temp.path().display()))?;
+                git_apply(
+                    config,
+                    dir,
+                    &std::path::absolute(temp.path())?,
+                    allow_already_applied,
+                )?;
             } // tempfile cleaned up safely by drop.
         }
 
         Ok(())
     }
+}
+
+fn git_apply(config: &Config, dir: &Path, patch: &Path, allow_already_applied: bool) -> Result<()> {
+    let dir = dir.canonicalize()?;
+    let apply = || {
+        let mut cmd = Command::new(&config.git_bin);
+        cmd.arg("apply").current_dir(&dir);
+        if let Some(parent) = dir.parent() {
+            // RATIONALE: A package nested in a repo must still be the root for patch paths.
+            cmd.env("GIT_CEILING_DIRECTORIES", parent);
+        }
+        cmd
+    };
+
+    // HAZARD: On persistent checkouts a reverse match in another hunk location is possible.
+    if allow_already_applied
+        && exec::command_output(apply().args(["--reverse", "--check", "--"]).arg(patch)).is_ok()
+    {
+        ensure!(
+            exec::command_output(apply().args(["--check", "--"]).arg(patch)).is_err(),
+            tr!(
+                "patch '{}' matches in both directions; use more context to identify the change",
+                patch.display()
+            )
+        );
+        printtr!("patch '{}' is already applied", patch.display());
+        return Ok(());
+    }
+
+    exec::command(apply().args(["-v", "--"]).arg(patch))
+        .with_context(|| tr!("failed to apply patch '{}'", patch.display()))
 }
 
 impl FromStr for PatchSource {
@@ -1715,9 +1747,83 @@ mod sort_tests {
 
 #[cfg(test)]
 mod tests {
-    use super::{Config, parse_overrides_map, parse_release_age};
+    use super::{Config, PatchSource, parse_overrides_map, parse_release_age};
     use cini::Ini;
     use globset::{Glob, GlobSetBuilder};
+
+    #[tokio::test]
+    async fn repeated_hunk_context_does_not_make_a_fresh_patch_look_applied() {
+        let tmp = tempfile::tempdir().unwrap();
+        let checkout = tmp.path();
+        let pkgbuild = checkout.join("PKGBUILD");
+        let original = "package_a() {\n first\n second\n third\n fourth\n fifth\n sixth\n}\n\n\
+                        package_b() {\n first\n second\n third\n remove\n fourth\n fifth\n sixth\n}\n";
+        std::fs::write(&pkgbuild, original).unwrap();
+        let patch = checkout.join("remove.patch");
+        std::fs::write(
+            &patch,
+            "diff --git a/PKGBUILD b/PKGBUILD\n--- a/PKGBUILD\n+++ b/PKGBUILD\n@@ -11,7 +11,6 @@\n  first\n  second\n  third\n- remove\n  fourth\n  fifth\n  sixth\n",
+        )
+        .unwrap();
+        let source = PatchSource::Path(patch);
+        let config = Config::default();
+        source.apply(&config, checkout, false).await.unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&pkgbuild).unwrap(),
+            original.replace(" remove\n", "")
+        );
+        std::fs::write(&pkgbuild, original).unwrap();
+        let error = source.apply(&config, checkout, true).await.unwrap_err();
+        assert!(
+            error.to_string().contains("matches in both directions"),
+            "{error}"
+        );
+        assert_eq!(std::fs::read_to_string(pkgbuild).unwrap(), original);
+    }
+
+    #[tokio::test]
+    async fn pkgbuild_patch_applies_to_the_nested_checkout_and_can_be_reused() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = tmp.path().join("repo");
+        let checkout = repo.join("pkg");
+        std::fs::create_dir_all(&checkout).unwrap();
+        assert!(
+            std::process::Command::new("git")
+                .args(["init", "-q"])
+                .arg(&repo)
+                .status()
+                .unwrap()
+                .success()
+        );
+        let original = "pkgname=fixture\npkgrel=1\n";
+        let pkgbuild = checkout.join("PKGBUILD");
+        std::fs::write(&pkgbuild, original).unwrap();
+        std::fs::write(repo.join("PKGBUILD"), original).unwrap();
+        let patch = tmp.path().join("bump.patch");
+        std::fs::write(
+            &patch,
+            "diff --git a/PKGBUILD b/PKGBUILD\n--- a/PKGBUILD\n+++ b/PKGBUILD\n\
+             @@ -1,2 +1,2 @@\n pkgname=fixture\n-pkgrel=1\n+pkgrel=2\n",
+        )
+        .unwrap();
+        let source = PatchSource::Path(patch);
+        let config = Config::default();
+        for _ in 0..2 {
+            source.apply(&config, &checkout, true).await.unwrap();
+            assert_eq!(
+                std::fs::read_to_string(&pkgbuild).unwrap(),
+                "pkgname=fixture\npkgrel=2\n"
+            );
+            assert_eq!(
+                std::fs::read_to_string(repo.join("PKGBUILD")).unwrap(),
+                original
+            );
+        }
+        let conflicting = "pkgname=fixture\npkgrel=3\n";
+        std::fs::write(&pkgbuild, conflicting).unwrap();
+        assert!(source.apply(&config, &checkout, true).await.is_err());
+        assert_eq!(std::fs::read_to_string(pkgbuild).unwrap(), conflicting);
+    }
 
     fn parse_overrides(input: &str) -> Config {
         let mut config = Config::default();

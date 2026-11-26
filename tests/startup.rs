@@ -1819,6 +1819,104 @@ fn config_environment_reaches_help_before_threads_start() {
     );
 }
 
+fn override_build_command(dir: &Path, options: &str, overrides: &str) -> Command {
+    let pacman_conf = pacman_conf(dir);
+    for name in ["fixture", "other"] {
+        let recipe = dir.join(name);
+        fs::create_dir(&recipe).unwrap();
+        fs::write(
+            recipe.join("PKGBUILD"),
+            format!("pkgname={name}\npkgrel=1\n"),
+        )
+        .unwrap();
+        fs::write(
+            recipe.join(".SRCINFO"),
+            format!(
+                "pkgbase = {name}\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = {name}\n"
+            ),
+        )
+        .unwrap();
+    }
+    let record = "{ printf '%s' \"${0##*/}:${PWD##*/}\"; for arg do printf ' [%s]' \"$arg\"; done; printf '\\n'; } >> \"$PARU_TEST_CAPTURE\"";
+    let package = "name=${PWD##*/}\nrel=$(sed -n 's/^pkgrel=//p' PKGBUILD)\nfile=$name-1-$rel-any.pkg.tar.zst";
+    let makepkg = script(
+        dir,
+        "makepkg",
+        &format!(
+            "{record}\n{package}\ncase \" $* \" in\n\
+             *' --packagelist '*) printf '%s/%s\\n' \"${{PKGDEST:-$PWD}}\" \"$file\";;\n\
+             *' -feA '*) touch \"${{PKGDEST:-$PWD}}/$file\";;\nesac"
+        ),
+    );
+    script(
+        dir,
+        "makechrootpkg",
+        &format!(
+            "{record}\n{package}\ncase \" $* \" in *' -feA '*) touch \"$PKGDEST/$file\";; esac"
+        ),
+    );
+    script(dir, "arch-nspawn", "exit 0");
+    let sudo = script(
+        dir,
+        "sudo",
+        &format!(
+            "case \"$1\" in arch-nspawn) {record}\nexit 0;; cp|-v) exit 0;; esac\nexec \"$@\""
+        ),
+    );
+    let pacman = script(
+        dir,
+        "pacman",
+        "for arg do case \"$arg\" in *.pkg.tar.zst) test -f \"$arg\"; exit 78;; esac; done",
+    );
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[options]\nSkipReview\n{options}\n\
+             [bin]\nPacmanConf = {1}\nMakepkg = {2}\nPacman = {3}\nSudo = {4}\n\
+             [fixture]\nPath = {0}/fixture\n[other]\nPath = {0}/other\n\
+             [override.package.fixture]\n{overrides}\n",
+            dir.display(),
+            pacman_conf.display(),
+            makepkg.display(),
+            pacman.display(),
+            sudo.display(),
+        ),
+    )
+    .unwrap();
+    let path = std::env::join_paths(std::iter::once(dir.to_path_buf()).chain(
+        std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()),
+    ))
+    .unwrap();
+    let mut cmd = command(dir);
+    cmd.env("PATH", path)
+        .env_remove("PKGDEST")
+        .env_remove("MAKEPKG_CONF")
+        .args(["-S", "--pkgbuilds", "--noconfirm", "--config"])
+        .arg(dir.join("pacman.conf"));
+    cmd
+}
+
+#[test]
+fn relative_pkgbuild_patch_is_applied_in_the_package_checkout() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let mut cmd = override_build_command(dir, "", "PkgbuildPatches = { \"bump.patch\" }");
+    let original = "pkgname=fixture\npkgrel=1\n";
+    fs::write(dir.join("PKGBUILD"), original).unwrap();
+    fs::write(
+        dir.join("bump.patch"),
+        "--- a/PKGBUILD\n+++ b/PKGBUILD\n@@ -1,2 +1,2 @@\n pkgname=fixture\n-pkgrel=1\n+pkgrel=2\n",
+    )
+    .unwrap();
+    let result = output(cmd.arg("fixture/fixture"));
+    assert_eq!(
+        fs::read_to_string(dir.join("fixture/PKGBUILD")).unwrap(),
+        "pkgname=fixture\npkgrel=2\n",
+        "{result:?}"
+    );
+    assert_eq!(fs::read_to_string(dir.join("PKGBUILD")).unwrap(), original);
+}
+
 #[test]
 fn chroot_builds_use_the_package_list_destination() {
     for destination in ["absolute", "relative", "default", "extra-output", "mixed"] {

@@ -521,7 +521,6 @@ impl Installer {
         base: &mut Base,
         repo: Option<(&str, &str)>,
         dir: &Path,
-        cwd: &Path,
     ) -> Result<(HashMap<String, String>, String)> {
         let pkgdest = repo.map(|r| r.1);
 
@@ -532,7 +531,9 @@ impl Installer {
         let saved_env = config.env.clone();
 
         if let Some(ref ov) = pkg_override {
-            apply_patches(config, cwd, &ov.pkgbuild_patches).await?;
+            // RATIONALE: AUR checkouts are reset during download; custom recipes can retain edits.
+            let persistent = matches!(base, Base::Pkgbuild(_));
+            apply_patches(config, dir, &ov.pkgbuild_patches, persistent).await?;
 
             if let Some(ref conf) = ov.makepkg_conf {
                 config.makepkg_conf = Some(conf.clone());
@@ -751,7 +752,6 @@ impl Installer {
         config: &mut Config,
         base: &mut Base,
         repo: Option<(&str, &str)>,
-        cwd: &Path,
     ) -> Result<()> {
         let dir = match base {
             Base::Aur(_) => config.build_dir.join(base.package_base()),
@@ -829,7 +829,7 @@ impl Installer {
         }
 
         let (mut pkgdest, version) = if build {
-            self.build_pkgbuild(config, base, repo, &dir, cwd).await?
+            self.build_pkgbuild(config, base, repo, &dir).await?
         } else {
             printtr!("{}: parsing pkg list...", base);
             let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
@@ -885,7 +885,6 @@ impl Installer {
         &mut self,
         config: &mut Config,
         build: &mut [Base],
-        cwd: &Path,
     ) -> Result<()> {
         if config.devel {
             printtr!("fetching devel info...");
@@ -918,7 +917,7 @@ impl Installer {
                 .as_ref()
                 .map(|(name, file)| (name.as_str(), file.as_str()));
 
-            let err = self.build_install_pkgbuild(config, base, repo_server, cwd);
+            let err = self.build_install_pkgbuild(config, base, repo_server);
 
             match err.await {
                 Ok(_) => {
@@ -985,8 +984,7 @@ impl Installer {
             config.pkgbuild_repos.refresh(config)?;
             self.done_something = true;
         }
-        let cwd = std::env::current_dir()?;
-        self.resolve_targets(config, &repo_targets, &aur_targets, &cwd)
+        self.resolve_targets(config, &repo_targets, &aur_targets)
             .await
     }
 
@@ -995,7 +993,6 @@ impl Installer {
         config: &mut Config,
         repo_targets: &[Targ<'a>],
         aur_targets: &[Targ<'a>],
-        cwd: &Path,
     ) -> Result<()> {
         if (config.mode.aur() || config.mode.pkgbuild())
             && (self.sysupgrade != 0 || !aur_targets.is_empty())
@@ -1091,7 +1088,7 @@ impl Installer {
         let mut err = Ok(());
 
         if !build.is_empty() {
-            err = self.build_install_pkgbuilds(config, &mut build, cwd).await;
+            err = self.build_install_pkgbuilds(config, &mut build).await;
         }
 
         if err.is_ok() && config.chroot {
@@ -1315,9 +1312,14 @@ impl Installer {
     }
 }
 
-async fn apply_patches(config: &Config, dir: &Path, patches: &[PatchSource]) -> Result<()> {
+async fn apply_patches(
+    config: &Config,
+    dir: &Path,
+    patches: &[PatchSource],
+    allow_already_applied: bool,
+) -> Result<()> {
     for patch in patches {
-        patch.apply(config, dir).await?;
+        patch.apply(config, dir, allow_already_applied).await?;
     }
     Ok(())
 }
