@@ -221,6 +221,14 @@ fn new_makepkg<S: AsRef<OsStr>>(
         cmd.env("PKGDEST", dest);
     }
     cmd.args(&config.mflags).args(args).current_dir(dir);
+    // RATIONALE: makepkg applies these after loading its configuration.
+    cmd.args(
+        config
+            .makepkg_overrides
+            .iter()
+            .filter(|(key, _)| pkgdest.is_none() || key != "PKGDEST")
+            .map(|(key, value)| format!("{key}={value}")),
+    );
     cmd
 }
 
@@ -254,4 +262,37 @@ pub fn makepkg_output<S: AsRef<OsStr>>(config: &Config, dir: &Path, args: &[S]) 
 
 pub fn has_command(name: &str) -> bool {
     Command::new(name).arg("--version").output().is_ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::makepkg_output_dest;
+    use crate::config::Config;
+    use std::path::Path;
+
+    #[test]
+    fn makepkg_overrides_are_literal_arguments() {
+        let key = "PARU_TEST_MAKEPKG_OVERRIDE";
+        let inherited = std::env::var_os(key);
+        let mut config = Config::default();
+        config.makepkg_bin = "/bin/sh".into();
+        config.makepkg_overrides = vec![
+            (key.into(), "".into()),
+            ("CFLAGS".into(), "-O3 -march=native".into()),
+            ("LDFLAGS".into(), "-Wl,--as-needed".into()),
+            ("PKGDEST".into(), "/override".into()),
+        ];
+        let output = makepkg_output_dest(
+            &config,
+            Path::new("."),
+            &["-c", "printf '%s\\n' \"$PKGDEST\" \"$@\"", "sh"],
+            Some("/repo"),
+        )
+        .unwrap();
+        assert_eq!(
+            output.stdout,
+            b"/repo\nPARU_TEST_MAKEPKG_OVERRIDE=\nCFLAGS=-O3 -march=native\nLDFLAGS=-Wl,--as-needed\n"
+        );
+        assert_eq!(std::env::var_os(key), inherited);
+    }
 }

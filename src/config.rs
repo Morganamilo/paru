@@ -4,15 +4,17 @@ use crate::exec::{self, Status};
 use crate::fmt::color_repo;
 use crate::info::get_terminal_width;
 use crate::pkgbuild::PkgbuildRepos;
-use crate::util::{get_provider, reopen_stdin};
+use crate::util::{get_provider, reopen_stdin, split_by_comma};
 use crate::{alpm_debug_enabled, help, printtr, repo};
 
+use std::collections::HashMap;
 use std::env::consts::ARCH;
 use std::env::var;
 use std::fmt;
 use std::fs::{OpenOptions, remove_file};
 use std::io::{BufRead, IsTerminal, stderr, stdin, stdout};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::str::FromStr;
 
 use alpm::{
@@ -25,6 +27,7 @@ use anyhow::{Context, Error, Result, anyhow, bail, ensure};
 use bitflags::bitflags;
 use cini::{Callback, CallbackKind, Ini};
 use globset::{Glob, GlobSet, GlobSetBuilder};
+use reqwest::get;
 use tr::tr;
 use url::Url;
 
@@ -395,6 +398,140 @@ impl ConfigEnum for YesNoAllTree {
     ];
 }
 
+#[derive(Debug, Clone)]
+pub enum PatchSource {
+    Path(PathBuf),
+    Url(Url),
+}
+
+impl PatchSource {
+    pub async fn apply(
+        &self,
+        config: &Config,
+        dir: &Path,
+        allow_already_applied: bool,
+    ) -> Result<()> {
+        match self {
+            PatchSource::Path(path) => {
+                git_apply(
+                    config,
+                    dir,
+                    &std::path::absolute(path)?,
+                    allow_already_applied,
+                )?;
+            }
+            PatchSource::Url(url) => {
+                let bytes = get(url.clone())
+                    .await
+                    .with_context(|| tr!("Failed to download patch from {}", url))?
+                    .error_for_status()
+                    .with_context(|| tr!("Failed to download patch from {}", url))?
+                    .bytes()
+                    .await?;
+
+                // tempfile for patch.
+                let mut temp = tempfile::NamedTempFile::new()?;
+                use std::io::Write;
+                temp.write_all(&bytes)?;
+
+                git_apply(
+                    config,
+                    dir,
+                    &std::path::absolute(temp.path())?,
+                    allow_already_applied,
+                )?;
+            } // tempfile cleaned up safely by drop.
+        }
+
+        Ok(())
+    }
+}
+
+fn git_apply(config: &Config, dir: &Path, patch: &Path, allow_already_applied: bool) -> Result<()> {
+    let dir = dir.canonicalize()?;
+    let apply = || {
+        let mut cmd = Command::new(&config.git_bin);
+        cmd.arg("apply").current_dir(&dir);
+        if let Some(parent) = dir.parent() {
+            // RATIONALE: A package nested in a repo must still be the root for patch paths.
+            cmd.env("GIT_CEILING_DIRECTORIES", parent);
+        }
+        cmd
+    };
+
+    // HAZARD: On persistent checkouts a reverse match in another hunk location is possible.
+    if allow_already_applied
+        && exec::command_output(apply().args(["--reverse", "--check", "--"]).arg(patch)).is_ok()
+    {
+        ensure!(
+            exec::command_output(apply().args(["--check", "--"]).arg(patch)).is_err(),
+            tr!(
+                "patch '{}' matches in both directions; use more context to identify the change",
+                patch.display()
+            )
+        );
+        printtr!("patch '{}' is already applied", patch.display());
+        return Ok(());
+    }
+
+    exec::command(apply().args(["-v", "--"]).arg(patch))
+        .with_context(|| tr!("failed to apply patch '{}'", patch.display()))
+}
+
+impl FromStr for PatchSource {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        if let Ok(url) = Url::parse(s) {
+            Ok(PatchSource::Url(url))
+        } else {
+            Ok(PatchSource::Path(PathBuf::from(s)))
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PackageOverride {
+    pub makepkg_conf: Option<String>,
+    pub env: Vec<(String, String)>,
+    pub pkgbuild_patches: Vec<PatchSource>,
+}
+
+impl PackageOverride {
+    pub(crate) fn merge_from(&mut self, src: &PackageOverride) {
+        if src.makepkg_conf.is_some() {
+            self.makepkg_conf = src.makepkg_conf.clone();
+        }
+
+        for (k, v) in &src.env {
+            if let Some(existing) = self.env.iter_mut().find(|(ek, _)| ek == k) {
+                existing.1 = v.clone();
+            } else {
+                self.env.push((k.clone(), v.clone()));
+            }
+        }
+
+        self.pkgbuild_patches
+            .extend(src.pkgbuild_patches.iter().cloned());
+    }
+}
+
+#[derive(Debug)]
+enum OverrideParseState {
+    Package {
+        name: String,
+        makepkg_conf: Option<String>,
+        env: Vec<(String, String)>,
+        pkgbuild_patches: Vec<PatchSource>,
+    },
+    Group {
+        name: String,
+        packages: Vec<String>,
+        makepkg_conf: Option<String>,
+        env: Vec<(String, String)>,
+    },
+}
+
 #[derive(SmartDefault, Debug)]
 pub struct Config {
     section: Option<String>,
@@ -547,6 +684,13 @@ pub struct Config {
 
     pub env: Vec<(String, String)>,
 
+    // Per-base makepkg assignments; empty outside the build.
+    pub makepkg_overrides: Vec<(String, String)>,
+
+    package_overrides: HashMap<String, PackageOverride>,
+    group_overrides: HashMap<String, PackageOverride>,
+    override_parse_state: Option<OverrideParseState>,
+
     //pacman
     pub db_path: Option<String>,
     pub root: Option<String>,
@@ -573,15 +717,41 @@ impl Ini for Config {
     fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
         let err = match cb.kind {
             CallbackKind::Section(section) => {
+                self.finalize_override()?;
                 self.section = Some(section.to_string());
                 if !matches!(section, "options" | "bin" | "env")
                     && self.pkgbuild_repos.repo(section).is_none()
                 {
-                    if matches!(section, "local" | "aur" | "pkg" | "base") || section.contains('.')
-                    {
+                    if matches!(section, "local" | "aur" | "pkg" | "base") {
                         bail!(tr!("section can not be called {}", section));
                     }
-                    self.pkgbuild_repos.add_repo(section.to_string());
+                    if let Some(rest) = section.strip_prefix("override.package.") {
+                        ensure!(
+                            !rest.is_empty(),
+                            tr!("override.package section requires a package name")
+                        );
+                        self.override_parse_state = Some(OverrideParseState::Package {
+                            name: rest.to_string(),
+                            makepkg_conf: None,
+                            env: Vec::new(),
+                            pkgbuild_patches: Vec::new(),
+                        });
+                    } else if let Some(rest) = section.strip_prefix("override.group.") {
+                        ensure!(
+                            !rest.is_empty(),
+                            tr!("override.group section requires a group name")
+                        );
+                        self.override_parse_state = Some(OverrideParseState::Group {
+                            name: rest.to_string(),
+                            packages: Vec::new(),
+                            makepkg_conf: None,
+                            env: Vec::new(),
+                        });
+                    } else if section.contains('.') {
+                        bail!(tr!("section can not be called {}", section));
+                    } else {
+                        self.pkgbuild_repos.add_repo(section.to_string());
+                    }
                 }
                 Ok(())
             }
@@ -697,6 +867,8 @@ impl Config {
     }
 
     pub fn parse_args<S: AsRef<str>, I: IntoIterator<Item = S>>(&mut self, iter: I) -> Result<()> {
+        self.finalize_override()?;
+
         let iter = iter.into_iter();
         let mut iter = iter.peekable();
         let mut op_count = 0;
@@ -994,6 +1166,10 @@ then initialise it with:
 
         let section = section.to_string();
 
+        if section.starts_with("override.") {
+            return self.parse_override_directive(key, value);
+        }
+
         match section.as_str() {
             "options" => self.parse_option(key, value),
             "bin" => self.parse_bin(key, value),
@@ -1200,6 +1376,145 @@ then initialise it with:
         Ok(())
     }
 
+    fn parse_override_directive(&mut self, key: &str, value: Option<&str>) -> Result<()> {
+        let state = self
+            .override_parse_state
+            .as_mut()
+            .context("override directive outside of override section")?;
+
+        match key {
+            "MakepkgConf" => {
+                let value = value
+                    .context(tr!("value can not be empty for key '{}'", key))?
+                    .to_string();
+                match state {
+                    OverrideParseState::Package { makepkg_conf, .. }
+                    | OverrideParseState::Group { makepkg_conf, .. } => {
+                        *makepkg_conf = Some(value);
+                    }
+                }
+            }
+            "Packages" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                match state {
+                    OverrideParseState::Package { .. } => {
+                        bail!(tr!(
+                            "'Packages' is not valid in [override.package.*] sections"
+                        ));
+                    }
+                    OverrideParseState::Group { packages, .. } => {
+                        packages.extend(value.split_whitespace().map(|s| s.to_string()));
+                    }
+                }
+            }
+            "Overrides" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                let parsed = parse_overrides_map(value)?;
+                match state {
+                    OverrideParseState::Package { env, .. }
+                    | OverrideParseState::Group { env, .. } => {
+                        env.extend(parsed);
+                    }
+                }
+            }
+            "PkgbuildPatches" => {
+                let value = value.context(tr!("value can not be empty for key '{}'", key))?;
+                let parsed = parse_patches_list(value)?;
+                match state {
+                    OverrideParseState::Package {
+                        pkgbuild_patches, ..
+                    } => {
+                        pkgbuild_patches.extend(parsed);
+                    }
+                    OverrideParseState::Group { .. } => {
+                        bail!(tr!(
+                            "'PkgbuildPatches' is not valid in [override.group.*] sections"
+                        ));
+                    }
+                }
+            }
+            _ => eprintln!(
+                "{}",
+                tr!("error: unknown option '{}' in override section", key)
+            ),
+        }
+
+        Ok(())
+    }
+
+    fn finalize_override(&mut self) -> Result<()> {
+        let state = match self.override_parse_state.take() {
+            Some(s) => s,
+            None => return Ok(()),
+        };
+
+        match state {
+            OverrideParseState::Package {
+                name,
+                makepkg_conf,
+                env,
+                pkgbuild_patches,
+            } => {
+                ensure!(
+                    makepkg_conf.is_some() || !env.is_empty() || !pkgbuild_patches.is_empty(),
+                    tr!(
+                        "override.package.{} must have MakepkgConf, Overrides or PkgbuildPatches",
+                        name
+                    )
+                );
+                self.package_overrides.insert(
+                    name,
+                    PackageOverride {
+                        makepkg_conf,
+                        env,
+                        pkgbuild_patches,
+                    },
+                );
+            }
+            OverrideParseState::Group {
+                name,
+                packages,
+                makepkg_conf,
+                env,
+            } => {
+                ensure!(
+                    !packages.is_empty(),
+                    tr!("override.group.{} must have a Packages directive", name)
+                );
+                ensure!(
+                    makepkg_conf.is_some() || !env.is_empty(),
+                    tr!("override.group.{} must have MakepkgConf or Overrides", name)
+                );
+                let group = PackageOverride {
+                    makepkg_conf,
+                    env,
+                    pkgbuild_patches: Vec::new(),
+                };
+                for pkg in packages {
+                    self.group_overrides
+                        .entry(pkg)
+                        .or_default()
+                        .merge_from(&group);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// CONTRACT: Merge group matches before name-specific matches, in package order within each.
+    pub fn override_for(&self, pkgs: &[&str]) -> Option<PackageOverride> {
+        let mut matches = [&self.group_overrides, &self.package_overrides]
+            .into_iter()
+            .flat_map(|overrides| pkgs.iter().filter_map(|name| overrides.get(*name)));
+        let mut result = PackageOverride::default();
+        result.merge_from(matches.next()?);
+        for next in matches {
+            result.merge_from(next);
+        }
+        Some(result)
+    }
+
     pub fn aur_namespace(&self) -> &'static str {
         if self.pacman.repos.iter().any(|r| r.name == "aur") {
             // hack for search install
@@ -1208,6 +1523,85 @@ then initialise it with:
             "aur"
         }
     }
+}
+
+fn parse_overrides_map(input: &str) -> Result<Vec<(String, String)>> {
+    let input = input.trim();
+    let inner = input
+        .strip_prefix('{')
+        .and_then(|s| s.strip_suffix('}'))
+        .context(tr!("Overrides value must be wrapped in { }"))?
+        .trim();
+
+    if inner.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let mut result = Vec::new();
+    let pairs = split_by_comma(inner);
+
+    for pair in &pairs {
+        let pair = pair.trim();
+        if pair.is_empty() {
+            continue;
+        }
+        let (key, value) = pair
+            .split_once('=')
+            .context(tr!("invalid override entry, expected KEY = value"))?;
+        let key = key.trim().to_string();
+        let value = value.trim();
+        let value = value
+            .strip_prefix('"')
+            .and_then(|s| s.strip_suffix('"'))
+            .unwrap_or(value)
+            .to_string();
+
+        ensure!(!key.is_empty(), tr!("override key can not be empty"));
+        ensure!(
+            !key.as_bytes()[0].is_ascii_digit()
+                && key
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_'),
+            tr!("override key '{}' must be a shell variable name", key)
+        );
+        ensure!(
+            !value.contains('\0'),
+            tr!("override value can not contain null bytes")
+        );
+
+        result.push((key, value));
+    }
+
+    Ok(result)
+}
+
+fn parse_patches_list(input: &str) -> Result<Vec<PatchSource>> {
+    let input = input.trim();
+    let inner = input
+        .strip_prefix('{')
+        .and_then(|s| s.strip_suffix('}'))
+        .context(tr!("PkgbuildPatches value must be wrapped in { }"))?
+        .trim();
+
+    if inner.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let parts = split_by_comma(inner);
+
+    let mut result = Vec::new();
+    for part in parts {
+        let value = part
+            .strip_prefix('"')
+            .and_then(|s| s.strip_suffix('"'))
+            .unwrap_or(part.as_str())
+            .to_string();
+
+        ensure!(!value.is_empty(), tr!("Patch source can not be empty"));
+        result.push(value.parse()?);
+    }
+
+    Ok(result)
 }
 
 pub fn version() {
@@ -1359,8 +1753,142 @@ mod sort_tests {
 
 #[cfg(test)]
 mod tests {
-    use super::{Config, parse_release_age};
+    use super::{Config, PatchSource, parse_overrides_map, parse_release_age};
+    use cini::Ini;
     use globset::{Glob, GlobSetBuilder};
+
+    #[tokio::test]
+    async fn repeated_hunk_context_does_not_make_a_fresh_patch_look_applied() {
+        let tmp = tempfile::tempdir().unwrap();
+        let checkout = tmp.path();
+        let pkgbuild = checkout.join("PKGBUILD");
+        let original = "package_a() {\n first\n second\n third\n fourth\n fifth\n sixth\n}\n\n\
+                        package_b() {\n first\n second\n third\n remove\n fourth\n fifth\n sixth\n}\n";
+        std::fs::write(&pkgbuild, original).unwrap();
+        let patch = checkout.join("remove.patch");
+        std::fs::write(
+            &patch,
+            "diff --git a/PKGBUILD b/PKGBUILD\n--- a/PKGBUILD\n+++ b/PKGBUILD\n@@ -11,7 +11,6 @@\n  first\n  second\n  third\n- remove\n  fourth\n  fifth\n  sixth\n",
+        )
+        .unwrap();
+        let source = PatchSource::Path(patch);
+        let config = Config::default();
+        source.apply(&config, checkout, false).await.unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&pkgbuild).unwrap(),
+            original.replace(" remove\n", "")
+        );
+        std::fs::write(&pkgbuild, original).unwrap();
+        let error = source.apply(&config, checkout, true).await.unwrap_err();
+        assert!(
+            error.to_string().contains("matches in both directions"),
+            "{error}"
+        );
+        assert_eq!(std::fs::read_to_string(pkgbuild).unwrap(), original);
+    }
+
+    #[tokio::test]
+    async fn pkgbuild_patch_applies_to_the_nested_checkout_and_can_be_reused() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo = tmp.path().join("repo");
+        let checkout = repo.join("pkg");
+        std::fs::create_dir_all(&checkout).unwrap();
+        assert!(
+            std::process::Command::new("git")
+                .args(["init", "-q"])
+                .arg(&repo)
+                .status()
+                .unwrap()
+                .success()
+        );
+        let original = "pkgname=fixture\npkgrel=1\n";
+        let pkgbuild = checkout.join("PKGBUILD");
+        std::fs::write(&pkgbuild, original).unwrap();
+        std::fs::write(repo.join("PKGBUILD"), original).unwrap();
+        let patch = tmp.path().join("bump.patch");
+        std::fs::write(
+            &patch,
+            "diff --git a/PKGBUILD b/PKGBUILD\n--- a/PKGBUILD\n+++ b/PKGBUILD\n\
+             @@ -1,2 +1,2 @@\n pkgname=fixture\n-pkgrel=1\n+pkgrel=2\n",
+        )
+        .unwrap();
+        let source = PatchSource::Path(patch);
+        let config = Config::default();
+        for _ in 0..2 {
+            source.apply(&config, &checkout, true).await.unwrap();
+            assert_eq!(
+                std::fs::read_to_string(&pkgbuild).unwrap(),
+                "pkgname=fixture\npkgrel=2\n"
+            );
+            assert_eq!(
+                std::fs::read_to_string(repo.join("PKGBUILD")).unwrap(),
+                original
+            );
+        }
+        let conflicting = "pkgname=fixture\npkgrel=3\n";
+        std::fs::write(&pkgbuild, conflicting).unwrap();
+        assert!(source.apply(&config, &checkout, true).await.is_err());
+        assert_eq!(std::fs::read_to_string(pkgbuild).unwrap(), conflicting);
+    }
+
+    fn parse_overrides(input: &str) -> Config {
+        let mut config = Config::default();
+        config.parse(None, input).unwrap();
+        config.finalize_override().unwrap();
+        config
+    }
+
+    #[test]
+    fn package_override_wins_in_either_section_order() {
+        let group = "[override.group.g]\nPackages = foo\nMakepkgConf = /group.conf\n\
+                     Overrides = { A = grp, B = grp }\n";
+        for conf in ["", "MakepkgConf = /package.conf\n"] {
+            let package = format!("[override.package.foo]\nOverrides = {{ A = pkg }}\n{conf}");
+            for input in [format!("{package}{group}"), format!("{group}{package}")] {
+                let ov = parse_overrides(&input).override_for(&["foo"]).unwrap();
+                assert_eq!(
+                    ov.makepkg_conf.as_deref(),
+                    Some(if conf.is_empty() {
+                        "/group.conf"
+                    } else {
+                        "/package.conf"
+                    }),
+                    "{input}"
+                );
+                assert_eq!(
+                    ov.env,
+                    [("A".into(), "pkg".into()), ("B".into(), "grp".into())],
+                    "{input}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn later_group_overrides_conflicts_without_dropping_other_settings() {
+        let config = parse_overrides(
+            "[override.group.one]\nPackages = foo\nMakepkgConf = /one.conf\n\
+             Overrides = { A = one, B = one }\n\
+             [override.group.two]\nPackages = foo\nOverrides = { A = two }\n",
+        );
+        let ov = config.override_for(&["foo"]).unwrap();
+        assert_eq!(ov.makepkg_conf.as_deref(), Some("/one.conf"));
+        assert_eq!(
+            ov.env,
+            [("A".into(), "two".into()), ("B".into(), "one".into())]
+        );
+    }
+
+    #[test]
+    fn split_base_applies_groups_before_packages() {
+        let config = parse_overrides(
+            "[override.package.a]\nOverrides = { X = pkg }\n\
+             [override.group.g]\nPackages = b\nOverrides = { X = grp }\n",
+        );
+        let ov = config.override_for(&["a", "b"]).unwrap();
+        assert_eq!(ov.env, [("X".into(), "pkg".into())]);
+        assert!(config.override_for(&["unknown"]).is_none());
+    }
 
     #[test]
     fn release_age_units() {
@@ -1418,5 +1946,64 @@ mod tests {
         assert!(!config.is_too_new("pkg-git", 100, 100, 60));
         assert!(!config.is_too_new("trusted-pkg", 100, 100, 60));
         assert!(config.is_too_new("pkg", 100, 100, 60));
+    }
+
+    #[test]
+    fn test_parse_overrides_map_comma_in_quoted_value() {
+        let result = parse_overrides_map(r#"{ LDFLAGS = "-Wl,--as-needed" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![("LDFLAGS".to_string(), "-Wl,--as-needed".to_string())]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_comma_in_quoted_value_multiple() {
+        let result =
+            parse_overrides_map(r#"{ LDFLAGS = "-Wl,--as-needed", CFLAGS = "-O2" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![
+                ("LDFLAGS".to_string(), "-Wl,--as-needed".to_string()),
+                ("CFLAGS".to_string(), "-O2".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_basic() {
+        let result = parse_overrides_map(r#"{ CFLAGS = "-O3", MAKEFLAGS = "-j8" }"#).unwrap();
+        assert_eq!(
+            result,
+            vec![
+                ("CFLAGS".to_string(), "-O3".to_string()),
+                ("MAKEFLAGS".to_string(), "-j8".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_overrides_map_empty() {
+        let result = parse_overrides_map("{ }").unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn override_keys_must_be_shell_variable_names() {
+        for key in ["1FLAGS", "MY-FLAGS", "MY FLAGS", ""] {
+            assert!(
+                parse_overrides_map(&format!("{{ {key} = value }}")).is_err(),
+                "{key:?}"
+            );
+        }
+        let assignments =
+            parse_overrides_map(r#"{ _FLAGS1 = "", LDFLAGS = "-Wl,--as-needed" }"#).unwrap();
+        assert_eq!(
+            assignments,
+            [
+                ("_FLAGS1".into(), "".into()),
+                ("LDFLAGS".into(), "-Wl,--as-needed".into())
+            ]
+        );
     }
 }

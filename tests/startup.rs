@@ -1819,6 +1819,242 @@ fn config_environment_reaches_help_before_threads_start() {
     );
 }
 
+fn override_build_command(dir: &Path, options: &str, overrides: &str) -> Command {
+    let pacman_conf = pacman_conf(dir);
+    for name in ["fixture", "other"] {
+        let recipe = dir.join(name);
+        fs::create_dir(&recipe).unwrap();
+        fs::write(
+            recipe.join("PKGBUILD"),
+            format!("pkgname={name}\npkgrel=1\n"),
+        )
+        .unwrap();
+        fs::write(
+            recipe.join(".SRCINFO"),
+            format!(
+                "pkgbase = {name}\n\tpkgver = 1\n\tpkgrel = 1\n\tarch = any\npkgname = {name}\n"
+            ),
+        )
+        .unwrap();
+    }
+    let record = "{ printf '%s' \"${0##*/}:${PWD##*/}\"; for arg do printf ' [%s]' \"$arg\"; done; printf '\\n'; } >> \"$PARU_TEST_CAPTURE\"";
+    let package = "name=${PWD##*/}\nrel=$(sed -n 's/^pkgrel=//p' PKGBUILD)\nfile=$name-1-$rel-any.pkg.tar.zst";
+    let makepkg = script(
+        dir,
+        "makepkg",
+        &format!(
+            "{record}\n{package}\ncase \" $* \" in\n\
+             *' --packagelist '*) printf '%s/%s\\n' \"${{PKGDEST:-$PWD}}\" \"$file\";;\n\
+             *' -feA '*) touch \"${{PKGDEST:-$PWD}}/$file\";;\nesac"
+        ),
+    );
+    script(
+        dir,
+        "makechrootpkg",
+        &format!(
+            "{record}\n{package}\ncase \" $* \" in *' -feA '*) touch \"$PKGDEST/$file\";; esac"
+        ),
+    );
+    script(dir, "arch-nspawn", "exit 0");
+    let sudo = script(
+        dir,
+        "sudo",
+        &format!(
+            "case \"$1\" in\n\
+               arch-nspawn) {record}\n\
+                 case \"$*\" in *'/override.conf '*' true') exit \"${{PARU_TEST_SYNC_STATUS:-0}}\";; esac\n\
+                 exit 0;;\n\
+               cp|-v) exit 0;;\n\
+             esac\nexec \"$@\""
+        ),
+    );
+    let pacman = script(
+        dir,
+        "pacman",
+        "for arg do case \"$arg\" in *.pkg.tar.zst) test -f \"$arg\"; exit 78;; esac; done",
+    );
+    fs::write(
+        dir.join("paru.conf"),
+        format!(
+            "[options]\nSkipReview\n{options}\n\
+             [bin]\nPacmanConf = {1}\nMakepkg = {2}\nPacman = {3}\nSudo = {4}\n\
+             [fixture]\nPath = {0}/fixture\n[other]\nPath = {0}/other\n\
+             [override.package.fixture]\n{overrides}\n",
+            dir.display(),
+            pacman_conf.display(),
+            makepkg.display(),
+            pacman.display(),
+            sudo.display(),
+        ),
+    )
+    .unwrap();
+    let path = std::env::join_paths(std::iter::once(dir.to_path_buf()).chain(
+        std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()),
+    ))
+    .unwrap();
+    let mut cmd = command(dir);
+    cmd.env("PATH", path)
+        .env_remove("PKGDEST")
+        .env_remove("MAKEPKG_CONF")
+        .args(["-S", "--pkgbuilds", "--noconfirm", "--config"])
+        .arg(dir.join("pacman.conf"));
+    cmd
+}
+
+#[test]
+fn relative_pkgbuild_patch_is_applied_in_the_package_checkout() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let mut cmd = override_build_command(dir, "", "PkgbuildPatches = { \"bump.patch\" }");
+    let original = "pkgname=fixture\npkgrel=1\n";
+    fs::write(dir.join("PKGBUILD"), original).unwrap();
+    fs::write(
+        dir.join("bump.patch"),
+        "--- a/PKGBUILD\n+++ b/PKGBUILD\n@@ -1,2 +1,2 @@\n pkgname=fixture\n-pkgrel=1\n+pkgrel=2\n",
+    )
+    .unwrap();
+    let result = output(cmd.arg("fixture/fixture"));
+    assert_eq!(
+        fs::read_to_string(dir.join("fixture/PKGBUILD")).unwrap(),
+        "pkgname=fixture\npkgrel=2\n",
+        "{result:?}"
+    );
+    assert_eq!(fs::read_to_string(dir.join("PKGBUILD")).unwrap(), original);
+}
+
+#[test]
+fn package_overrides_are_passed_to_makepkg_as_arguments() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let mut cmd = override_build_command(
+        dir,
+        "BatchInstall",
+        "Overrides = { CFLAGS = \"-O3 -march=native\" }",
+    );
+    let result = output(cmd.args(["fixture/fixture", "other/other"]));
+    let capture =
+        fs::read_to_string(dir.join("capture")).unwrap_or_else(|err| panic!("{err}: {result:?}"));
+    for (name, expected) in [("fixture", true), ("other", false)] {
+        let prefix = format!("makepkg:{name} ");
+        let lines = capture
+            .lines()
+            .filter(|line| line.starts_with(&prefix))
+            .collect::<Vec<_>>();
+        assert_eq!(lines.len(), 4, "{capture}\n{result:?}");
+        for (line, phase) in lines
+            .iter()
+            .zip(["--verifysource", "-ofA", "--packagelist", "-feA"])
+        {
+            assert!(line.contains(&format!("[{phase}]")), "{line}");
+            assert_eq!(
+                line.ends_with(" [CFLAGS=-O3 -march=native]"),
+                expected,
+                "{line}"
+            );
+        }
+    }
+}
+
+#[test]
+fn chroot_build_copy_receives_the_package_makepkg_conf() {
+    for (extra_pkgs, sync_fails) in [(false, false), (true, false), (false, true)] {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path();
+        fs::create_dir_all(dir.join("chroot/root")).unwrap();
+        let override_conf = dir.join("override.conf");
+        let global_conf = dir.join("global.conf");
+        fs::write(&override_conf, "CFLAGS=-O2\n").unwrap();
+        fs::write(&global_conf, "CFLAGS=-O1\n").unwrap();
+        let mut cmd = override_build_command(
+            dir,
+            &format!(
+                "Chroot = {0}/chroot\nMakepkgConf = {0}/global.conf",
+                dir.display()
+            ),
+            &format!(
+                "MakepkgConf = {}\nOverrides = {{ CFLAGS = \"-O3\" }}",
+                override_conf.display()
+            ),
+        );
+        cmd.arg("fixture/fixture");
+        if extra_pkgs {
+            cmd.args(["--chrootpkgs", "extra"]);
+        }
+        if sync_fails {
+            cmd.args(["--nofailfast", "other/other"])
+                .env("PARU_TEST_SYNC_STATUS", "42");
+        }
+        let result = output(&mut cmd);
+        let capture = fs::read_to_string(dir.join("capture"))
+            .unwrap_or_else(|err| panic!("{err}: {result:?}"));
+        let lines: Vec<_> = capture.lines().collect();
+        let at = |prefix: &str, marker: &str| {
+            lines
+                .iter()
+                .position(|line| line.starts_with(prefix) && line.contains(marker))
+                .unwrap_or_else(|| panic!("missing {prefix} … {marker}: {capture}\n{result:?}"))
+        };
+        let prepare = at("makechrootpkg:fixture", "[-ofA]");
+        let sync_marker = format!("[-M] [{}]", override_conf.display());
+        let sync = at("sudo:", &sync_marker);
+        assert!(prepare < sync, "{capture}");
+        assert_eq!(
+            lines
+                .iter()
+                .filter(|line| line.contains(&sync_marker))
+                .count(),
+            1,
+            "{capture}"
+        );
+        assert!(
+            lines[sync].contains("/chroot/") && !lines[sync].contains("/chroot/root]"),
+            "{capture}"
+        );
+        assert!(
+            lines[sync].ends_with(if extra_pkgs { "[extra]" } else { "[true]" }),
+            "{capture}"
+        );
+        assert!(
+            lines[prepare].ends_with("[--] [-ofA] [CFLAGS=-O3]"),
+            "{capture}"
+        );
+        if sync_fails {
+            assert!(
+                lines.iter().all(|line| !line.starts_with("makepkg:fixture")
+                    && !(line.starts_with("makechrootpkg:fixture") && line.contains("[-feA]"))),
+                "{capture}"
+            );
+            let other = at("makepkg:other", "[--packagelist]");
+            assert!(sync < other, "{capture}");
+            assert!(
+                lines[other].contains(&format!("[--config] [{}]", global_conf.display())),
+                "{capture}"
+            );
+            assert!(!lines[other].contains("[CFLAGS=-O3]"), "{capture}");
+            assert_eq!(
+                lines
+                    .iter()
+                    .filter(|line| line.starts_with("sudo:"))
+                    .count(),
+                2,
+                "{capture}"
+            );
+        } else {
+            let list = at("makepkg:fixture", "[--packagelist]");
+            let build = at("makechrootpkg:fixture", "[-feA]");
+            assert!(sync < list && list < build, "{capture}");
+            assert!(
+                lines[list].contains(&format!("[--config] [{}]", override_conf.display())),
+                "{capture}"
+            );
+            assert!(
+                lines[build].contains("[--] [-feA]") && lines[build].ends_with("[CFLAGS=-O3]"),
+                "{capture}"
+            );
+        }
+    }
+}
+
 #[test]
 fn chroot_builds_use_the_package_list_destination() {
     for destination in ["absolute", "relative", "default", "extra-output", "mixed"] {

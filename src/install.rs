@@ -13,7 +13,7 @@ use crate::args::{Arg, Args};
 use crate::chroot::Chroot;
 use crate::clean::clean_untracked;
 use crate::completion::update_aur_cache;
-use crate::config::{Config, LocalRepos, Mode, Op, Sign, YesNoAllTree, YesNoAsk};
+use crate::config::{Config, LocalRepos, Mode, Op, PatchSource, Sign, YesNoAllTree, YesNoAsk};
 use crate::devel::{DevelInfo, fetch_devel_info, load_devel_info, save_devel_info};
 use crate::download::{self, Bases};
 use crate::exec::{command_status, has_command};
@@ -515,17 +515,63 @@ impl Installer {
     }
 
     // TODO: sort out args
-    fn build_pkgbuild(
+    async fn build_pkgbuild(
         &mut self,
         config: &mut Config,
         base: &mut Base,
         repo: Option<(&str, &str)>,
         dir: &Path,
     ) -> Result<(HashMap<String, String>, String)> {
-        let c = config.color;
         let pkgdest = repo.map(|r| r.1);
 
+        // Apply per-package overrides
+        let pkg_override = config.override_for(&base.packages().collect::<Vec<_>>());
+        if let Some(ov) = &pkg_override {
+            // RATIONALE: AUR checkouts are reset during download; custom recipes can retain edits.
+            let persistent = matches!(base, Base::Pkgbuild(_));
+            apply_patches(config, dir, &ov.pkgbuild_patches, persistent).await?;
+        }
+
+        let saved_makepkg_conf = config.makepkg_conf.clone();
+        let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
+        let saved_overrides = std::mem::take(&mut config.makepkg_overrides);
+        let mut sync_chroot_conf = false;
+
+        if let Some(ov) = pkg_override {
+            if let Some(conf) = ov.makepkg_conf {
+                config.makepkg_conf = Some(conf.clone());
+                if config.chroot {
+                    self.chroot.makepkg_conf = conf;
+                    sync_chroot_conf = true;
+                }
+            }
+            config.makepkg_overrides = ov.env;
+        }
+
+        let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest, sync_chroot_conf);
+
+        // Restore original config
+        config.makepkg_conf = saved_makepkg_conf;
+        self.chroot.makepkg_conf = saved_chroot_makepkg_conf;
+        config.makepkg_overrides = saved_overrides;
+
+        result
+    }
+
+    fn build_pkgbuild_inner(
+        &mut self,
+        config: &mut Config,
+        base: &mut Base,
+        repo: Option<(&str, &str)>,
+        dir: &Path,
+        pkgdest: Option<&str>,
+        sync_chroot_conf: bool,
+    ) -> Result<(HashMap<String, String>, String)> {
+        let c = config.color;
+        let mut chroot_env = Vec::new();
+
         if config.chroot {
+            chroot_env.extend(config.env.iter().chain(&config.makepkg_overrides).cloned());
             let mut extra = Vec::new();
             if config.repos == LocalRepos::None {
                 extra.extend(self.built.iter().map(|s| s.as_str()));
@@ -534,13 +580,17 @@ impl Installer {
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
             self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+                .build(dir, &extra, &chroot_flags, &["-ofA"], &chroot_env)
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
                 let mut pkgs = vec!["pacman", "-S", "--asdeps", "--needed", "--noconfirm", "--"];
                 pkgs.extend(self.chroot.extra_pkgs.iter().map(|s| s.as_str()));
                 self.chroot.run_usr(&pkgs)?;
+            } else if sync_chroot_conf {
+                // RATIONALE: The clean prepare pass copied the root's config. Install
+                // the override in the build copy, as run_usr does for extra packages.
+                self.chroot.run_usr(&["true"])?;
             }
         } else {
             // download sources
@@ -586,8 +636,7 @@ impl Installer {
                     "{}",
                     tr!("package list contains different output directories")
                 );
-                let mut env = config.env.clone();
-                env.push((
+                chroot_env.push((
                     "PKGDEST".to_string(),
                     output_dir
                         .to_str()
@@ -604,7 +653,7 @@ impl Installer {
                         &extra,
                         &config.chroot_flags,
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                        &env,
+                        &chroot_env,
                     )
                     .with_context(|| tr!("failed to build '{}'", base))?;
             } else {
@@ -707,7 +756,7 @@ impl Installer {
         Ok(())
     }
 
-    fn build_install_pkgbuild(
+    async fn build_install_pkgbuild(
         &mut self,
         config: &mut Config,
         base: &mut Base,
@@ -789,7 +838,7 @@ impl Installer {
         }
 
         let (mut pkgdest, version) = if build {
-            self.build_pkgbuild(config, base, repo, &dir)?
+            self.build_pkgbuild(config, base, repo, &dir).await?
         } else {
             printtr!("{}: parsing pkg list...", base);
             let (pkgdests, version) = parse_package_list(config, &dir, pkgdest)?;
@@ -879,7 +928,7 @@ impl Installer {
 
             let err = self.build_install_pkgbuild(config, base, repo_server);
 
-            match err {
+            match err.await {
                 Ok(_) => {
                     self.failed.pop().unwrap();
                 }
@@ -1001,7 +1050,7 @@ impl Installer {
 
         targets.extend(self.upgrades.repo_keep.iter().map(Targ::from));
 
-        if self.shoud_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
+        if self.should_just_pacman(config.mode, aur_targets, &self.upgrades, self.ran_pacman) {
             print_warnings(config, &cache, None);
             let mut args = config.pacman_args();
             let targets = targets.iter().map(|t| t.to_string()).collect::<Vec<_>>();
@@ -1064,7 +1113,7 @@ impl Installer {
         err
     }
 
-    fn shoud_just_pacman(
+    fn should_just_pacman(
         &self,
         mode: Mode,
         aur_targets: &[Targ<'_>],
@@ -1270,6 +1319,18 @@ impl Installer {
     fn upgrade_later(&self, config: &Config) -> bool {
         config.mode.repo() && config.chroot && (self.sysupgrade != 0 || self.refresh != 0)
     }
+}
+
+async fn apply_patches(
+    config: &Config,
+    dir: &Path,
+    patches: &[PatchSource],
+    allow_already_applied: bool,
+) -> Result<()> {
+    for patch in patches {
+        patch.apply(config, dir, allow_already_applied).await?;
+    }
+    Ok(())
 }
 
 fn is_debug(pkg: &alpm::Package) -> bool {
