@@ -681,7 +681,7 @@ pub async fn show_pkgbuilds(config: &mut Config) -> Result<i32> {
         for base in &bases.bases {
             let base = base.package_base();
             let url = config.aur_url.join("cgit/aur.git/plain/PKGBUILD").unwrap();
-            let url = Url::parse_with_params(url.as_str(), &[("h", base)]).unwrap();
+            let url = Url::parse_with_params(url.as_str(), [("h", base)]).unwrap();
 
             let response = client
                 .get(url.clone())
