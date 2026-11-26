@@ -526,23 +526,24 @@ impl Installer {
 
         // Apply per-package overrides
         let pkg_override = config.override_for(&base.packages().collect::<Vec<_>>());
-        let saved_makepkg_conf = config.makepkg_conf.clone();
-        let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
-        let saved_env = config.env.clone();
-
-        if let Some(ref ov) = pkg_override {
+        if let Some(ov) = &pkg_override {
             // RATIONALE: AUR checkouts are reset during download; custom recipes can retain edits.
             let persistent = matches!(base, Base::Pkgbuild(_));
             apply_patches(config, dir, &ov.pkgbuild_patches, persistent).await?;
+        }
 
-            if let Some(ref conf) = ov.makepkg_conf {
+        let saved_makepkg_conf = config.makepkg_conf.clone();
+        let saved_chroot_makepkg_conf = self.chroot.makepkg_conf.clone();
+        let saved_overrides = std::mem::take(&mut config.makepkg_overrides);
+
+        if let Some(ov) = pkg_override {
+            if let Some(conf) = ov.makepkg_conf {
                 config.makepkg_conf = Some(conf.clone());
                 if config.chroot {
-                    self.chroot.makepkg_conf = conf.clone();
+                    self.chroot.makepkg_conf = conf;
                 }
             }
-            // Keep overrides local to child commands; Tokio may already have threads running.
-            config.env.extend(ov.env.iter().cloned());
+            config.makepkg_overrides = ov.env;
         }
 
         let result = self.build_pkgbuild_inner(config, base, repo, dir, pkgdest);
@@ -550,7 +551,7 @@ impl Installer {
         // Restore original config
         config.makepkg_conf = saved_makepkg_conf;
         self.chroot.makepkg_conf = saved_chroot_makepkg_conf;
-        config.env = saved_env;
+        config.makepkg_overrides = saved_overrides;
 
         result
     }
@@ -564,8 +565,10 @@ impl Installer {
         pkgdest: Option<&str>,
     ) -> Result<(HashMap<String, String>, String)> {
         let c = config.color;
+        let mut chroot_env = Vec::new();
 
         if config.chroot {
+            chroot_env.extend(config.env.iter().chain(&config.makepkg_overrides).cloned());
             let mut extra = Vec::new();
             if config.repos == LocalRepos::None {
                 extra.extend(self.built.iter().map(|s| s.as_str()));
@@ -574,7 +577,7 @@ impl Installer {
                 config.chroot_flags.iter().map(|s| s.as_str()).collect();
             chroot_flags.push("-cu");
             self.chroot
-                .build(dir, &extra, &chroot_flags, &["-ofA"], &config.env)
+                .build(dir, &extra, &chroot_flags, &["-ofA"], &chroot_env)
                 .with_context(|| tr!("failed to download sources for '{}'", base))?;
 
             if !self.chroot.extra_pkgs.is_empty() {
@@ -626,8 +629,7 @@ impl Installer {
                     "{}",
                     tr!("package list contains different output directories")
                 );
-                let mut env = config.env.clone();
-                env.push((
+                chroot_env.push((
                     "PKGDEST".to_string(),
                     output_dir
                         .to_str()
@@ -644,7 +646,7 @@ impl Installer {
                         &extra,
                         &config.chroot_flags,
                         &["-feA", "--noconfirm", "--noprepare", "--holdver"],
-                        &env,
+                        &chroot_env,
                     )
                     .with_context(|| tr!("failed to build '{}'", base))?;
             } else {

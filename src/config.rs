@@ -684,6 +684,9 @@ pub struct Config {
 
     pub env: Vec<(String, String)>,
 
+    // Per-base makepkg assignments; empty outside the build.
+    pub makepkg_overrides: Vec<(String, String)>,
+
     package_overrides: HashMap<String, PackageOverride>,
     group_overrides: HashMap<String, PackageOverride>,
     override_parse_state: Option<OverrideParseState>,
@@ -1555,8 +1558,11 @@ fn parse_overrides_map(input: &str) -> Result<Vec<(String, String)>> {
 
         ensure!(!key.is_empty(), tr!("override key can not be empty"));
         ensure!(
-            !key.contains('\0'),
-            tr!("override key can not contain null bytes")
+            !key.as_bytes()[0].is_ascii_digit()
+                && key
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_'),
+            tr!("override key '{}' must be a shell variable name", key)
         );
         ensure!(
             !value.contains('\0'),
@@ -1980,5 +1986,24 @@ mod tests {
     fn test_parse_overrides_map_empty() {
         let result = parse_overrides_map("{ }").unwrap();
         assert!(result.is_empty());
+    }
+
+    #[test]
+    fn override_keys_must_be_shell_variable_names() {
+        for key in ["1FLAGS", "MY-FLAGS", "MY FLAGS", ""] {
+            assert!(
+                parse_overrides_map(&format!("{{ {key} = value }}")).is_err(),
+                "{key:?}"
+            );
+        }
+        let assignments =
+            parse_overrides_map(r#"{ _FLAGS1 = "", LDFLAGS = "-Wl,--as-needed" }"#).unwrap();
+        assert_eq!(
+            assignments,
+            [
+                ("_FLAGS1".into(), "".into()),
+                ("LDFLAGS".into(), "-Wl,--as-needed".into())
+            ]
+        );
     }
 }

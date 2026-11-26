@@ -1918,6 +1918,39 @@ fn relative_pkgbuild_patch_is_applied_in_the_package_checkout() {
 }
 
 #[test]
+fn package_overrides_are_passed_to_makepkg_as_arguments() {
+    let tmp = tempfile::tempdir().unwrap();
+    let dir = tmp.path();
+    let mut cmd = override_build_command(
+        dir,
+        "BatchInstall",
+        "Overrides = { CFLAGS = \"-O3 -march=native\" }",
+    );
+    let result = output(cmd.args(["fixture/fixture", "other/other"]));
+    let capture =
+        fs::read_to_string(dir.join("capture")).unwrap_or_else(|err| panic!("{err}: {result:?}"));
+    for (name, expected) in [("fixture", true), ("other", false)] {
+        let prefix = format!("makepkg:{name} ");
+        let lines = capture
+            .lines()
+            .filter(|line| line.starts_with(&prefix))
+            .collect::<Vec<_>>();
+        assert_eq!(lines.len(), 4, "{capture}\n{result:?}");
+        for (line, phase) in lines
+            .iter()
+            .zip(["--verifysource", "-ofA", "--packagelist", "-feA"])
+        {
+            assert!(line.contains(&format!("[{phase}]")), "{line}");
+            assert_eq!(
+                line.ends_with(" [CFLAGS=-O3 -march=native]"),
+                expected,
+                "{line}"
+            );
+        }
+    }
+}
+
+#[test]
 fn chroot_builds_use_the_package_list_destination() {
     for destination in ["absolute", "relative", "default", "extra-output", "mixed"] {
         let tmp = tempfile::tempdir().unwrap();

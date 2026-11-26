@@ -214,10 +214,6 @@ fn new_makepkg<S: AsRef<OsStr>>(
     pkgdest: Option<&str>,
 ) -> Command {
     let mut cmd = Command::new(&config.makepkg_bin);
-    cmd.envs(config.env.iter().map(|(key, value)| (key, value)));
-    if config.chroot {
-        cmd.env_remove("PKGEXT");
-    }
     if let Some(mconf) = &config.makepkg_conf {
         cmd.arg("--config").arg(mconf);
     }
@@ -225,6 +221,14 @@ fn new_makepkg<S: AsRef<OsStr>>(
         cmd.env("PKGDEST", dest);
     }
     cmd.args(&config.mflags).args(args).current_dir(dir);
+    // RATIONALE: makepkg applies these after loading its configuration.
+    cmd.args(
+        config
+            .makepkg_overrides
+            .iter()
+            .filter(|(key, _)| pkgdest.is_none() || key != "PKGDEST")
+            .map(|(key, value)| format!("{key}={value}")),
+    );
     cmd
 }
 
@@ -262,25 +266,33 @@ pub fn has_command(name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::makepkg_output;
+    use super::makepkg_output_dest;
     use crate::config::Config;
     use std::path::Path;
 
     #[test]
-    fn makepkg_overrides_reach_child_without_changing_parent_environment() {
+    fn makepkg_overrides_are_literal_arguments() {
         let key = "PARU_TEST_MAKEPKG_OVERRIDE";
         let inherited = std::env::var_os(key);
         let mut config = Config::default();
         config.makepkg_bin = "/bin/sh".into();
-        config.env = vec![(key.into(), "package-specific".into())];
-        let output = makepkg_output(
+        config.makepkg_overrides = vec![
+            (key.into(), "".into()),
+            ("CFLAGS".into(), "-O3 -march=native".into()),
+            ("LDFLAGS".into(), "-Wl,--as-needed".into()),
+            ("PKGDEST".into(), "/override".into()),
+        ];
+        let output = makepkg_output_dest(
             &config,
             Path::new("."),
-            &["-c", "printf '%s' \"$PARU_TEST_MAKEPKG_OVERRIDE\""],
+            &["-c", "printf '%s\\n' \"$PKGDEST\" \"$@\"", "sh"],
+            Some("/repo"),
         )
         .unwrap();
-        assert!(output.status.success());
-        assert_eq!(output.stdout, b"package-specific");
+        assert_eq!(
+            output.stdout,
+            b"/repo\nPARU_TEST_MAKEPKG_OVERRIDE=\nCFLAGS=-O3 -march=native\nLDFLAGS=-Wl,--as-needed\n"
+        );
         assert_eq!(std::env::var_os(key), inherited);
     }
 }
